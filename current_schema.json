@@ -1,0 +1,1127 @@
+{
+  "tables": [
+    {
+      "table_name": "circuit_airports",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('circuit_airports_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_airports",
+      "column_name": "circuit_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_airports",
+      "column_name": "code",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_airports",
+      "column_name": "name",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_airports",
+      "column_name": "distance",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_airports",
+      "column_name": "transfer_time",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_airports",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_airports",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_attractions",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('circuit_attractions_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_attractions",
+      "column_name": "circuit_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_attractions",
+      "column_name": "name",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_attractions",
+      "column_name": "description",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_attractions",
+      "column_name": "type",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_attractions",
+      "column_name": "distance",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_attractions",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_attractions",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_info",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('circuit_info_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_info",
+      "column_name": "circuit_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_info",
+      "column_name": "length",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_info",
+      "column_name": "corners",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_info",
+      "column_name": "drs_zones",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_info",
+      "column_name": "lap_record_time",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_info",
+      "column_name": "lap_record_driver",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_info",
+      "column_name": "lap_record_year",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_info",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_info",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_transport",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('circuit_transport_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_transport",
+      "column_name": "circuit_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_transport",
+      "column_name": "type",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_transport",
+      "column_name": "description",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuit_transport",
+      "column_name": "frequency",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_transport",
+      "column_name": "price_range",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_transport",
+      "column_name": "booking_url",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_transport",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuit_transport",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuits",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('circuits_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuits",
+      "column_name": "name",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuits",
+      "column_name": "country",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuits",
+      "column_name": "city",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "circuits",
+      "column_name": "latitude",
+      "data_type": "numeric",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuits",
+      "column_name": "longitude",
+      "data_type": "numeric",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuits",
+      "column_name": "description",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuits",
+      "column_name": "track_map_url",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuits",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuits",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "circuits",
+      "column_name": "updated_by",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "package_tickets",
+      "column_name": "package_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "package_tickets",
+      "column_name": "ticket_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "package_tickets",
+      "column_name": "quantity",
+      "data_type": "integer",
+      "column_default": "1",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "package_tickets",
+      "column_name": "discount_percentage",
+      "data_type": "numeric",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "profiles",
+      "column_name": "user_id",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "profiles",
+      "column_name": "membership",
+      "data_type": "USER-DEFINED",
+      "column_default": "'free'::membership",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "profiles",
+      "column_name": "stripe_customer_id",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "profiles",
+      "column_name": "stripe_subscription_id",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "profiles",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "profiles",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_results",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('race_results_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_results",
+      "column_name": "race_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_results",
+      "column_name": "winner",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_results",
+      "column_name": "fastest_lap",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_results",
+      "column_name": "fastest_lap_time",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_results",
+      "column_name": "total_laps",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_results",
+      "column_name": "podium",
+      "data_type": "jsonb",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_results",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_results",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_results",
+      "column_name": "updated_by",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_sessions",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('race_sessions_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_sessions",
+      "column_name": "race_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_sessions",
+      "column_name": "type",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_sessions",
+      "column_name": "start_time",
+      "data_type": "timestamp without time zone",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_sessions",
+      "column_name": "end_time",
+      "data_type": "timestamp without time zone",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_sessions",
+      "column_name": "status",
+      "data_type": "text",
+      "column_default": "'scheduled'::text",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_sessions",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_sessions",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_supporting_series",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('race_supporting_series_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_supporting_series",
+      "column_name": "race_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_supporting_series",
+      "column_name": "series_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_supporting_series",
+      "column_name": "round",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_supporting_series",
+      "column_name": "schedule",
+      "data_type": "jsonb",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_supporting_series",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_supporting_series",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_weather",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('race_weather_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_weather",
+      "column_name": "race_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "race_weather",
+      "column_name": "session_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_weather",
+      "column_name": "air_temperature",
+      "data_type": "numeric",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_weather",
+      "column_name": "track_temperature",
+      "data_type": "numeric",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_weather",
+      "column_name": "humidity",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_weather",
+      "column_name": "wind_speed",
+      "data_type": "numeric",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_weather",
+      "column_name": "wind_direction",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_weather",
+      "column_name": "precipitation_chance",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_weather",
+      "column_name": "conditions",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "race_weather",
+      "column_name": "recorded_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "races",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('races_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "races",
+      "column_name": "circuit_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "races",
+      "column_name": "name",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "races",
+      "column_name": "season",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "races",
+      "column_name": "date",
+      "data_type": "timestamp without time zone",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "races",
+      "column_name": "weekend_start",
+      "data_type": "timestamp without time zone",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "races",
+      "column_name": "weekend_end",
+      "data_type": "timestamp without time zone",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "races",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "column_default": "'upcoming'::race_status",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "races",
+      "column_name": "is_sprint_weekend",
+      "data_type": "boolean",
+      "column_default": "false",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "races",
+      "column_name": "slug",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "races",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "races",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "races",
+      "column_name": "updated_by",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "saved_itineraries",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('saved_itineraries_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "saved_itineraries",
+      "column_name": "user_id",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "saved_itineraries",
+      "column_name": "race_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "saved_itineraries",
+      "column_name": "itinerary",
+      "data_type": "jsonb",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "saved_itineraries",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "saved_itineraries",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "supporting_series",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('supporting_series_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "supporting_series",
+      "column_name": "name",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "supporting_series",
+      "column_name": "description",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "supporting_series",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "ticket_feature_mappings",
+      "column_name": "ticket_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "ticket_feature_mappings",
+      "column_name": "feature_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "ticket_features",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('ticket_features_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "ticket_features",
+      "column_name": "name",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "ticket_features",
+      "column_name": "description",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "ticket_packages",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('ticket_packages_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "ticket_packages",
+      "column_name": "name",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "ticket_packages",
+      "column_name": "description",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "ticket_packages",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "ticket_pricing",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('ticket_pricing_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "ticket_pricing",
+      "column_name": "ticket_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "ticket_pricing",
+      "column_name": "price",
+      "data_type": "numeric",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "ticket_pricing",
+      "column_name": "currency",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "ticket_pricing",
+      "column_name": "valid_from",
+      "data_type": "timestamp without time zone",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "ticket_pricing",
+      "column_name": "valid_to",
+      "data_type": "timestamp without time zone",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "ticket_pricing",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "ticket_pricing",
+      "column_name": "updated_by",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "id",
+      "data_type": "integer",
+      "column_default": "nextval('tickets_id_seq'::regclass)",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "race_id",
+      "data_type": "integer",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "title",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "description",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "ticket_type",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "availability",
+      "data_type": "USER-DEFINED",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "days_included",
+      "data_type": "jsonb",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "is_child_ticket",
+      "data_type": "boolean",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "reseller_url",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "tickets",
+      "column_name": "updated_by",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "todos",
+      "column_name": "id",
+      "data_type": "uuid",
+      "column_default": "gen_random_uuid()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "todos",
+      "column_name": "user_id",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "todos",
+      "column_name": "content",
+      "data_type": "text",
+      "column_default": null,
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "todos",
+      "column_name": "completed",
+      "data_type": "boolean",
+      "column_default": "false",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "todos",
+      "column_name": "created_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "todos",
+      "column_name": "updated_at",
+      "data_type": "timestamp without time zone",
+      "column_default": "now()",
+      "is_nullable": "NO"
+    }
+  ],
+  "enums": [
+    {
+      "enum_name": "membership",
+      "enum_value": "pro"
+    },
+    {
+      "enum_name": "membership",
+      "enum_value": "free"
+    },
+    {
+      "enum_name": "race_status",
+      "enum_value": "cancelled"
+    },
+    {
+      "enum_name": "race_status",
+      "enum_value": "completed"
+    },
+    {
+      "enum_name": "race_status",
+      "enum_value": "upcoming"
+    },
+    {
+      "enum_name": "race_status",
+      "enum_value": "live"
+    },
+    {
+      "enum_name": "ticket_availability",
+      "enum_value": "pending"
+    },
+    {
+      "enum_name": "ticket_availability",
+      "enum_value": "low_stock"
+    },
+    {
+      "enum_name": "ticket_availability",
+      "enum_value": "sold_out"
+    },
+    {
+      "enum_name": "ticket_availability",
+      "enum_value": "available"
+    }
+  ],
+  "sampleData": {
+    "circuit_airports": [],
+    "circuit_attractions": [],
+    "circuit_info": [],
+    "circuit_transport": [],
+    "circuits": [],
+    "package_tickets": [],
+    "profiles": [
+      {
+        "user_id": "user_2qf9oR94QeVLf8Wf4T0tPRljN3P",
+        "membership": "pro",
+        "stripe_customer_id": null,
+        "stripe_subscription_id": null,
+        "created_at": "2024-12-24 12:24:34.491224",
+        "updated_at": "2024-12-24 12:24:34.491224"
+      }
+    ],
+    "race_results": [],
+    "race_sessions": [],
+    "race_supporting_series": [],
+    "race_weather": [],
+    "races": [],
+    "saved_itineraries": [],
+    "supporting_series": [],
+    "ticket_feature_mappings": [],
+    "ticket_features": [],
+    "ticket_packages": [],
+    "ticket_pricing": [],
+    "tickets": [],
+    "todos": []
+  }
+}

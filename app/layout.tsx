@@ -23,8 +23,9 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Mckay's App Template",
-  description: "A full-stack web app template."
+  title: "Pit Lane Travel",
+  description:
+    "Your ultimate F1 travel planning platform. Book race tickets, accommodations, and experiences for Formula 1 events worldwide."
 }
 
 export default async function RootLayout({
@@ -35,9 +36,42 @@ export default async function RootLayout({
   const { userId } = await auth()
 
   if (userId) {
-    const profileRes = await getProfileByUserIdAction(userId)
-    if (!profileRes.isSuccess) {
-      await createProfileAction({ userId })
+    try {
+      console.log("[Layout] Checking profile for user:", userId)
+      const profileRes = await getProfileByUserIdAction(userId)
+
+      if (!profileRes.isSuccess) {
+        console.log("[Layout] Profile check result:", profileRes.message)
+
+        // Only create if get fails due to not found
+        if (profileRes.message === "Profile not found") {
+          console.log("[Layout] Creating new profile for user:", userId)
+          const createRes = await createProfileAction({ userId })
+
+          if (!createRes.isSuccess) {
+            console.error(
+              "[Layout] Failed to create profile:",
+              createRes.message
+            )
+            // Don't throw here, let the user continue even if profile creation fails
+          } else {
+            console.log("[Layout] Profile created successfully")
+          }
+        } else if (profileRes.message.includes("Database schema error")) {
+          console.error("[Layout] Database schema error detected")
+          // Don't throw here, let the user continue even if there are schema issues
+        }
+      } else {
+        console.log("[Layout] Existing profile found for user:", userId)
+      }
+    } catch (error) {
+      console.error("[Layout] Error handling profile:", error)
+      if (error instanceof Error) {
+        console.error("[Layout] Error name:", error.name)
+        console.error("[Layout] Error message:", error.message)
+        console.error("[Layout] Error stack:", error.stack)
+      }
+      // Don't throw here, let the user continue even if there are errors
     }
   }
 

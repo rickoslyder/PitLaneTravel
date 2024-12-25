@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -15,12 +15,20 @@
     "analyze": "ANALYZE=true npm run build",
     "db:generate": "npx drizzle-kit generate",
     "db:migrate": "npx drizzle-kit migrate",
-    "prepare": "husky install"
+    "db:migrate-data": "tsx scripts/migrate-data.ts",
+    "db:test": "tsx scripts/test-db.ts",
+    "db:schema": "tsx scripts/get-schema.ts",
+    "db:rename": "tsx scripts/rename-tables.ts",
+    "db:drop": "tsx scripts/drop-tables.ts",
+    "prepare": "husky install",
+    "db:push": "drizzle-kit push",
+    "supasync": "supabase db push && npx supabase gen types typescript --project-id \"vsszkzazjhvlecyryzon\" --schema public > types/database.ts && tsx scripts/append-types.ts"
   },
   "dependencies": {
     "@clerk/backend": "^1.20.1",
-    "@clerk/nextjs": "^6.8.1",
+    "@clerk/nextjs": "^6.9.6",
     "@clerk/themes": "^2.1.53",
+    "@duffel/api": "^4.0.0",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.4",
@@ -58,7 +66,7 @@
     "framer-motion": "^11.11.8",
     "input-otp": "^1.4.1",
     "lucide-react": "^0.436.0",
-    "next": "^15.1.2",
+    "next": "^15.0.3",
     "next-themes": "^0.3.0",
     "postgres": "^3.4.4",
     "posthog-js": "^1.201.0",
@@ -89,6 +97,7 @@
     "husky": "^9.1.6",
     "postcss": "^8",
     "prettier": "^3.3.3",
+    "supabase": "^2.1.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

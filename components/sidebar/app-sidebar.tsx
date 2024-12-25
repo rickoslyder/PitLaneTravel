@@ -16,7 +16,16 @@ import {
   Map,
   PieChart,
   Settings2,
-  SquareTerminal
+  SquareTerminal,
+  Calendar,
+  Flag,
+  MapPin,
+  Package,
+  Star,
+  Ticket,
+  Trophy,
+  User,
+  Wallet
 } from "lucide-react"
 import * as React from "react"
 
@@ -35,76 +44,69 @@ import { TeamSwitcher } from "./team-switcher"
 // Sample data
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg"
+    name: "F1 Fan",
+    email: "fan@example.com",
+    avatar: "/avatars/default.jpg"
   },
   teams: [
     {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise"
+      name: "2024 Season",
+      logo: Trophy,
+      plan: "Active"
     },
     {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup"
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free"
+      name: "2023 Archive",
+      logo: Calendar,
+      plan: "Archive"
     }
   ],
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
+      title: "Races",
+      url: "/races",
+      icon: Flag,
       isActive: true,
       items: [
-        { title: "History", url: "#" },
-        { title: "Starred", url: "#" },
-        { title: "Settings", url: "#" }
+        { title: "Calendar", url: "/races" },
+        { title: "Map View", url: "/races/map" },
+        { title: "Compare", url: "/races/compare" }
       ]
     },
     {
-      title: "Models",
-      url: "#",
-      icon: Bot,
+      title: "Travel",
+      url: "/packages",
+      icon: Package,
       items: [
-        { title: "Genesis", url: "#" },
-        { title: "Explorer", url: "#" },
-        { title: "Quantum", url: "#" }
+        { title: "Packages", url: "/packages" },
+        { title: "Hotels", url: "/hotels" },
+        { title: "Transport", url: "/transport" }
       ]
     },
     {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
+      title: "Experiences",
+      url: "/experiences",
+      icon: Star,
       items: [
-        { title: "Introduction", url: "#" },
-        { title: "Get Started", url: "#" },
-        { title: "Tutorials", url: "#" },
-        { title: "Changelog", url: "#" }
+        { title: "Paddock Club", url: "/experiences/paddock-club" },
+        { title: "Team Garages", url: "/experiences/team-garages" },
+        { title: "Driver Meet", url: "/experiences/driver-meet" }
       ]
     },
     {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
+      title: "Account",
+      url: "/account",
+      icon: User,
       items: [
-        { title: "General", url: "#" },
-        { title: "Team", url: "#" },
-        { title: "Billing", url: "#" },
-        { title: "Limits", url: "#" }
+        { title: "Profile", url: "/account/profile" },
+        { title: "Bookings", url: "/account/bookings" },
+        { title: "Payments", url: "/account/payments" }
       ]
     }
   ],
   projects: [
-    { name: "Design Engineering", url: "#", icon: Frame },
-    { name: "Sales & Marketing", url: "#", icon: PieChart },
-    { name: "Travel", url: "#", icon: Map }
+    { name: "Saved Races", url: "/saved/races", icon: Flag },
+    { name: "Wishlist", url: "/saved/wishlist", icon: Star },
+    { name: "Past Trips", url: "/saved/trips", icon: MapPin }
   ]
 }
 

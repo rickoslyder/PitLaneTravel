@@ -4,6 +4,7 @@ This API route handles Stripe webhook events to manage subscription status chang
 </ai_context>
 */
 
+import { NextResponse } from "next/server"
 import {
   manageSubscriptionStatusChange,
   updateStripeCustomer
@@ -20,7 +21,7 @@ const relevantEvents = new Set([
 
 export async function POST(req: Request) {
   const body = await req.text()
-  const sig = (await headers()).get("Stripe-Signature") as string
+  const sig = (await headers()).get("stripe-signature") ?? ""
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
   let event: Stripe.Event
 
@@ -32,7 +33,10 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
   } catch (err: any) {
     console.error(`Webhook Error: ${err.message}`)
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 })
+    return NextResponse.json(
+      { error: `Webhook Error: ${err.message}` },
+      { status: 400 }
+    )
   }
 
   if (relevantEvents.has(event.type)) {
@@ -52,16 +56,14 @@ export async function POST(req: Request) {
       }
     } catch (error) {
       console.error("Webhook handler failed:", error)
-      return new Response(
-        "Webhook handler failed. View your nextjs function logs.",
-        {
-          status: 400
-        }
+      return NextResponse.json(
+        { error: "Webhook handler failed. View your nextjs function logs." },
+        { status: 400 }
       )
     }
   }
 
-  return new Response(JSON.stringify({ received: true }))
+  return NextResponse.json({ received: true })
 }
 
 async function handleSubscriptionChange(event: Stripe.Event) {
