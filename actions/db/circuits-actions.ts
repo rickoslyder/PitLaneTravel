@@ -5,8 +5,8 @@ import {
   InsertCircuit,
   SelectCircuit,
   circuitsTable,
-  InsertCircuitDetail,
-  SelectCircuitDetail,
+  InsertCircuitDetails,
+  SelectCircuitDetails,
   circuitDetailsTable,
   InsertAirport,
   SelectAirport,
@@ -101,8 +101,8 @@ export async function updateCircuitAction(
 
 // Circuit Details Actions
 export async function createCircuitDetailsAction(
-  data: InsertCircuitDetail
-): Promise<ActionState<SelectCircuitDetail>> {
+  data: InsertCircuitDetails
+): Promise<ActionState<SelectCircuitDetails>> {
   try {
     const [newDetails] = await db
       .insert(circuitDetailsTable)
@@ -121,7 +121,7 @@ export async function createCircuitDetailsAction(
 
 export async function getCircuitDetailsAction(
   circuitId: string
-): Promise<ActionState<SelectCircuitDetail>> {
+): Promise<ActionState<SelectCircuitDetails>> {
   try {
     const [details] = await db
       .select()

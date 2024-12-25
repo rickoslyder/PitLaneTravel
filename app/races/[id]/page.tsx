@@ -25,9 +25,7 @@ export default async function RaceDetailsRoute({
     ...raceData,
     circuit: raceData.circuit
       ? {
-          ...raceData.circuit,
-          createdAt: new Date(raceData.circuit.created_at),
-          updatedAt: new Date(raceData.circuit.updated_at)
+          ...raceData.circuit
         }
       : undefined,
     created_at: raceData.created_at,

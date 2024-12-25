@@ -203,27 +203,57 @@ export type Database = {
       }
       local_attractions: {
         Row: {
+          booking_required: boolean | null
           circuit_id: string
           created_at: string
           description: string
+          distance_from_circuit: number | null
+          distance_from_city: number | null
+          estimated_duration: string | null
+          f1_relevance: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           name: string
+          peak_times: Json | null
+          price_range: string | null
+          recommended_times: string[] | null
           updated_at: string
         }
         Insert: {
+          booking_required?: boolean | null
           circuit_id: string
           created_at?: string
           description: string
+          distance_from_circuit?: number | null
+          distance_from_city?: number | null
+          estimated_duration?: string | null
+          f1_relevance?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name: string
+          peak_times?: Json | null
+          price_range?: string | null
+          recommended_times?: string[] | null
           updated_at?: string
         }
         Update: {
+          booking_required?: boolean | null
           circuit_id?: string
           created_at?: string
           description?: string
+          distance_from_circuit?: number | null
+          distance_from_city?: number | null
+          estimated_duration?: string | null
+          f1_relevance?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string
+          peak_times?: Json | null
+          price_range?: string | null
+          recommended_times?: string[] | null
           updated_at?: string
         }
         Relationships: [
@@ -389,6 +419,7 @@ export type Database = {
           country: string
           created_at: string
           date: string
+          description: string | null
           id: string
           is_sprint_weekend: boolean
           name: string
@@ -397,12 +428,15 @@ export type Database = {
           slug: string | null
           status: Database["public"]["Enums"]["race_status"]
           updated_at: string
+          weekend_end: string | null
+          weekend_start: string | null
         }
         Insert: {
           circuit_id: string
           country: string
           created_at?: string
           date: string
+          description?: string | null
           id?: string
           is_sprint_weekend?: boolean
           name: string
@@ -411,12 +445,15 @@ export type Database = {
           slug?: string | null
           status?: Database["public"]["Enums"]["race_status"]
           updated_at?: string
+          weekend_end?: string | null
+          weekend_start?: string | null
         }
         Update: {
           circuit_id?: string
           country?: string
           created_at?: string
           date?: string
+          description?: string | null
           id?: string
           is_sprint_weekend?: boolean
           name?: string
@@ -425,6 +462,8 @@ export type Database = {
           slug?: string | null
           status?: Database["public"]["Enums"]["race_status"]
           updated_at?: string
+          weekend_end?: string | null
+          weekend_start?: string | null
         }
         Relationships: [
           {
@@ -737,6 +776,47 @@ export type Database = {
             columns: ["race_id"]
             isOneToOne: false
             referencedRelation: "races"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      transport_info: {
+        Row: {
+          circuit_id: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          options: string[] | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          circuit_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          options?: string[] | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          circuit_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          options?: string[] | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transport_info_circuit_id_fkey"
+            columns: ["circuit_id"]
+            isOneToOne: false
+            referencedRelation: "circuits"
             referencedColumns: ["id"]
           }
         ]

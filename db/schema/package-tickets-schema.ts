@@ -4,17 +4,25 @@ Defines the database schema for package tickets.
 </ai_context>
 */
 
-import { pgTable, integer, numeric, primaryKey } from "drizzle-orm/pg-core"
+import {
+  numeric,
+  pgTable,
+  serial,
+  integer,
+  primaryKey
+} from "drizzle-orm/pg-core"
 import { ticketPackagesTable } from "./ticket-packages-schema"
 import { ticketsTable } from "./tickets-schema"
 
 export const packageTicketsTable = pgTable(
   "package_tickets",
   {
-    packageId: integer("package_id")
+    packageId: serial("package_id")
       .references(() => ticketPackagesTable.id)
       .notNull(),
-    ticketId: integer("ticket_id").notNull(),
+    ticketId: serial("ticket_id")
+      .references(() => ticketsTable.id)
+      .notNull(),
     quantity: integer("quantity").default(1).notNull(),
     discountPercentage: numeric("discount_percentage", {
       precision: 5,

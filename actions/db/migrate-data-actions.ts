@@ -227,7 +227,7 @@ export async function migrateDataAction(): Promise<ActionState<void>> {
         const [insertedRace] = await tx.insert(racesTable).values({
           circuitId,
           name: race.name,
-          date: new Date(race.date).toISOString(),
+          date: new Date(race.date),
           season,
           round: sql`${round}::integer`,
           country: race.country,

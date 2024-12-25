@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { Race } from "@/types/race"
+import { RaceWithDetails, LocalAttraction } from "@/types/race"
 import { useAuth } from "@clerk/nextjs"
 import { format } from "date-fns"
 import { CalendarIcon, Clock, MapPin, Plus, Star, Trash } from "lucide-react"
@@ -33,6 +33,7 @@ import {
   updateItineraryAction
 } from "@/actions/db/itinerary-actions"
 import { toast } from "sonner"
+import { Badge } from "@/components/ui/badge"
 
 interface Activity {
   id: string
@@ -70,7 +71,7 @@ interface SavedItinerary {
 }
 
 interface RaceItineraryProps {
-  race: Race
+  race: RaceWithDetails
 }
 
 export function RaceItinerary({ race }: RaceItineraryProps) {
@@ -302,7 +303,7 @@ export function RaceItinerary({ race }: RaceItineraryProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {race.local_attractions?.map(activity => (
+          {race.circuit?.local_attractions?.map((activity: LocalAttraction) => (
             <div
               key={activity.id}
               className={cn(
@@ -315,28 +316,55 @@ export function RaceItinerary({ race }: RaceItineraryProps) {
             >
               <div className="mb-2 flex items-start justify-between">
                 <h4 className="font-medium">{activity.name}</h4>
-                {activity.rating && (
-                  <div className="flex items-center text-yellow-500">
-                    <Star className="size-4 fill-current" />
-                    <span className="ml-1 text-sm">{activity.rating}</span>
+                {activity.price_range && (
+                  <div className="text-muted-foreground text-sm">
+                    {activity.price_range}
                   </div>
                 )}
               </div>
 
               <div className="text-muted-foreground space-y-2 text-sm">
-                {activity.distance && (
+                {activity.distance_from_circuit && (
                   <div className="flex items-center">
                     <MapPin className="mr-2 size-4" />
-                    {activity.distance}
+                    {activity.distance_from_circuit}km from circuit
                   </div>
                 )}
-                {activity.duration && (
+                {activity.estimated_duration && (
                   <div className="flex items-center">
                     <Clock className="mr-2 size-4" />
-                    {activity.duration}
+                    {activity.estimated_duration}
                   </div>
                 )}
                 {activity.description && <p>{activity.description}</p>}
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {activity.booking_required && (
+                    <Badge
+                      variant="outline"
+                      className="bg-yellow-500/10 text-yellow-500"
+                    >
+                      Booking Required
+                    </Badge>
+                  )}
+                  {activity.recommended_times?.map(
+                    (time: string, index: number) => (
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="bg-blue-500/10 text-blue-500"
+                      >
+                        {time}
+                      </Badge>
+                    )
+                  )}
+                </div>
+
+                {activity.f1_relevance && (
+                  <div className="bg-primary/10 mt-2 rounded-md p-2 text-xs">
+                    <strong>F1 Connection:</strong> {activity.f1_relevance}
+                  </div>
+                )}
               </div>
             </div>
           ))}

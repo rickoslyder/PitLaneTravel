@@ -1,230 +1,157 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select"
-import { DatePicker } from "@/components/ui/date-picker"
-import { Loader2, Plane } from "lucide-react"
-import { format } from "date-fns"
-import { Race } from "@/types/race"
+import { Loader2 } from "lucide-react"
+import { FlightSearchForm } from "./FlightSearchForm"
+import { FlightOffers } from "./FlightOffers"
+import { PassengerForm } from "./PassengerForm"
+import { BookingConfirmation } from "./BookingConfirmation"
+import { Airport, RaceWithDetails } from "@/types/race"
 
 interface FlightSearchProps {
-  race: Race
-  nearestAirports: Array<{
-    code: string
-    name: string
-    distance: string
-    transferTime: string
-  }>
+  race: RaceWithDetails
+  nearestAirports: Airport[]
 }
 
-interface FlightOffer {
-  id: string
-  total_amount: string
-  total_currency: string
-  departure: {
-    airport: string
-    time: string
-  }
-  arrival: {
-    airport: string
-    time: string
-  }
-  airline: {
-    name: string
-    logo_url?: string
-  }
-  duration: string
+interface FlightSearchState {
+  step: "search" | "passengers" | "confirmation"
+  selectedFlight: any | null
+  passengers: any[]
+  booking: any | null
 }
 
 export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
-  const [origin, setOrigin] = useState("")
-  const [destination, setDestination] = useState(nearestAirports[0]?.code || "")
-  const [departDate, setDepartDate] = useState<Date>()
-  const [returnDate, setReturnDate] = useState<Date>()
-  const [passengers, setPassengers] = useState("1")
-  const [isSearching, setIsSearching] = useState(false)
-  const [flightOffers, setFlightOffers] = useState<FlightOffer[]>([])
+  const [loading, setLoading] = useState(false)
+  const [flightOffers, setFlightOffers] = useState([])
+  const [state, setState] = useState<FlightSearchState>({
+    step: "search",
+    selectedFlight: null,
+    passengers: [],
+    booking: null
+  })
 
-  const handleSearch = async () => {
-    if (!origin || !destination || !departDate) return
-
-    setIsSearching(true)
+  const handleSearch = async (searchParams: {
+    origin: string
+    destination: string
+    departureDate: string
+    returnDate?: string
+    passengers: number
+  }) => {
     try {
+      setLoading(true)
       const response = await fetch("/api/flights/search", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          origin,
-          destination,
-          departure_date: format(departDate, "yyyy-MM-dd"),
-          return_date: returnDate
-            ? format(returnDate, "yyyy-MM-dd")
-            : undefined,
-          passengers: parseInt(passengers)
+          ...searchParams,
+          // If the destination is not provided, use the nearest airport's code
+          destination: searchParams.destination || nearestAirports[0]?.code
         })
       })
-
       const data = await response.json()
-      setFlightOffers(data.offers)
+      setFlightOffers(data.offers || [])
     } catch (error) {
       console.error("Error searching flights:", error)
     } finally {
-      setIsSearching(false)
+      setLoading(false)
     }
+  }
+
+  const handleFlightSelect = (flight: any) => {
+    setState(prev => ({
+      ...prev,
+      step: "passengers",
+      selectedFlight: flight
+    }))
+  }
+
+  const handlePassengerSubmit = async (passengers: any[]) => {
+    try {
+      setLoading(true)
+      const response = await fetch("/api/flights/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          offerId: state.selectedFlight.id,
+          passengers
+        })
+      })
+      const data = await response.json()
+
+      if (data.success) {
+        setState(prev => ({
+          ...prev,
+          step: "confirmation",
+          passengers,
+          booking: data.booking
+        }))
+      }
+    } catch (error) {
+      console.error("Error booking flight:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePassengerCancel = () => {
+    setState(prev => ({
+      ...prev,
+      step: "search",
+      selectedFlight: null
+    }))
+  }
+
+  const handleBookingDone = () => {
+    setState({
+      step: "search",
+      selectedFlight: null,
+      passengers: [],
+      booking: null
+    })
+    setFlightOffers([])
+  }
+
+  if (state.step === "passengers") {
+    return (
+      <PassengerForm
+        passengerCount={state.selectedFlight.passengers}
+        onSubmit={handlePassengerSubmit}
+        onCancel={handlePassengerCancel}
+      />
+    )
+  }
+
+  if (state.step === "confirmation" && state.booking) {
+    return (
+      <BookingConfirmation
+        flight={state.selectedFlight}
+        passengers={state.passengers}
+        onDone={handleBookingDone}
+      />
+    )
   }
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Search Flights</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="origin">From</Label>
-                <Input
-                  id="origin"
-                  placeholder="Enter airport code (e.g., LHR)"
-                  value={origin}
-                  onChange={e => setOrigin(e.target.value.toUpperCase())}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="destination">To</Label>
-                <Select value={destination} onValueChange={setDestination}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select airport" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {nearestAirports.map(airport => (
-                      <SelectItem key={airport.code} value={airport.code}>
-                        {airport.name} ({airport.code})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Departure Date</Label>
-                <DatePicker date={departDate} onDateChange={setDepartDate} />
-              </div>
-              <div className="space-y-2">
-                <Label>Return Date (Optional)</Label>
-                <DatePicker date={returnDate} onDateChange={setReturnDate} />
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="passengers">Passengers</Label>
-                <Select value={passengers} onValueChange={setPassengers}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[1, 2, 3, 4, 5, 6].map(num => (
-                      <SelectItem key={num} value={num.toString()}>
-                        {num} {num === 1 ? "passenger" : "passengers"}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Button
-              className="w-full"
-              onClick={handleSearch}
-              disabled={isSearching || !origin || !destination || !departDate}
-            >
-              {isSearching ? (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              ) : (
-                <Plane className="mr-2 size-4" />
-              )}
-              {isSearching ? "Searching..." : "Search Flights"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <FlightSearchForm
+        onSearch={handleSearch}
+        loading={loading}
+        nearestAirports={nearestAirports}
+        defaultDestination={nearestAirports[0]?.code}
+        race={race}
+      />
 
       {flightOffers.length > 0 && (
-        <div className="grid gap-4">
-          <h3 className="text-lg font-semibold">Available Flights</h3>
-          {flightOffers.map(offer => (
-            <Card key={offer.id}>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    {offer.airline.logo_url && (
-                      <img
-                        src={offer.airline.logo_url}
-                        alt={offer.airline.name}
-                        className="size-8 object-contain"
-                      />
-                    )}
-                    <div>
-                      <div className="font-medium">{offer.airline.name}</div>
-                      <div className="text-muted-foreground text-sm">
-                        Duration: {offer.duration}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold">
-                      {offer.total_amount} {offer.total_currency}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        // TODO: Implement booking flow
-                      }}
-                    >
-                      Select
-                    </Button>
-                  </div>
-                </div>
-                <div className="mt-4 grid grid-cols-2 gap-8">
-                  <div>
-                    <div className="text-sm font-medium">Departure</div>
-                    <div className="text-2xl font-bold">
-                      {offer.departure.time}
-                    </div>
-                    <div className="text-muted-foreground text-sm">
-                      {offer.departure.airport}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium">Arrival</div>
-                    <div className="text-2xl font-bold">
-                      {offer.arrival.time}
-                    </div>
-                    <div className="text-muted-foreground text-sm">
-                      {offer.arrival.airport}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <FlightOffers
+          offers={flightOffers}
+          selectedOfferId={state.selectedFlight?.id}
+          onSelect={handleFlightSelect}
+        />
+      )}
+
+      {loading && (
+        <div className="flex justify-center">
+          <Loader2 className="size-6 animate-spin" />
         </div>
       )}
     </div>

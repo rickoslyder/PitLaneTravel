@@ -5,12 +5,12 @@ Defines the database schema for circuit details.
 */
 
 import {
+  integer,
+  numeric,
   pgTable,
   text,
   timestamp,
-  uuid,
-  numeric,
-  integer
+  uuid
 } from "drizzle-orm/pg-core"
 import { circuitsTable } from "./circuits-schema"
 
@@ -25,14 +25,12 @@ export const circuitDetailsTable = pgTable("circuit_details", {
   lapRecordTime: text("lap_record_time"),
   lapRecordYear: integer("lap_record_year"),
   lapRecordDriver: text("lap_record_driver"),
-  createdAt: timestamp("created_at", { withTimezone: false })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: false })
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date())
 })
 
-export type InsertCircuitDetail = typeof circuitDetailsTable.$inferInsert
-export type SelectCircuitDetail = typeof circuitDetailsTable.$inferSelect
+export type InsertCircuitDetails = typeof circuitDetailsTable.$inferInsert
+export type SelectCircuitDetails = typeof circuitDetailsTable.$inferSelect

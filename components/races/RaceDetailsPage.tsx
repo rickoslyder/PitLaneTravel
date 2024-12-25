@@ -1,6 +1,6 @@
 "use client"
 
-import { Race } from "@/types/race"
+import { RaceWithDetails } from "@/types/race"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -28,7 +28,7 @@ import { FlightSearch } from "./travel/FlightSearch"
 
 interface RaceDetailsPageProps {
   /** The race to display */
-  race: Race
+  race: RaceWithDetails
 }
 
 export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
@@ -37,31 +37,31 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
   const weekendStart = race.weekend_start ? new Date(race.weekend_start) : null
   const weekendEnd = race.weekend_end ? new Date(race.weekend_end) : null
 
-  const getAvailabilityColor = (availability: Race["availability"]) => {
-    switch (availability) {
-      case "available":
+  const getStatusColor = (status: RaceWithDetails["status"]) => {
+    switch (status) {
+      case "live":
         return "bg-green-500/10 text-green-500"
-      case "sold_out":
+      case "upcoming":
+        return "bg-blue-500/10 text-blue-500"
+      case "completed":
+        return "bg-gray-500/10 text-gray-500"
+      case "cancelled":
         return "bg-red-500/10 text-red-500"
-      case "pending":
-        return "bg-yellow-500/10 text-yellow-500"
-      case "low_stock":
-        return "bg-orange-500/10 text-orange-500"
       default:
         return "bg-muted text-muted-foreground"
     }
   }
 
-  const getAvailabilityText = (availability: Race["availability"]) => {
-    switch (availability) {
-      case "available":
-        return "Available"
-      case "sold_out":
-        return "Sold Out"
-      case "pending":
-        return "Coming Soon"
-      case "low_stock":
-        return "Low Stock"
+  const getStatusText = (status: RaceWithDetails["status"]) => {
+    switch (status) {
+      case "live":
+        return "Live"
+      case "upcoming":
+        return "Upcoming"
+      case "completed":
+        return "Completed"
+      case "cancelled":
+        return "Cancelled"
       default:
         return "Unknown"
     }
@@ -104,9 +104,9 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
             <div className="flex items-center justify-center gap-2">
               <Badge
                 variant="secondary"
-                className={getAvailabilityColor(race.availability)}
+                className={getStatusColor(race.status)}
               >
-                {getAvailabilityText(race.availability)}
+                {getStatusText(race.status)}
               </Badge>
               {race.is_sprint_weekend && (
                 <Badge variant="secondary">Sprint Weekend</Badge>
@@ -195,7 +195,7 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
               <h2>About the Race</h2>
               <p>{race.description}</p>
 
-              {race.circuit_info && (
+              {race.circuit?.details && (
                 <>
                   <h2>Circuit Information</h2>
                   <div className="not-prose grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -204,7 +204,7 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
                         Track Length
                       </div>
                       <div className="mt-1 text-2xl font-semibold">
-                        {race.circuit_info.length} km
+                        {race.circuit.details.length} km
                       </div>
                     </div>
                     <div className="rounded-lg border p-4">
@@ -212,7 +212,7 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
                         Number of Corners
                       </div>
                       <div className="mt-1 text-2xl font-semibold">
-                        {race.circuit_info.corners}
+                        {race.circuit.details.corners}
                       </div>
                     </div>
                     <div className="rounded-lg border p-4">
@@ -220,7 +220,7 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
                         DRS Zones
                       </div>
                       <div className="mt-1 text-2xl font-semibold">
-                        {race.circuit_info.drsZones}
+                        {race.circuit.details.drs_zones}
                       </div>
                     </div>
                     <div className="rounded-lg border p-4">
@@ -229,11 +229,11 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
                       </div>
                       <div className="mt-1 space-y-1">
                         <div className="text-2xl font-semibold">
-                          {race.circuit_info.lapRecord.time}
+                          {race.circuit.details.lap_record_time}
                         </div>
                         <div className="text-muted-foreground text-sm">
-                          {race.circuit_info.lapRecord.driver} (
-                          {race.circuit_info.lapRecord.year})
+                          {race.circuit.details.lap_record_driver} (
+                          {race.circuit.details.lap_record_year})
                         </div>
                       </div>
                     </div>
@@ -250,46 +250,53 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
           <TabsContent value="travel" className="space-y-8">
             <FlightSearch
               race={race}
-              nearestAirports={race.nearest_airports || []}
+              nearestAirports={race.circuit?.airports || []}
             />
             <div className="grid gap-6 md:grid-cols-2">
-              {race.transport_info && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Public Transport</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="font-medium">Train</h4>
-                        <p className="text-muted-foreground">
-                          {race.transport_info.train}
-                        </p>
+              {race.circuit?.transport_info &&
+                race.circuit.transport_info.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Transport Options</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {race.circuit.transport_info.map(transport => (
+                          <div key={transport.id}>
+                            <h4 className="font-medium">{transport.name}</h4>
+                            {transport.description && (
+                              <p className="text-muted-foreground">
+                                {transport.description}
+                              </p>
+                            )}
+                            {transport.options &&
+                              transport.options.length > 0 && (
+                                <ul className="text-muted-foreground mt-2 list-inside list-disc">
+                                  {transport.options.map((option, index) => (
+                                    <li key={index}>{option}</li>
+                                  ))}
+                                </ul>
+                              )}
+                          </div>
+                        ))}
                       </div>
-                      <div>
-                        <h4 className="font-medium">Bicycle</h4>
-                        <p className="text-muted-foreground">
-                          {race.transport_info.bicycle}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+                    </CardContent>
+                  </Card>
+                )}
 
-              {race.nearest_airports && race.nearest_airports.length > 0 && (
+              {race.circuit?.airports && race.circuit.airports.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Nearest Airports</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {race.nearest_airports.map(airport => (
+                      {race.circuit.airports.map(airport => (
                         <div key={airport.code}>
                           <h4 className="font-medium">{airport.name}</h4>
                           <div className="text-muted-foreground space-y-1">
                             <p>Distance: {airport.distance}</p>
-                            <p>Transfer Time: {airport.transferTime}</p>
+                            <p>Transfer Time: {airport.transfer_time}</p>
                           </div>
                         </div>
                       ))}

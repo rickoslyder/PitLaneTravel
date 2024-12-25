@@ -11,20 +11,26 @@ import {
   racesTable,
   ticketsTable,
   ticketPricingTable,
-  savedItinerariesTable,
   airportsTable,
   circuitDetailsTable,
   podiumResultsTable,
   localAttractionsTable,
   supportingSeriesTable,
+  transportInfoTable,
+  ticketFeaturesTable,
+  ticketFeatureMappingsTable,
+  ticketPackagesTable,
+  savedItinerariesTable,
   activitiesTable,
   profilesTable,
   reviewsTable,
   tipsTable,
   meetupsTable,
   tripsTable,
+  waitlistTable,
   membershipEnum,
-  tripVisibilityEnum
+  tripVisibilityEnum,
+  raceStatus
 } from "./schema"
 import * as dotenv from "dotenv"
 import path from "path"
@@ -162,18 +168,23 @@ try {
       races: racesTable,
       tickets: ticketsTable,
       ticketPricing: ticketPricingTable,
-      savedItineraries: savedItinerariesTable,
       airports: airportsTable,
       circuitDetails: circuitDetailsTable,
       podiumResults: podiumResultsTable,
       localAttractions: localAttractionsTable,
       supportingSeries: supportingSeriesTable,
+      transportInfo: transportInfoTable,
+      ticketFeatures: ticketFeaturesTable,
+      ticketFeatureMappings: ticketFeatureMappingsTable,
+      ticketPackages: ticketPackagesTable,
+      savedItineraries: savedItinerariesTable,
       activities: activitiesTable,
       profiles: profilesTable,
       reviews: reviewsTable,
       tips: tipsTable,
       meetups: meetupsTable,
-      trips: tripsTable
+      trips: tripsTable,
+      waitlist: waitlistTable
     }
   })
 

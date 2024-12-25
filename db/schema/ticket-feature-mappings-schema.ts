@@ -4,17 +4,17 @@ Defines the database schema for ticket feature mappings.
 </ai_context>
 */
 
-import { pgTable, integer, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, serial, primaryKey } from "drizzle-orm/pg-core"
 import { ticketFeaturesTable } from "./ticket-features-schema"
 import { ticketsTable } from "./tickets-schema"
 
 export const ticketFeatureMappingsTable = pgTable(
   "ticket_feature_mappings",
   {
-    ticketId: integer("ticket_id")
+    ticketId: serial("ticket_id")
       .references(() => ticketsTable.id)
       .notNull(),
-    featureId: integer("feature_id")
+    featureId: serial("feature_id")
       .references(() => ticketFeaturesTable.id)
       .notNull()
   },

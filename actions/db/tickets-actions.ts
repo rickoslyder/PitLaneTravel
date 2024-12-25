@@ -248,7 +248,6 @@ export async function getTicketPricingHistoryAction(
       .select()
       .from(ticketPricingTable)
       .where(eq(ticketPricingTable.ticketId, ticketId))
-      .orderBy(ticketPricingTable.validFrom)
 
     return {
       isSuccess: true,
@@ -258,63 +257,5 @@ export async function getTicketPricingHistoryAction(
   } catch (error) {
     console.error("Error getting ticket pricing history:", error)
     return { isSuccess: false, message: "Failed to get ticket pricing history" }
-  }
-}
-
-// Composite Actions
-export async function getTicketWithDetailsAction(
-  id: number
-): Promise<
-  ActionState<{
-    ticket: SelectTicket
-    currentPricing: SelectTicketPricing | null
-    features: SelectTicketFeature[]
-  }>
-> {
-  try {
-    const [ticket] = await db
-      .select()
-      .from(ticketsTable)
-      .where(eq(ticketsTable.id, id))
-
-    if (!ticket) {
-      return { isSuccess: false, message: "Ticket not found" }
-    }
-
-    const [currentPricing] = await db
-      .select()
-      .from(ticketPricingTable)
-      .where(
-        and(
-          eq(ticketPricingTable.ticketId, id),
-          isNull(ticketPricingTable.validTo)
-        )
-      )
-
-    const features = await db
-      .select({
-        id: ticketFeaturesTable.id,
-        name: ticketFeaturesTable.name,
-        description: ticketFeaturesTable.description
-      })
-      .from(ticketFeatureMappingsTable)
-      .innerJoin(
-        ticketFeaturesTable,
-        eq(ticketFeatureMappingsTable.featureId, ticketFeaturesTable.id)
-      )
-      .where(eq(ticketFeatureMappingsTable.ticketId, id))
-
-    return {
-      isSuccess: true,
-      message: "Ticket details retrieved successfully",
-      data: {
-        ticket,
-        currentPricing: currentPricing || null,
-        features
-      }
-    }
-  } catch (error) {
-    console.error("Error getting ticket details:", error)
-    return { isSuccess: false, message: "Failed to get ticket details" }
   }
 }

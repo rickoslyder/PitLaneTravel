@@ -24,6 +24,9 @@ export async function getRacesAction(filters?: {
         season: racesTable.season,
         round: racesTable.round,
         country: racesTable.country,
+        description: racesTable.description,
+        weekend_start: racesTable.weekendStart,
+        weekend_end: racesTable.weekendEnd,
         status: racesTable.status,
         slug: racesTable.slug,
         is_sprint_weekend: racesTable.isSprintWeekend,
@@ -74,6 +77,11 @@ export async function getRacesAction(filters?: {
       message: "Races retrieved successfully",
       data: races.map(race => ({
         ...race,
+        date: race.date.toISOString(),
+        created_at: race.created_at.toISOString(),
+        updated_at: race.updated_at.toISOString(),
+        weekend_start: race.weekend_start?.toISOString() || null,
+        weekend_end: race.weekend_end?.toISOString() || null,
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),
@@ -117,6 +125,9 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
         season: racesTable.season,
         round: racesTable.round,
         country: racesTable.country,
+        description: racesTable.description,
+        weekend_start: racesTable.weekendStart,
+        weekend_end: racesTable.weekendEnd,
         status: racesTable.status,
         slug: racesTable.slug,
         is_sprint_weekend: racesTable.isSprintWeekend,
@@ -154,6 +165,11 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
       message: "Race retrieved successfully",
       data: {
         ...race,
+        date: race.date.toISOString(),
+        created_at: race.created_at.toISOString(),
+        updated_at: race.updated_at.toISOString(),
+        weekend_start: race.weekend_start?.toISOString() || null,
+        weekend_end: race.weekend_end?.toISOString() || null,
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),

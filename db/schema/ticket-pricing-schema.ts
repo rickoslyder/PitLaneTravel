@@ -1,12 +1,12 @@
-import { decimal, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core"
+import { numeric, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core"
 import { ticketsTable } from "./tickets-schema"
 
 export const ticketPricingTable = pgTable("ticket_pricing", {
   id: serial("id").primaryKey(),
   ticketId: serial("ticket_id")
-    .references(() => ticketsTable.id, { onDelete: "cascade" })
+    .references(() => ticketsTable.id)
     .notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   currency: text("currency").notNull(),
   validFrom: timestamp("valid_from", { withTimezone: true }).notNull(),
   validTo: timestamp("valid_to", { withTimezone: true }),

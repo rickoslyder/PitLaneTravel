@@ -1,166 +1,136 @@
 # Race Details Page Enhancement Plan
 
-## Phase 1: Reviews Section
-1. Create ReviewSection component
-   - Add review form with star rating
-   - Add review list with pagination
-   - Add review summary with average rating
-   - Add sorting and filtering options
-2. Update review actions and types
-   - Add rating aggregation
-   - Add helpful/not helpful voting
-3. Integrate with user profiles
-   - Add user avatars
-   - Add verified purchase badges
+## Phase 1: Core Race Information
+1. Create CircuitInfoSection component
+   - Add circuit details (length, corners, DRS zones)
+   - Add lap record information
+   - Add circuit map with location
+2. Create StatusBadge component
+   - Add race status (live, upcoming, completed, cancelled)
+   - Add sprint weekend indicator
+   - Add ticket availability status
+3. Add sharing functionality
+   - Share via native share API
+   - Fallback to clipboard copy
 
 ## Phase 2: Ticket Section Enhancement
 1. Create enhanced TicketSection component
    - Add ticket categories (Grandstand, VIP, etc.)
    - Add ticket comparison table
-   <!-- - Add interactive seating map -->
+   - Add ticket features display
 2. Create ticket-related components
-   - TicketComparison
-   <!-- - SeatingMap -->
-   - WaitlistForm
+   - TicketPricing component with dynamic pricing
+   - TicketFeatures component
+   - WaitlistForm component
 3. Add ticket features
-   - Dynamic pricing
    - Waitlist functionality
    - Ticket availability alerts
+   - Ticket package bundles
 
 ## Phase 3: Travel Section Enhancement
 1. Create enhanced TravelSection component
-   - Add interactive maps
-   - Add accommodation section
-   - Add transportation options
+   - Add airport information
+   - Add transport options
+   - Add local attractions
 2. Create travel-related components
-   - AccommodationList
-   - TransportMap
-   - ParkingInfo
+   - AirportList component
+   - TransportInfo component
+   - LocalAttractions component
 3. Add travel features
-   - Hotel booking integration
-   - Car rental integration
-   - Travel time calculator
+   - Flight search integration
+   - Transport time calculator
+   - Interactive maps
 
-## Phase 4: Itinerary Enhancement
+## Phase 4: Reviews & Community
+1. Create ReviewSection component
+   - Add review form with star rating
+   - Add review list with pagination
+   - Add review categories
+2. Create community components
+   - MeetupList component
+   - TipsList component
+   - DiscussionBoard component
+3. Add social features
+   - User meetups
+   - Travel tips
+   - Community discussions
+
+## Phase 5: Itinerary Enhancement
 1. Update RaceItinerary component
-   - Add time slots
-   - Add drag-and-drop reordering
+   - Add saved itineraries
+   - Add activity planning
    - Add travel time estimation
-2. Add itinerary features
+2. Create itinerary components
+   - ActivityPlanner component
+   - TimelineView component
+   - CostEstimator component
+3. Add itinerary features
    - Calendar export
    - Cost estimation
    - Weather integration
-3. Add sharing functionality
-   - Share via link
-   - Export to PDF
-   - Social media sharing
 
-## Phase 5: Circuit Information Enhancement
-1. Create CircuitInfoSection component
-   - Add interactive circuit map
-   - Add grandstand views
-   - Add facilities information
-2. Add circuit features
-   - Virtual track walk
-   - Best viewing spots
-   - Historical data
-3. Add interactive elements
-   - 3D circuit viewer
-   - Panoramic views
-   - Track evolution guide
-
-## Phase 6: Weather & Schedule Enhancement
+## Phase 6: Race Schedule & Weather
 1. Update WeatherAndSchedule component
    - Add detailed weather forecast
    - Add track conditions
-   - Add TV schedule
-2. Create weather-related components
-   - HourlyForecast
-   - TrackConditions
-   - BroadcastSchedule
+   - Add supporting series schedule
+2. Create schedule components
+   - RaceSchedule component
+   - SupportingSeries component
+   - WeatherForecast component
 3. Add schedule features
-   - Support race integration
-   - Session reminders
+   - Calendar integration
+   - Schedule notifications
    - Custom alerts
 
-## Phase 7: Social Features
-1. Create social components
-   - MeetupPlanner
-   - DiscussionForum
-   - PhotoGallery
-2. Add social features
-   - Event RSVP
-   - User meetups
-   - Photo sharing
-3. Add community features
-   - Live chat
-   - User groups
-   - Event planning
+## Phase 7: Trip Planning
+1. Create TripPlanner component
+   - Add trip creation
+   - Add trip sharing
+   - Add trip visibility controls
+2. Create trip components
+   - TripDetails component
+   - TripSharing component
+   - TripCollaborators component
+3. Add trip features
+   - Collaborative planning
+   - Trip templates
+   - Cost splitting
 
-## Phase 8: Local Information Enhancement
-1. Create LocalInfoSection component
-   - Add dining recommendations
-   - Add cultural information
-   - Add practical tips
-2. Add local information features
-   - Currency converter
-   - Language guide
-   - Emergency info
-3. Add interactive elements
-   - Local area map
-   - Points of interest
-   - Local events calendar
-
-## Phase 9: Accessibility Enhancement
-1. Add accessibility features
-   - Screen reader support
-   - Keyboard navigation
-   - High contrast mode
-2. Create accessibility components
-   - AccessibilityGuide
-   - MobilityMap
-   - AssistanceInfo
-3. Add accessibility information
-   - Venue accessibility
-   - Transport accessibility
-   - Special assistance
-
-## Phase 10: Mobile Experience
+## Phase 8: Mobile Experience
 1. Add mobile features
    - Offline support
    - Push notifications
    - Location services
 2. Create mobile components
-   - MobileTicket
-   - VenueNavigator
-   - QRScanner
+   - MobileTicket component
+   - VenueNavigator component
+   - QRScanner component
 3. Add AR features
    - Circuit explorer
    - Venue navigator
    - Photo opportunities
 
 ## Implementation Priority
-1. Phase 1: Reviews Section (High Priority)
+1. Phase 1: Core Race Information (High Priority)
 2. Phase 2: Ticket Section (High Priority)
-3. Phase 4: Itinerary Enhancement (High Priority)
-4. Phase 3: Travel Section (Medium Priority)
-5. Phase 5: Circuit Information (Medium Priority)
-6. Phase 6: Weather & Schedule (Medium Priority)
-7. Phase 8: Local Information (Medium Priority)
-8. Phase 7: Social Features (Low Priority)
-9. Phase 9: Accessibility (High Priority, but can be implemented gradually)
-10. Phase 10: Mobile Experience (Low Priority, but should be considered throughout)
+3. Phase 3: Travel Section (High Priority)
+4. Phase 4: Reviews & Community (Medium Priority)
+5. Phase 5: Itinerary Enhancement (Medium Priority)
+6. Phase 6: Race Schedule & Weather (Medium Priority)
+7. Phase 7: Trip Planning (Low Priority)
+8. Phase 8: Mobile Experience (Low Priority)
 
 ## Next Steps
-1. Begin with Phase 1: Reviews Section
-   - Create ReviewSection component
-   - Implement review form
-   - Add review list and summary
+1. Begin with Phase 1: Core Race Information
+   - Create CircuitInfoSection component
+   - Implement StatusBadge component
+   - Add sharing functionality
 2. Move to Phase 2: Ticket Section
    - Create enhanced ticket components
-   - Add comparison and seating map
-3. Continue with Phase 4: Itinerary Enhancement
-   - Update existing itinerary functionality
-   - Add new features gradually
+   - Add pricing and features
+3. Continue with Phase 3: Travel Section
+   - Create airport and transport components
+   - Add flight search integration
 
 Would you like to proceed with implementing Phase 1?
