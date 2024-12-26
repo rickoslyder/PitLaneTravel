@@ -6,6 +6,7 @@ Initializes the database connection and schema for the app.
 
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
+import * as schema from "./schema"
 import {
   circuitsTable,
   circuitLocationsTable,
@@ -36,6 +37,7 @@ import {
 } from "./schema"
 import * as dotenv from "dotenv"
 import path from "path"
+import { type ExtractTablesWithRelations } from "drizzle-orm"
 
 // Load environment variables
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") })
@@ -55,7 +57,7 @@ const globalForDb = globalThis as unknown as {
   pg: ReturnType<typeof postgres> | undefined
 }
 
-let db: ReturnType<typeof drizzle>
+let db: ReturnType<typeof drizzle<typeof schema>>
 
 try {
   console.log("[DB] Creating postgres client...")
@@ -164,32 +166,7 @@ try {
   await testConnection()
 
   console.log("[DB] Initializing Drizzle ORM...")
-  db = drizzle(client, {
-    schema: {
-      circuits: circuitsTable,
-      circuitLocations: circuitLocationsTable,
-      races: racesTable,
-      tickets: ticketsTable,
-      ticketPricing: ticketPricingTable,
-      airports: airportsTable,
-      circuitDetails: circuitDetailsTable,
-      podiumResults: podiumResultsTable,
-      localAttractions: localAttractionsTable,
-      supportingSeries: supportingSeriesTable,
-      transportInfo: transportInfoTable,
-      ticketFeatures: ticketFeaturesTable,
-      ticketFeatureMappings: ticketFeatureMappingsTable,
-      ticketPackages: ticketPackagesTable,
-      savedItineraries: savedItinerariesTable,
-      activities: activitiesTable,
-      profiles: profilesTable,
-      reviews: reviewsTable,
-      tips: tipsTable,
-      meetups: meetupsTable,
-      trips: tripsTable,
-      waitlist: waitlistTable
-    }
-  })
+  db = drizzle(client, { schema })
 
   console.log("[DB] Database initialization complete!")
 } catch (error) {
@@ -198,3 +175,6 @@ try {
 }
 
 export { db }
+
+// Export type helper for use in other files
+export type Schema = ExtractTablesWithRelations<typeof schema>

@@ -23,6 +23,7 @@ import {
   boolean,
   integer
 } from "drizzle-orm/pg-core"
+import { relations } from "drizzle-orm"
 import { circuitsTable } from "./circuits-schema"
 
 export const raceStatusEnum = pgEnum("race_status", [
@@ -48,6 +49,9 @@ export const racesTable = pgTable("races", {
   status: raceStatusEnum("status").default("upcoming").notNull(),
   slug: text("slug"),
   isSprintWeekend: boolean("is_sprint_weekend").default(false).notNull(),
+  // OpenF1 integration fields
+  openf1MeetingKey: integer("openf1_meeting_key").unique(),
+  openf1SessionKey: integer("openf1_session_key").unique(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -56,6 +60,13 @@ export const racesTable = pgTable("races", {
     .notNull()
     .$onUpdate(() => new Date())
 })
+
+export const racesRelations = relations(racesTable, ({ one }) => ({
+  circuit: one(circuitsTable, {
+    fields: [racesTable.circuitId],
+    references: [circuitsTable.id]
+  })
+}))
 
 export type InsertRace = typeof racesTable.$inferInsert
 export type SelectRace = typeof racesTable.$inferSelect

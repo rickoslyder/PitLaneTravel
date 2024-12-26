@@ -4,7 +4,14 @@ Defines the database schema for circuits.
 </ai_context>
 */
 
-import { pgTable, text, timestamp, uuid, numeric } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  numeric,
+  integer
+} from "drizzle-orm/pg-core"
 
 export const circuitsTable = pgTable("circuits", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -14,6 +21,9 @@ export const circuitsTable = pgTable("circuits", {
   latitude: numeric("latitude", { precision: 10, scale: 7 }).notNull(),
   longitude: numeric("longitude", { precision: 10, scale: 7 }).notNull(),
   imageUrl: text("image_url"),
+  // OpenF1 integration fields
+  openf1Key: integer("openf1_key").unique(),
+  openf1ShortName: text("openf1_short_name"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
