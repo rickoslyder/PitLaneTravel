@@ -116,12 +116,18 @@ export async function GET(request: Request) {
 
       // For city matches, include all their airports
       if (place.type === "city" && place.airports?.length) {
-        return place.airports.filter(isValidAirport).map(airport => ({
-          code: airport.iata_code,
-          name: airport.name,
-          city: place.name, // Use city name for all airports in this city
-          timeZone: airport.time_zone
-        }))
+        return place.airports
+          .filter(isValidAirport)
+          .filter(airport => airport.iata_code !== null)
+          .map(
+            airport =>
+              ({
+                code: airport.iata_code,
+                name: airport.name,
+                city: place.name,
+                timeZone: airport.time_zone
+              }) as AirportResult
+          )
       }
 
       return []
