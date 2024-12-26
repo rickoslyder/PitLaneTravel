@@ -13,7 +13,8 @@ import {
   airportsTable,
   InsertLocalAttraction,
   SelectLocalAttraction,
-  localAttractionsTable
+  localAttractionsTable,
+  transportInfoTable
 } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq } from "drizzle-orm"
@@ -217,5 +218,56 @@ export async function getCircuitAttractionsAction(
   } catch (error) {
     console.error("Error getting circuit attractions:", error)
     return { isSuccess: false, message: "Failed to get circuit attractions" }
+  }
+}
+
+// Get Circuit with All Details
+export async function getCircuitWithDetailsAction(
+  id: string
+): Promise<ActionState<SelectCircuit & {
+  details?: SelectCircuitDetails
+  airports?: SelectAirport[]
+  local_attractions?: SelectLocalAttraction[]
+  transport_info?: any[]
+}>> {
+  try {
+    // Get circuit
+    const circuitResult = await getCircuitAction(id)
+    if (!circuitResult.isSuccess) {
+      return circuitResult
+    }
+
+    // Get circuit details
+    const detailsResult = await getCircuitDetailsAction(id)
+    const details = detailsResult.isSuccess ? detailsResult.data : undefined
+
+    // Get airports
+    const airportsResult = await getCircuitAirportsAction(id)
+    const airports = airportsResult.isSuccess ? airportsResult.data : undefined
+
+    // Get local attractions
+    const attractionsResult = await getCircuitAttractionsAction(id)
+    const attractions = attractionsResult.isSuccess ? attractionsResult.data : undefined
+
+    // Get transport info
+    const transportInfo = await db
+      .select()
+      .from(transportInfoTable)
+      .where(eq(transportInfoTable.circuitId, id))
+
+    return {
+      isSuccess: true,
+      message: "Circuit with details retrieved successfully",
+      data: {
+        ...circuitResult.data,
+        details,
+        airports,
+        local_attractions: attractions,
+        transport_info: transportInfo
+      }
+    }
+  } catch (error) {
+    console.error("Error getting circuit with details:", error)
+    return { isSuccess: false, message: "Failed to get circuit with details" }
   }
 }

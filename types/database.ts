@@ -11,61 +11,46 @@ export type Database = {
     Tables: {
       activities: {
         Row: {
-          category: string | null
+          category: string
           created_at: string
           description: string | null
-          distance: string | null
-          duration: string | null
+          end_time: string
           id: string
           itinerary_id: number
-          location_lat: number | null
-          location_lng: number | null
-          name: string
-          price_amount: number | null
-          price_currency: string | null
-          rating: number | null
-          time_slot: string | null
+          location: string | null
+          notes: string | null
+          start_time: string
+          title: string
           type: string
           updated_at: string
-          visit_duration: string | null
         }
         Insert: {
-          category?: string | null
+          category: string
           created_at?: string
           description?: string | null
-          distance?: string | null
-          duration?: string | null
+          end_time: string
           id?: string
           itinerary_id: number
-          location_lat?: number | null
-          location_lng?: number | null
-          name: string
-          price_amount?: number | null
-          price_currency?: string | null
-          rating?: number | null
-          time_slot?: string | null
+          location?: string | null
+          notes?: string | null
+          start_time: string
+          title: string
           type: string
           updated_at?: string
-          visit_duration?: string | null
         }
         Update: {
-          category?: string | null
+          category?: string
           created_at?: string
           description?: string | null
-          distance?: string | null
-          duration?: string | null
+          end_time?: string
           id?: string
           itinerary_id?: number
-          location_lat?: number | null
-          location_lng?: number | null
-          name?: string
-          price_amount?: number | null
-          price_currency?: string | null
-          rating?: number | null
-          time_slot?: string | null
+          location?: string | null
+          notes?: string | null
+          start_time?: string
+          title?: string
           type?: string
           updated_at?: string
-          visit_duration?: string | null
         }
         Relationships: [
           {
@@ -82,7 +67,7 @@ export type Database = {
           circuit_id: string
           code: string
           created_at: string
-          distance: string
+          distance: number
           id: string
           name: string
           transfer_time: string
@@ -92,7 +77,7 @@ export type Database = {
           circuit_id: string
           code: string
           created_at?: string
-          distance: string
+          distance: number
           id?: string
           name: string
           transfer_time: string
@@ -102,7 +87,7 @@ export type Database = {
           circuit_id?: string
           code?: string
           created_at?: string
-          distance?: string
+          distance?: number
           id?: string
           name?: string
           transfer_time?: string
@@ -158,6 +143,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "circuit_details_circuit_id_fkey"
+            columns: ["circuit_id"]
+            isOneToOne: true
+            referencedRelation: "circuits"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      circuit_locations: {
+        Row: {
+          address: string | null
+          circuit_id: string
+          created_at: string
+          description: string | null
+          distance_from_circuit: number | null
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          place_id: string | null
+          timezone: string | null
+          type: Database["public"]["Enums"]["location_type"]
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          circuit_id: string
+          created_at?: string
+          description?: string | null
+          distance_from_circuit?: number | null
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+          place_id?: string | null
+          timezone?: string | null
+          type: Database["public"]["Enums"]["location_type"]
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          circuit_id?: string
+          created_at?: string
+          description?: string | null
+          distance_from_circuit?: number | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+          place_id?: string | null
+          timezone?: string | null
+          type?: Database["public"]["Enums"]["location_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circuit_locations_circuit_id_fkey"
             columns: ["circuit_id"]
             isOneToOne: false
             referencedRelation: "circuits"
@@ -337,7 +378,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "package_tickets_package_id_ticket_packages_id_fk"
+            foreignKeyName: "package_tickets_package_id_fkey"
             columns: ["package_id"]
             isOneToOne: false
             referencedRelation: "ticket_packages"
@@ -598,7 +639,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "ticket_feature_mappings_feature_id_ticket_features_id_fk"
+            foreignKeyName: "ticket_feature_mappings_feature_id_fkey"
             columns: ["feature_id"]
             isOneToOne: false
             referencedRelation: "ticket_features"
@@ -626,19 +667,19 @@ export type Database = {
       }
       ticket_packages: {
         Row: {
-          created_at: string | null
+          created_at: string
           description: string | null
           id: number
           name: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           id?: number
           name: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           id?: number
           name?: string
@@ -920,13 +961,18 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      location_type:
+        | "circuit"
+        | "city_center"
+        | "hotel"
+        | "restaurant"
+        | "attraction"
+        | "transport"
       membership: "free" | "pro"
       notification_type: "email" | "sms" | "both"
-      race_status: "live" | "upcoming" | "completed" | "cancelled"
-      review_type: "grandstand" | "accommodation" | "transport" | "general"
-      ticket_availability: "available" | "sold_out" | "low_stock" | "pending"
+      race_status: "upcoming" | "in_progress" | "completed" | "cancelled"
       trip_visibility: "private" | "public" | "shared"
-      waitlist_status: "pending" | "notified" | "expired" | "converted"
+      waitlist_status: "pending" | "notified" | "purchased" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never

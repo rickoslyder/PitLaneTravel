@@ -8,6 +8,7 @@ import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 import {
   circuitsTable,
+  circuitLocationsTable,
   racesTable,
   ticketsTable,
   ticketPricingTable,
@@ -30,7 +31,8 @@ import {
   waitlistTable,
   membershipEnum,
   tripVisibilityEnum,
-  raceStatus
+  raceStatus,
+  locationTypeEnum
 } from "./schema"
 import * as dotenv from "dotenv"
 import path from "path"
@@ -165,6 +167,7 @@ try {
   db = drizzle(client, {
     schema: {
       circuits: circuitsTable,
+      circuitLocations: circuitLocationsTable,
       races: racesTable,
       tickets: ticketsTable,
       ticketPricing: ticketPricingTable,
