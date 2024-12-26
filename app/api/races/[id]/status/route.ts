@@ -6,10 +6,11 @@ import { NextResponse } from "next/server"
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Get race status from our DB (already updated by SessionUpdater)
+    const resolvedParams = await params
     const race = await db
       .select({
         id: racesTable.id,
@@ -17,7 +18,7 @@ export async function GET(
         openf1SessionKey: racesTable.openf1SessionKey
       })
       .from(racesTable)
-      .where(eq(racesTable.id, params.id))
+      .where(eq(racesTable.id, resolvedParams.id))
       .limit(1)
       .then(rows => rows[0])
 

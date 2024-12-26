@@ -1,17 +1,17 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Race } from "@/types/race"
+import { RaceWithCircuit } from "@/types/database"
 import { RaceCard } from "../RaceCard"
 import { motion } from "framer-motion"
 
 interface SimilarRacesProps {
   /** The current race to find similar races for */
-  currentRace: Race
+  currentRace: RaceWithCircuit
 }
 
 export function SimilarRaces({ currentRace }: SimilarRacesProps) {
-  const [similarRaces, setSimilarRaces] = useState<Race[]>([])
+  const [similarRaces, setSimilarRaces] = useState<RaceWithCircuit[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

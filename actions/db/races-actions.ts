@@ -30,6 +30,8 @@ export async function getRacesAction(filters?: {
         status: racesTable.status,
         slug: racesTable.slug,
         is_sprint_weekend: racesTable.isSprintWeekend,
+        openf1_meeting_key: racesTable.openf1MeetingKey,
+        openf1_session_key: racesTable.openf1SessionKey,
         created_at: racesTable.createdAt,
         updated_at: racesTable.updatedAt,
         circuit: {
@@ -40,6 +42,8 @@ export async function getRacesAction(filters?: {
           latitude: circuitsTable.latitude,
           longitude: circuitsTable.longitude,
           image_url: circuitsTable.imageUrl,
+          openf1_key: circuitsTable.openf1Key,
+          openf1_short_name: circuitsTable.openf1ShortName,
           created_at: circuitsTable.createdAt,
           updated_at: circuitsTable.updatedAt
         }
@@ -82,6 +86,7 @@ export async function getRacesAction(filters?: {
         updated_at: race.updated_at.toISOString(),
         weekend_start: race.weekend_start?.toISOString() || null,
         weekend_end: race.weekend_end?.toISOString() || null,
+        status: race.status === "live" ? "in_progress" : race.status,
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),
@@ -131,6 +136,8 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
         status: racesTable.status,
         slug: racesTable.slug,
         is_sprint_weekend: racesTable.isSprintWeekend,
+        openf1_meeting_key: racesTable.openf1MeetingKey,
+        openf1_session_key: racesTable.openf1SessionKey,
         created_at: racesTable.createdAt,
         updated_at: racesTable.updatedAt,
         circuit: {
@@ -141,6 +148,8 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
           latitude: circuitsTable.latitude,
           longitude: circuitsTable.longitude,
           image_url: circuitsTable.imageUrl,
+          openf1_key: circuitsTable.openf1Key,
+          openf1_short_name: circuitsTable.openf1ShortName,
           created_at: circuitsTable.createdAt,
           updated_at: circuitsTable.updatedAt
         }
@@ -170,6 +179,7 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
         updated_at: race.updated_at.toISOString(),
         weekend_start: race.weekend_start?.toISOString() || null,
         weekend_end: race.weekend_end?.toISOString() || null,
+        status: race.status === "live" ? "in_progress" : race.status,
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),

@@ -7,19 +7,20 @@ import { notFound } from "next/navigation"
 import CircuitForm from "./_components/circuit-form"
 import LocationsTable from "./_components/locations-table"
 
-interface CircuitAdminPageProps {
-  params: {
-    id: string
-  }
+interface PageProps {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export default async function CircuitAdminPage({
-  params
-}: CircuitAdminPageProps) {
+  params,
+  searchParams
+}: PageProps) {
+  const resolvedParams = await params
   const [circuit] = await db
     .select()
     .from(circuitsTable)
-    .where(eq(circuitsTable.id, params.id))
+    .where(eq(circuitsTable.id, resolvedParams.id))
 
   if (!circuit) {
     notFound()

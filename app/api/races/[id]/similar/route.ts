@@ -1,21 +1,19 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db/db"
 import { racesTable } from "@/db/schema"
 import { eq, ne, and } from "drizzle-orm"
 
-interface RouteParams {
-  params: {
-    id: string
-  }
-}
-
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
+    const resolvedParams = await params
     // First get the current race
     const [currentRace] = await db
       .select()
       .from(racesTable)
-      .where(eq(racesTable.id, params.id))
+      .where(eq(racesTable.id, resolvedParams.id))
 
     if (!currentRace) {
       return NextResponse.json({ error: "Race not found" }, { status: 404 })
@@ -27,7 +25,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       .from(racesTable)
       .where(
         and(
-          ne(racesTable.id, params.id),
+          ne(racesTable.id, resolvedParams.id),
           eq(racesTable.country, currentRace.country)
         )
       )

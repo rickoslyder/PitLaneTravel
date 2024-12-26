@@ -6,7 +6,6 @@ import { RaceMapper } from "@/services/openf1/race-mapper"
 import { SupportingSeriesMapper } from "@/services/openf1/supporting-series-mapper"
 
 // Only allow POST requests from Vercel Cron
-export const runtime = "edge"
 export const dynamic = "force-dynamic"
 export const maxDuration = 300
 

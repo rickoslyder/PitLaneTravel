@@ -7,40 +7,8 @@ Initializes the database connection and schema for the app.
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 import * as schema from "./schema"
-import {
-  circuitsTable,
-  circuitLocationsTable,
-  racesTable,
-  ticketsTable,
-  ticketPricingTable,
-  airportsTable,
-  circuitDetailsTable,
-  podiumResultsTable,
-  localAttractionsTable,
-  supportingSeriesTable,
-  transportInfoTable,
-  ticketFeaturesTable,
-  ticketFeatureMappingsTable,
-  ticketPackagesTable,
-  savedItinerariesTable,
-  activitiesTable,
-  profilesTable,
-  reviewsTable,
-  tipsTable,
-  meetupsTable,
-  tripsTable,
-  waitlistTable,
-  membershipEnum,
-  tripVisibilityEnum,
-  raceStatus,
-  locationTypeEnum
-} from "./schema"
-import * as dotenv from "dotenv"
-import path from "path"
-import { type ExtractTablesWithRelations } from "drizzle-orm"
 
-// Load environment variables
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") })
+import { type ExtractTablesWithRelations } from "drizzle-orm"
 
 console.log("[DB] Starting database initialization...")
 

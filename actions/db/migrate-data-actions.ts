@@ -160,8 +160,11 @@ export async function migrateDataAction(): Promise<ActionState<void>> {
                 circuitId: insertedCircuit.id,
                 code: airport.code,
                 name: airport.name,
-                distance: airport.distance,
-                transferTime: airport.transferTime
+                distance: sql`${airport.distance}::decimal`,
+                transferTime: airport.transferTime,
+                // Use circuit's coordinates as a fallback since we don't have airport coordinates
+                latitude: sql`${raceWithCircuitInfo.latitude}::decimal`,
+                longitude: sql`${raceWithCircuitInfo.longitude}::decimal`
               })
             }
           }

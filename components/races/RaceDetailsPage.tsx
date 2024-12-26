@@ -43,7 +43,7 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
 
   const getStatusColor = (status: RaceWithDetails["status"]) => {
     switch (status) {
-      case "live":
+      case "in_progress":
         return "bg-green-500/10 text-green-500"
       case "upcoming":
         return "bg-blue-500/10 text-blue-500"
@@ -58,7 +58,7 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
 
   const getStatusText = (status: RaceWithDetails["status"]) => {
     switch (status) {
-      case "live":
+      case "in_progress":
         return "Live"
       case "upcoming":
         return "Upcoming"

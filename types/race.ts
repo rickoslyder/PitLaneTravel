@@ -6,6 +6,8 @@ export interface Circuit {
   latitude: number
   longitude: number
   image_url: string | null
+  openf1_key: number | null
+  openf1_short_name: string | null
   created_at: string
   updated_at: string
   locations?: CircuitLocation[]
@@ -57,9 +59,11 @@ export interface Race {
   description: string | null
   weekend_start: string | null
   weekend_end: string | null
-  status: "live" | "upcoming" | "completed" | "cancelled"
+  status: "in_progress" | "upcoming" | "completed" | "cancelled"
   slug: string | null
   is_sprint_weekend: boolean
+  openf1_meeting_key: number | null
+  openf1_session_key: number | null
   created_at: string
   updated_at: string
   circuit?: Circuit

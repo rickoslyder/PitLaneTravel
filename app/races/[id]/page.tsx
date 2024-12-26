@@ -8,13 +8,14 @@ import LocalAttractions from "@/components/races/LocalAttractions"
 import { RaceWithDetails } from "@/types/race"
 
 interface RacePageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function RacePage({ params }: RacePageProps) {
-  const raceResult = await getRaceByIdAction(params.id)
+  const resolvedParams = await params
+  const raceResult = await getRaceByIdAction(resolvedParams.id)
   if (!raceResult.isSuccess) {
     return notFound()
   }
@@ -29,10 +30,7 @@ export default async function RacePage({ params }: RacePageProps) {
   // Convert to RaceWithDetails
   const raceWithDetails: RaceWithDetails = {
     ...raceResult.data,
-    status:
-      raceResult.data.status === "in_progress"
-        ? "live"
-        : raceResult.data.status,
+    status: raceResult.data.status,
     circuit: circuitResult.data
       ? {
           id: circuitResult.data.id,
@@ -100,7 +98,9 @@ export default async function RacePage({ params }: RacePageProps) {
             options: info.options,
             created_at: info.createdAt.toISOString(),
             updated_at: info.updatedAt.toISOString()
-          }))
+          })),
+          openf1_key: circuitResult.data.openf1Key,
+          openf1_short_name: circuitResult.data.openf1ShortName
         }
       : undefined
   }

@@ -1,68 +1,23 @@
-"use client"
+"use server"
 
-import { useUser } from "@clerk/nextjs"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
 import { getProfileAction } from "@/actions/db/profiles-actions"
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children
 }: {
   children: React.ReactNode
 }) {
-  const { user, isLoaded } = useUser()
-  const router = useRouter()
-  const [isChecking, setIsChecking] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { userId } = await auth()
 
-  useEffect(() => {
-    async function checkAdmin() {
-      if (!isLoaded || !user) {
-        setIsChecking(false)
-        return
-      }
-
-      try {
-        const result = await getProfileAction(user.id)
-        if (!result.isSuccess || !result.data.isAdmin) {
-          setError("You do not have permission to access this area")
-          router.push("/")
-        }
-      } catch (err) {
-        setError("Error checking permissions")
-        console.error("Error checking admin status:", err)
-      } finally {
-        setIsChecking(false)
-      }
-    }
-
-    checkAdmin()
-  }, [isLoaded, user, router])
-
-  if (!isLoaded || isChecking) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <div className="text-center">
-          <div className="size-8 animate-spin rounded-full border-y-2 border-gray-900"></div>
-          <p className="mt-4">Loading...</p>
-        </div>
-      </div>
-    )
+  if (!userId) {
+    redirect("/")
   }
 
-  if (error) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <div className="text-center text-red-500">
-          <p>{error}</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    router.push("/")
-    return null
+  const result = await getProfileAction(userId)
+  if (!result.isSuccess || !result.data.isAdmin) {
+    redirect("/")
   }
 
   return (
