@@ -7,7 +7,7 @@ import { SupportingSeriesMapper } from "@/services/openf1/supporting-series-mapp
 
 // Only allow POST requests from Vercel Cron
 export const dynamic = "force-dynamic"
-export const maxDuration = 300
+export const maxDuration = 60
 
 export async function POST(req: Request) {
   try {
