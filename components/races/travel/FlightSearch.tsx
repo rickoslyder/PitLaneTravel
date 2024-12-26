@@ -1,159 +1,259 @@
 "use client"
 
+import { RaceWithDetails } from "@/types/race"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { cn } from "@/lib/utils"
+import { format } from "date-fns"
+import {
+  CalendarIcon,
+  Plane,
+  ArrowRight,
+  RefreshCcw,
+  Search
+} from "lucide-react"
 import { useState } from "react"
-import { Loader2 } from "lucide-react"
-import { FlightSearchForm } from "./FlightSearchForm"
-import { FlightOffers } from "./FlightOffers"
-import { PassengerForm } from "./PassengerForm"
-import { BookingConfirmation } from "./BookingConfirmation"
-import { Airport, RaceWithDetails } from "@/types/race"
+import dynamic from "next/dynamic"
+import { SelectCircuitLocation } from "@/db/schema"
+import { useUser } from "@clerk/nextjs"
+import {
+  syncAirportCoordinatesAction,
+  findNearbyAirportsAction
+} from "@/actions/db/airports-actions"
+import { toast } from "sonner"
+import { AirportSearch } from "./AirportSearch"
+
+const Map = dynamic(() => import("./Map"), { ssr: false })
 
 interface FlightSearchProps {
   race: RaceWithDetails
-  nearestAirports: Airport[]
-}
-
-interface FlightSearchState {
-  step: "search" | "passengers" | "confirmation"
-  selectedFlight: any | null
-  passengers: any[]
-  booking: any | null
+  nearestAirports: SelectCircuitLocation[]
 }
 
 export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
-  const [loading, setLoading] = useState(false)
-  const [flightOffers, setFlightOffers] = useState([])
-  const [state, setState] = useState<FlightSearchState>({
-    step: "search",
-    selectedFlight: null,
-    passengers: [],
-    booking: null
-  })
+  const { user, isLoaded } = useUser()
+  const [departureDate, setDepartureDate] = useState<Date>()
+  const [returnDate, setReturnDate] = useState<Date>()
+  const [origin, setOrigin] = useState("")
 
-  const handleSearch = async (searchParams: {
-    origin: string
-    destination: string
-    departureDate: string
-    returnDate?: string
-    passengers: number
-  }) => {
-    try {
-      setLoading(true)
-      const response = await fetch("/api/flights/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...searchParams,
-          // If the destination is not provided, use the nearest airport's code
-          destination: searchParams.destination || nearestAirports[0]?.code
-        })
-      })
-      const data = await response.json()
-      setFlightOffers(data.offers || [])
-    } catch (error) {
-      console.error("Error searching flights:", error)
-    } finally {
-      setLoading(false)
+  async function handleSyncAirports() {
+    const result = await syncAirportCoordinatesAction()
+    if (result.isSuccess) {
+      toast.success(result.message)
+    } else {
+      toast.error(result.message)
     }
   }
 
-  const handleFlightSelect = (flight: any) => {
-    setState(prev => ({
-      ...prev,
-      step: "passengers",
-      selectedFlight: flight
-    }))
-  }
-
-  const handlePassengerSubmit = async (passengers: any[]) => {
-    try {
-      setLoading(true)
-      const response = await fetch("/api/flights/book", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          offerId: state.selectedFlight.id,
-          passengers
-        })
-      })
-      const data = await response.json()
-
-      if (data.success) {
-        setState(prev => ({
-          ...prev,
-          step: "confirmation",
-          passengers,
-          booking: data.booking
-        }))
-      }
-    } catch (error) {
-      console.error("Error booking flight:", error)
-    } finally {
-      setLoading(false)
+  async function handleFindNearbyAirports() {
+    if (!race.circuit?.latitude || !race.circuit?.longitude) {
+      toast.error("Circuit coordinates are required")
+      return
     }
-  }
 
-  const handlePassengerCancel = () => {
-    setState(prev => ({
-      ...prev,
-      step: "search",
-      selectedFlight: null
-    }))
-  }
-
-  const handleBookingDone = () => {
-    setState({
-      step: "search",
-      selectedFlight: null,
-      passengers: [],
-      booking: null
-    })
-    setFlightOffers([])
-  }
-
-  if (state.step === "passengers") {
-    return (
-      <PassengerForm
-        passengerCount={state.selectedFlight.passengers}
-        onSubmit={handlePassengerSubmit}
-        onCancel={handlePassengerCancel}
-      />
+    const result = await findNearbyAirportsAction(
+      race.circuit.id,
+      Number(race.circuit.latitude),
+      Number(race.circuit.longitude)
     )
-  }
-
-  if (state.step === "confirmation" && state.booking) {
-    return (
-      <BookingConfirmation
-        flight={state.selectedFlight}
-        passengers={state.passengers}
-        onDone={handleBookingDone}
-      />
-    )
+    if (result.isSuccess) {
+      toast.success(result.message)
+    } else {
+      toast.error(result.message)
+    }
   }
 
   return (
-    <div className="space-y-6">
-      <FlightSearchForm
-        onSearch={handleSearch}
-        loading={loading}
-        nearestAirports={nearestAirports}
-        defaultDestination={nearestAirports[0]?.code}
-        race={race}
-      />
+    <div className="grid gap-6 lg:grid-cols-5">
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            Search Flights
+            {isLoaded && user?.publicMetadata?.isAdmin === true && (
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleSyncAirports}
+                >
+                  <RefreshCcw className="mr-2 size-4" />
+                  Sync
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleFindNearbyAirports}
+                >
+                  <Search className="mr-2 size-4" />
+                  Find
+                </Button>
+              </div>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>From</Label>
+            <AirportSearch
+              value={origin}
+              onValueChange={setOrigin}
+              placeholder="Enter departure airport"
+            />
+          </div>
 
-      {flightOffers.length > 0 && (
-        <FlightOffers
-          offers={flightOffers}
-          selectedOfferId={state.selectedFlight?.id}
-          onSelect={handleFlightSelect}
-        />
-      )}
+          <div className="space-y-2">
+            <Label>To</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {nearestAirports.slice(0, 2).map(airport => (
+                <Button
+                  key={airport.id}
+                  variant="outline"
+                  className="justify-start"
+                >
+                  <div className="flex items-center gap-2">
+                    <Plane className="size-4" />
+                    <div className="text-left">
+                      <div className="font-medium">{airport.airportCode}</div>
+                      <div className="text-muted-foreground text-xs">
+                        {airport.distanceFromCircuit}km
+                      </div>
+                    </div>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </div>
 
-      {loading && (
-        <div className="flex justify-center">
-          <Loader2 className="size-6 animate-spin" />
-        </div>
-      )}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Departure</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !departureDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 size-4" />
+                    {departureDate ? (
+                      format(departureDate, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={departureDate}
+                    onSelect={setDepartureDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Return</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !returnDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 size-4" />
+                    {returnDate ? (
+                      format(returnDate, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={returnDate}
+                    onSelect={setReturnDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          <Button className="w-full">Search Flights</Button>
+
+          <div className="rounded-lg border p-4">
+            <div className="mb-2 font-medium">Travel Tips</div>
+            <div className="text-muted-foreground space-y-2 text-sm">
+              <p>
+                • Book early for the best rates - prices typically increase 2-3
+                months before the race
+              </p>
+              <p>
+                • Consider flying into {nearestAirports[0]?.airportCode} for the
+                shortest transfer time ({nearestAirports[0]?.transferTime})
+              </p>
+              <p>
+                • Many F1 fans arrive Thursday and leave Monday to enjoy the
+                full race weekend
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="lg:col-span-3">
+        <CardHeader>
+          <CardTitle>Travel Map</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="aspect-[16/9] overflow-hidden rounded-lg border">
+            <Map
+              center={
+                [
+                  Number(race.circuit?.longitude || 0),
+                  Number(race.circuit?.latitude || 0)
+                ] as [number, number]
+              }
+              airports={nearestAirports}
+            />
+          </div>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {nearestAirports.map(airport => (
+              <div
+                key={airport.id}
+                className="flex items-center gap-4 rounded-lg border p-4"
+              >
+                <div className="bg-primary/10 flex size-12 items-center justify-center rounded-full">
+                  <Plane className="text-primary size-6" />
+                </div>
+                <div>
+                  <div className="font-medium">
+                    {airport.airportCode} - {airport.name}
+                  </div>
+                  <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <span>{airport.transferTime}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

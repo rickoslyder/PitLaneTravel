@@ -4,7 +4,7 @@ Defines the database schema for airports.
 </ai_context>
 */
 
-import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
+import { decimal, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
 import { circuitsTable } from "./circuits-schema"
 
 export const airportsTable = pgTable("airports", {
@@ -14,10 +14,14 @@ export const airportsTable = pgTable("airports", {
     .notNull(),
   code: text("code").notNull(),
   name: text("name").notNull(),
-  distance: text("distance").notNull(),
+  distance: decimal("distance", { precision: 10, scale: 2 }).notNull(),
   transferTime: text("transfer_time").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
+  latitude: decimal("latitude", { precision: 10, scale: 7 }).notNull(),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date())

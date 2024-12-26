@@ -8,6 +8,29 @@ export interface Circuit {
   image_url: string | null
   created_at: string
   updated_at: string
+  locations?: CircuitLocation[]
+}
+
+export interface CircuitLocation {
+  id: string
+  circuitId: string
+  type:
+    | "circuit"
+    | "city_center"
+    | "parking"
+    | "fan_zone"
+    | "transport_hub"
+    | "airport"
+  name: string
+  description?: string | null
+  address?: string | null
+  placeId?: string | null
+  latitude: string
+  longitude: string
+  distanceFromCircuit?: string | null
+  timezone?: string | null
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface CircuitDetails {
@@ -58,8 +81,10 @@ export interface Airport {
   circuit_id: string
   code: string
   name: string
-  distance: string
+  distance: number
   transfer_time: string
+  latitude: number
+  longitude: number
   created_at: string
   updated_at: string
 }
@@ -217,6 +242,7 @@ export interface RaceWithDetails extends Race {
     airports?: Airport[]
     local_attractions?: LocalAttraction[]
     transport_info?: TransportInfo[]
+    locations?: CircuitLocation[]
   }
   tickets?: Array<
     Ticket & {

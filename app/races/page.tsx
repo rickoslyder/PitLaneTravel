@@ -1,50 +1,29 @@
 "use server"
 
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
 import { RacesPage } from "@/components/races/RacesPage"
 import { getRacesAction } from "@/actions/db/races-actions"
-import { RaceWithCircuit } from "@/types/database"
-import { Suspense } from "react"
+import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 
-async function RacesFetcher() {
-  console.log("[Races Page] Fetching races...")
-  const { data: dbRaces, isSuccess, message } = await getRacesAction()
+export default async function RacesServerPage() {
+  const { userId } = await auth()
 
-  if (!isSuccess) {
-    console.error("[Races Page] Failed to fetch races:", message)
-    return (
-      <div className="py-8 text-center">Error loading races: {message}</div>
-    )
+  if (!userId) {
+    return redirect("/login")
   }
 
-  if (!dbRaces || dbRaces.length === 0) {
-    console.log("[Races Page] No races found")
-    return <div className="py-8 text-center">No races available</div>
+  const { data: profile } = await getProfileByUserIdAction(userId)
+
+  if (!profile) {
+    return redirect("/signup")
   }
 
-  console.log("[Races Page] Found", dbRaces.length, "races")
+  const { data: races } = await getRacesAction()
 
-  const races: RaceWithCircuit[] = dbRaces.map(race => ({
-    ...race,
-    circuit_id: race.circuit_id,
-    status: "upcoming",
-    is_sprint_weekend: false,
-    slug: race.name.toLowerCase().replace(/\s+/g, "-"),
-    date: race.date,
-    created_at: race.created_at,
-    updated_at: race.updated_at,
-    circuit: race.circuit
-  }))
-
-  console.log("[Races Page] Transformed races data")
-  return <RacesPage initialRaces={races} />
-}
-
-export default async function RacesRoute() {
   return (
-    <Suspense
-      fallback={<div className="py-8 text-center">Loading races...</div>}
-    >
-      <RacesFetcher />
-    </Suspense>
+    <div className="flex-1 p-4 pt-0">
+      <RacesPage initialRaces={races ?? []} />
+    </div>
   )
 }

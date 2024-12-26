@@ -62,47 +62,6 @@ export type Database = {
           }
         ]
       }
-      airports: {
-        Row: {
-          circuit_id: string
-          code: string
-          created_at: string
-          distance: number
-          id: string
-          name: string
-          transfer_time: string
-          updated_at: string
-        }
-        Insert: {
-          circuit_id: string
-          code: string
-          created_at?: string
-          distance: number
-          id?: string
-          name: string
-          transfer_time: string
-          updated_at?: string
-        }
-        Update: {
-          circuit_id?: string
-          code?: string
-          created_at?: string
-          distance?: number
-          id?: string
-          name?: string
-          transfer_time?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "airports_circuit_id_fkey"
-            columns: ["circuit_id"]
-            isOneToOne: false
-            referencedRelation: "circuits"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       circuit_details: {
         Row: {
           circuit_id: string
@@ -153,6 +112,7 @@ export type Database = {
       circuit_locations: {
         Row: {
           address: string | null
+          airport_code: string | null
           circuit_id: string
           created_at: string
           description: string | null
@@ -163,11 +123,13 @@ export type Database = {
           name: string
           place_id: string | null
           timezone: string | null
+          transfer_time: string | null
           type: Database["public"]["Enums"]["location_type"]
           updated_at: string
         }
         Insert: {
           address?: string | null
+          airport_code?: string | null
           circuit_id: string
           created_at?: string
           description?: string | null
@@ -178,11 +140,13 @@ export type Database = {
           name: string
           place_id?: string | null
           timezone?: string | null
+          transfer_time?: string | null
           type: Database["public"]["Enums"]["location_type"]
           updated_at?: string
         }
         Update: {
           address?: string | null
+          airport_code?: string | null
           circuit_id?: string
           created_at?: string
           description?: string | null
@@ -193,6 +157,7 @@ export type Database = {
           name?: string
           place_id?: string | null
           timezone?: string | null
+          transfer_time?: string | null
           type?: Database["public"]["Enums"]["location_type"]
           updated_at?: string
         }
@@ -216,6 +181,8 @@ export type Database = {
           location: string
           longitude: number
           name: string
+          openf1_key: number | null
+          openf1_short_name: string | null
           updated_at: string
         }
         Insert: {
@@ -227,6 +194,8 @@ export type Database = {
           location: string
           longitude: number
           name: string
+          openf1_key?: number | null
+          openf1_short_name?: string | null
           updated_at?: string
         }
         Update: {
@@ -238,6 +207,8 @@ export type Database = {
           location?: string
           longitude?: number
           name?: string
+          openf1_key?: number | null
+          openf1_short_name?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -464,6 +435,8 @@ export type Database = {
           id: string
           is_sprint_weekend: boolean
           name: string
+          openf1_meeting_key: number | null
+          openf1_session_key: number | null
           round: number
           season: number
           slug: string | null
@@ -481,6 +454,8 @@ export type Database = {
           id?: string
           is_sprint_weekend?: boolean
           name: string
+          openf1_meeting_key?: number | null
+          openf1_session_key?: number | null
           round: number
           season: number
           slug?: string | null
@@ -498,6 +473,8 @@ export type Database = {
           id?: string
           is_sprint_weekend?: boolean
           name?: string
+          openf1_meeting_key?: number | null
+          openf1_session_key?: number | null
           round?: number
           season?: number
           slug?: string | null
@@ -592,26 +569,42 @@ export type Database = {
       supporting_series: {
         Row: {
           created_at: string
+          end_time: string | null
           id: string
+          openf1_session_key: number | null
           race_id: string
           round: number
           series: string
+          start_time: string | null
+          status: Database["public"]["Enums"]["supporting_series_status"] | null
           updated_at: string
         }
         Insert: {
           created_at?: string
+          end_time?: string | null
           id?: string
+          openf1_session_key?: number | null
           race_id: string
           round: number
           series: string
+          start_time?: string | null
+          status?:
+            | Database["public"]["Enums"]["supporting_series_status"]
+            | null
           updated_at?: string
         }
         Update: {
           created_at?: string
+          end_time?: string | null
           id?: string
+          openf1_session_key?: number | null
           race_id?: string
           round?: number
           series?: string
+          start_time?: string | null
+          status?:
+            | Database["public"]["Enums"]["supporting_series_status"]
+            | null
           updated_at?: string
         }
         Relationships: [
@@ -968,9 +961,16 @@ export type Database = {
         | "restaurant"
         | "attraction"
         | "transport"
+        | "airport"
       membership: "free" | "pro"
       notification_type: "email" | "sms" | "both"
       race_status: "upcoming" | "in_progress" | "completed" | "cancelled"
+      supporting_series_status:
+        | "scheduled"
+        | "live"
+        | "completed"
+        | "delayed"
+        | "cancelled"
       trip_visibility: "private" | "public" | "shared"
       waitlist_status: "pending" | "notified" | "purchased" | "expired"
     }

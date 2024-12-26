@@ -1,30 +1,34 @@
 "use client"
 
 import { RaceWithDetails } from "@/types/race"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
 import {
   CalendarDays,
+  Calendar,
   Flag,
   MapPin,
-  Share2,
-  Ticket,
   Plane,
+  Share2,
   Star,
-  Calendar
+  Ticket,
+  Trophy,
+  Timer
 } from "lucide-react"
-import { WeatherAndSchedule } from "@/components/races/weather-schedule/WeatherAndSchedule"
-import { RaceCountdown } from "@/components/races/race-countdown/RaceCountdown"
 import { motion } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { RaceItinerary } from "./RaceItinerary"
-import { ReviewSection } from "./reviews/ReviewSection"
-import { TicketSection } from "./tickets/TicketSection"
-import { useState } from "react"
+import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { useState } from "react"
 import { FlightSearch } from "./travel/FlightSearch"
+import { TicketSection } from "./tickets/TicketSection"
+import { WeatherAndSchedule } from "./weather-schedule/WeatherAndSchedule"
+import { ReviewSection } from "./reviews/ReviewSection"
+import { RaceItinerary } from "./RaceItinerary"
+import { RaceCountdown } from "./race-countdown/RaceCountdown"
+import { SelectCircuitLocation } from "@/db/schema"
 
 interface RaceDetailsPageProps {
   /** The race to display */
@@ -89,12 +93,25 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
 
   return (
     <div className="min-h-screen">
-      <div className="bg-background relative overflow-hidden py-24">
+      <div className="relative h-[60vh] w-full overflow-hidden">
+        {race.circuit?.image_url ? (
+          <div className="absolute inset-0">
+            <img
+              src={race.circuit.image_url}
+              alt={race.name}
+              className="size-full object-cover"
+            />
+            <div className="from-background via-background/50 absolute inset-0 bg-gradient-to-t to-transparent" />
+          </div>
+        ) : (
+          <div className="from-primary/20 to-background absolute inset-0 bg-gradient-to-b" />
+        )}
+
         <div className="absolute inset-0 -z-10 size-full bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]">
           <div className="bg-primary absolute inset-x-0 top-0 -z-10 m-auto size-[310px] rounded-full opacity-20 blur-[100px]" />
         </div>
 
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="container relative flex h-full items-center justify-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -104,20 +121,22 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
             <div className="flex items-center justify-center gap-2">
               <Badge
                 variant="secondary"
-                className={getStatusColor(race.status)}
+                className={cn(getStatusColor(race.status), "backdrop-blur-md")}
               >
                 {getStatusText(race.status)}
               </Badge>
               {race.is_sprint_weekend && (
-                <Badge variant="secondary">Sprint Weekend</Badge>
+                <Badge variant="secondary" className="backdrop-blur-md">
+                  Sprint Weekend
+                </Badge>
               )}
             </div>
 
-            <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-6xl">
+            <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-6xl">
               {race.name}
             </h1>
 
-            <div className="text-muted-foreground mt-6 flex flex-wrap items-center justify-center gap-4 text-lg">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-lg text-white/90 backdrop-blur-sm">
               <div className="flex items-center gap-1">
                 <MapPin className="size-5" />
                 <span>
@@ -146,7 +165,12 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
                 <Ticket className="mr-2 size-4" />
                 Book Now
               </Button>
-              <Button size="lg" variant="outline" onClick={handleShare}>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleShare}
+                className="bg-white/10 backdrop-blur-md hover:bg-white/20"
+              >
                 <Share2 className="mr-2 size-4" />
                 Share
               </Button>
@@ -198,45 +222,145 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
               {race.circuit?.details && (
                 <>
                   <h2>Circuit Information</h2>
-                  <div className="not-prose grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    <div className="rounded-lg border p-4">
-                      <div className="text-muted-foreground text-sm">
-                        Track Length
-                      </div>
-                      <div className="mt-1 text-2xl font-semibold">
-                        {race.circuit.details.length} km
-                      </div>
-                    </div>
-                    <div className="rounded-lg border p-4">
-                      <div className="text-muted-foreground text-sm">
-                        Number of Corners
-                      </div>
-                      <div className="mt-1 text-2xl font-semibold">
-                        {race.circuit.details.corners}
-                      </div>
-                    </div>
-                    <div className="rounded-lg border p-4">
-                      <div className="text-muted-foreground text-sm">
-                        DRS Zones
-                      </div>
-                      <div className="mt-1 text-2xl font-semibold">
-                        {race.circuit.details.drs_zones}
-                      </div>
-                    </div>
-                    <div className="rounded-lg border p-4">
-                      <div className="text-muted-foreground text-sm">
-                        Lap Record
-                      </div>
-                      <div className="mt-1 space-y-1">
-                        <div className="text-2xl font-semibold">
-                          {race.circuit.details.lap_record_time}
+                  <div className="not-prose grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <Card className="overflow-hidden">
+                      <CardHeader>
+                        <CardTitle>Track Overview</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <div className="text-muted-foreground text-sm">
+                              Length
+                            </div>
+                            <div className="flex items-baseline gap-1">
+                              <div className="text-3xl font-bold">
+                                {race.circuit.details.length}
+                              </div>
+                              <div className="text-muted-foreground">km</div>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="text-muted-foreground text-sm">
+                              Corners
+                            </div>
+                            <div className="flex items-baseline gap-1">
+                              <div className="text-3xl font-bold">
+                                {race.circuit.details.corners}
+                              </div>
+                              <div className="text-muted-foreground">turns</div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-muted-foreground text-sm">
-                          {race.circuit.details.lap_record_driver} (
-                          {race.circuit.details.lap_record_year})
+
+                        <div className="space-y-2">
+                          <div className="text-muted-foreground text-sm">
+                            DRS Zones
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {Array.from({
+                              length: race.circuit.details.drs_zones
+                            }).map((_, i) => (
+                              <div
+                                key={i}
+                                className="bg-primary/20 border-primary/30 h-8 w-12 rounded-md border"
+                              />
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </div>
+
+                        <div className="space-y-2">
+                          <div className="text-muted-foreground text-sm">
+                            Track Characteristics
+                          </div>
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="flex flex-col items-center rounded-lg border p-2">
+                              <div className="text-primary text-xl">70%</div>
+                              <div className="text-muted-foreground text-xs">
+                                Full Throttle
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-center rounded-lg border p-2">
+                              <div className="text-primary text-xl">44</div>
+                              <div className="text-muted-foreground text-xs">
+                                Gear Changes
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-center rounded-lg border p-2">
+                              <div className="text-primary text-xl">320</div>
+                              <div className="text-muted-foreground text-xs">
+                                Top Speed km/h
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Lap Record</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="flex items-center gap-4">
+                          <div className="bg-primary/10 flex size-16 items-center justify-center rounded-full">
+                            <Trophy className="text-primary size-8" />
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold">
+                              {race.circuit.details.lap_record_time}
+                            </div>
+                            <div className="text-muted-foreground text-sm">
+                              {race.circuit.details.lap_record_driver} (
+                              {race.circuit.details.lap_record_year})
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <div className="text-muted-foreground text-sm">
+                              Sector Times
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                              <div className="space-y-1">
+                                <div className="h-1 rounded-full bg-purple-500/20" />
+                                <div className="text-center text-xs">
+                                  Sector 1
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="h-1 rounded-full bg-green-500/20" />
+                                <div className="text-center text-xs">
+                                  Sector 2
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="h-1 rounded-full bg-yellow-500/20" />
+                                <div className="text-center text-xs">
+                                  Sector 3
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="text-muted-foreground text-sm">
+                              Speed Zones
+                            </div>
+                            <div className="relative h-8 rounded-lg border">
+                              <div className="bg-primary/20 absolute inset-y-0 left-0 w-[70%] rounded-l-lg" />
+                              <div className="bg-primary/10 absolute inset-y-0 right-0 w-[30%] rounded-r-lg" />
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span>High Speed</span>
+                              <span>Medium Speed</span>
+                              <span>Low Speed</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 </>
               )}
@@ -250,7 +374,14 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
           <TabsContent value="travel" className="space-y-8">
             <FlightSearch
               race={race}
-              nearestAirports={race.circuit?.airports || []}
+              nearestAirports={
+                race.circuit?.locations?.filter(
+                  (loc): loc is SelectCircuitLocation =>
+                    (loc.type === "airport" &&
+                      typeof loc.address === "string") ||
+                    loc.address === null
+                ) || []
+              }
             />
             <div className="grid gap-6 md:grid-cols-2">
               {race.circuit?.transport_info &&
@@ -284,26 +415,35 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
                   </Card>
                 )}
 
-              {race.circuit?.airports && race.circuit.airports.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Nearest Airports</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {race.circuit.airports.map(airport => (
-                        <div key={airport.code}>
-                          <h4 className="font-medium">{airport.name}</h4>
-                          <div className="text-muted-foreground space-y-1">
-                            <p>Distance: {airport.distance}</p>
-                            <p>Transfer Time: {airport.transfer_time}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              {race.circuit?.locations &&
+                race.circuit.locations.filter(loc => loc.type === "airport")
+                  .length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Nearest Airports</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {race.circuit.locations
+                          .filter(
+                            (loc): loc is SelectCircuitLocation =>
+                              (loc.type === "airport" &&
+                                typeof loc.address === "string") ||
+                              loc.address === null
+                          )
+                          .map(airport => (
+                            <div key={airport.placeId || airport.id}>
+                              <h4 className="font-medium">{airport.name}</h4>
+                              <div className="text-muted-foreground space-y-1">
+                                <p>Distance: {airport.distanceFromCircuit}km</p>
+                                <p>Transfer Time: {airport.description}</p>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
             </div>
           </TabsContent>
 

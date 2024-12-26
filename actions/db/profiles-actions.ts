@@ -14,6 +14,7 @@ import {
 } from "@/db/schema/profiles-schema"
 import { ActionState } from "@/types"
 import { eq } from "drizzle-orm"
+import { clerkClient } from "@clerk/nextjs/server"
 
 export async function createProfileAction(
   profile: InsertProfile
@@ -220,5 +221,88 @@ export async function deleteProfileAction(
     console.error("[Profiles] Error message:", error instanceof Error ? error.message : "Unknown")
     console.error("[Profiles] Error stack:", error instanceof Error ? error.stack : "Unknown")
     return { isSuccess: false, message: "Failed to delete profile" }
+  }
+}
+
+export async function syncAdminStatusAction(
+  userId: string
+): Promise<ActionState<void>> {
+  try {
+    // Get profile from database
+    const [profile] = await db
+      .select()
+      .from(profilesTable)
+      .where(eq(profilesTable.userId, userId))
+
+    if (!profile) {
+      return {
+        isSuccess: false,
+        message: "Profile not found"
+      }
+    }
+
+    // Update Clerk metadata to match database
+    const clerk = await clerkClient()
+    await clerk.users.updateUser(userId, {
+      publicMetadata: {
+        isAdmin: profile.isAdmin
+      }
+    })
+
+    return {
+      isSuccess: true,
+      message: "Admin status synced successfully",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("Error syncing admin status:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to sync admin status"
+    }
+  }
+}
+
+export async function getProfileAction(
+  userId: string
+): Promise<ActionState<{ isAdmin: boolean }>> {
+  try {
+    console.log("[ProfilesAction] Getting profile for user:", userId)
+
+    const query = db
+      .select()
+      .from(profilesTable)
+      .where(eq(profilesTable.userId, userId))
+    
+    console.log("[ProfilesAction] Query SQL:", query.toSQL())
+
+    const [profile] = await query
+    console.log("[ProfilesAction] Query result:", profile)
+
+    if (!profile) {
+      console.log("[ProfilesAction] No profile found for user:", userId)
+      return {
+        isSuccess: false,
+        message: "Profile not found"
+      }
+    }
+
+    console.log("[ProfilesAction] Profile found with admin status:", profile.isAdmin)
+    return {
+      isSuccess: true,
+      message: "Profile retrieved successfully",
+      data: {
+        isAdmin: profile.isAdmin
+      }
+    }
+  } catch (error) {
+    console.error("[ProfilesAction] Error getting profile:", error)
+    console.error("[ProfilesAction] Error name:", error instanceof Error ? error.name : "Unknown")
+    console.error("[ProfilesAction] Error message:", error instanceof Error ? error.message : "Unknown")
+    console.error("[ProfilesAction] Error stack:", error instanceof Error ? error.stack : "Unknown")
+    return {
+      isSuccess: false,
+      message: "Failed to get profile"
+    }
   }
 }

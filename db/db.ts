@@ -114,38 +114,38 @@ try {
         tables.map(t => t.table_name)
       )
 
-      // Verify specific table structure with detailed info
-      const profilesColumns = await client`
-        SELECT 
-          column_name, 
-          data_type, 
-          is_nullable,
-          column_default,
-          character_maximum_length,
-          numeric_precision,
-          numeric_scale
-        FROM information_schema.columns 
-        WHERE table_schema = 'public' 
-        AND table_name = 'profiles'
-        ORDER BY ordinal_position
-      `
-      console.log("[DB] Profiles table structure:", profilesColumns)
+      // // Verify specific table structure with detailed info
+      // const profilesColumns = await client`
+      //   SELECT
+      //     column_name,
+      //     data_type,
+      //     is_nullable,
+      //     column_default,
+      //     character_maximum_length,
+      //     numeric_precision,
+      //     numeric_scale
+      //   FROM information_schema.columns
+      //   WHERE table_schema = 'public'
+      //   AND table_name = 'profiles'
+      //   ORDER BY ordinal_position
+      // `
+      // console.log("[DB] Profiles table structure:", profilesColumns)
 
-      const racesColumns = await client`
-        SELECT 
-          column_name, 
-          data_type, 
-          is_nullable,
-          column_default,
-          character_maximum_length,
-          numeric_precision,
-          numeric_scale
-        FROM information_schema.columns 
-        WHERE table_schema = 'public' 
-        AND table_name = 'races'
-        ORDER BY ordinal_position
-      `
-      console.log("[DB] Races table structure:", racesColumns)
+      // const racesColumns = await client`
+      //   SELECT
+      //     column_name,
+      //     data_type,
+      //     is_nullable,
+      //     column_default,
+      //     character_maximum_length,
+      //     numeric_precision,
+      //     numeric_scale
+      //   FROM information_schema.columns
+      //   WHERE table_schema = 'public'
+      //   AND table_name = 'races'
+      //   ORDER BY ordinal_position
+      // `
+      // console.log("[DB] Races table structure:", racesColumns)
 
       // Test a simple query on each table
       const profilesTest = await client`SELECT COUNT(*) FROM profiles`

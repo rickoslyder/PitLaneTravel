@@ -12,7 +12,6 @@ import { HeroSection } from "./HeroSection"
 import { ViewSwitcher } from "./ViewSwitcher"
 
 interface RacesPageProps {
-  /** Initial races data */
   initialRaces: RaceWithCircuit[]
 }
 
@@ -101,21 +100,27 @@ export function RacesPage({ initialRaces }: RacesPageProps) {
   )
 
   return (
-    <div className="min-h-screen">
-      <HeroSection />
+    <div className="space-y-8">
+      <div className="bg-background">
+        <HeroSection />
+      </div>
 
-      <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <SearchBar
-            searchQuery={filters.search}
-            onSearchChange={handleSearchChange}
-            onFilterClick={() => setIsFilterOpen(true)}
-            activeFilterCount={activeFilterCount}
-          />
-          <ViewSwitcher viewType={viewType} onViewChange={setViewType} />
-        </div>
+      <div className="bg-card mx-auto max-w-7xl rounded-lg p-6 shadow">
+        <h1 className="mb-6 text-center text-2xl font-bold">
+          F1 Race Calendar
+        </h1>
 
-        <div className="flex items-center justify-between">
+        <div className="space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <SearchBar
+              searchQuery={filters.search}
+              onSearchChange={handleSearchChange}
+              onFilterClick={() => setIsFilterOpen(true)}
+              activeFilterCount={activeFilterCount}
+            />
+            <ViewSwitcher viewType={viewType} onViewChange={setViewType} />
+          </div>
+
           <ResultsSummary
             totalRaces={races.length}
             shownRaces={filteredRaces.length}
@@ -123,20 +128,20 @@ export function RacesPage({ initialRaces }: RacesPageProps) {
             searchQuery={filters.search}
             filters={filters}
           />
-        </div>
 
-        {filteredRaces.length > 0 ? (
-          <RaceGrid
-            races={filteredRaces}
-            viewType={viewType}
-            onRaceClick={handleRaceClick}
-          />
-        ) : (
-          <EmptyState
-            isFiltered={hasFilters}
-            onClearFilters={handleClearFilters}
-          />
-        )}
+          {filteredRaces.length > 0 ? (
+            <RaceGrid
+              races={filteredRaces}
+              viewType={viewType}
+              onRaceClick={handleRaceClick}
+            />
+          ) : (
+            <EmptyState
+              isFiltered={hasFilters}
+              onClearFilters={handleClearFilters}
+            />
+          )}
+        </div>
       </div>
 
       <FilterSheet

@@ -7,25 +7,20 @@ This client component provides the sidebar for the app.
 "use client"
 
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
   Calendar,
   Flag,
   MapPin,
-  Package,
+  Plane,
   Star,
-  Ticket,
-  Trophy,
   User,
-  Wallet
+  Map,
+  Info,
+  Hotel,
+  Car,
+  Ticket,
+  Settings,
+  Heart,
+  Archive
 } from "lucide-react"
 import * as React from "react"
 
@@ -41,7 +36,6 @@ import { NavProjects } from "./nav-projects"
 import { NavUser } from "./nav-user"
 import { TeamSwitcher } from "./team-switcher"
 
-// Sample data
 const data = {
   user: {
     name: "F1 Fan",
@@ -50,13 +44,13 @@ const data = {
   },
   teams: [
     {
-      name: "2024 Season",
-      logo: Trophy,
+      name: "2025 Season",
+      logo: Calendar,
       plan: "Active"
     },
     {
-      name: "2023 Archive",
-      logo: Calendar,
+      name: "2024 Archive",
+      logo: Archive,
       plan: "Archive"
     }
   ],
@@ -69,27 +63,27 @@ const data = {
       items: [
         { title: "Calendar", url: "/races" },
         { title: "Map View", url: "/races/map" },
-        { title: "Compare", url: "/races/compare" }
+        { title: "Compare Races", url: "/races/compare" }
       ]
     },
     {
       title: "Travel",
-      url: "/packages",
-      icon: Package,
+      url: "/travel",
+      icon: Plane,
       items: [
-        { title: "Packages", url: "/packages" },
-        { title: "Hotels", url: "/hotels" },
-        { title: "Transport", url: "/transport" }
+        { title: "Flights", url: "/travel/flights" },
+        { title: "Hotels", url: "/travel/hotels" },
+        { title: "Transport", url: "/travel/transport" }
       ]
     },
     {
-      title: "Experiences",
-      url: "/experiences",
-      icon: Star,
+      title: "Circuit Info",
+      url: "/circuits",
+      icon: Info,
       items: [
-        { title: "Paddock Club", url: "/experiences/paddock-club" },
-        { title: "Team Garages", url: "/experiences/team-garages" },
-        { title: "Driver Meet", url: "/experiences/driver-meet" }
+        { title: "Grandstands", url: "/circuits/grandstands" },
+        { title: "Local Guide", url: "/circuits/guide" },
+        { title: "Weather", url: "/circuits/weather" }
       ]
     },
     {
@@ -98,15 +92,15 @@ const data = {
       icon: User,
       items: [
         { title: "Profile", url: "/account/profile" },
-        { title: "Bookings", url: "/account/bookings" },
-        { title: "Payments", url: "/account/payments" }
+        { title: "My Trips", url: "/account/trips" },
+        { title: "Settings", url: "/account/settings" }
       ]
     }
   ],
   projects: [
-    { name: "Saved Races", url: "/saved/races", icon: Flag },
-    { name: "Wishlist", url: "/saved/wishlist", icon: Star },
-    { name: "Past Trips", url: "/saved/trips", icon: MapPin }
+    { name: "Saved Races", url: "/saved/races", icon: Heart },
+    { name: "Trip Plans", url: "/saved/trips", icon: Calendar },
+    { name: "Recent Views", url: "/saved/recent", icon: Star }
   ]
 }
 

@@ -28,7 +28,8 @@ CREATE TYPE "public"."location_type" AS ENUM (
     'hotel',
     'restaurant',
     'attraction',
-    'transport'
+    'transport',
+    'airport'
 );
 
 
@@ -63,6 +64,18 @@ CREATE TYPE "public"."race_status" AS ENUM (
 
 
 ALTER TYPE "public"."race_status" OWNER TO "postgres";
+
+
+CREATE TYPE "public"."supporting_series_status" AS ENUM (
+    'scheduled',
+    'live',
+    'completed',
+    'delayed',
+    'cancelled'
+);
+
+
+ALTER TYPE "public"."supporting_series_status" OWNER TO "postgres";
 
 
 CREATE TYPE "public"."trip_visibility" AS ENUM (
@@ -143,21 +156,6 @@ CREATE TABLE IF NOT EXISTS "public"."activities" (
 ALTER TABLE "public"."activities" OWNER TO "postgres";
 
 
-CREATE TABLE IF NOT EXISTS "public"."airports" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "circuit_id" "uuid" NOT NULL,
-    "code" "text" NOT NULL,
-    "name" "text" NOT NULL,
-    "distance" numeric(10,2) NOT NULL,
-    "transfer_time" "text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
-
-ALTER TABLE "public"."airports" OWNER TO "postgres";
-
-
 CREATE TABLE IF NOT EXISTS "public"."circuit_details" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "circuit_id" "uuid" NOT NULL,
@@ -188,7 +186,9 @@ CREATE TABLE IF NOT EXISTS "public"."circuit_locations" (
     "distance_from_circuit" numeric(10,2),
     "timezone" "text",
     "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "transfer_time" "text",
+    "airport_code" "text"
 );
 
 
@@ -204,7 +204,9 @@ CREATE TABLE IF NOT EXISTS "public"."circuits" (
     "longitude" numeric(10,7) NOT NULL,
     "image_url" "text",
     "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "openf1_key" integer,
+    "openf1_short_name" "text"
 );
 
 
@@ -307,7 +309,9 @@ CREATE TABLE IF NOT EXISTS "public"."races" (
     "weekend_start" timestamp with time zone,
     "weekend_end" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "openf1_meeting_key" integer,
+    "openf1_session_key" integer
 );
 
 
@@ -363,7 +367,11 @@ CREATE TABLE IF NOT EXISTS "public"."supporting_series" (
     "series" "text" NOT NULL,
     "round" integer NOT NULL,
     "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "openf1_session_key" integer,
+    "start_time" timestamp with time zone,
+    "end_time" timestamp with time zone,
+    "status" "public"."supporting_series_status" DEFAULT 'scheduled'::"public"."supporting_series_status"
 );
 
 
@@ -586,11 +594,6 @@ ALTER TABLE ONLY "public"."activities"
 
 
 
-ALTER TABLE ONLY "public"."airports"
-    ADD CONSTRAINT "airports_pkey" PRIMARY KEY ("id");
-
-
-
 ALTER TABLE ONLY "public"."circuit_details"
     ADD CONSTRAINT "circuit_details_circuit_id_key" UNIQUE ("circuit_id");
 
@@ -613,6 +616,11 @@ ALTER TABLE ONLY "public"."circuit_locations"
 
 ALTER TABLE ONLY "public"."circuits"
     ADD CONSTRAINT "circuits_name_key" UNIQUE ("name");
+
+
+
+ALTER TABLE ONLY "public"."circuits"
+    ADD CONSTRAINT "circuits_openf1_key_key" UNIQUE ("openf1_key");
 
 
 
@@ -662,6 +670,16 @@ ALTER TABLE ONLY "public"."races"
 
 
 ALTER TABLE ONLY "public"."races"
+    ADD CONSTRAINT "races_openf1_meeting_key_key" UNIQUE ("openf1_meeting_key");
+
+
+
+ALTER TABLE ONLY "public"."races"
+    ADD CONSTRAINT "races_openf1_session_key_key" UNIQUE ("openf1_session_key");
+
+
+
+ALTER TABLE ONLY "public"."races"
     ADD CONSTRAINT "races_pkey" PRIMARY KEY ("id");
 
 
@@ -673,6 +691,11 @@ ALTER TABLE ONLY "public"."reviews"
 
 ALTER TABLE ONLY "public"."saved_itineraries"
     ADD CONSTRAINT "saved_itineraries_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."supporting_series"
+    ADD CONSTRAINT "supporting_series_openf1_session_key_key" UNIQUE ("openf1_session_key");
 
 
 
@@ -753,14 +776,6 @@ CREATE INDEX "idx_activities_type" ON "public"."activities" USING "btree" ("type
 
 
 
-CREATE INDEX "idx_airports_circuit_id" ON "public"."airports" USING "btree" ("circuit_id");
-
-
-
-CREATE INDEX "idx_airports_code" ON "public"."airports" USING "btree" ("code");
-
-
-
 CREATE INDEX "idx_circuit_details_circuit_id" ON "public"."circuit_details" USING "btree" ("circuit_id");
 
 
@@ -774,6 +789,10 @@ CREATE INDEX "idx_circuit_locations_place_id" ON "public"."circuit_locations" US
 
 
 CREATE INDEX "idx_circuit_locations_type" ON "public"."circuit_locations" USING "btree" ("type");
+
+
+
+CREATE INDEX "idx_circuits_openf1_key" ON "public"."circuits" USING "btree" ("openf1_key");
 
 
 
@@ -797,11 +816,31 @@ CREATE INDEX "idx_podium_results_year" ON "public"."podium_results" USING "btree
 
 
 
+CREATE INDEX "idx_races_openf1_meeting_key" ON "public"."races" USING "btree" ("openf1_meeting_key");
+
+
+
+CREATE INDEX "idx_races_openf1_session_key" ON "public"."races" USING "btree" ("openf1_session_key");
+
+
+
+CREATE INDEX "idx_supporting_series_openf1_session_key" ON "public"."supporting_series" USING "btree" ("openf1_session_key");
+
+
+
 CREATE INDEX "idx_supporting_series_race_id" ON "public"."supporting_series" USING "btree" ("race_id");
 
 
 
 CREATE INDEX "idx_supporting_series_series" ON "public"."supporting_series" USING "btree" ("series");
+
+
+
+CREATE INDEX "idx_supporting_series_start_time" ON "public"."supporting_series" USING "btree" ("start_time");
+
+
+
+CREATE INDEX "idx_supporting_series_status" ON "public"."supporting_series" USING "btree" ("status");
 
 
 
@@ -826,10 +865,6 @@ CREATE INDEX "idx_waitlist_user_id" ON "public"."waitlist" USING "btree" ("user_
 
 
 CREATE OR REPLACE TRIGGER "update_activities_updated_at" BEFORE UPDATE ON "public"."activities" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at_column"();
-
-
-
-CREATE OR REPLACE TRIGGER "update_airports_updated_at" BEFORE UPDATE ON "public"."airports" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at_column"();
 
 
 
@@ -903,11 +938,6 @@ CREATE OR REPLACE TRIGGER "update_waitlist_updated_at" BEFORE UPDATE ON "public"
 
 ALTER TABLE ONLY "public"."activities"
     ADD CONSTRAINT "activities_itinerary_id_fkey" FOREIGN KEY ("itinerary_id") REFERENCES "public"."saved_itineraries"("id") ON DELETE CASCADE;
-
-
-
-ALTER TABLE ONLY "public"."airports"
-    ADD CONSTRAINT "airports_circuit_id_fkey" FOREIGN KEY ("circuit_id") REFERENCES "public"."circuits"("id") ON DELETE CASCADE;
 
 
 
@@ -1024,12 +1054,6 @@ GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "service_role";
 GRANT ALL ON TABLE "public"."activities" TO "anon";
 GRANT ALL ON TABLE "public"."activities" TO "authenticated";
 GRANT ALL ON TABLE "public"."activities" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."airports" TO "anon";
-GRANT ALL ON TABLE "public"."airports" TO "authenticated";
-GRANT ALL ON TABLE "public"."airports" TO "service_role";
 
 
 

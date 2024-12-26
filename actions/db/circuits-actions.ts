@@ -14,10 +14,13 @@ import {
   InsertLocalAttraction,
   SelectLocalAttraction,
   localAttractionsTable,
-  transportInfoTable
+  transportInfoTable,
+  circuitLocationsTable,
+  SelectCircuitLocation
 } from "@/db/schema"
 import { ActionState } from "@/types"
-import { eq } from "drizzle-orm"
+import { eq, and } from "drizzle-orm"
+import { getCircuitLocationsAction } from "./circuit-locations-actions"
 
 // Circuit Actions
 export async function createCircuitAction(
@@ -163,12 +166,17 @@ export async function createCircuitAirportAction(
 
 export async function getCircuitAirportsAction(
   circuitId: string
-): Promise<ActionState<SelectAirport[]>> {
+): Promise<ActionState<SelectCircuitLocation[]>> {
   try {
     const airports = await db
       .select()
-      .from(airportsTable)
-      .where(eq(airportsTable.circuitId, circuitId))
+      .from(circuitLocationsTable)
+      .where(
+        and(
+          eq(circuitLocationsTable.circuitId, circuitId),
+          eq(circuitLocationsTable.type, "airport")
+        )
+      )
 
     return {
       isSuccess: true,
@@ -229,6 +237,7 @@ export async function getCircuitWithDetailsAction(
   airports?: SelectAirport[]
   local_attractions?: SelectLocalAttraction[]
   transport_info?: any[]
+  locations?: SelectCircuitLocation[]
 }>> {
   try {
     // Get circuit
@@ -241,9 +250,26 @@ export async function getCircuitWithDetailsAction(
     const detailsResult = await getCircuitDetailsAction(id)
     const details = detailsResult.isSuccess ? detailsResult.data : undefined
 
-    // Get airports
+    // Get airports from circuit_locations
     const airportsResult = await getCircuitAirportsAction(id)
-    const airports = airportsResult.isSuccess ? airportsResult.data : undefined
+    const airports = airportsResult.isSuccess
+      ? airportsResult.data.map(location => ({
+          id: location.id,
+          circuitId: location.circuitId,
+          code: location.placeId || "",
+          name: location.name,
+          distance: location.distanceFromCircuit?.toString() || "0",
+          transferTime: location.description || "Unknown",
+          latitude: location.latitude.toString(),
+          longitude: location.longitude.toString(),
+          createdAt: location.createdAt,
+          updatedAt: location.updatedAt
+        }))
+      : undefined
+
+    // Get circuit locations
+    const locationsResult = await getCircuitLocationsAction(id)
+    const locations = locationsResult.isSuccess ? locationsResult.data : undefined
 
     // Get local attractions
     const attractionsResult = await getCircuitAttractionsAction(id)
@@ -262,6 +288,7 @@ export async function getCircuitWithDetailsAction(
         ...circuitResult.data,
         details,
         airports,
+        locations,
         local_attractions: attractions,
         transport_info: transportInfo
       }
@@ -269,5 +296,63 @@ export async function getCircuitWithDetailsAction(
   } catch (error) {
     console.error("Error getting circuit with details:", error)
     return { isSuccess: false, message: "Failed to get circuit with details" }
+  }
+}
+
+export async function updateCircuitCoordinatesAction(
+  circuitId: string,
+  latitude: number,
+  longitude: number
+): Promise<ActionState<void>> {
+  try {
+    await db
+      .update(circuitsTable)
+      .set({
+        latitude: latitude.toString(),
+        longitude: longitude.toString()
+      })
+      .where(eq(circuitsTable.id, circuitId))
+
+    return {
+      isSuccess: true,
+      message: "Circuit coordinates updated successfully",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("Error updating circuit coordinates:", error)
+    return { isSuccess: false, message: "Failed to update circuit coordinates" }
+  }
+}
+
+// For Jeddah specifically
+export async function fixJeddahCoordinatesAction(): Promise<ActionState<void>> {
+  try {
+    const [circuit] = await db
+      .select()
+      .from(circuitsTable)
+      .where(eq(circuitsTable.name, "Jeddah Corniche Circuit"))
+      .limit(1)
+
+    if (!circuit) {
+      return { isSuccess: false, message: "Jeddah circuit not found" }
+    }
+
+    // Correct coordinates for Jeddah Corniche Circuit
+    await db
+      .update(circuitsTable)
+      .set({
+        latitude: "21.6319",
+        longitude: "39.1044"
+      })
+      .where(eq(circuitsTable.id, circuit.id))
+
+    return {
+      isSuccess: true,
+      message: "Jeddah circuit coordinates fixed",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("Error fixing Jeddah coordinates:", error)
+    return { isSuccess: false, message: "Failed to fix Jeddah coordinates" }
   }
 }
