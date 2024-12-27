@@ -29,6 +29,12 @@ import {
 } from "@/actions/db/airports-actions"
 import { toast } from "sonner"
 import { AirportSearch } from "./AirportSearch"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip"
 
 const Map = dynamic(() => import("./Map"), { ssr: false })
 
@@ -111,23 +117,41 @@ export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
           <div className="space-y-2">
             <Label>To</Label>
             <div className="grid grid-cols-2 gap-2">
-              {nearestAirports.slice(0, 2).map(airport => (
-                <Button
-                  key={airport.id}
-                  variant="outline"
-                  className="justify-start"
-                >
-                  <div className="flex items-center gap-2">
-                    <Plane className="size-4" />
-                    <div className="text-left">
-                      <div className="font-medium">{airport.airportCode}</div>
-                      <div className="text-muted-foreground text-xs">
-                        {airport.distanceFromCircuit}km
-                      </div>
-                    </div>
-                  </div>
-                </Button>
-              ))}
+              {nearestAirports
+                .sort(
+                  (a, b) =>
+                    Number(a.distanceFromCircuit) -
+                    Number(b.distanceFromCircuit)
+                )
+                // .slice(0, 4)
+                .map(airport => (
+                  <TooltipProvider key={airport.id}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                        >
+                          <div className="flex w-full items-center gap-2">
+                            <Plane className="size-4 shrink-0" />
+                            <div className="min-w-0 flex-1 truncate text-left">
+                              <div className="truncate font-medium">
+                                {airport.airportCode} (
+                                {airport.distanceFromCircuit}km)
+                              </div>
+                              <div className="text-muted-foreground truncate text-xs">
+                                {airport.name}
+                              </div>
+                            </div>
+                          </div>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{airport.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ))}
             </div>
           </div>
 
