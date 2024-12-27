@@ -306,3 +306,59 @@ export async function getProfileAction(
     }
   }
 }
+
+export async function toggleAdminAction(
+  userId: string
+): Promise<ActionState<SelectProfile>> {
+  try {
+    const [profile] = await db
+      .select()
+      .from(profilesTable)
+      .where(eq(profilesTable.userId, userId))
+      .limit(1)
+
+    if (!profile) {
+      return {
+        isSuccess: false,
+        message: "Profile not found"
+      }
+    }
+
+    const [updatedProfile] = await db
+      .update(profilesTable)
+      .set({ isAdmin: !profile.isAdmin })
+      .where(eq(profilesTable.userId, userId))
+      .returning()
+
+    return {
+      isSuccess: true,
+      message: `Admin status ${updatedProfile.isAdmin ? "enabled" : "disabled"}`,
+      data: updatedProfile
+    }
+  } catch (error) {
+    console.error("Error toggling admin status:", error)
+    return { isSuccess: false, message: "Failed to toggle admin status" }
+  }
+}
+
+export async function updateMembershipAction(
+  userId: string,
+  membership: "free" | "pro"
+): Promise<ActionState<SelectProfile>> {
+  try {
+    const [updatedProfile] = await db
+      .update(profilesTable)
+      .set({ membership })
+      .where(eq(profilesTable.userId, userId))
+      .returning()
+
+    return {
+      isSuccess: true,
+      message: `Membership updated to ${membership}`,
+      data: updatedProfile
+    }
+  } catch (error) {
+    console.error("Error updating membership:", error)
+    return { isSuccess: false, message: "Failed to update membership" }
+  }
+}

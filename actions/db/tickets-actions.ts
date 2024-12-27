@@ -20,7 +20,7 @@ import {
   packageTicketsTable
 } from "@/db/schema"
 import { ActionState } from "@/types"
-import { eq, and, isNull } from "drizzle-orm"
+import { eq, and, isNull, desc } from "drizzle-orm"
 
 // Ticket Actions
 export async function createTicketAction(
@@ -257,5 +257,62 @@ export async function getTicketPricingHistoryAction(
   } catch (error) {
     console.error("Error getting ticket pricing history:", error)
     return { isSuccess: false, message: "Failed to get ticket pricing history" }
+  }
+}
+
+export async function getTicketsAction(): Promise<ActionState<SelectTicket[]>> {
+  try {
+    const tickets = await db
+      .select()
+      .from(ticketsTable)
+      .orderBy(desc(ticketsTable.createdAt))
+
+    return {
+      isSuccess: true,
+      message: "Tickets retrieved successfully",
+      data: tickets
+    }
+  } catch (error) {
+    console.error("Error getting tickets:", error)
+    return { isSuccess: false, message: "Failed to get tickets" }
+  }
+}
+
+export async function updateTicketAction(
+  id: number,
+  data: Partial<InsertTicket>
+): Promise<ActionState<SelectTicket>> {
+  try {
+    const [updatedTicket] = await db
+      .update(ticketsTable)
+      .set(data)
+      .where(eq(ticketsTable.id, id))
+      .returning()
+
+    return {
+      isSuccess: true,
+      message: "Ticket updated successfully",
+      data: updatedTicket
+    }
+  } catch (error) {
+    console.error("Error updating ticket:", error)
+    return { isSuccess: false, message: "Failed to update ticket" }
+  }
+}
+
+export async function deleteTicketAction(
+  id: number
+): Promise<ActionState<void>> {
+  try {
+    await db.delete(ticketsTable).where(eq(ticketsTable.id, id))
+
+    return {
+      isSuccess: true,
+      message: "Ticket deleted successfully",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("Error deleting ticket:", error)
+    return { isSuccess: false, message: "Failed to delete ticket" }
   }
 }

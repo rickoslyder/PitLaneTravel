@@ -6,7 +6,9 @@ Initializes the database connection and schema for the app.
 
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
+import { supportingSeriesTable } from "./schema/supporting-series-schema"
 import * as schema from "./schema"
+import { adminActivitiesTable } from "./schema/admin-activity-schema"
 
 let _db: ReturnType<typeof drizzle> | null = null
 
@@ -27,7 +29,13 @@ function createConnection() {
     connect_timeout: 10
   })
 
-  _db = drizzle(client, { schema })
+  _db = drizzle(client, {
+    schema: {
+      ...schema,
+      supportingSeriesTable,
+      adminActivitiesTable
+    }
+  })
   return _db
 }
 

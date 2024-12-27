@@ -3,7 +3,6 @@
 import { db } from "@/db/db"
 import { circuitsTable } from "@/db/schema"
 import { desc } from "drizzle-orm"
-import { SelectCircuit } from "@/db/schema"
 import CircuitsTable from "./_components/circuits-table"
 import { Input } from "@/components/ui/input"
 import { Suspense } from "react"

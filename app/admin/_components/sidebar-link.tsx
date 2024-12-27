@@ -3,7 +3,20 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Circle, Home, Plane } from "lucide-react"
+import {
+  Circle,
+  Home,
+  Plane,
+  Ticket,
+  Map,
+  Car,
+  Star,
+  Settings,
+  MessageSquare,
+  Bus,
+  Users,
+  Trophy
+} from "lucide-react"
 
 interface SidebarLinkProps {
   href: string
@@ -14,7 +27,16 @@ interface SidebarLinkProps {
 const iconMap = {
   home: Home,
   circle: Circle,
-  plane: Plane
+  plane: Plane,
+  ticket: Ticket,
+  map: Map,
+  car: Car,
+  star: Star,
+  settings: Settings,
+  "message-square": MessageSquare,
+  bus: Bus,
+  users: Users,
+  trophy: Trophy
 }
 
 export default function SidebarLink({

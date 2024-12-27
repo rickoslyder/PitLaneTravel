@@ -1,8 +1,28 @@
+"use server"
+
 import { db } from "@/db/db"
-import { transportInfoTable } from "@/db/schema/transport-info-schema"
+import { transportInfoTable } from "@/db/schema"
 import { ActionState } from "@/types"
-import { SelectTransportInfo } from "@/db/schema/transport-info-schema"
-import { eq } from "drizzle-orm"
+import { InsertTransportInfo, SelectTransportInfo } from "@/db/schema"
+import { desc, eq } from "drizzle-orm"
+
+export async function getTransportInfoAction(): Promise<ActionState<SelectTransportInfo[]>> {
+  try {
+    const transportInfo = await db
+      .select()
+      .from(transportInfoTable)
+      .orderBy(desc(transportInfoTable.createdAt))
+
+    return {
+      isSuccess: true,
+      message: "Transport info retrieved successfully",
+      data: transportInfo
+    }
+  } catch (error) {
+    console.error("Error getting transport info:", error)
+    return { isSuccess: false, message: "Failed to get transport info" }
+  }
+}
 
 export async function getTransportInfoByCircuitAction(
   circuitId: string
@@ -25,7 +45,7 @@ export async function getTransportInfoByCircuitAction(
 }
 
 export async function createTransportInfoAction(
-  data: Omit<SelectTransportInfo, "id" | "created_at" | "updated_at">
+  data: InsertTransportInfo
 ): Promise<ActionState<SelectTransportInfo>> {
   try {
     const [newTransportInfo] = await db

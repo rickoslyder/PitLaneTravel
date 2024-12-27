@@ -4,7 +4,7 @@ import { db } from "@/db/db"
 import { reviewsTable, tipsTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { InsertReview, SelectReview, InsertTip, SelectTip } from "@/db/schema"
-import { and, eq } from "drizzle-orm"
+import { and, eq, desc } from "drizzle-orm"
 
 // Reviews
 export async function createReviewAction(
@@ -23,6 +23,24 @@ export async function createReviewAction(
   }
 }
 
+export async function getAllReviewsAction(): Promise<ActionState<SelectReview[]>> {
+  try {
+    const reviews = await db
+      .select()
+      .from(reviewsTable)
+      .orderBy(desc(reviewsTable.createdAt))
+
+    return {
+      isSuccess: true,
+      message: "Reviews retrieved successfully",
+      data: reviews
+    }
+  } catch (error) {
+    console.error("Error getting reviews:", error)
+    return { isSuccess: false, message: "Failed to get reviews" }
+  }
+}
+
 export async function getReviewsAction(
   raceId: string
 ): Promise<ActionState<SelectReview[]>> {
@@ -31,7 +49,7 @@ export async function getReviewsAction(
       .select()
       .from(reviewsTable)
       .where(eq(reviewsTable.raceId, raceId))
-      .orderBy(reviewsTable.createdAt)
+      .orderBy(desc(reviewsTable.createdAt))
     return {
       isSuccess: true,
       message: "Reviews retrieved successfully",
@@ -106,6 +124,24 @@ export async function createTipAction(
   }
 }
 
+export async function getAllTipsAction(): Promise<ActionState<SelectTip[]>> {
+  try {
+    const tips = await db
+      .select()
+      .from(tipsTable)
+      .orderBy(desc(tipsTable.createdAt))
+
+    return {
+      isSuccess: true,
+      message: "Tips retrieved successfully",
+      data: tips
+    }
+  } catch (error) {
+    console.error("Error getting tips:", error)
+    return { isSuccess: false, message: "Failed to get tips" }
+  }
+}
+
 export async function getTipsAction(
   raceId: string
 ): Promise<ActionState<SelectTip[]>> {
@@ -114,7 +150,7 @@ export async function getTipsAction(
       .select()
       .from(tipsTable)
       .where(eq(tipsTable.raceId, raceId))
-      .orderBy(tipsTable.createdAt)
+      .orderBy(desc(tipsTable.createdAt))
     return {
       isSuccess: true,
       message: "Tips retrieved successfully",

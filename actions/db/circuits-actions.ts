@@ -19,7 +19,7 @@ import {
   SelectCircuitLocation
 } from "@/db/schema"
 import { ActionState } from "@/types"
-import { eq, and } from "drizzle-orm"
+import { eq, and, desc } from "drizzle-orm"
 import { getCircuitLocationsAction } from "./circuit-locations-actions"
 
 // Circuit Actions
@@ -65,11 +65,15 @@ export async function getCircuitAction(
 
 export async function getCircuitsAction(): Promise<ActionState<SelectCircuit[]>> {
   try {
-    const allCircuits = await db.select().from(circuitsTable)
+    const circuits = await db
+      .select()
+      .from(circuitsTable)
+      .orderBy(desc(circuitsTable.name))
+
     return {
       isSuccess: true,
       message: "Circuits retrieved successfully",
-      data: allCircuits
+      data: circuits
     }
   } catch (error) {
     console.error("Error getting circuits:", error)
