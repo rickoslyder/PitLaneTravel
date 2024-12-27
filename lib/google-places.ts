@@ -1,10 +1,18 @@
 import { Client, PlaceType1 } from "@googlemaps/google-maps-services-js"
+import { Duffel } from "@duffel/api"
 
 if (!process.env.GOOGLE_MAPS_API_KEY) {
-  throw new Error("GOOGLE_MAPS_API_KEY is required")
+  console.error("GOOGLE_MAPS_API_KEY environment variable is not defined")
+  throw new Error(
+    "GOOGLE_MAPS_API_KEY is required. Please check your environment variables."
+  )
 }
 
-const client = new Client({})
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY
+const googleClient = new Client({})
+const duffel = new Duffel({
+  token: process.env.DUFFEL_ACCESS_TOKEN || ""
+})
 
 interface PlaceResult {
   name: string
@@ -61,12 +69,12 @@ export async function searchNearbyPlaces(
   type?: string
 ): Promise<PlaceResult[]> {
   try {
-    const response = await client.placesNearby({
+    const response = await googleClient.placesNearby({
       params: {
         location: { lat: latitude, lng: longitude },
         radius,
-        type: type as any, // The type system is a bit strict here
-        key: process.env.GOOGLE_MAPS_API_KEY!
+        type: type as any,
+        key: GOOGLE_MAPS_API_KEY
       }
     })
 
@@ -86,10 +94,10 @@ export async function searchNearbyPlaces(
  */
 export async function searchPlaces(query: string): Promise<PlaceResult[]> {
   try {
-    const response = await client.textSearch({
+    const response = await googleClient.textSearch({
       params: {
         query,
-        key: process.env.GOOGLE_MAPS_API_KEY!
+        key: GOOGLE_MAPS_API_KEY
       }
     })
 
@@ -112,10 +120,10 @@ export async function searchPlaces(query: string): Promise<PlaceResult[]> {
  */
 export async function getPlaceDetails(placeId: string) {
   try {
-    const response = await client.placeDetails({
+    const response = await googleClient.placeDetails({
       params: {
         place_id: placeId,
-        key: process.env.GOOGLE_MAPS_API_KEY!
+        key: GOOGLE_MAPS_API_KEY
       }
     })
 
@@ -142,10 +150,10 @@ export async function getPlaceDetails(placeId: string) {
  */
 export async function geocodeLocation(address: string) {
   try {
-    const response = await client.geocode({
+    const response = await googleClient.geocode({
       params: {
         address,
-        key: process.env.GOOGLE_MAPS_API_KEY!
+        key: GOOGLE_MAPS_API_KEY
       }
     })
 
@@ -170,17 +178,87 @@ export async function geocodeLocation(address: string) {
 }
 
 /**
+ * Find airport details using Duffel API
+ */
+export async function findAirportDetails(searchTerm: string): Promise<{
+  name: string
+  iata_code?: string
+  latitude?: number
+  longitude?: number
+  icao_code?: string
+} | null> {
+  if (!process.env.DUFFEL_ACCESS_TOKEN) {
+    console.warn("DUFFEL_ACCESS_TOKEN is not set")
+    return null
+  }
+
+  try {
+    const response = await fetch("https://api.duffel.com/air/airports", {
+      headers: {
+        Accept: "application/json",
+        "Duffel-Version": "v2",
+        Authorization: `Bearer ${process.env.DUFFEL_ACCESS_TOKEN}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error(`Duffel API error: ${response.statusText}`)
+    }
+
+    const data = await response.json()
+    const airports = data.data
+
+    // Find the most relevant airport
+    const airport = airports.find((a: any) => {
+      const nameMatch = a.name.toLowerCase().includes(searchTerm.toLowerCase())
+      const codeMatch = a.iata_code?.toLowerCase() === searchTerm.toLowerCase()
+      return nameMatch || codeMatch
+    })
+
+    if (!airport) {
+      return null
+    }
+
+    return {
+      name: airport.name,
+      iata_code: airport.iata_code,
+      latitude: airport.latitude,
+      longitude: airport.longitude,
+      icao_code: airport.icao_code
+    }
+  } catch (error) {
+    console.error("Error fetching airport details from Duffel:", error)
+    return null
+  }
+}
+
+/**
  * Find airport coordinates using name or code
  */
 export async function findAirportCoordinates(
   searchTerm: string
-): Promise<{ latitude: number; longitude: number } | null> {
+): Promise<{
+  latitude: number
+  longitude: number
+  airportCode?: string
+} | null> {
+  // First try Duffel API
+  const duffelResult = await findAirportDetails(searchTerm)
+  if (duffelResult?.latitude && duffelResult?.longitude) {
+    return {
+      latitude: duffelResult.latitude,
+      longitude: duffelResult.longitude,
+      airportCode: duffelResult.iata_code
+    }
+  }
+
+  // Fallback to Google Places API
   try {
-    const response = await client.textSearch({
+    const response = await googleClient.textSearch({
       params: {
         query: `${searchTerm} airport`,
         type: "airport" as PlaceType1,
-        key: process.env.GOOGLE_MAPS_API_KEY!
+        key: GOOGLE_MAPS_API_KEY
       }
     })
 
@@ -189,13 +267,18 @@ export async function findAirportCoordinates(
     }
 
     const airport = response.data.results[0]
-    if (!airport.geometry?.location) {
+    if (!airport.geometry?.location || !airport.name) {
       return null
     }
 
+    // Extract airport code from name (usually in parentheses)
+    const codeMatch = airport.name.match(/\(([A-Z]{3})\)/)
+    const airportCode = codeMatch ? codeMatch[1] : undefined
+
     return {
       latitude: airport.geometry.location.lat,
-      longitude: airport.geometry.location.lng
+      longitude: airport.geometry.location.lng,
+      airportCode
     }
   } catch (error) {
     console.error("Error finding airport coordinates:", error)
@@ -209,50 +292,102 @@ export async function findAirportCoordinates(
 export async function findNearbyAirports(
   latitude: number,
   longitude: number,
-  radiusInKm: number = 100
+  radiusInKm: number = 200
 ): Promise<
   Array<{
     name: string
     latitude: number
     longitude: number
     distance: number
-    placeId: string
+    placeId?: string
+    airportCode?: string
   }>
 > {
+  if (!process.env.DUFFEL_ACCESS_TOKEN) {
+    console.warn("DUFFEL_ACCESS_TOKEN is not set")
+    return []
+  }
+
   try {
-    const response = await client.placesNearby({
-      params: {
-        location: { lat: latitude, lng: longitude },
-        radius: radiusInKm * 1000, // Convert to meters
-        type: "airport" as PlaceType1,
-        key: process.env.GOOGLE_MAPS_API_KEY!
-      }
+    // Convert km to meters for Duffel API
+    const radiusInMeters = radiusInKm * 1000
+
+    const { data: places } = await duffel.suggestions.list({
+      lat: latitude.toString(),
+      lng: longitude.toString(),
+      rad: radiusInMeters.toString()
     })
 
-    if (response.data.status !== "OK") {
-      return []
-    }
+    console.log("Duffel API response:", places)
 
-    return response.data.results
-      .filter(
-        airport =>
-          airport.name && airport.geometry?.location && airport.place_id
+    // Filter to only include airports and calculate distances
+    return places
+      .filter((place: { type: string }) => place.type === "airport")
+      .map(
+        (airport: {
+          name: string
+          latitude: number | null
+          longitude: number | null
+          id: string
+          iata_code?: string
+        }) => ({
+          name: airport.name,
+          latitude: airport.latitude || 0,
+          longitude: airport.longitude || 0,
+          distance: calculateDistance(
+            latitude,
+            longitude,
+            airport.latitude || 0,
+            airport.longitude || 0
+          ),
+          airportCode: airport.iata_code,
+          placeId: airport.id
+        })
       )
-      .map(airport => ({
-        name: airport.name!,
-        latitude: airport.geometry!.location.lat,
-        longitude: airport.geometry!.location.lng,
-        distance: calculateDistance(
-          latitude,
-          longitude,
-          airport.geometry!.location.lat,
-          airport.geometry!.location.lng
-        ),
-        placeId: airport.place_id!
-      }))
+      .sort((a, b) => a.distance - b.distance)
   } catch (error) {
     console.error("Error finding nearby airports:", error)
-    throw error
+    // Fallback to Google Places API if Duffel fails
+    try {
+      const response = await googleClient.placesNearby({
+        params: {
+          location: { lat: latitude, lng: longitude },
+          radius: radiusInKm * 1000,
+          type: "airport" as PlaceType1,
+          key: GOOGLE_MAPS_API_KEY
+        }
+      })
+
+      if (response.data.status !== "OK") {
+        return []
+      }
+
+      return response.data.results
+        .filter(
+          airport =>
+            airport.name && airport.geometry?.location && airport.place_id
+        )
+        .map(airport => {
+          const codeMatch = airport.name!.match(/\(([A-Z]{3})\)/)
+          return {
+            name: airport.name!,
+            latitude: airport.geometry!.location.lat,
+            longitude: airport.geometry!.location.lng,
+            distance: calculateDistance(
+              latitude,
+              longitude,
+              airport.geometry!.location.lat,
+              airport.geometry!.location.lng
+            ),
+            placeId: airport.place_id!,
+            airportCode: codeMatch ? codeMatch[1] : undefined
+          }
+        })
+        .sort((a, b) => a.distance - b.distance)
+    } catch (fallbackError) {
+      console.error("Error in Google Places fallback:", fallbackError)
+      return []
+    }
   }
 }
 

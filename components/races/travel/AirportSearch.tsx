@@ -166,7 +166,9 @@ export function AirportSearch({
           {selectedAirport ? (
             <div className="flex items-center space-x-2">
               <Plane className="text-muted-foreground size-4" />
-              <span>{selectedAirport.code}</span>
+              <span>
+                {selectedAirport.name} ({selectedAirport.code})
+              </span>
             </div>
           ) : (
             <span className="text-muted-foreground">{placeholder}</span>

@@ -59,9 +59,9 @@ export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
     }
 
     const result = await findNearbyAirportsAction(
-      race.circuit.id,
       Number(race.circuit.latitude),
-      Number(race.circuit.longitude)
+      Number(race.circuit.longitude),
+      200
     )
     if (result.isSuccess) {
       toast.success(result.message)

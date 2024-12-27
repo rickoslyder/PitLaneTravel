@@ -39,9 +39,9 @@ export default function FlightSearch({
     }
 
     const result = await findNearbyAirportsAction(
-      circuitId,
       Number(circuit.latitude),
-      Number(circuit.longitude)
+      Number(circuit.longitude),
+      100
     )
     if (result.isSuccess) {
       toast.success(result.message)
