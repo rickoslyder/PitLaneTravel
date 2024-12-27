@@ -62,6 +62,33 @@ export type Database = {
           }
         ]
       }
+      admin_activities: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          type: Database["public"]["Enums"]["admin_activity_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          type: Database["public"]["Enums"]["admin_activity_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          type?: Database["public"]["Enums"]["admin_activity_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       circuit_details: {
         Row: {
           circuit_id: string
@@ -401,6 +428,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          is_admin: boolean
           membership: Database["public"]["Enums"]["membership"]
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -409,6 +437,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          is_admin?: boolean
           membership?: Database["public"]["Enums"]["membership"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -417,6 +446,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          is_admin?: boolean
           membership?: Database["public"]["Enums"]["membership"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -954,6 +984,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      admin_activity_type:
+        | "ticket"
+        | "meetup"
+        | "transport"
+        | "attraction"
+        | "series"
       location_type:
         | "circuit"
         | "city_center"

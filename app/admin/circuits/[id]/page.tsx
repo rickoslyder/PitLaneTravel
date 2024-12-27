@@ -19,6 +19,7 @@ export default async function CircuitAdminPage({
   searchParams
 }: PageProps) {
   const resolvedParams = await params
+  const resolvedSearchParams = await searchParams
   const [circuit] = await db
     .select()
     .from(circuitsTable)
