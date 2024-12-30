@@ -22,7 +22,8 @@ const initPostHog = () => {
     }
 
     posthog.init(key, {
-      api_host: host,
+      api_host: "https://www.pitlanetravel.com/ingest",
+      ui_host: host,
       loaded: posthog => {
         if (process.env.NODE_ENV === "development") {
           console.log("[PostHog] Loaded successfully")
