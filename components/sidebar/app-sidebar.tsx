@@ -67,6 +67,16 @@ const data = {
       ]
     },
     {
+      title: "Trips",
+      url: "/trips",
+      icon: Calendar,
+      items: [
+        { title: "My Trips", url: "/trips" },
+        { title: "Trip Planner", url: "/trips/planner" },
+        { title: "Shared Trips", url: "/trips/shared" }
+      ]
+    },
+    {
       title: "Travel",
       url: "/travel",
       icon: Plane,

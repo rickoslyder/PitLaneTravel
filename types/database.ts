@@ -455,6 +455,95 @@ export type Database = {
         }
         Relationships: []
       }
+      race_weather: {
+        Row: {
+          cloud_cover: number | null
+          conditions: string
+          created_at: string
+          date: string
+          dew: number | null
+          feels_like: number
+          humidity: number
+          icon: string
+          id: string
+          precip: number
+          precip_prob: number
+          pressure: number | null
+          race_id: string
+          sunrise: string | null
+          sunset: string | null
+          temp: number
+          temp_max: number
+          temp_min: number
+          unit_group: Database["public"]["Enums"]["unit_group"]
+          updated_at: string
+          uv_index: number | null
+          visibility: number | null
+          wind_dir: number | null
+          wind_speed: number
+        }
+        Insert: {
+          cloud_cover?: number | null
+          conditions: string
+          created_at?: string
+          date: string
+          dew?: number | null
+          feels_like: number
+          humidity: number
+          icon: string
+          id?: string
+          precip: number
+          precip_prob: number
+          pressure?: number | null
+          race_id: string
+          sunrise?: string | null
+          sunset?: string | null
+          temp: number
+          temp_max: number
+          temp_min: number
+          unit_group?: Database["public"]["Enums"]["unit_group"]
+          updated_at?: string
+          uv_index?: number | null
+          visibility?: number | null
+          wind_dir?: number | null
+          wind_speed: number
+        }
+        Update: {
+          cloud_cover?: number | null
+          conditions?: string
+          created_at?: string
+          date?: string
+          dew?: number | null
+          feels_like?: number
+          humidity?: number
+          icon?: string
+          id?: string
+          precip?: number
+          precip_prob?: number
+          pressure?: number | null
+          race_id?: string
+          sunrise?: string | null
+          sunset?: string | null
+          temp?: number
+          temp_max?: number
+          temp_min?: number
+          unit_group?: Database["public"]["Enums"]["unit_group"]
+          updated_at?: string
+          uv_index?: number | null
+          visibility?: number | null
+          wind_dir?: number | null
+          wind_speed?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "race_weather_race_id_fkey"
+            columns: ["race_id"]
+            isOneToOne: false
+            referencedRelation: "races"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       races: {
         Row: {
           circuit_id: string
@@ -887,34 +976,52 @@ export type Database = {
       }
       trips: {
         Row: {
+          accommodation: Json | null
           created_at: string
+          custom_notes: Json | null
           description: string
+          flights: Json | null
           id: string
+          packing_list: string[] | null
           race_id: string
           shared_with: string[] | null
+          status: Database["public"]["Enums"]["trip_status"]
           title: string
+          transportation_notes: string | null
           updated_at: string
           user_id: string
           visibility: Database["public"]["Enums"]["trip_visibility"]
         }
         Insert: {
+          accommodation?: Json | null
           created_at?: string
+          custom_notes?: Json | null
           description: string
+          flights?: Json | null
           id?: string
+          packing_list?: string[] | null
           race_id: string
           shared_with?: string[] | null
+          status?: Database["public"]["Enums"]["trip_status"]
           title: string
+          transportation_notes?: string | null
           updated_at?: string
           user_id: string
           visibility?: Database["public"]["Enums"]["trip_visibility"]
         }
         Update: {
+          accommodation?: Json | null
           created_at?: string
+          custom_notes?: Json | null
           description?: string
+          flights?: Json | null
           id?: string
+          packing_list?: string[] | null
           race_id?: string
           shared_with?: string[] | null
+          status?: Database["public"]["Enums"]["trip_status"]
           title?: string
+          transportation_notes?: string | null
           updated_at?: string
           user_id?: string
           visibility?: Database["public"]["Enums"]["trip_visibility"]
@@ -1007,7 +1114,9 @@ export type Database = {
         | "completed"
         | "delayed"
         | "cancelled"
+      trip_status: "planning" | "booked" | "completed"
       trip_visibility: "private" | "public" | "shared"
+      unit_group: "us" | "metric"
       waitlist_status: "pending" | "notified" | "purchased" | "expired"
     }
     CompositeTypes: {
@@ -1115,4 +1224,8 @@ export type CompositeTypes<
 
 export type RaceWithCircuit = Database["public"]["Tables"]["races"]["Row"] & {
   circuit: Database["public"]["Tables"]["circuits"]["Row"] | null
+}
+
+export type RaceWithCircuitAndSeries = RaceWithCircuit & {
+  supporting_series?: Database["public"]["Tables"]["supporting_series"]["Row"][]
 }

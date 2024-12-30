@@ -27,6 +27,7 @@ const navLinks = [
 ]
 
 const signedInLinks = [
+  { href: "/trips", label: "My Trips" },
   { href: "/bookings", label: "My Bookings" },
   { href: "/wishlist", label: "Wishlist" }
 ]

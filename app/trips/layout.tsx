@@ -1,15 +1,22 @@
 "use server"
 
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger
 } from "@/components/ui/sidebar"
-import { RacesBreadcrumb } from "./_components/races-breadcrumb"
 
-export default async function RacesLayout({
+export default async function TripsLayout({
   children
 }: {
   children: React.ReactNode
@@ -23,7 +30,17 @@ export default async function RacesLayout({
             <div className="flex h-14 items-center gap-4 px-4">
               <SidebarTrigger className="-ml-2" />
               <Separator orientation="vertical" className="h-6" />
-              <RacesBreadcrumb />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="/trips">My Trips</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>Trips</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
             </div>
           </header>
 

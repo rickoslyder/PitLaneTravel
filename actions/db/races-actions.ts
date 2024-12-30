@@ -1,9 +1,9 @@
 "use server"
 
 import { db } from "@/db/db"
-import { circuitsTable, racesTable } from "@/db/schema"
+import { circuitsTable, racesTable, supportingSeriesTable } from "@/db/schema"
 import { ActionState } from "@/types"
-import { RaceWithCircuit } from "@/types/database"
+import { RaceWithCircuitAndSeries } from "@/types/database"
 import { eq } from "drizzle-orm"
 import { sql } from "drizzle-orm"
 
@@ -11,7 +11,7 @@ export async function getRacesAction(filters?: {
   year?: number
   startDate?: string
   endDate?: string
-}): Promise<ActionState<RaceWithCircuit[]>> {
+}): Promise<ActionState<RaceWithCircuitAndSeries[]>> {
   try {
     console.log("[Races] Getting races with filters:", filters)
 
@@ -73,6 +73,36 @@ export async function getRacesAction(filters?: {
       .where(conditions.length > 0 ? conditions[0] : undefined)
       .orderBy(racesTable.date)
 
+    // Get supporting series for all races
+    const supportingSeries = await db
+      .select()
+      .from(supportingSeriesTable)
+      .where(
+        conditions.length > 0
+          ? sql`${supportingSeriesTable.raceId} IN (${sql.join(
+              races.map(r => r.id),
+              sql`, `
+            )})`
+          : undefined
+      )
+
+    // Group supporting series by race ID
+    const seriesByRaceId = supportingSeries.reduce((acc, series) => {
+      if (!acc[series.raceId]) {
+        acc[series.raceId] = []
+      }
+      acc[series.raceId].push({
+        ...series,
+        created_at: series.createdAt.toISOString(),
+        updated_at: series.updatedAt.toISOString(),
+        start_time: series.startTime?.toISOString() || null,
+        end_time: series.endTime?.toISOString() || null,
+        race_id: series.raceId,
+        openf1_session_key: series.openf1SessionKey
+      })
+      return acc
+    }, {} as Record<string, any[]>)
+
     console.log("[Races] Query executed successfully")
     console.log("[Races] Number of races found:", races.length)
 
@@ -93,7 +123,8 @@ export async function getRacesAction(filters?: {
           longitude: Number(race.circuit.longitude),
           created_at: race.circuit.created_at.toISOString(),
           updated_at: race.circuit.updated_at.toISOString()
-        } : null
+        } : null,
+        supporting_series: seriesByRaceId[race.id] || []
       }))
     }
   } catch (error) {
@@ -117,7 +148,7 @@ export async function getRacesAction(filters?: {
   }
 }
 
-export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWithCircuit>> {
+export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWithCircuitAndSeries>> {
   try {
     console.log("[Races] Getting race by ID:", id)
 
@@ -168,6 +199,13 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
     }
 
     const race = races[0]
+
+    // Get supporting series for the race
+    const supportingSeries = await db
+      .select()
+      .from(supportingSeriesTable)
+      .where(eq(supportingSeriesTable.raceId, race.id))
+
     console.log("[Races] Race found successfully")
     return {
       isSuccess: true,
@@ -186,7 +224,16 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
           longitude: Number(race.circuit.longitude),
           created_at: race.circuit.created_at.toISOString(),
           updated_at: race.circuit.updated_at.toISOString()
-        } : null
+        } : null,
+        supporting_series: supportingSeries.map(series => ({
+          ...series,
+          created_at: series.createdAt.toISOString(),
+          updated_at: series.updatedAt.toISOString(),
+          start_time: series.startTime?.toISOString() || null,
+          end_time: series.endTime?.toISOString() || null,
+          race_id: series.raceId,
+          openf1_session_key: series.openf1SessionKey
+        }))
       }
     }
   } catch (error) {

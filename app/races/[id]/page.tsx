@@ -1,7 +1,9 @@
 "use server"
 
+import { auth } from "@clerk/nextjs/server"
 import { getRaceByIdAction } from "@/actions/db/races-actions"
 import { getCircuitWithDetailsAction } from "@/actions/db/circuits-actions"
+import { getUserTripForRaceAction } from "@/actions/db/trips-actions"
 import { notFound } from "next/navigation"
 import { RaceDetailsPage } from "@/components/races/RaceDetailsPage"
 import LocalAttractions from "@/components/races/LocalAttractions"
@@ -15,6 +17,8 @@ interface RacePageProps {
 
 export default async function RacePage({ params }: RacePageProps) {
   const resolvedParams = await params
+  const { userId } = await auth()
+
   const raceResult = await getRaceByIdAction(resolvedParams.id)
   if (!raceResult.isSuccess) {
     return notFound()
@@ -25,6 +29,15 @@ export default async function RacePage({ params }: RacePageProps) {
   )
   if (!circuitResult.isSuccess) {
     return notFound()
+  }
+
+  // Get user's existing trip for this race if they're logged in
+  let existingTripId: string | undefined
+  if (userId) {
+    const tripResult = await getUserTripForRaceAction(userId, resolvedParams.id)
+    if (tripResult.isSuccess && tripResult.data) {
+      existingTripId = tripResult.data.id
+    }
   }
 
   // Convert to RaceWithDetails
@@ -107,7 +120,11 @@ export default async function RacePage({ params }: RacePageProps) {
 
   return (
     <div className="container space-y-8 py-8">
-      <RaceDetailsPage race={raceWithDetails} />
+      <RaceDetailsPage
+        race={raceWithDetails}
+        userId={userId}
+        existingTripId={existingTripId}
+      />
       <LocalAttractions circuit={circuitResult.data} />
     </div>
   )

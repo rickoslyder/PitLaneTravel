@@ -29,13 +29,23 @@ import { ReviewSection } from "./reviews/ReviewSection"
 import { RaceItinerary } from "./RaceItinerary"
 import { RaceCountdown } from "./race-countdown/RaceCountdown"
 import { SelectCircuitLocation } from "@/db/schema"
+import { TripPlannerButton } from "@/components/trip-planner-button"
+import { auth } from "@clerk/nextjs/server"
 
 interface RaceDetailsPageProps {
   /** The race to display */
   race: RaceWithDetails
+  /** The user's existing trip ID for this race, if any */
+  existingTripId?: string
+  /** The current user's ID */
+  userId?: string | null
 }
 
-export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
+export function RaceDetailsPage({
+  race,
+  existingTripId,
+  userId
+}: RaceDetailsPageProps) {
   const [activeTab, setActiveTab] = useState("info")
   const raceDate = new Date(race.date)
   const weekendStart = race.weekend_start ? new Date(race.weekend_start) : null
@@ -165,6 +175,11 @@ export function RaceDetailsPage({ race }: RaceDetailsPageProps) {
                 <Ticket className="mr-2 size-4" />
                 Book Now
               </Button>
+              <TripPlannerButton
+                race={race}
+                userId={userId}
+                existingTripId={existingTripId}
+              />
               <Button
                 size="lg"
                 variant="outline"

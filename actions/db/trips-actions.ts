@@ -1,9 +1,36 @@
 "use server"
 
 import { db } from "@/db/db"
-import { InsertTrip, SelectTrip, tripsTable } from "@/db/schema"
+import { InsertTrip, SelectTrip, tripsTable, racesTable, circuitsTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq, and, or } from "drizzle-orm"
+import { relations } from "drizzle-orm"
+
+// Define relations
+const tripRelations = relations(tripsTable, ({ one }) => ({
+  race: one(racesTable, {
+    fields: [tripsTable.raceId],
+    references: [racesTable.id]
+  })
+}))
+
+const raceRelations = relations(racesTable, ({ one }) => ({
+  circuit: one(circuitsTable, {
+    fields: [racesTable.circuitId],
+    references: [circuitsTable.id]
+  })
+}))
+
+interface TripWithRace extends SelectTrip {
+  race: {
+    name: string
+    date: Date
+    circuit: {
+      name: string
+      country: string
+    }
+  }
+}
 
 export async function createTripAction(
   trip: InsertTrip
@@ -53,11 +80,13 @@ export async function getTripAction(
 
 export async function getUserTripsAction(
   userId: string
-): Promise<ActionState<SelectTrip[]>> {
+): Promise<ActionState<TripWithRace[]>> {
   try {
     const trips = await db
       .select()
       .from(tripsTable)
+      .innerJoin(racesTable, eq(racesTable.id, tripsTable.raceId))
+      .innerJoin(circuitsTable, eq(circuitsTable.id, racesTable.circuitId))
       .where(
         or(eq(tripsTable.userId, userId), eq(tripsTable.visibility, "public"))
       )
@@ -65,11 +94,48 @@ export async function getUserTripsAction(
     return {
       isSuccess: true,
       message: "Trips retrieved successfully",
-      data: trips
+      data: trips.map(({ trips, races, circuits }) => ({
+        ...trips,
+        race: {
+          name: races.name,
+          date: races.date,
+          circuit: {
+            name: circuits.name,
+            country: circuits.country
+          }
+        }
+      })) as TripWithRace[]
     }
   } catch (error) {
     console.error("Error getting trips:", error)
     return { isSuccess: false, message: "Failed to get trips" }
+  }
+}
+
+export async function getUserTripForRaceAction(
+  userId: string,
+  raceId: string
+): Promise<ActionState<SelectTrip | undefined>> {
+  try {
+    const [trip] = await db
+      .select()
+      .from(tripsTable)
+      .where(
+        and(
+          eq(tripsTable.userId, userId),
+          eq(tripsTable.raceId, raceId)
+        )
+      )
+      .limit(1)
+
+    return {
+      isSuccess: true,
+      message: trip ? "Trip found" : "No trip found",
+      data: trip
+    }
+  } catch (error) {
+    console.error("Error getting trip for race:", error)
+    return { isSuccess: false, message: "Failed to get trip for race" }
   }
 }
 

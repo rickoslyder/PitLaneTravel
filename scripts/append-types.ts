@@ -22,6 +22,10 @@ try {
 export type RaceWithCircuit = Database["public"]["Tables"]["races"]["Row"] & {
   circuit: Database["public"]["Tables"]["circuits"]["Row"] | null
 }
+
+export type RaceWithCircuitAndSeries = RaceWithCircuit & {
+  supporting_series?: Database["public"]["Tables"]["supporting_series"]["Row"][]
+}
 `
 
   fs.appendFileSync(databaseTypesPath, customTypes)
