@@ -126,7 +126,8 @@ export function AiTab({
                       transport_info: race.circuit.transport_info,
                       locations: race.circuit.locations
                     }
-                  : undefined
+                  : null,
+                supporting_series: race.supporting_series || []
               }
             }}
             onAddActivity={onAddActivity}

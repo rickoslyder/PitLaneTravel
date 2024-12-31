@@ -27,7 +27,7 @@ import { relations } from "drizzle-orm"
 import { circuitsTable } from "./circuits-schema"
 
 export const raceStatusEnum = pgEnum("race_status", [
-  "live",
+  "in_progress",
   "upcoming",
   "completed",
   "cancelled"

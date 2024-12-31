@@ -110,7 +110,7 @@ export async function getRacesAction(filters?: {
         updated_at: race.updated_at.toISOString(),
         weekend_start: race.weekend_start?.toISOString() || null,
         weekend_end: race.weekend_end?.toISOString() || null,
-        status: race.status === "live" ? "in_progress" : race.status,
+        status: race.status,
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),
@@ -197,7 +197,7 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
         updated_at: race.updated_at.toISOString(),
         weekend_start: race.weekend_start?.toISOString() || null,
         weekend_end: race.weekend_end?.toISOString() || null,
-        status: race.status === "live" ? "in_progress" : race.status,
+        status: race.status,
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),

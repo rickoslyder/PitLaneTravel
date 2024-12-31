@@ -115,10 +115,10 @@ export class SessionUpdater {
   /**
    * Map OpenF1 session status to F1 race status
    */
-  private mapF1SessionStatus(openF1Status: string): "upcoming" | "live" | "completed" | "cancelled" {
+  private mapF1SessionStatus(openF1Status: string): "upcoming" | "in_progress" | "completed" | "cancelled" {
     switch (openF1Status.toLowerCase()) {
       case "started":
-        return "live"
+        return "in_progress"
       case "finished":
         return "completed"
       case "cancelled":

@@ -115,7 +115,7 @@ export default async function RacePage({ params }: RacePageProps) {
           openf1_key: circuitResult.data.openf1Key,
           openf1_short_name: circuitResult.data.openf1ShortName
         }
-      : undefined
+      : null
   }
 
   return (

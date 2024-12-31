@@ -46,7 +46,7 @@ export interface Race {
   openf1_session_key: number | null
   created_at: string
   updated_at: string
-  circuit?: Circuit
+  circuit: Circuit | null
 }
 
 export interface TransportInfo {
@@ -182,6 +182,9 @@ export interface SupportingSeries {
   round: number
   created_at: string
   updated_at: string
+  start_time: string | null
+  end_time: string | null
+  openf1_session_key: number | null
 }
 
 // Props interfaces
@@ -220,21 +223,27 @@ export interface ScheduleItem {
   time: string
 }
 
-export interface RaceWithDetails extends Race {
-  circuit?: Circuit & {
-    details?: CircuitDetails
-    airports?: Airport[]
-    local_attractions?: LocalAttraction[]
-    transport_info?: TransportInfo[]
-    locations?: SelectCircuitLocation[]
-  }
+export interface RaceWithCircuitAndSeries extends Race {
+  circuit: Circuit | null
+  supporting_series: SupportingSeries[]
+}
+
+export interface RaceWithDetails extends RaceWithCircuitAndSeries {
+  circuit:
+    | (Circuit & {
+        details?: CircuitDetails
+        airports?: Airport[]
+        local_attractions?: LocalAttraction[]
+        transport_info?: TransportInfo[]
+        locations?: SelectCircuitLocation[]
+      })
+    | null
   tickets?: Array<
     Ticket & {
       pricing?: TicketPricing[]
       features?: TicketFeature[]
     }
   >
-  supporting_series?: SupportingSeries[]
   podium_results?: PodiumResult[]
   availability?: "available" | "sold_out" | "low_stock" | "pending"
 }

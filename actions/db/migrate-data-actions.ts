@@ -234,7 +234,7 @@ export async function migrateDataAction(): Promise<ActionState<void>> {
           season,
           round: sql`${round}::integer`,
           country: race.country,
-          status: (race.status as "live" | "upcoming" | "completed" | "cancelled") || "upcoming",
+          status: race.status as "in_progress" | "upcoming" | "completed" | "cancelled",
           slug: race.slug || null,
           isSprintWeekend: race.is_sprint_weekend || false
         }).returning()

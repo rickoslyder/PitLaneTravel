@@ -156,7 +156,7 @@ export default async function TripPage({ params }: TripPageProps) {
             })
           )
         }
-      : undefined
+      : null
   }
 
   // Parse JSONB fields

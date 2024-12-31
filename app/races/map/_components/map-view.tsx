@@ -1,11 +1,11 @@
 "use client"
 
 import { WorldMap } from "@/components/races/WorldMap"
-import { RaceWithCircuit } from "@/types/database"
+import { RaceWithCircuitAndSeries } from "@/types/database"
 import { useRouter } from "next/navigation"
 
 interface MapViewProps {
-  races: RaceWithCircuit[]
+  races: RaceWithCircuitAndSeries[]
 }
 
 export function MapView({ races }: MapViewProps) {

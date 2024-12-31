@@ -20,5 +20,10 @@
     "fs",
     "http",
     "net"
+  ],
+  "cSpell.words": [
+    "fkey",
+    "openf",
+    "precip"
   ]
 }
