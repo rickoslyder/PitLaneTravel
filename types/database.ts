@@ -1239,7 +1239,7 @@ export interface RaceWithCircuitAndSeries {
   description: string | null
   weekend_start: string | null
   weekend_end: string | null
-  status: string
+  status: "upcoming" | "in_progress" | "completed" | "cancelled"
   slug: string | null
   is_sprint_weekend: boolean
   openf1_meeting_key: number | null

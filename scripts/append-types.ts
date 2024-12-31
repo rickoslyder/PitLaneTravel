@@ -23,8 +23,49 @@ export type RaceWithCircuit = Database["public"]["Tables"]["races"]["Row"] & {
   circuit: Database["public"]["Tables"]["circuits"]["Row"] | null
 }
 
-export type RaceWithCircuitAndSeries = RaceWithCircuit & {
-  supporting_series?: Database["public"]["Tables"]["supporting_series"]["Row"][]
+export interface RaceWithCircuitAndSeries {
+  id: string
+  circuit_id: string
+  name: string
+  date: string
+  season: number
+  round: number
+  country: string
+  description: string | null
+  weekend_start: string | null
+  weekend_end: string | null
+  status: "upcoming" | "in_progress" | "completed" | "cancelled"
+  slug: string | null
+  is_sprint_weekend: boolean
+  openf1_meeting_key: number | null
+  openf1_session_key: number | null
+  created_at: string
+  updated_at: string
+  circuit: {
+    id: string
+    name: string
+    country: string
+    location: string
+    latitude: number
+    longitude: number
+    image_url: string | null
+    openf1_key: number | null
+    openf1_short_name: string | null
+    created_at: string
+    updated_at: string
+    locations?: SelectCircuitLocation[]
+  } | null
+  supporting_series: Array<{
+    id: string
+    race_id: string
+    series: string
+    round: number
+    created_at: string
+    updated_at: string
+    start_time: string | null
+    end_time: string | null
+    openf1_session_key: number | null
+  }>
 }
 `
 

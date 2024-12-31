@@ -67,10 +67,7 @@ export default async function TripPage({ params }: TripPageProps) {
   // Convert to RaceWithDetails
   const raceWithDetails: RaceWithDetails = {
     ...raceResult.data,
-    status:
-      raceResult.data.status === "live"
-        ? "in_progress"
-        : (raceResult.data.status as "upcoming" | "completed" | "cancelled"),
+    status: raceResult.data.status,
     circuit: circuitResult.data
       ? {
           id: circuitResult.data.id,
