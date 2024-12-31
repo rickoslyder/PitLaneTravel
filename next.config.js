@@ -7,3 +7,15 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
+
+module.exports = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "vsszkzazjhvlecyryzon.supabase.co",
+        pathname: "/storage/v1/render/image/public/**"
+      }
+    ]
+  }
+}

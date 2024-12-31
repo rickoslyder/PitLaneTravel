@@ -34,6 +34,8 @@ interface FlightSearchFormProps {
 // Recommend arriving on Wednesday for the full race weekend experience
 const RECOMMENDED_ARRIVAL_DAYS = 3 // Wednesday (3 days before Sunday)
 const RECOMMENDED_DEPARTURE_DAYS = 1 // Monday (1 day after Sunday)
+const MAX_DAYS_BEFORE_RACE = 14 // 2 weeks before race
+const MAX_DAYS_AFTER_RACE = 14 // 2 weeks after race
 
 // Schedule information for warnings
 const WEEKEND_SCHEDULE = {
@@ -61,6 +63,8 @@ export function FlightSearchForm({
   const raceDate = new Date(race.date)
   const recommendedArrivalStart = subDays(raceDate, RECOMMENDED_ARRIVAL_DAYS)
   const recommendedDepartureEnd = addDays(raceDate, RECOMMENDED_DEPARTURE_DAYS)
+  const earliestDepartureDate = subDays(raceDate, MAX_DAYS_BEFORE_RACE)
+  const latestReturnDate = addDays(raceDate, MAX_DAYS_AFTER_RACE)
 
   // Calculate key dates for the race weekend
   const thursdayDate = subDays(raceDate, 3)
@@ -215,7 +219,10 @@ export function FlightSearchForm({
           <DatePicker
             date={departureDate}
             onDateChange={handleDepartureDateChange}
-            minDate={subDays(raceDate, 10)} // Allow booking up to 10 days before
+            fromDate={earliestDepartureDate}
+            toDate={raceDate}
+            defaultMonth={earliestDepartureDate}
+            minDate={earliestDepartureDate}
             maxDate={raceDate}
             highlightedDates={importantDates}
           />
@@ -226,8 +233,11 @@ export function FlightSearchForm({
           <DatePicker
             date={returnDate}
             onDateChange={handleReturnDateChange}
+            fromDate={raceDate}
+            toDate={latestReturnDate}
+            defaultMonth={raceDate}
             minDate={raceDate}
-            maxDate={addDays(raceDate, 7)}
+            maxDate={latestReturnDate}
             highlightedDates={[
               {
                 date: raceDate,

@@ -110,6 +110,15 @@ CREATE TYPE "public"."trip_visibility" AS ENUM (
 ALTER TYPE "public"."trip_visibility" OWNER TO "postgres";
 
 
+CREATE TYPE "public"."unit_group" AS ENUM (
+    'us',
+    'metric'
+);
+
+
+ALTER TYPE "public"."unit_group" OWNER TO "postgres";
+
+
 CREATE TYPE "public"."waitlist_status" AS ENUM (
     'pending',
     'notified',
@@ -353,7 +362,8 @@ CREATE TABLE IF NOT EXISTS "public"."race_weather" (
     "conditions" "text" NOT NULL,
     "icon" "text" NOT NULL,
     "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "unit_group" "public"."unit_group" DEFAULT 'metric'::"public"."unit_group" NOT NULL
 );
 
 
@@ -903,6 +913,10 @@ CREATE INDEX "idx_race_weather_date" ON "public"."race_weather" USING "btree" ("
 
 
 CREATE INDEX "idx_race_weather_race_id" ON "public"."race_weather" USING "btree" ("race_id");
+
+
+
+CREATE INDEX "idx_race_weather_unit_group" ON "public"."race_weather" USING "btree" ("unit_group");
 
 
 

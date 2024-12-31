@@ -1,6 +1,6 @@
 "use client"
 
-import { RaceWithDetails } from "@/types/race"
+import { RaceWithCircuitAndSeries } from "@/types/database"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -35,11 +35,12 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip"
+import { subDays, addDays } from "date-fns"
 
 const Map = dynamic(() => import("./Map"), { ssr: false })
 
 interface FlightSearchProps {
-  race: RaceWithDetails
+  race: RaceWithCircuitAndSeries
   nearestAirports: SelectCircuitLocation[]
 }
 
@@ -48,6 +49,24 @@ export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
   const [departureDate, setDepartureDate] = useState<Date>()
   const [returnDate, setReturnDate] = useState<Date>()
   const [origin, setOrigin] = useState("")
+
+  // Calculate recommended date ranges
+  const raceDate = new Date(race.date)
+  const earliestDepartureDate = subDays(raceDate, 14) // 2 weeks before race
+  const latestReturnDate = addDays(raceDate, 14) // 2 weeks after race
+
+  // Calculate race weekend dates
+  const thursdayDate = subDays(raceDate, 3)
+  const fridayDate = subDays(raceDate, 2)
+  const saturdayDate = subDays(raceDate, 1)
+
+  // Important dates for calendar highlighting
+  const raceWeekendDates = [
+    { date: thursdayDate, description: "Paddock Club & VIP Events" },
+    { date: fridayDate, description: "Practice Sessions" },
+    { date: saturdayDate, description: "Qualifying/Sprint" },
+    { date: raceDate, description: "Race Day" }
+  ]
 
   async function handleSyncAirports() {
     const result = await syncAirportCoordinatesAction()
@@ -123,7 +142,6 @@ export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
                     Number(a.distanceFromCircuit) -
                     Number(b.distanceFromCircuit)
                 )
-                // .slice(0, 4)
                 .map(airport => (
                   <TooltipProvider key={airport.id}>
                     <Tooltip>
@@ -181,6 +199,19 @@ export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
                     selected={departureDate}
                     onSelect={setDepartureDate}
                     initialFocus
+                    defaultMonth={earliestDepartureDate}
+                    fromDate={earliestDepartureDate}
+                    toDate={raceDate}
+                    modifiers={{
+                      raceWeekend: raceWeekendDates.map(d => d.date)
+                    }}
+                    modifiersStyles={{
+                      raceWeekend: {
+                        backgroundColor: "rgb(225, 6, 0, 0.1)",
+                        color: "rgb(225, 6, 0)",
+                        fontWeight: "bold"
+                      }
+                    }}
                   />
                 </PopoverContent>
               </Popover>
@@ -211,6 +242,19 @@ export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
                     selected={returnDate}
                     onSelect={setReturnDate}
                     initialFocus
+                    defaultMonth={raceDate}
+                    fromDate={raceDate}
+                    toDate={latestReturnDate}
+                    modifiers={{
+                      raceWeekend: raceWeekendDates.map(d => d.date)
+                    }}
+                    modifiersStyles={{
+                      raceWeekend: {
+                        backgroundColor: "rgb(225, 6, 0, 0.1)",
+                        color: "rgb(225, 6, 0)",
+                        fontWeight: "bold"
+                      }
+                    }}
                   />
                 </PopoverContent>
               </Popover>
@@ -226,14 +270,31 @@ export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
                 • Book early for the best rates - prices typically increase 2-3
                 months before the race
               </p>
-              <p>
-                • Consider flying into {nearestAirports[0]?.airportCode} for the
-                shortest transfer time ({nearestAirports[0]?.transferTime})
-              </p>
+              {nearestAirports.length > 1 && (
+                <p>
+                  • Consider flying into {nearestAirports[0]?.airportCode} for
+                  the shortest transfer time ({nearestAirports[0]?.transferTime}
+                  )
+                </p>
+              )}
               <p>
                 • Many F1 fans arrive Thursday and leave Monday to enjoy the
                 full race weekend
               </p>
+            </div>
+          </div>
+
+          <div className="rounded-lg border p-4">
+            <div className="mb-2 font-medium">Race Weekend Schedule</div>
+            <div className="text-muted-foreground space-y-2 text-sm">
+              {raceWeekendDates.map((date, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div className="bg-primary/10 size-2 rounded-full" />
+                  <span>{format(date.date, "EEE, MMM d")}</span>
+                  <span>-</span>
+                  <span>{date.description}</span>
+                </div>
+              ))}
             </div>
           </div>
         </CardContent>

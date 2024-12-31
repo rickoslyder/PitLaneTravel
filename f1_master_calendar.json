@@ -1,0 +1,205 @@
+{
+  "2025_Master_Calendar": [
+    {
+      "Venue": "Melbourne, Australia",
+      "Date": "March 14-16",
+      "Races": [
+        { "Series": "F1", "Round": 1 },
+        { "Series": "F2", "Round": 1 },
+        { "Series": "F3", "Round": 1 }
+      ]
+    },
+    {
+      "Venue": "Shanghai International Circuit, China",
+      "Date": "March 21-23",
+      "Races": [
+        { "Series": "F1", "Round": 2 },
+        { "Series": "F1 Sprint", "Round": 2 },
+        { "Series": "F1 Academy", "Round": 1 }
+      ]
+    },
+    {
+      "Venue": "Suzuka, Japan",
+      "Date": "April 6",
+      "Races": [{ "Series": "F1", "Round": 3 }]
+    },
+    {
+      "Venue": "Sakhir, Bahrain",
+      "Date": "April 11-13",
+      "Races": [
+        { "Series": "F1", "Round": 4 },
+        { "Series": "F2", "Round": 2 },
+        { "Series": "F3", "Round": 2 }
+      ]
+    },
+    {
+      "Venue": "Jeddah Corniche Circuit, Saudi Arabia",
+      "Date": "April 18-20",
+      "Races": [
+        { "Series": "F1", "Round": 5 },
+        { "Series": "F2", "Round": 3 },
+        { "Series": "F1 Academy", "Round": 2 }
+      ]
+    },
+    {
+      "Venue": "Miami International Autodrome, USA",
+      "Date": "May 2-4",
+      "Races": [
+        { "Series": "F1", "Round": 6 },
+        { "Series": "F1 Sprint", "Round": 6 },
+        { "Series": "F1 Academy", "Round": 3 }
+      ]
+    },
+    {
+      "Venue": "Imola, Italy",
+      "Date": "May 16-18",
+      "Races": [
+        { "Series": "F1", "Round": 7 },
+        { "Series": "F2", "Round": 4 },
+        { "Series": "F3", "Round": 3 }
+      ]
+    },
+    {
+      "Venue": "Monte Carlo, Monaco",
+      "Date": "May 22-25",
+      "Races": [
+        { "Series": "F1", "Round": 8 },
+        { "Series": "F2", "Round": 5 },
+        { "Series": "F3", "Round": 4 }
+      ]
+    },
+    {
+      "Venue": "Barcelona, Spain",
+      "Date": "May 30-June 1",
+      "Races": [
+        { "Series": "F1", "Round": 9 },
+        { "Series": "F2", "Round": 6 },
+        { "Series": "F3", "Round": 5 }
+      ]
+    },
+    {
+      "Venue": "Montreal, Canada",
+      "Date": "June 13-15",
+      "Races": [
+        { "Series": "F1", "Round": 10 },
+        { "Series": "F1 Academy", "Round": 4 }
+      ]
+    },
+    {
+      "Venue": "Spielberg, Austria",
+      "Date": "June 27-29",
+      "Races": [
+        { "Series": "F1", "Round": 11 },
+        { "Series": "F2", "Round": 7 },
+        { "Series": "F3", "Round": 6 }
+      ]
+    },
+    {
+      "Venue": "Silverstone, Great Britain",
+      "Date": "July 4-6",
+      "Races": [
+        { "Series": "F1", "Round": 12 },
+        { "Series": "F2", "Round": 8 },
+        { "Series": "F3", "Round": 7 }
+      ]
+    },
+    {
+      "Venue": "Spa-Francorchamps, Belgium",
+      "Date": "July 25-27",
+      "Races": [
+        { "Series": "F1", "Round": 13 },
+        { "Series": "F1 Sprint", "Round": 13 },
+        { "Series": "F2", "Round": 9 },
+        { "Series": "F3", "Round": 8 }
+      ]
+    },
+    {
+      "Venue": "Budapest, Hungary",
+      "Date": "August 1-3",
+      "Races": [
+        { "Series": "F1", "Round": 14 },
+        { "Series": "F2", "Round": 10 },
+        { "Series": "F3", "Round": 9 }
+      ]
+    },
+    {
+      "Venue": "Zandvoort, Netherlands",
+      "Date": "August 29-31",
+      "Races": [
+        { "Series": "F1", "Round": 15 },
+        { "Series": "F1 Academy", "Round": 5 }
+      ]
+    },
+    {
+      "Venue": "Monza, Italy",
+      "Date": "September 5-7",
+      "Races": [
+        { "Series": "F1", "Round": 16 },
+        { "Series": "F2", "Round": 11 },
+        { "Series": "F3", "Round": 10 }
+      ]
+    },
+    {
+      "Venue": "Baku, Azerbaijan",
+      "Date": "September 19-21",
+      "Races": [
+        { "Series": "F1", "Round": 17 },
+        { "Series": "F2", "Round": 12 }
+      ]
+    },
+    {
+      "Venue": "Marina Bay, Singapore",
+      "Date": "October 3-5",
+      "Races": [
+        { "Series": "F1", "Round": 18 },
+        { "Series": "F1 Academy", "Round": 6 }
+      ]
+    },
+    {
+      "Venue": "Circuit of The Americas, USA",
+      "Date": "October 17-19",
+      "Races": [
+        { "Series": "F1", "Round": 19 },
+        { "Series": "F1 Sprint", "Round": 19 }
+      ]
+    },
+    {
+      "Venue": "Mexico City, Mexico",
+      "Date": "October 26",
+      "Races": [{ "Series": "F1", "Round": 20 }]
+    },
+    {
+      "Venue": "Interlagos, Brazil",
+      "Date": "November 7-9",
+      "Races": [
+        { "Series": "F1", "Round": 21 },
+        { "Series": "F1 Sprint", "Round": 21 }
+      ]
+    },
+    {
+      "Venue": "Las Vegas, USA",
+      "Date": "November 20-22",
+      "Races": [
+        { "Series": "F1", "Round": 22 },
+        { "Series": "F1 Academy", "Round": 7 }
+      ]
+    },
+    {
+      "Venue": "Lusail, Qatar",
+      "Date": "November 28-30",
+      "Races": [
+        { "Series": "F1", "Round": 23 },
+        { "Series": "F1 Sprint", "Round": 23 },
+        { "Series": "F2", "Round": 13 }
+      ]
+    },
+    {
+      "Venue": "Yas Marina, Abu Dhabi",
+      "Date": "December 5-7",
+      "Races": [
+        { "Series": "F1", "Round": 24 },
+        { "Series": "F2", "Round": 14 }
+      ]
+    }
+  ]
+}

@@ -18,6 +18,9 @@ export interface DatePickerProps {
   className?: string
   minDate?: Date
   maxDate?: Date
+  fromDate?: Date
+  toDate?: Date
+  defaultMonth?: Date
   highlightedDates?: Array<{
     date: Date
     highlight: string
@@ -30,6 +33,9 @@ export function DatePicker({
   className,
   minDate,
   maxDate,
+  fromDate,
+  toDate,
+  defaultMonth,
   highlightedDates
 }: DatePickerProps) {
   return (
@@ -53,8 +59,9 @@ export function DatePicker({
           selected={date}
           onSelect={onDateChange}
           initialFocus
-          fromDate={minDate}
-          toDate={maxDate}
+          fromDate={fromDate || minDate}
+          toDate={toDate || maxDate}
+          defaultMonth={defaultMonth || fromDate || minDate}
           modifiers={{
             highlighted: highlightedDates?.map(d => d.date) || []
           }}

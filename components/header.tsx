@@ -18,18 +18,22 @@ import { Menu, Rocket, X } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ThemeSwitcher } from "./utilities/theme-switcher"
+import PitLaneTravelLogo from "@/logos/PitLaneTravelLogo"
+import router from "next/router"
 
 const navLinks = [
   { href: "/races", label: "Races" },
+  { href: "/flights", label: "Flights" },
   { href: "/packages", label: "Packages" },
-  { href: "/experiences", label: "Experiences" },
-  { href: "/about", label: "About" }
+  // { href: "/meetups", label: "Meetups" },
+  // { href: "/experiences", label: "Experiences" },
+  { href: "/about", label: "About Us" }
 ]
 
 const signedInLinks = [
-  { href: "/trips", label: "My Trips" },
-  { href: "/bookings", label: "My Bookings" },
-  { href: "/wishlist", label: "Wishlist" }
+  { href: "/trips", label: "My Trips" }
+  // { href: "/bookings", label: "My Bookings" },
+  // { href: "/wishlist", label: "Wishlist" }
 ]
 
 export default function Header() {
@@ -59,9 +63,16 @@ export default function Header() {
     >
       <div className="mx-auto flex max-w-screen-2xl items-center justify-between p-4">
         <div className="flex items-center space-x-2 hover:cursor-pointer hover:opacity-80">
-          <Rocket className="size-6" />
+          {/* <Rocket className="size-6" />
           <Link href="/" className="text-xl font-bold">
             Pit Lane Travel
+          </Link> */}
+          {/* <Rocket className="size-6" /> */}
+          <Link href="/" className="text-xl font-bold">
+            <PitLaneTravelLogo
+              className="h-[4vh]"
+              onClick={() => router.push("/")}
+            />
           </Link>
         </div>
 

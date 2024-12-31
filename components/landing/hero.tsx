@@ -14,6 +14,30 @@ import Link from "next/link"
 import posthog from "posthog-js"
 import AnimatedGradientText from "../magicui/animated-gradient-text"
 import HeroVideoDialog from "../magicui/hero-video-dialog"
+import supabaseLoader from "@/supabase-image-loader"
+import Image from "next/image"
+
+const HeroImage = ({
+  height,
+  width
+}: {
+  height?: number | null
+  width?: number | null
+}) => {
+  return (
+    <Image
+      alt="Hero Image"
+      height={height ? height : 500}
+      width={width ? width : 1080}
+      src={supabaseLoader({
+        src: "assets/homepage/hero.jpeg",
+        height: height ? height : 500,
+        width: width ? width : 1080,
+        quality: 100
+      })}
+    />
+  )
+}
 
 export const HeroSection = () => {
   const handleGetStartedClick = () => {
@@ -21,7 +45,7 @@ export const HeroSection = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center px-8 pt-32 text-center">
+    <div className="flex flex-col items-center justify-center px-8 pt-24 text-center">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -93,12 +117,18 @@ export const HeroSection = () => {
         transition={{ duration: 1, delay: 1, ease: "easeOut" }}
         className="mx-auto mt-20 flex w-full max-w-screen-lg items-center justify-center rounded-lg border shadow-lg"
       >
-        <HeroVideoDialog
+        {/* <HeroVideoDialog
           animationStyle="top-in-bottom-out"
           videoSrc="https://www.youtube.com/embed/dQw4w9WgXcQ"
-          thumbnailSrc="/images/hero-f1.jpg"
+          thumbnailSrc={supabaseLoader({
+            src: "/assets/homepage/hero.jpeg",
+            height: 1000,
+            width: 1000,
+            quality: 75
+          })}
           thumbnailAlt="F1 Race Experience"
-        />
+        /> */}
+        <HeroImage />
       </motion.div>
 
       <motion.div

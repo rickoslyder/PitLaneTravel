@@ -35,6 +35,9 @@ import { NavMain } from "./nav-main"
 import { NavProjects } from "./nav-projects"
 import { NavUser } from "./nav-user"
 import { TeamSwitcher } from "./team-switcher"
+import PitLaneTravelLogo from "@/logos/PitLaneTravelLogo"
+import router from "next/router"
+import Link from "next/link"
 
 const data = {
   user: {
@@ -81,7 +84,7 @@ const data = {
       url: "/travel",
       icon: Plane,
       items: [
-        { title: "Flights", url: "/travel/flights" },
+        { title: "Flights", url: "/flights" },
         { title: "Hotels", url: "/travel/hotels" },
         { title: "Transport", url: "/travel/transport" }
       ]
@@ -118,6 +121,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
+        <PitLaneTravelLogo className="m-2 h-[4vh]" />
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>

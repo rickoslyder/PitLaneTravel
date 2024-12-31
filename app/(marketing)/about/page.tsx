@@ -17,7 +17,7 @@ export default async function AboutPage() {
       {/* Hero Section */}
       <div className="mb-16 text-center">
         <h1 className="mb-4 text-4xl font-bold md:text-5xl">
-          About Pit Lane Travel
+          About PitLane Travel
         </h1>
         <p className="text-muted-foreground mx-auto mb-8 max-w-2xl text-lg">
           Your companion for planning the perfect Formula 1 race weekend. We
@@ -26,7 +26,7 @@ export default async function AboutPage() {
         </p>
         <Link href="/races">
           <Button className="bg-[#E10600] hover:bg-[#FF0800]">
-            View 2024 Race Calendar
+            View 2025 Race Calendar
           </Button>
         </Link>
       </div>
@@ -36,11 +36,13 @@ export default async function AboutPage() {
         <h2 className="mb-8 text-center text-3xl font-bold">Our Mission</h2>
         <div className="text-muted-foreground mx-auto max-w-3xl text-center text-lg leading-relaxed">
           <p>
-            At Pit Lane Travel, we believe that experiencing Formula 1 live is
-            one of the most thrilling sporting events in the world. Our mission
-            is to help F1 fans make informed decisions about their race weekends
-            by providing comprehensive information, community insights, and
-            planning tools.
+            <b>
+              At PitLane Travel, we believe that experiencing Formula 1 live is
+              one of the most thrilling sporting events in the world.
+            </b>{" "}
+            Our mission is to help F1 fans make informed decisions about their
+            race weekends by providing comprehensive information, community
+            insights, and planning tools.
           </p>
         </div>
       </div>
@@ -94,7 +96,7 @@ export default async function AboutPage() {
       {/* Why Choose Us Section */}
       <div className="mb-16">
         <h2 className="mb-8 text-center text-3xl font-bold">
-          Why Use Pit Lane Travel
+          Why Use PitLane Travel
         </h2>
         <div className="grid gap-8 md:grid-cols-2">
           <div>

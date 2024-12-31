@@ -1,3 +1,5 @@
+import { SelectCircuitLocation } from "@/db/schema"
+
 export interface Circuit {
   id: string
   name: string
@@ -10,29 +12,7 @@ export interface Circuit {
   openf1_short_name: string | null
   created_at: string
   updated_at: string
-  locations?: CircuitLocation[]
-}
-
-export interface CircuitLocation {
-  id: string
-  circuitId: string
-  type:
-    | "circuit"
-    | "city_center"
-    | "parking"
-    | "fan_zone"
-    | "transport_hub"
-    | "airport"
-  name: string
-  description?: string | null
-  address?: string | null
-  placeId?: string | null
-  latitude: string
-  longitude: string
-  distanceFromCircuit?: string | null
-  timezone?: string | null
-  createdAt: Date
-  updatedAt: Date
+  locations?: SelectCircuitLocation[]
 }
 
 export interface CircuitDetails {
@@ -246,7 +226,7 @@ export interface RaceWithDetails extends Race {
     airports?: Airport[]
     local_attractions?: LocalAttraction[]
     transport_info?: TransportInfo[]
-    locations?: CircuitLocation[]
+    locations?: SelectCircuitLocation[]
   }
   tickets?: Array<
     Ticket & {

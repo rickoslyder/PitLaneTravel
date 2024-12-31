@@ -1,11 +1,10 @@
 "use server"
 
 import { db } from "@/db/db"
-import { circuitsTable, racesTable, supportingSeriesTable } from "@/db/schema"
+import { circuitLocationsTable, circuitsTable, racesTable, supportingSeriesTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { RaceWithCircuitAndSeries } from "@/types/database"
-import { eq } from "drizzle-orm"
-import { sql } from "drizzle-orm"
+import { eq, sql } from "drizzle-orm"
 
 export async function getRacesAction(filters?: {
   year?: number
@@ -15,7 +14,7 @@ export async function getRacesAction(filters?: {
   try {
     console.log("[Races] Getting races with filters:", filters)
 
-    const query = db
+    const races = await db
       .select({
         id: racesTable.id,
         circuit_id: racesTable.circuitId,
@@ -50,40 +49,38 @@ export async function getRacesAction(filters?: {
       })
       .from(racesTable)
       .leftJoin(circuitsTable, eq(racesTable.circuitId, circuitsTable.id))
-
-    console.log("[Races] Initial query:", query.toSQL())
-
-    const conditions = []
-
-    if (filters?.year) {
-      conditions.push(eq(racesTable.season, filters.year))
-    }
-
-    if (filters?.startDate) {
-      conditions.push(sql`${racesTable.date} >= ${filters.startDate}::date`)
-    }
-
-    if (filters?.endDate) {
-      conditions.push(sql`${racesTable.date} <= ${filters.endDate}::date`)
-    }
-
-    console.log("[Races] Applying conditions:", conditions)
-
-    const races = await query
-      .where(conditions.length > 0 ? conditions[0] : undefined)
+      .where(filters?.year ? eq(racesTable.season, filters.year) : undefined)
       .orderBy(racesTable.date)
+
+    // Get circuit locations for all circuits
+    const locations = await db
+      .select()
+      .from(circuitLocationsTable)
+      .where(
+        sql`${circuitLocationsTable.circuitId} IN (${sql.join(
+          races.filter(r => r.circuit).map(r => r.circuit!.id),
+          sql`, `
+        )})`
+      )
+
+    // Group locations by circuit ID
+    const locationsByCircuitId = locations.reduce((acc, location) => {
+      if (!acc[location.circuitId]) {
+        acc[location.circuitId] = []
+      }
+      acc[location.circuitId].push(location)
+      return acc
+    }, {} as Record<string, typeof locations>)
 
     // Get supporting series for all races
     const supportingSeries = await db
       .select()
       .from(supportingSeriesTable)
       .where(
-        conditions.length > 0
-          ? sql`${supportingSeriesTable.raceId} IN (${sql.join(
-              races.map(r => r.id),
-              sql`, `
-            )})`
-          : undefined
+        sql`${supportingSeriesTable.raceId} IN (${sql.join(
+          races.map(r => r.id),
+          sql`, `
+        )})`
       )
 
     // Group supporting series by race ID
@@ -103,9 +100,6 @@ export async function getRacesAction(filters?: {
       return acc
     }, {} as Record<string, any[]>)
 
-    console.log("[Races] Query executed successfully")
-    console.log("[Races] Number of races found:", races.length)
-
     return {
       isSuccess: true,
       message: "Races retrieved successfully",
@@ -122,28 +116,14 @@ export async function getRacesAction(filters?: {
           latitude: Number(race.circuit.latitude),
           longitude: Number(race.circuit.longitude),
           created_at: race.circuit.created_at.toISOString(),
-          updated_at: race.circuit.updated_at.toISOString()
+          updated_at: race.circuit.updated_at.toISOString(),
+          locations: locationsByCircuitId[race.circuit.id] || []
         } : null,
         supporting_series: seriesByRaceId[race.id] || []
       }))
     }
   } catch (error) {
     console.error("[Races] Error getting races:", error)
-    console.error("[Races] Error name:", error instanceof Error ? error.name : "Unknown")
-    console.error("[Races] Error message:", error instanceof Error ? error.message : "Unknown")
-    console.error("[Races] Error stack:", error instanceof Error ? error.stack : "Unknown")
-
-    // Check for specific error types
-    if (error instanceof Error) {
-      if (error.message.includes("relation") || error.message.includes("column")) {
-        console.error("[Races] Database schema error detected")
-        return { 
-          isSuccess: false, 
-          message: "Database schema error. Please ensure the database is properly initialized." 
-        }
-      }
-    }
-
     return { isSuccess: false, message: "Failed to get races" }
   }
 }

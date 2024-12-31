@@ -67,6 +67,10 @@ export default async function TripPage({ params }: TripPageProps) {
   // Convert to RaceWithDetails
   const raceWithDetails: RaceWithDetails = {
     ...raceResult.data,
+    status:
+      raceResult.data.status === "live"
+        ? "in_progress"
+        : (raceResult.data.status as "upcoming" | "completed" | "cancelled"),
     circuit: circuitResult.data
       ? {
           id: circuitResult.data.id,
@@ -108,7 +112,9 @@ export default async function TripPage({ params }: TripPageProps) {
               distanceFromCircuit: location.distanceFromCircuit,
               timezone: location.timezone,
               createdAt: location.createdAt,
-              updatedAt: location.updatedAt
+              updatedAt: location.updatedAt,
+              transferTime: location.transferTime,
+              airportCode: location.airportCode
             })
           ),
           local_attractions: circuitResult.data.local_attractions?.map(
