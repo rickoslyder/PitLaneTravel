@@ -15,8 +15,8 @@ export interface OpenF1Session {
   session_key: number
   meeting_key: number
   session_name: string
-  session_type: string
-  status: string
+  session_type: "practice_1" | "practice_2" | "practice_3" | "qualifying" | "sprint" | "race"
+  status: "upcoming" | "in_progress" | "finished" | "delayed" | "cancelled"
   circuit_key: number
   circuit_short_name: string
 }

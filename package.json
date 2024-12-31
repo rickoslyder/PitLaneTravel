@@ -20,6 +20,7 @@
     "db:schema": "tsx scripts/get-schema.ts",
     "db:rename": "tsx scripts/rename-tables.ts",
     "db:drop": "tsx scripts/drop-tables.ts",
+    "db:update-timezones": "tsx scripts/update-circuit-timezones.ts",
     "prepare": "husky install",
     "db:push": "drizzle-kit push",
     "supasync": "supabase db dump --schema public --file public_schema.sql && supabase db push && npx supabase gen types typescript --project-id \"vsszkzazjhvlecyryzon\" --schema public > types/database.ts && tsx scripts/append-types.ts",

@@ -43,6 +43,8 @@ export async function getRacesAction(filters?: {
           image_url: circuitsTable.imageUrl,
           openf1_key: circuitsTable.openf1Key,
           openf1_short_name: circuitsTable.openf1ShortName,
+          timezone_id: circuitsTable.timezoneId,
+          timezone_name: circuitsTable.timezoneName,
           created_at: circuitsTable.createdAt,
           updated_at: circuitsTable.updatedAt
         }
@@ -161,6 +163,8 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
           image_url: circuitsTable.imageUrl,
           openf1_key: circuitsTable.openf1Key,
           openf1_short_name: circuitsTable.openf1ShortName,
+          timezone_id: circuitsTable.timezoneId,
+          timezone_name: circuitsTable.timezoneName,
           created_at: circuitsTable.createdAt,
           updated_at: circuitsTable.updatedAt
         }

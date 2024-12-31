@@ -53,6 +53,10 @@ export default async function RacePage({ params }: RacePageProps) {
           latitude: Number(circuitResult.data.latitude),
           longitude: Number(circuitResult.data.longitude),
           image_url: circuitResult.data.imageUrl,
+          openf1_key: circuitResult.data.openf1Key,
+          openf1_short_name: circuitResult.data.openf1ShortName,
+          timezone_id: circuitResult.data.timezoneId,
+          timezone_name: circuitResult.data.timezoneName,
           created_at: circuitResult.data.createdAt.toISOString(),
           updated_at: circuitResult.data.updatedAt.toISOString(),
           details: circuitResult.data.details
@@ -111,9 +115,7 @@ export default async function RacePage({ params }: RacePageProps) {
             options: info.options,
             created_at: info.createdAt.toISOString(),
             updated_at: info.updatedAt.toISOString()
-          })),
-          openf1_key: circuitResult.data.openf1Key,
-          openf1_short_name: circuitResult.data.openf1ShortName
+          }))
         }
       : null
   }

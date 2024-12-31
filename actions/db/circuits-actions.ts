@@ -16,7 +16,8 @@ import {
   localAttractionsTable,
   transportInfoTable,
   circuitLocationsTable,
-  SelectCircuitLocation
+  SelectCircuitLocation,
+  racesTable
 } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq, and, desc } from "drizzle-orm"
@@ -135,9 +136,13 @@ export async function getCircuitDetailsAction(
       .select()
       .from(circuitDetailsTable)
       .where(eq(circuitDetailsTable.circuitId, circuitId))
+      .limit(1)
 
     if (!details) {
-      return { isSuccess: false, message: "Circuit details not found" }
+      return {
+        isSuccess: false,
+        message: "Circuit details not found"
+      }
     }
 
     return {
@@ -358,5 +363,116 @@ export async function fixJeddahCoordinatesAction(): Promise<ActionState<void>> {
   } catch (error) {
     console.error("Error fixing Jeddah coordinates:", error)
     return { isSuccess: false, message: "Failed to fix Jeddah coordinates" }
+  }
+}
+
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY
+
+export async function updateCircuitTimezoneAction(
+  circuitId: string,
+  timestamp: Date
+): Promise<ActionState<void>> {
+  try {
+    // Get circuit details
+    const [circuit] = await db
+      .select({
+        id: circuitsTable.id,
+        latitude: circuitsTable.latitude,
+        longitude: circuitsTable.longitude
+      })
+      .from(circuitsTable)
+      .where(eq(circuitsTable.id, circuitId))
+      .limit(1)
+
+    if (!circuit) {
+      return {
+        isSuccess: false,
+        message: "Circuit not found"
+      }
+    }
+
+    // Get timezone from Google Maps API
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/timezone/json?location=${circuit.latitude},${circuit.longitude}&timestamp=${Math.floor(
+        timestamp.getTime() / 1000
+      )}&key=${GOOGLE_MAPS_API_KEY}`
+    )
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch timezone data")
+    }
+
+    const data = await response.json()
+
+    if (data.status !== "OK") {
+      throw new Error(`Google Maps API error: ${data.status}`)
+    }
+
+    // Update circuit with timezone info
+    await db
+      .update(circuitsTable)
+      .set({
+        timezoneId: data.timeZoneId,
+        timezoneName: data.timeZoneName
+      })
+      .where(eq(circuitsTable.id, circuitId))
+
+    return {
+      isSuccess: true,
+      message: "Circuit timezone updated successfully",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("Error updating circuit timezone:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to update circuit timezone"
+    }
+  }
+}
+
+export async function updateAllCircuitTimezonesAction(): Promise<ActionState<void>> {
+  try {
+    // Get all circuits with their races
+    const circuits = await db
+      .select({
+        circuit: circuitsTable,
+        race: racesTable
+      })
+      .from(circuitsTable)
+      .leftJoin(racesTable, eq(circuitsTable.id, racesTable.circuitId))
+
+    // Group races by circuit
+    const circuitMap = circuits.reduce((acc, row) => {
+      if (!acc[row.circuit.id]) {
+        acc[row.circuit.id] = {
+          circuit: row.circuit,
+          races: []
+        }
+      }
+      if (row.race) {
+        acc[row.circuit.id].races.push(row.race)
+      }
+      return acc
+    }, {} as Record<string, { circuit: typeof circuitsTable.$inferSelect, races: typeof racesTable.$inferSelect[] }>)
+
+    // Update each circuit
+    for (const { circuit, races } of Object.values(circuitMap)) {
+      // Use the first race date as reference, or current date if no races
+      const referenceDate = races[0]?.date || new Date()
+      await updateCircuitTimezoneAction(circuit.id, referenceDate)
+    }
+
+    return {
+      isSuccess: true,
+      message: "All circuit timezones updated successfully",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("Error updating all circuit timezones:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to update all circuit timezones"
+    }
   }
 }

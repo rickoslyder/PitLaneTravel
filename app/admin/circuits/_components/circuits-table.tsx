@@ -12,7 +12,8 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import { Circle as CircuitIcon } from "lucide-react"
+import { Circle as CircuitIcon, MapPin, Clock, Globe2 } from "lucide-react"
+import { format } from "date-fns"
 
 interface CircuitsTableProps {
   circuits: SelectCircuit[]
@@ -25,7 +26,10 @@ export default function CircuitsTable({ circuits }: CircuitsTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Country</TableHead>
+            <TableHead>Location</TableHead>
+            <TableHead>Coordinates</TableHead>
+            <TableHead>Timezone</TableHead>
+            <TableHead>Last Updated</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -38,7 +42,42 @@ export default function CircuitsTable({ circuits }: CircuitsTableProps) {
                   <span className="font-medium">{circuit.name}</span>
                 </div>
               </TableCell>
-              <TableCell>{circuit.country}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <MapPin className="size-4 text-gray-500" />
+                  <div className="flex flex-col">
+                    <span>{circuit.location}</span>
+                    <span className="text-muted-foreground text-sm">
+                      {circuit.country}
+                    </span>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Globe2 className="size-4 text-gray-500" />
+                  <div className="flex flex-col">
+                    <span>Lat: {circuit.latitude}°</span>
+                    <span>Long: {circuit.longitude}°</span>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Clock className="size-4 text-gray-500" />
+                  <div className="flex flex-col">
+                    <span>{circuit.timezoneName || "Not set"}</span>
+                    <span className="text-muted-foreground text-sm">
+                      {circuit.timezoneId || "—"}
+                    </span>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell>
+                <span className="text-muted-foreground text-sm">
+                  {format(new Date(circuit.updatedAt), "MMM d, yyyy HH:mm")}
+                </span>
+              </TableCell>
               <TableCell>
                 <Button variant="ghost" asChild>
                   <Link href={`/admin/circuits/${circuit.id}`}>Edit</Link>

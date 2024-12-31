@@ -79,6 +79,8 @@ export default async function TripPage({ params }: TripPageProps) {
           image_url: circuitResult.data.imageUrl,
           openf1_key: circuitResult.data.openf1Key,
           openf1_short_name: circuitResult.data.openf1ShortName,
+          timezone_id: circuitResult.data.timezoneId,
+          timezone_name: circuitResult.data.timezoneName,
           created_at: circuitResult.data.createdAt.toISOString(),
           updated_at: circuitResult.data.updatedAt.toISOString(),
           details: circuitResult.data.details

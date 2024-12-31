@@ -3,7 +3,7 @@
 import { RaceWithDetails } from "@/types/race"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { format } from "date-fns"
+import { format, addDays, setHours, setMinutes } from "date-fns"
 import {
   Cloud,
   CloudRain,
@@ -30,86 +30,138 @@ interface WeatherData {
   us: (typeof raceWeatherTable.$inferSelect)[]
 }
 
+interface Event {
+  time: string
+  name: string
+  duration: string
+  type:
+    | "practice"
+    | "qualifying"
+    | "sprint_qualifying"
+    | "sprint"
+    | "race"
+    | "other"
+}
+
 interface EventSchedule {
   day: string
   date: Date
-  events: {
-    time: string
-    name: string
-    duration: string
-    type: "practice" | "qualifying" | "sprint" | "race" | "other"
-  }[]
+  events: Event[]
 }
 
-// This would come from your database in a real app
-const SAMPLE_SCHEDULE: EventSchedule[] = [
-  {
-    day: "Thursday",
-    date: new Date(),
-    events: [
+function generateSchedule(
+  weekendStart: Date,
+  isSprintWeekend: boolean
+): EventSchedule[] {
+  const friday = weekendStart
+  const saturday = addDays(weekendStart, 1)
+  const sunday = addDays(weekendStart, 2)
+
+  if (isSprintWeekend) {
+    return [
       {
-        time: "14:00",
-        name: "Track Walk",
-        duration: "1h",
-        type: "other"
+        day: "Friday",
+        date: friday,
+        events: [
+          {
+            time: "13:30",
+            name: "Practice 1",
+            duration: "1h",
+            type: "practice"
+          },
+          {
+            time: "17:00",
+            name: "Sprint Qualifying",
+            duration: "1h",
+            type: "sprint_qualifying"
+          }
+        ]
       },
       {
-        time: "16:00",
-        name: "Pit Lane Walk",
-        duration: "2h",
-        type: "other"
-      }
-    ]
-  },
-  {
-    day: "Friday",
-    date: new Date(Date.now() + 86400000),
-    events: [
-      {
-        time: "13:30",
-        name: "Practice 1",
-        duration: "1h",
-        type: "practice"
+        day: "Saturday",
+        date: saturday,
+        events: [
+          {
+            time: "12:30",
+            name: "Sprint Race",
+            duration: "30m",
+            type: "sprint"
+          },
+          {
+            time: "16:00",
+            name: "Qualifying",
+            duration: "1h",
+            type: "qualifying"
+          }
+        ]
       },
       {
-        time: "17:00",
-        name: "Qualifying",
-        duration: "1h",
-        type: "qualifying"
-      }
-    ]
-  },
-  {
-    day: "Saturday",
-    date: new Date(Date.now() + 172800000),
-    events: [
-      {
-        time: "12:30",
-        name: "Practice 2",
-        duration: "1h",
-        type: "practice"
-      },
-      {
-        time: "16:30",
-        name: "Sprint Race",
-        duration: "1h",
-        type: "sprint"
-      }
-    ]
-  },
-  {
-    day: "Sunday",
-    date: new Date(Date.now() + 259200000),
-    events: [
-      {
-        time: "15:00",
-        name: "Race",
-        duration: "2h",
-        type: "race"
+        day: "Sunday",
+        date: sunday,
+        events: [
+          {
+            time: "15:00",
+            name: "Race",
+            duration: "2h",
+            type: "race"
+          }
+        ]
       }
     ]
   }
-]
+
+  // Standard race weekend
+  return [
+    {
+      day: "Friday",
+      date: friday,
+      events: [
+        {
+          time: "13:30",
+          name: "Practice 1",
+          duration: "1h",
+          type: "practice"
+        },
+        {
+          time: "17:00",
+          name: "Practice 2",
+          duration: "1h",
+          type: "practice"
+        }
+      ]
+    },
+    {
+      day: "Saturday",
+      date: saturday,
+      events: [
+        {
+          time: "12:30",
+          name: "Practice 3",
+          duration: "1h",
+          type: "practice"
+        },
+        {
+          time: "16:00",
+          name: "Qualifying",
+          duration: "1h",
+          type: "qualifying"
+        }
+      ]
+    },
+    {
+      day: "Sunday",
+      date: sunday,
+      events: [
+        {
+          time: "15:00",
+          name: "Race",
+          duration: "2h",
+          type: "race"
+        }
+      ]
+    }
+  ]
+}
 
 const getWeatherIcon = (conditions: string) => {
   const condition = conditions.toLowerCase()
@@ -135,12 +187,14 @@ const getWeatherIcon = (conditions: string) => {
   return <Sun className="size-6" />
 }
 
-const getEventColor = (type: EventSchedule["events"][0]["type"]) => {
+const getEventColor = (type: Event["type"]) => {
   switch (type) {
     case "practice":
       return "bg-blue-500/10 text-blue-500"
     case "qualifying":
       return "bg-purple-500/10 text-purple-500"
+    case "sprint_qualifying":
+      return "bg-orange-500/10 text-orange-500"
     case "sprint":
       return "bg-orange-500/10 text-orange-500"
     case "race":
@@ -189,11 +243,6 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
           return
         }
 
-        console.log("Weather data:", {
-          metric: metricResponse.data,
-          us: usResponse.data
-        })
-
         setWeather({
           metric: metricResponse.data || [],
           us: usResponse.data || []
@@ -211,6 +260,14 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
 
   // Get the weather data for the current unit system
   const currentWeather = useFahrenheit ? weather.us : weather.metric
+
+  // Generate schedule based on race weekend dates
+  const schedule = race.weekend_start
+    ? generateSchedule(
+        new Date(race.weekend_start),
+        race.is_sprint_weekend || false
+      )
+    : []
 
   return (
     <div className="space-y-8">
@@ -328,7 +385,14 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Race Weekend Schedule</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Race Weekend Schedule</CardTitle>
+            {race.is_sprint_weekend && (
+              <div className="text-sm font-medium text-orange-500">
+                Sprint Weekend
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="timeline" className="space-y-4">
@@ -338,9 +402,9 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
             </TabsList>
 
             <TabsContent value="timeline" className="space-y-8">
-              {SAMPLE_SCHEDULE.map((day, dayIndex) => (
+              {schedule.map((day: EventSchedule, dayIndex: number) => (
                 <div key={day.day} className="relative">
-                  {dayIndex < SAMPLE_SCHEDULE.length - 1 && (
+                  {dayIndex < schedule.length - 1 && (
                     <div className="bg-muted absolute left-[19px] top-[40px] h-[calc(100%+2rem)] w-[2px]" />
                   )}
                   <div className="mb-4">
@@ -350,7 +414,7 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
                     </div>
                   </div>
                   <div className="space-y-4">
-                    {day.events.map((event, eventIndex) => (
+                    {day.events.map((event: Event, eventIndex: number) => (
                       <motion.div
                         key={event.time}
                         initial={{ opacity: 0, x: -20 }}
@@ -389,14 +453,14 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
             </TabsContent>
 
             <TabsContent value="daily">
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {SAMPLE_SCHEDULE.map(day => (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {schedule.map((day: EventSchedule) => (
                   <Card key={day.day}>
                     <CardHeader>
                       <CardTitle className="text-lg">{day.day}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {day.events.map(event => (
+                      {day.events.map((event: Event) => (
                         <div
                           key={event.time}
                           className={cn(

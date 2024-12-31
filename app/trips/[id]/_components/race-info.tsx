@@ -4,6 +4,7 @@ import { RaceWithDetails } from "@/types/race"
 import { Calendar, MapPin, Timer } from "lucide-react"
 import { format } from "date-fns"
 import { motion } from "framer-motion"
+import { TimezoneInfo } from "./timezone-info"
 
 interface RaceInfoProps {
   race: RaceWithDetails
@@ -33,6 +34,10 @@ export function RaceInfo({ race }: RaceInfoProps) {
         <Timer className="text-primary size-5" />
         <span>Race Day</span>
       </div>
+      <TimezoneInfo
+        timezoneId={race.circuit?.timezone_id}
+        timezoneName={race.circuit?.timezone_name}
+      />
     </motion.div>
   )
 }

@@ -151,6 +151,19 @@ $$;
 ALTER FUNCTION "public"."mark_sprint_weekends"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."set_updated_at"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+    NEW.updated_at = timezone('utc'::text, now());
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."set_updated_at"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."update_updated_at_column"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$
@@ -651,6 +664,42 @@ CREATE TABLE IF NOT EXISTS "public"."waitlist" (
 ALTER TABLE "public"."waitlist" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."world_plugs" (
+    "id" integer NOT NULL,
+    "country_code" "text" NOT NULL,
+    "frequency" "text" NOT NULL,
+    "name" "text" NOT NULL,
+    "plug_type" "text" NOT NULL,
+    "voltage" "text" NOT NULL,
+    "image_url" "text",
+    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL
+);
+
+
+ALTER TABLE "public"."world_plugs" OWNER TO "postgres";
+
+
+COMMENT ON TABLE "public"."world_plugs" IS 'Stores information about electrical plug types, voltages, and frequencies for different countries.';
+
+
+
+CREATE SEQUENCE IF NOT EXISTS "public"."world_plugs_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "public"."world_plugs_id_seq" OWNER TO "postgres";
+
+
+ALTER SEQUENCE "public"."world_plugs_id_seq" OWNED BY "public"."world_plugs"."id";
+
+
+
 ALTER TABLE ONLY "public"."saved_itineraries" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."saved_itineraries_id_seq"'::"regclass");
 
 
@@ -668,6 +717,10 @@ ALTER TABLE ONLY "public"."ticket_pricing" ALTER COLUMN "id" SET DEFAULT "nextva
 
 
 ALTER TABLE ONLY "public"."tickets" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."tickets_id_seq"'::"regclass");
+
+
+
+ALTER TABLE ONLY "public"."world_plugs" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."world_plugs_id_seq"'::"regclass");
 
 
 
@@ -856,6 +909,11 @@ ALTER TABLE ONLY "public"."waitlist"
 
 
 
+ALTER TABLE ONLY "public"."world_plugs"
+    ADD CONSTRAINT "world_plugs_pkey" PRIMARY KEY ("id");
+
+
+
 CREATE INDEX "idx_activities_category" ON "public"."activities" USING "btree" ("category");
 
 
@@ -965,6 +1023,14 @@ CREATE INDEX "idx_waitlist_ticket_category" ON "public"."waitlist" USING "btree"
 
 
 CREATE INDEX "idx_waitlist_user_id" ON "public"."waitlist" USING "btree" ("user_id");
+
+
+
+CREATE INDEX "idx_world_plugs_name" ON "public"."world_plugs" USING "btree" ("name");
+
+
+
+CREATE OR REPLACE TRIGGER "set_updated_at" BEFORE UPDATE ON "public"."world_plugs" FOR EACH ROW EXECUTE FUNCTION "public"."set_updated_at"();
 
 
 
@@ -1162,6 +1228,12 @@ GRANT ALL ON FUNCTION "public"."mark_sprint_weekends"() TO "service_role";
 
 
 
+GRANT ALL ON FUNCTION "public"."set_updated_at"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_updated_at"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_updated_at"() TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "anon";
 GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "service_role";
@@ -1339,6 +1411,18 @@ GRANT ALL ON TABLE "public"."trips" TO "service_role";
 GRANT ALL ON TABLE "public"."waitlist" TO "anon";
 GRANT ALL ON TABLE "public"."waitlist" TO "authenticated";
 GRANT ALL ON TABLE "public"."waitlist" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."world_plugs" TO "anon";
+GRANT ALL ON TABLE "public"."world_plugs" TO "authenticated";
+GRANT ALL ON TABLE "public"."world_plugs" TO "service_role";
+
+
+
+GRANT ALL ON SEQUENCE "public"."world_plugs_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."world_plugs_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."world_plugs_id_seq" TO "service_role";
 
 
 

@@ -12,6 +12,8 @@ export interface Circuit {
   openf1_short_name: string | null
   created_at: string
   updated_at: string
+  timezone_id: string | null
+  timezone_name: string | null
   locations?: SelectCircuitLocation[]
 }
 
@@ -55,7 +57,7 @@ export interface TransportInfo {
   type: string
   name: string
   description: string | null
-  options: string[] | null
+  options: string[]
   created_at: string
   updated_at: string
 }
@@ -77,7 +79,7 @@ export interface LocalAttraction {
   id: string
   circuit_id: string
   name: string
-  description: string
+  description: string | null
   latitude: number | null
   longitude: number | null
   distance_from_circuit: number | null

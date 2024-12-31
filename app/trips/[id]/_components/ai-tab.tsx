@@ -118,6 +118,8 @@ export function AiTab({
                       image_url: race.circuit.image_url,
                       openf1_key: race.circuit.openf1_key,
                       openf1_short_name: race.circuit.openf1_short_name,
+                      timezone_id: race.circuit.timezone_id,
+                      timezone_name: race.circuit.timezone_name,
                       created_at: race.circuit.created_at,
                       updated_at: race.circuit.updated_at,
                       details: race.circuit.details,

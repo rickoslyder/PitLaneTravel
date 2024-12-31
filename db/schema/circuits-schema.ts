@@ -21,6 +21,9 @@ export const circuitsTable = pgTable("circuits", {
   latitude: numeric("latitude", { precision: 10, scale: 7 }).notNull(),
   longitude: numeric("longitude", { precision: 10, scale: 7 }).notNull(),
   imageUrl: text("image_url"),
+  // Timezone information
+  timezoneId: text("timezone_id"),
+  timezoneName: text("timezone_name"),
   // OpenF1 integration fields
   openf1Key: integer("openf1_key").unique(),
   openf1ShortName: text("openf1_short_name"),

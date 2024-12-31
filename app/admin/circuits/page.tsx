@@ -7,6 +7,7 @@ import CircuitsTable from "./_components/circuits-table"
 import { Input } from "@/components/ui/input"
 import { Suspense } from "react"
 import { Card } from "@/components/ui/card"
+import { UpdateTimezonesButton } from "./_components/update-timezones-button"
 
 function TableSkeleton() {
   return (
@@ -37,6 +38,7 @@ export default async function CircuitsAdminPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Circuits</h2>
+        <UpdateTimezonesButton />
       </div>
 
       <div className="flex items-center gap-4">

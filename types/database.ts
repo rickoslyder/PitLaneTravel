@@ -212,6 +212,8 @@ export type Database = {
           name: string
           openf1_key: number | null
           openf1_short_name: string | null
+          timezone_id: string | null
+          timezone_name: string | null
           updated_at: string
         }
         Insert: {
@@ -225,6 +227,8 @@ export type Database = {
           name: string
           openf1_key?: number | null
           openf1_short_name?: string | null
+          timezone_id?: string | null
+          timezone_name?: string | null
           updated_at?: string
         }
         Update: {
@@ -238,6 +242,8 @@ export type Database = {
           name?: string
           openf1_key?: number | null
           openf1_short_name?: string | null
+          timezone_id?: string | null
+          timezone_name?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1085,6 +1091,42 @@ export type Database = {
           }
         ]
       }
+      world_plugs: {
+        Row: {
+          country_code: string
+          created_at: string
+          frequency: string
+          id: number
+          image_url: string | null
+          name: string
+          plug_type: string
+          updated_at: string
+          voltage: string
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          frequency: string
+          id?: number
+          image_url?: string | null
+          name: string
+          plug_type: string
+          updated_at?: string
+          voltage: string
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          frequency?: string
+          id?: number
+          image_url?: string | null
+          name?: string
+          plug_type?: string
+          updated_at?: string
+          voltage?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1256,6 +1298,8 @@ export interface RaceWithCircuitAndSeries {
     image_url: string | null
     openf1_key: number | null
     openf1_short_name: string | null
+    timezone_id: string | null
+    timezone_name: string | null
     created_at: string
     updated_at: string
     locations?: SelectCircuitLocation[]
