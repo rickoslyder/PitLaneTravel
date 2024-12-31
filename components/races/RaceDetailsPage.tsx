@@ -142,7 +142,7 @@ export function RaceDetailsPage({
               )}
             </div>
 
-            <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-6xl">
+            <h1 className="mt-4 text-4xl font-bold tracking-tight text-white backdrop-blur-sm sm:text-6xl">
               {race.name}
             </h1>
 

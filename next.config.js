@@ -13,8 +13,7 @@ module.exports = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "vsszkzazjhvlecyryzon.supabase.co",
-        pathname: "/storage/v1/render/image/public/**"
+        hostname: "vsszkzazjhvlecyryzon.supabase.co"
       }
     ]
   }

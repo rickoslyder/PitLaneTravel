@@ -121,8 +121,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <PitLaneTravelLogo className="m-2 h-[4vh]" />
-        <TeamSwitcher teams={data.teams} />
+        <PitLaneTravelLogo className="m-2 h-[35px]" />
+        {/* <TeamSwitcher teams={data.teams} /> */}
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
