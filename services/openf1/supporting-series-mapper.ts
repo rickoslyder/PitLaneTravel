@@ -47,9 +47,11 @@ export class SupportingSeriesMapper {
         const supportingSessions = sessions.filter(
           session =>
             session.meeting_key === race.openf1MeetingKey &&
-            session.session_type !== "Race" &&
-            session.session_type !== "Qualifying" &&
-            session.session_type !== "Practice"
+            session.session_type !== "race" &&
+            session.session_type !== "qualifying" &&
+            session.session_type !== "practice_1" &&
+            session.session_type !== "practice_2" &&
+            session.session_type !== "practice_3"
         )
 
         // Map each supporting series to a session

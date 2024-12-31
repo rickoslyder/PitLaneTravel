@@ -38,22 +38,22 @@ import { Badge } from "@/components/ui/badge"
 interface Activity {
   id: string
   name: string
-  type?: string
+  type?: string | null
   price?: {
     amount: number
     currency: string
-  }
-  rating?: number
-  category?: string
-  distance?: string
-  duration?: string
+  } | null
+  rating?: number | null
+  category?: string | null
+  distance?: string | null
+  duration?: string | null
   location?: {
     lat: number
     lng: number
-  }
-  timeSlot?: string
-  description?: string
-  visitDuration?: string
+  } | null
+  timeSlot?: string | null
+  description?: string | null
+  visitDuration?: string | null
 }
 
 interface ItineraryData {

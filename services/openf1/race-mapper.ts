@@ -40,7 +40,7 @@ export class RaceMapper {
         const raceSession = sessions.find(
           session =>
             session.circuit_key === openF1CircuitKey &&
-            session.session_type === "Race" &&
+            session.session_type === "race" &&
             new Date(session.date).toISOString().split("T")[0] === race.date.toISOString().split("T")[0]
         )
 
