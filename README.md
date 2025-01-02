@@ -1,38 +1,54 @@
-# Mckay's App Template
+# PitLane Travel
 
-This is a full-stack app template for courses on [Takeoff](https://JoinTakeoff.com/).
+A comprehensive Formula 1 race weekend planning and travel management platform.
 
-## Sponsors
+## Overview
 
-If you are interested in sponsoring my repos, please contact me at [ads@takeoffai.org](mailto:ads@takeoffai.org).
-
-Or sponsor me directly on [GitHub Sponsors](https://github.com/sponsors/mckaywrigley).
+PitLane Travel simplifies Formula 1 race weekend planning by providing:
+- Smart trip planning with AI assistance
+- Real-time flight search and booking
+- Race weekend schedules and information
+- Local transport and accommodation guidance
+- Weather updates and event notifications
+- Community features and travel tips
 
 ## Tech Stack
 
-- IDE: [Cursor](https://www.cursor.com/)
-- AI Tools: [V0](https://v0.dev/), [Perplexity](https://www.perplexity.com/)
-- Frontend: [Next.js](https://nextjs.org/docs), [Tailwind](https://tailwindcss.com/docs/guides/nextjs), [Shadcn](https://ui.shadcn.com/docs/installation), [Framer Motion](https://www.framer.com/motion/introduction/)
-- Backend: [PostgreSQL](https://www.postgresql.org/about/), [Supabase](https://supabase.com/), [Drizzle](https://orm.drizzle.team/docs/get-started-postgresql), [Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations)
-- Auth: [Clerk](https://clerk.com/)
-- Payments: [Stripe](https://stripe.com/)
-- Analytics: [PostHog](https://posthog.com/)
+- Frontend: Next.js, Tailwind, Shadcn, Framer Motion
+- Backend: Postgres, Supabase, Drizzle ORM, Server Actions
+- Auth: Clerk
+- Payments: Stripe
+- Analytics: PostHog
+- Deployment: Vercel
 
-## Prerequisites
+## Project Structure
 
-You will need accounts for the following services.
+- `actions` - Server actions
+  - `db` - Database related actions
+  - Other actions
+- `app` - Next.js app router
+  - `api` - API routes
+  - `route` - An example route
+    - `_components` - One-off components for the route
+    - `layout.tsx` - Layout for the route
+    - `page.tsx` - Page for the route
+- `components` - Shared components
+  - `ui` - UI components
+  - `utilities` - Utility components
+- `db` - Database
+  - `schema` - Database schemas
+- `lib` - Library code
+  - `hooks` - Custom hooks
+- `prompts` - Prompt files
+- `public` - Static assets
+- `types` - Type definitions
 
-They all have free plans that you can use to get started.
+## Setup
 
-- Create a [Cursor](https://www.cursor.com/) account
-- Create a [GitHub](https://github.com/) account
-- Create a [Supabase](https://supabase.com/) account
-- Create a [Clerk](https://clerk.com/) account
-- Create a [Stripe](https://stripe.com/) account
-- Create a [PostHog](https://posthog.com/) account
-- Create a [Vercel](https://vercel.com/) account
-
-You will likely not need paid plans unless you are building a business.
+1. Clone the repository
+2. Copy `.env.example` to `.env.local` and fill in the environment variables
+3. Run `npm install` to install dependencies
+4. Run `npm run dev` to start the development server
 
 ## Environment Variables
 
@@ -58,9 +74,13 @@ NEXT_PUBLIC_POSTHOG_KEY=
 NEXT_PUBLIC_POSTHOG_HOST=
 ```
 
-## Setup
+## Contributing
 
-1. Clone the repository
-2. Copy `.env.example` to `.env.local` and fill in the environment variables from above
-3. Run `npm install` to install dependencies
-4. Run `npm run dev` to run the app locally
+1. Fork the repository
+2. Create a new branch for your feature
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

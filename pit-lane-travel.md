@@ -1,5 +1,5 @@
 ## Core Purpose
-Pit Lane Travel is a comprehensive platform designed to simplify Formula 1 race weekend planning and travel management. It serves as a one-stop solution for F1 fans looking to attend races worldwide.
+PitLane Travel is a comprehensive platform designed to simplify Formula 1 race weekend planning and travel management. It serves as a one-stop solution for F1 fans looking to attend races worldwide.
 
 ## Key Features
 

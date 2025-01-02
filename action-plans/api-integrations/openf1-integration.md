@@ -1,7 +1,7 @@
 # OpenF1 API Integration Plan
 
 ## Overview
-This plan outlines the step-by-step integration of OpenF1 API data to enhance Pit Lane Travel's race weekend planning features. The focus is on data that directly impacts travel planning and race attendance experience.
+This plan outlines the step-by-step integration of OpenF1 API data to enhance PitLane Travel's race weekend planning features. The focus is on data that directly impacts travel planning and race attendance experience.
 
 ## Phase 1: Core Race Weekend Data
 **Priority: High**
