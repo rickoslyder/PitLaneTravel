@@ -5,21 +5,71 @@ A comprehensive Formula 1 race weekend planning and travel management platform.
 ## Overview
 
 PitLane Travel simplifies Formula 1 race weekend planning by providing:
-- Smart trip planning with AI assistance
-- Real-time flight search and booking
-- Race weekend schedules and information
-- Local transport and accommodation guidance
-- Weather updates and event notifications
-- Community features and travel tips
+
+### Core Features
+- **Smart Trip Planning**
+  - AI-powered trip planning assistant
+  - Customizable itineraries
+  - Budget optimization
+  - Travel checklists
+  - Calendar integration
+
+- **Race Information**
+  - Comprehensive race details and schedules
+  - Circuit information and track maps
+  - Grandstand comparisons
+  - Supporting series schedules (F2, F3, F1 Academy)
+  - Real-time weather and track conditions
+
+- **Travel Management**
+  - Real-time flight search and booking via Duffel API
+  - Multi-airport search for each circuit
+  - Local transport navigation
+  - Walking routes to/from circuits
+  - Parking information
+
+- **Community Features**
+  - User-generated travel tips
+  - Race weekend meetups
+  - Shared itineraries
+  - Circuit-specific discussion forums
+  - Travel buddy finder
+
+### Data Integration
+- **OpenF1 API Integration**
+  - Real-time session schedules
+  - Track conditions
+  - Weather data
+  - Circuit information
+
+- **Duffel API Integration**
+  - Global flight search
+  - Real-time pricing
+  - Booking management
+  - Airport information
 
 ## Tech Stack
 
-- Frontend: Next.js, Tailwind, Shadcn, Framer Motion
-- Backend: Postgres, Supabase, Drizzle ORM, Server Actions
-- Auth: Clerk
-- Payments: Stripe
-- Analytics: PostHog
-- Deployment: Vercel
+### Frontend
+- **Framework**: Next.js 14 with App Router
+- **Styling**: Tailwind CSS
+- **Components**: Shadcn UI
+- **Animations**: Framer Motion
+
+### Backend
+- **Database**: PostgreSQL via Supabase
+- **ORM**: Drizzle
+- **API**: Server Actions
+- **External APIs**: 
+  - Duffel (Flights)
+  - OpenF1 (Race Data)
+  - Google Places (Location Data)
+
+### Infrastructure
+- **Authentication**: Clerk
+- **Payments**: Stripe
+- **Analytics**: PostHog
+- **Deployment**: Vercel
 
 ## Project Structure
 
@@ -72,6 +122,12 @@ NEXT_PUBLIC_STRIPE_PAYMENT_LINK_MONTHLY=
 # Analytics (PostHog)
 NEXT_PUBLIC_POSTHOG_KEY=
 NEXT_PUBLIC_POSTHOG_HOST=
+
+# Flight Search (Duffel)
+DUFFEL_ACCESS_TOKEN=
+
+# Maps & Places (Google)
+GOOGLE_MAPS_API_KEY=
 ```
 
 ## Contributing
