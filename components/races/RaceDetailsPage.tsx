@@ -397,6 +397,17 @@ export function RaceDetailsPage({
                     loc.address === null
                 ) || []
               }
+              onSearch={async searchParams => {
+                const response = await fetch("/api/flights/search", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(searchParams)
+                })
+                const data = await response.json()
+                if (!response.ok)
+                  throw new Error(data.error || "Failed to search flights")
+                return data.offers
+              }}
             />
             <div className="grid gap-6 md:grid-cols-2">
               {race.circuit?.transport_info &&

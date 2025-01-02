@@ -126,7 +126,8 @@ export function AiTab({
                       airports: race.circuit.airports,
                       local_attractions: race.circuit.local_attractions,
                       transport_info: race.circuit.transport_info,
-                      locations: race.circuit.locations
+                      locations: race.circuit.locations,
+                      website_url: race.circuit.website_url
                     }
                   : null,
                 supporting_series: race.supporting_series || []

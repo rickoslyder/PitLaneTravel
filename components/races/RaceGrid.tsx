@@ -1,16 +1,16 @@
 "use client"
 
-import { RaceWithCircuit } from "@/types/database"
+import { RaceWithCircuitAndSeries } from "@/types/database"
 import { motion } from "framer-motion"
 import { RaceCard } from "./RaceCard"
 
 interface RaceGridProps {
   /** The races to display */
-  races: RaceWithCircuit[]
+  races: RaceWithCircuitAndSeries[]
   /** The current view type */
   viewType: "grid" | "list"
   /** Callback when a race is clicked */
-  onRaceClick: (race: RaceWithCircuit) => void
+  onRaceClick: (race: RaceWithCircuitAndSeries) => void
 }
 
 export function RaceGrid({ races, viewType, onRaceClick }: RaceGridProps) {

@@ -45,6 +45,7 @@ export async function getRacesAction(filters?: {
           openf1_short_name: circuitsTable.openf1ShortName,
           timezone_id: circuitsTable.timezoneId,
           timezone_name: circuitsTable.timezoneName,
+          website_url: circuitsTable.websiteUrl,
           created_at: circuitsTable.createdAt,
           updated_at: circuitsTable.updatedAt
         }
@@ -119,6 +120,7 @@ export async function getRacesAction(filters?: {
           longitude: Number(race.circuit.longitude),
           created_at: race.circuit.created_at.toISOString(),
           updated_at: race.circuit.updated_at.toISOString(),
+          website_url: race.circuit.website_url,
           locations: locationsByCircuitId[race.circuit.id] || []
         } : null,
         supporting_series: seriesByRaceId[race.id] || []
@@ -165,6 +167,7 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
           openf1_short_name: circuitsTable.openf1ShortName,
           timezone_id: circuitsTable.timezoneId,
           timezone_name: circuitsTable.timezoneName,
+          website_url: circuitsTable.websiteUrl,
           created_at: circuitsTable.createdAt,
           updated_at: circuitsTable.updatedAt
         }
@@ -207,7 +210,8 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
           latitude: Number(race.circuit.latitude),
           longitude: Number(race.circuit.longitude),
           created_at: race.circuit.created_at.toISOString(),
-          updated_at: race.circuit.updated_at.toISOString()
+          updated_at: race.circuit.updated_at.toISOString(),
+          website_url: race.circuit.website_url
         } : null,
         supporting_series: supportingSeries.map(series => ({
           ...series,

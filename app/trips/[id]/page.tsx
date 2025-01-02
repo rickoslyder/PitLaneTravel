@@ -83,6 +83,7 @@ export default async function TripPage({ params }: TripPageProps) {
           timezone_name: circuitResult.data.timezoneName,
           created_at: circuitResult.data.createdAt.toISOString(),
           updated_at: circuitResult.data.updatedAt.toISOString(),
+          website_url: circuitResult.data.websiteUrl,
           details: circuitResult.data.details
             ? {
                 id: circuitResult.data.details.id,

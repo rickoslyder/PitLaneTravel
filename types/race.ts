@@ -15,6 +15,7 @@ export interface Circuit {
   timezone_id: string | null
   timezone_name: string | null
   locations?: SelectCircuitLocation[]
+  website_url: string | null
 }
 
 export interface CircuitDetails {

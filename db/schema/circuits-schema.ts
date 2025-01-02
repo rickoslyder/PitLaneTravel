@@ -27,6 +27,7 @@ export const circuitsTable = pgTable("circuits", {
   // OpenF1 integration fields
   openf1Key: integer("openf1_key").unique(),
   openf1ShortName: text("openf1_short_name"),
+  websiteUrl: text("website_url"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

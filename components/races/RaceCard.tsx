@@ -2,14 +2,14 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { RaceWithCircuit } from "@/types/database"
+import { RaceWithCircuitAndSeries } from "@/types/database"
 import { format } from "date-fns"
 import { CalendarDays, Flag, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface RaceCardProps {
   /** The race to display */
-  race: RaceWithCircuit
+  race: RaceWithCircuitAndSeries
   /** The variant of the card */
   variant?: "grid" | "list"
   /** Additional class names */

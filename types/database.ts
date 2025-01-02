@@ -1,3 +1,5 @@
+import { SelectCircuitLocation } from "@/db/schema"
+
 export type Json =
   | string
   | number
@@ -1412,6 +1414,7 @@ export interface RaceWithCircuitAndSeries {
     openf1_short_name: string | null
     timezone_id: string | null
     timezone_name: string | null
+    website_url: string | null
     created_at: string
     updated_at: string
     locations?: SelectCircuitLocation[]

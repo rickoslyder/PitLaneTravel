@@ -49,7 +49,7 @@ export function FlightFilters({
   const applyFilters = (offers: TransformedFlightOffer[]) => {
     return offers.filter(offer => {
       // Filter by stops
-      if (offer.segments.length - 1 > filters.maxStops) return false
+      if (offer.slices[0].segments.length - 1 > filters.maxStops) return false
 
       // Filter by airline
       if (
@@ -62,7 +62,9 @@ export function FlightFilters({
       if (parseFloat(offer.total_amount) > filters.maxPrice) return false
 
       // Filter by departure time
-      const departureHour = parseInt(offer.departure.time.split(":")[0])
+      const departureHour = parseInt(
+        offer.slices[0].departure.time.split(":")[0]
+      )
       switch (filters.departureTime) {
         case "morning": // 6 AM - 12 PM
           if (departureHour < 6 || departureHour >= 12) return false
@@ -90,11 +92,15 @@ export function FlightFilters({
           case "price":
             return parseFloat(a.total_amount) - parseFloat(b.total_amount)
           case "duration":
-            return a.duration.localeCompare(b.duration)
+            return a.slices[0].duration.localeCompare(b.slices[0].duration)
           case "departure":
-            return a.departure.time.localeCompare(b.departure.time)
+            return a.slices[0].departure.time.localeCompare(
+              b.slices[0].departure.time
+            )
           case "arrival":
-            return a.arrival.time.localeCompare(b.arrival.time)
+            return a.slices[0].arrival.time.localeCompare(
+              b.slices[0].arrival.time
+            )
           default:
             return 0
         }

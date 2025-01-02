@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
-import { RaceWithCircuit } from "@/types/database"
+import { RaceWithCircuitAndSeries } from "@/types/database"
 import { SearchBar } from "./SearchBar"
 import { FilterSheet } from "./FilterSheet"
 import { ResultsSummary } from "./ResultsSummary"
@@ -12,12 +12,12 @@ import { HeroSection } from "./HeroSection"
 import { ViewSwitcher } from "./ViewSwitcher"
 
 interface RacesPageProps {
-  initialRaces: RaceWithCircuit[]
+  initialRaces: RaceWithCircuitAndSeries[]
 }
 
 export function RacesPage({ initialRaces }: RacesPageProps) {
   const router = useRouter()
-  const [races] = useState<RaceWithCircuit[]>(initialRaces)
+  const [races] = useState<RaceWithCircuitAndSeries[]>(initialRaces)
   const [viewType, setViewType] = useState<"grid" | "list">("grid")
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [filters, setFilters] = useState({
@@ -79,7 +79,7 @@ export function RacesPage({ initialRaces }: RacesPageProps) {
   }, [])
 
   const handleRaceClick = useCallback(
-    (race: RaceWithCircuit) => {
+    (race: RaceWithCircuitAndSeries) => {
       router.push(`/races/${race.id}`)
     },
     [router]
