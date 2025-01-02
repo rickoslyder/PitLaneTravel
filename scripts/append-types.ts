@@ -51,6 +51,8 @@ export interface RaceWithCircuitAndSeries {
     image_url: string | null
     openf1_key: number | null
     openf1_short_name: string | null
+    timezone_id: string | null
+    timezone_name: string | null
     created_at: string
     updated_at: string
     locations?: SelectCircuitLocation[]

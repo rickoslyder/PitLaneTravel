@@ -38,21 +38,19 @@ export function formatDateTime(date: string) {
   })
 }
 
-export function formatDuration(duration: string) {
-  // Duration is in minutes
-  const minutes = parseInt(duration)
-  const hours = Math.floor(minutes / 60)
-  const remainingMinutes = minutes % 60
+export function formatDuration(duration: string): string {
+  // Parse ISO 8601 duration string (e.g., "PT2H30M")
+  const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/)
+  if (!matches) return "Duration unknown"
 
-  if (hours === 0) {
-    return `${remainingMinutes}m`
-  }
+  const hours = parseInt(matches[1] || "0")
+  const minutes = parseInt(matches[2] || "0")
 
-  if (remainingMinutes === 0) {
-    return `${hours}h`
-  }
+  const parts = []
+  if (hours > 0) parts.push(`${hours}h`)
+  if (minutes > 0) parts.push(`${minutes}m`)
 
-  return `${hours}h ${remainingMinutes}m`
+  return parts.join(" ") || "0m"
 }
 
 /**
@@ -79,4 +77,15 @@ export function calculateDistance(
 
 function toRad(degrees: number): number {
   return (degrees * Math.PI) / 180
+}
+
+export function formatPassengerTitle(title: string): string {
+  const titleMap: Record<string, string> = {
+    mr: "Mr.",
+    mrs: "Mrs.",
+    ms: "Ms.",
+    miss: "Miss",
+    dr: "Dr."
+  }
+  return titleMap[title.toLowerCase()] || title
 }

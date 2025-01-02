@@ -85,6 +85,7 @@ const data = {
       icon: Plane,
       items: [
         { title: "Flights", url: "/flights" },
+        { title: "My Bookings", url: "/bookings" },
         { title: "Hotels", url: "/travel/hotels" },
         { title: "Transport", url: "/travel/transport" }
       ]

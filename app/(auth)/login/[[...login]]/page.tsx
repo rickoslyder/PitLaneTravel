@@ -15,7 +15,7 @@ export default function LoginPage() {
 
   return (
     <SignIn
-      forceRedirectUrl="/todo"
+      forceRedirectUrl="/races"
       appearance={{ baseTheme: theme === "dark" ? dark : undefined }}
     />
   )

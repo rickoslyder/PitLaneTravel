@@ -9,7 +9,7 @@ import {
   Airport,
   City
 } from "@duffel/api/types"
-import { TransformedFlightOffer } from "@/types/duffel"
+import { TransformedFlightOffer, DuffelPassengerType } from "@/types/duffel"
 
 const duffel = new Duffel({
   token: process.env.DUFFEL_ACCESS_TOKEN || ""
@@ -87,47 +87,76 @@ export async function POST(request: Request) {
           id: offer.id,
           total_amount: offer.total_amount,
           total_currency: offer.total_currency,
+          base_amount: offer.base_amount,
+          base_currency: offer.base_currency,
+          tax_amount: offer.tax_amount || undefined,
+          tax_currency: offer.tax_currency || undefined,
           airline: {
             name: offer.owner.name,
-            iata_code: offer.owner.iata_code || ""
+            iata_code: offer.owner.iata_code || "",
+            logo_symbol_url: offer.owner.logo_symbol_url || undefined,
+            logo_lockup_url: offer.owner.logo_lockup_url || undefined,
+            conditions_of_carriage_url:
+              offer.owner.conditions_of_carriage_url || undefined
           },
-          departure: {
-            airport: originPlace.iata_code || "",
-            city: originPlace.city?.name || undefined,
-            time: offer.slices[0].segments[0].departing_at,
-            terminal: (originPlace as any).terminal || undefined
-          },
-          arrival: {
-            airport: destinationPlace.iata_code || "",
-            city: destinationPlace.city?.name || undefined,
-            time: offer.slices[0].segments[offer.slices[0].segments.length - 1]
-              .arriving_at,
-            terminal: (destinationPlace as any).terminal || undefined
-          },
-          duration: offer.slices[0].duration || defaultDuration,
-          segments: offer.slices[0].segments.map(segment => {
-            const segmentOrigin = segment.origin as Airport
-            const segmentDestination = segment.destination as Airport
+          slices: offer.slices.map(slice => {
+            const originPlace = slice.origin as Airport & { city?: City }
+            const destinationPlace = slice.destination as Airport & {
+              city?: City
+            }
             return {
-              flight_number: segment.operating_carrier_flight_number,
-              aircraft: segment.aircraft?.name,
               departure: {
-                airport: segmentOrigin.iata_code || "",
-                city: (segmentOrigin as any).city?.name || undefined,
-                time: segment.departing_at,
-                terminal: (segmentOrigin as any).terminal || undefined
+                airport: originPlace.iata_code || "",
+                city: originPlace.city?.name || undefined,
+                time: slice.segments[0].departing_at,
+                terminal: (originPlace as any).terminal || undefined
               },
               arrival: {
-                airport: segmentDestination.iata_code || "",
-                city: (segmentDestination as any).city?.name || undefined,
-                time: segment.arriving_at,
-                terminal: (segmentDestination as any).terminal || undefined
+                airport: destinationPlace.iata_code || "",
+                city: destinationPlace.city?.name || undefined,
+                time: slice.segments[slice.segments.length - 1].arriving_at,
+                terminal: (destinationPlace as any).terminal || undefined
               },
-              airline: {
-                name: segment.operating_carrier.name,
-                iata_code: segment.operating_carrier.iata_code || ""
-              },
-              duration: segment.duration || defaultDuration
+              duration: slice.duration || defaultDuration,
+              segments: slice.segments.map(segment => {
+                const segmentOrigin = segment.origin as Airport
+                const segmentDestination = segment.destination as Airport
+                return {
+                  flight_number: segment.operating_carrier_flight_number,
+                  aircraft: segment.aircraft?.name,
+                  departure: {
+                    airport: segmentOrigin.iata_code || "",
+                    city: (segmentOrigin as any).city?.name || undefined,
+                    time: segment.departing_at,
+                    terminal: (segmentOrigin as any).terminal || undefined
+                  },
+                  arrival: {
+                    airport: segmentDestination.iata_code || "",
+                    city: (segmentDestination as any).city?.name || undefined,
+                    time: segment.arriving_at,
+                    terminal: (segmentDestination as any).terminal || undefined
+                  },
+                  airline: {
+                    name: segment.operating_carrier.name,
+                    iata_code: segment.operating_carrier.iata_code || "",
+                    logo_symbol_url:
+                      segment.operating_carrier.logo_symbol_url || undefined,
+                    logo_lockup_url:
+                      segment.operating_carrier.logo_lockup_url || undefined
+                  },
+                  duration: segment.duration || defaultDuration,
+                  operating_carrier: {
+                    name: segment.operating_carrier.name,
+                    iata_code: segment.operating_carrier.iata_code || ""
+                  },
+                  marketing_carrier: segment.marketing_carrier
+                    ? {
+                        name: segment.marketing_carrier.name,
+                        iata_code: segment.marketing_carrier.iata_code || ""
+                      }
+                    : undefined
+                }
+              })
             }
           }),
           conditions: {
@@ -144,18 +173,37 @@ export async function POST(request: Request) {
           },
           baggage: {
             checked:
-              (offer.passengers[0] as any).bags?.checked?.map((b: any) => ({
-                quantity: b.quantity,
-                weight: b.weight,
-                unit: b.weight_unit
-              })) || [],
+              offer.slices[0].segments[0].passengers?.[0]?.baggages
+                ?.filter(b => b.type === "checked")
+                .map(b => ({
+                  type: "checked",
+                  quantity: b.quantity
+                })) || [],
             carry_on:
-              (offer.passengers[0] as any).bags?.carry_on?.map((b: any) => ({
-                quantity: b.quantity,
-                weight: b.weight,
-                unit: b.weight_unit
-              })) || []
-          }
+              offer.slices[0].segments[0].passengers?.[0]?.baggages
+                ?.filter(b => b.type === "carry_on")
+                .map(b => ({
+                  type: "carry_on",
+                  quantity: b.quantity
+                })) || []
+          },
+          payment_requirements: {
+            requires_instant_payment:
+              offer.payment_requirements.requires_instant_payment,
+            price_guarantee_expires_at:
+              offer.payment_requirements.price_guarantee_expires_at ||
+              undefined,
+            payment_required_by:
+              offer.payment_requirements.payment_required_by || undefined
+          },
+          expires_at: offer.expires_at,
+          created_at: offer.created_at,
+          passenger_identity_documents_required:
+            offer.passenger_identity_documents_required,
+          passengers: offer.passengers.map(passenger => ({
+            id: passenger.id,
+            type: passenger.type || "adult"
+          })) as Array<{ id: string; type: DuffelPassengerType }>
         }
       })
 

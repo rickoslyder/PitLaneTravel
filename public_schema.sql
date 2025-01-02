@@ -34,6 +34,18 @@ CREATE TYPE "public"."admin_activity_type" AS ENUM (
 ALTER TYPE "public"."admin_activity_type" OWNER TO "postgres";
 
 
+CREATE TYPE "public"."booking_status" AS ENUM (
+    'pending',
+    'confirmed',
+    'failed',
+    'expired',
+    'cancelled'
+);
+
+
+ALTER TYPE "public"."booking_status" OWNER TO "postgres";
+
+
 CREATE TYPE "public"."location_type" AS ENUM (
     'circuit',
     'city_center',
@@ -263,11 +275,47 @@ CREATE TABLE IF NOT EXISTS "public"."circuits" (
     "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "openf1_key" integer,
-    "openf1_short_name" "text"
+    "openf1_short_name" "text",
+    "timezone_id" "text",
+    "timezone_name" "text",
+    "website_url" "text"
 );
 
 
 ALTER TABLE "public"."circuits" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."flight_bookings" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "user_id" "text" NOT NULL,
+    "trip_id" "uuid",
+    "offer_id" "text" NOT NULL,
+    "order_id" "text",
+    "booking_reference" "text",
+    "status" "public"."booking_status" DEFAULT 'pending'::"public"."booking_status" NOT NULL,
+    "total_amount" "text" NOT NULL,
+    "total_currency" "text" NOT NULL,
+    "departure_iata" "text" NOT NULL,
+    "arrival_iata" "text" NOT NULL,
+    "departure_city" "text",
+    "arrival_city" "text",
+    "departure_time" timestamp with time zone NOT NULL,
+    "arrival_time" timestamp with time zone NOT NULL,
+    "offer_data" "jsonb" NOT NULL,
+    "passenger_data" "jsonb" NOT NULL,
+    "payment_data" "jsonb",
+    "expires_at" timestamp with time zone NOT NULL,
+    "added_to_trip" boolean DEFAULT false NOT NULL,
+    "last_error_message" "text",
+    "payment_required" boolean DEFAULT true NOT NULL,
+    "payment_required_by" timestamp with time zone,
+    "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "completed_at" timestamp with time zone
+);
+
+
+ALTER TABLE "public"."flight_bookings" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."local_attractions" (
@@ -769,6 +817,16 @@ ALTER TABLE ONLY "public"."circuits"
 
 
 
+ALTER TABLE ONLY "public"."circuits"
+    ADD CONSTRAINT "circuits_website_url_key" UNIQUE ("website_url");
+
+
+
+ALTER TABLE ONLY "public"."flight_bookings"
+    ADD CONSTRAINT "flight_bookings_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."local_attractions"
     ADD CONSTRAINT "local_attractions_circuit_id_name_key" UNIQUE ("circuit_id", "name");
 
@@ -946,6 +1004,26 @@ CREATE INDEX "idx_circuits_openf1_key" ON "public"."circuits" USING "btree" ("op
 
 
 
+CREATE INDEX "idx_flight_bookings_arrival_time" ON "public"."flight_bookings" USING "btree" ("arrival_time");
+
+
+
+CREATE INDEX "idx_flight_bookings_departure_time" ON "public"."flight_bookings" USING "btree" ("departure_time");
+
+
+
+CREATE INDEX "idx_flight_bookings_status" ON "public"."flight_bookings" USING "btree" ("status");
+
+
+
+CREATE INDEX "idx_flight_bookings_trip_id" ON "public"."flight_bookings" USING "btree" ("trip_id");
+
+
+
+CREATE INDEX "idx_flight_bookings_user_id" ON "public"."flight_bookings" USING "btree" ("user_id");
+
+
+
 CREATE INDEX "idx_local_attractions_circuit_id" ON "public"."local_attractions" USING "btree" ("circuit_id");
 
 
@@ -1054,6 +1132,10 @@ CREATE OR REPLACE TRIGGER "update_circuits_updated_at" BEFORE UPDATE ON "public"
 
 
 
+CREATE OR REPLACE TRIGGER "update_flight_bookings_updated_at" BEFORE UPDATE ON "public"."flight_bookings" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at_column"();
+
+
+
 CREATE OR REPLACE TRIGGER "update_is_sprint_weekend" AFTER INSERT OR DELETE ON "public"."supporting_series" FOR EACH ROW EXECUTE FUNCTION "public"."mark_sprint_weekends"();
 
 
@@ -1126,6 +1208,11 @@ ALTER TABLE ONLY "public"."circuit_details"
 
 ALTER TABLE ONLY "public"."circuit_locations"
     ADD CONSTRAINT "circuit_locations_circuit_id_fkey" FOREIGN KEY ("circuit_id") REFERENCES "public"."circuits"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."flight_bookings"
+    ADD CONSTRAINT "flight_bookings_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id") ON DELETE SET NULL;
 
 
 
@@ -1267,6 +1354,12 @@ GRANT ALL ON TABLE "public"."circuit_locations" TO "service_role";
 GRANT ALL ON TABLE "public"."circuits" TO "anon";
 GRANT ALL ON TABLE "public"."circuits" TO "authenticated";
 GRANT ALL ON TABLE "public"."circuits" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."flight_bookings" TO "anon";
+GRANT ALL ON TABLE "public"."flight_bookings" TO "authenticated";
+GRANT ALL ON TABLE "public"."flight_bookings" TO "service_role";
 
 
 

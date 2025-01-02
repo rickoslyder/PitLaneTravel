@@ -36,19 +36,41 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip"
 import { subDays, addDays } from "date-fns"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
 
 const Map = dynamic(() => import("./Map"), { ssr: false })
 
 interface FlightSearchProps {
   race: RaceWithCircuitAndSeries
   nearestAirports: SelectCircuitLocation[]
+  onSearch: (searchParams: {
+    origin: string
+    destination: string
+    departureDate: string
+    returnDate?: string
+    passengers: number
+  }) => void
+  isSearching?: boolean
 }
 
-export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
+export function FlightSearch({
+  race,
+  nearestAirports,
+  onSearch,
+  isSearching = false
+}: FlightSearchProps) {
   const { user, isLoaded } = useUser()
   const [departureDate, setDepartureDate] = useState<Date>()
   const [returnDate, setReturnDate] = useState<Date>()
   const [origin, setOrigin] = useState("")
+  const [selectedDestination, setSelectedDestination] = useState("")
+  const [passengers, setPassengers] = useState(1)
 
   // Calculate recommended date ranges
   const raceDate = new Date(race.date)
@@ -147,8 +169,15 @@ export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
-                          variant="outline"
+                          variant={
+                            selectedDestination === airport.airportCode
+                              ? "default"
+                              : "outline"
+                          }
                           className="w-full justify-start"
+                          onClick={() =>
+                            setSelectedDestination(airport.airportCode || "")
+                          }
                         >
                           <div className="flex w-full items-center gap-2">
                             <Plane className="size-4 shrink-0" />
@@ -259,9 +288,48 @@ export function FlightSearch({ race, nearestAirports }: FlightSearchProps) {
                 </PopoverContent>
               </Popover>
             </div>
+
+            <div className="space-y-2">
+              <Label>Passengers</Label>
+              <Select
+                value={passengers.toString()}
+                onValueChange={value => setPassengers(parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select number of passengers" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5, 6].map(num => (
+                    <SelectItem key={num} value={num.toString()}>
+                      {num} {num === 1 ? "Passenger" : "Passengers"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <Button className="w-full">Search Flights</Button>
+          <Button
+            className="w-full"
+            onClick={e => {
+              e.preventDefault()
+              if (!origin || !selectedDestination || !departureDate) return
+              if (typeof onSearch === "function") {
+                onSearch({
+                  origin,
+                  destination: selectedDestination,
+                  departureDate: departureDate.toISOString(),
+                  returnDate: returnDate?.toISOString(),
+                  passengers
+                })
+              }
+            }}
+            disabled={
+              !origin || !selectedDestination || !departureDate || isSearching
+            }
+          >
+            {isSearching ? "Searching..." : "Search Flights"}
+          </Button>
 
           <div className="rounded-lg border p-4">
             <div className="mb-2 font-medium">Travel Tips</div>

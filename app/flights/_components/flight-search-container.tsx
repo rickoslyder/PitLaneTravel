@@ -100,6 +100,7 @@ export function FlightSearchContainer({ races }: FlightSearchContainerProps) {
               loc => loc.type === "airport"
             ) || []
           }
+          onSearch={handleSearch}
         />
       )}
 
@@ -138,6 +139,7 @@ export function FlightSearchContainer({ races }: FlightSearchContainerProps) {
           offer={selectedOffer}
           passengerCount={passengerCount}
           onClose={() => setSelectedOffer(undefined)}
+          raceId={selectedRace?.id}
         />
       )}
     </div>

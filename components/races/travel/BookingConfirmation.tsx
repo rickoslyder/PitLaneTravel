@@ -1,12 +1,32 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter
+} from "@/components/ui/card"
 import { TransformedFlightOffer } from "@/types/duffel"
 import { PassengerInfo } from "./PassengerForm"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Info } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger
+} from "@/components/ui/dialog"
+import { TripSelector } from "@/components/trips/TripSelector"
+import { toast } from "react-hot-toast"
+import {
+  addFlightBookingToTripAction,
+  getFlightBookingByReferenceAction
+} from "@/actions/db/flight-bookings-actions"
 
 interface BookingConfirmationProps {
   flight: TransformedFlightOffer
@@ -33,6 +53,34 @@ export function BookingConfirmation({
     }).format(date)
   }
 
+  const handleAddToTrip = async (tripId: string) => {
+    if (!bookingReference) return
+
+    try {
+      // First get the booking by reference
+      const bookingResult =
+        await getFlightBookingByReferenceAction(bookingReference)
+      if (!bookingResult.isSuccess || !bookingResult.data) {
+        throw new Error("Booking not found")
+      }
+
+      // Then add it to the trip using the booking ID
+      const result = await addFlightBookingToTripAction(
+        bookingResult.data.id,
+        tripId
+      )
+      if (result.isSuccess) {
+        toast.success("Flight booking added to trip")
+        onDone?.()
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error) {
+      console.error("Error adding booking to trip:", error)
+      toast.error("Failed to add booking to trip")
+    }
+  }
+
   return (
     <Card className="mx-auto w-full max-w-4xl">
       <CardHeader>
@@ -55,26 +103,30 @@ export function BookingConfirmation({
             <div>
               <div className="text-muted-foreground text-sm">Flight Number</div>
               <div className="font-medium">
-                {flight.segments[0].flight_number}
+                {flight.slices?.[0]?.segments?.[0]?.flight_number}
               </div>
             </div>
             <div>
               <div className="text-muted-foreground text-sm">From</div>
-              <div className="font-medium">{flight.departure.airport}</div>
+              <div className="font-medium">
+                {flight.slices?.[0]?.segments?.[0]?.departure?.airport}
+              </div>
               <div className="text-muted-foreground text-sm">
-                {formatDate(flight.departure.time)}
+                {formatDate(flight.slices?.[0]?.segments?.[0]?.departure?.time)}
               </div>
             </div>
             <div>
               <div className="text-muted-foreground text-sm">To</div>
-              <div className="font-medium">{flight.arrival.airport}</div>
+              <div className="font-medium">
+                {flight.slices?.[0]?.segments?.[0]?.arrival?.airport}
+              </div>
               <div className="text-muted-foreground text-sm">
-                {formatDate(flight.arrival.time)}
+                {formatDate(flight.slices?.[0]?.segments?.[0]?.arrival?.time)}
               </div>
             </div>
             <div>
               <div className="text-muted-foreground text-sm">Duration</div>
-              <div className="font-medium">{flight.duration}</div>
+              <div className="font-medium">{flight.slices?.[0]?.duration}</div>
             </div>
             <div>
               <div className="text-muted-foreground text-sm">Price</div>
@@ -109,12 +161,19 @@ export function BookingConfirmation({
           </div>
         )}
 
-        {flight.segments.map((segment, index) => (
+        {flight.slices?.map((slice, index) => (
           <div key={index}>
             <h3 className="mb-2 font-medium">
-              Flight Segment {index + 1}: {segment.departure.airport} →{" "}
-              {segment.arrival.airport}
+              {index === 0 ? "Outbound" : "Return"} Flight
             </h3>
+            {slice.segments.map((segment, segmentIndex) => (
+              <div key={segmentIndex}>
+                <h3 className="mb-2 font-medium">
+                  Flight Segment {segmentIndex + 1}: {segment.departure.airport}{" "}
+                  → {segment.arrival.airport}
+                </h3>
+              </div>
+            ))}
           </div>
         ))}
 
@@ -130,8 +189,8 @@ export function BookingConfirmation({
                   <div className="font-medium">
                     {flight.baggage.checked.map((bag, i) => (
                       <div key={i}>
-                        {bag.quantity} × {bag.weight}
-                        {bag.unit}
+                        {bag.quantity} checked bag
+                        {bag.quantity !== 1 ? "s" : ""}
                       </div>
                     ))}
                   </div>
@@ -145,8 +204,7 @@ export function BookingConfirmation({
                   <div className="font-medium">
                     {flight.baggage.carry_on.map((bag, i) => (
                       <div key={i}>
-                        {bag.quantity} × {bag.weight}
-                        {bag.unit}
+                        {bag.quantity} cabin bag{bag.quantity !== 1 ? "s" : ""}
                       </div>
                     ))}
                   </div>
@@ -206,11 +264,33 @@ export function BookingConfirmation({
             </Card>
           ))}
         </div>
-
-        <div className="flex justify-end gap-4">
-          <Button onClick={onDone}>Done</Button>
-        </div>
       </CardContent>
+
+      <CardFooter className="flex justify-between">
+        <Button variant="outline" onClick={onDone}>
+          Done
+        </Button>
+        {bookingReference && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Add to Trip</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add to Trip</DialogTitle>
+                <DialogDescription>
+                  Select a trip to add this flight booking to
+                </DialogDescription>
+              </DialogHeader>
+              <TripSelector
+                onSelect={tripId => {
+                  handleAddToTrip(tripId)
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        )}
+      </CardFooter>
     </Card>
   )
 }

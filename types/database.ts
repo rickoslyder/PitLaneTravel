@@ -1,5 +1,3 @@
-import { SelectCircuitLocation } from "@/db/schema"
-
 export type Json =
   | string
   | number
@@ -215,6 +213,7 @@ export type Database = {
           timezone_id: string | null
           timezone_name: string | null
           updated_at: string
+          website_url: string | null
         }
         Insert: {
           country: string
@@ -230,6 +229,7 @@ export type Database = {
           timezone_id?: string | null
           timezone_name?: string | null
           updated_at?: string
+          website_url?: string | null
         }
         Update: {
           country?: string
@@ -245,8 +245,114 @@ export type Database = {
           timezone_id?: string | null
           timezone_name?: string | null
           updated_at?: string
+          website_url?: string | null
         }
         Relationships: []
+      }
+      flight_bookings: {
+        Row: {
+          added_to_trip: boolean
+          arrival_city: string | null
+          arrival_iata: string
+          arrival_time: string
+          booking_reference: string | null
+          completed_at: string | null
+          created_at: string
+          departure_city: string | null
+          departure_iata: string
+          departure_time: string
+          expires_at: string
+          id: string
+          last_error_message: string | null
+          offer_data: Json
+          offer_id: string
+          order_id: string | null
+          passenger_data: Json
+          payment_data: Json | null
+          payment_required: boolean
+          payment_required_by: string | null
+          race_id: string
+          status: Database["public"]["Enums"]["booking_status"]
+          total_amount: string
+          total_currency: string
+          trip_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          added_to_trip?: boolean
+          arrival_city?: string | null
+          arrival_iata: string
+          arrival_time: string
+          booking_reference?: string | null
+          completed_at?: string | null
+          created_at?: string
+          departure_city?: string | null
+          departure_iata: string
+          departure_time: string
+          expires_at: string
+          id?: string
+          last_error_message?: string | null
+          offer_data: Json
+          offer_id: string
+          order_id?: string | null
+          passenger_data: Json
+          payment_data?: Json | null
+          payment_required?: boolean
+          payment_required_by?: string | null
+          race_id: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          total_amount: string
+          total_currency: string
+          trip_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          added_to_trip?: boolean
+          arrival_city?: string | null
+          arrival_iata?: string
+          arrival_time?: string
+          booking_reference?: string | null
+          completed_at?: string | null
+          created_at?: string
+          departure_city?: string | null
+          departure_iata?: string
+          departure_time?: string
+          expires_at?: string
+          id?: string
+          last_error_message?: string | null
+          offer_data?: Json
+          offer_id?: string
+          order_id?: string | null
+          passenger_data?: Json
+          payment_data?: Json | null
+          payment_required?: boolean
+          payment_required_by?: string | null
+          race_id?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          total_amount?: string
+          total_currency?: string
+          trip_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flight_bookings_race_id_fkey"
+            columns: ["race_id"]
+            isOneToOne: false
+            referencedRelation: "races"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flight_bookings_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       local_attractions: {
         Row: {
@@ -1141,6 +1247,12 @@ export type Database = {
         | "transport"
         | "attraction"
         | "series"
+      booking_status:
+        | "pending"
+        | "confirmed"
+        | "failed"
+        | "expired"
+        | "cancelled"
       location_type:
         | "circuit"
         | "city_center"
