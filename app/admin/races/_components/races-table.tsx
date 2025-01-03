@@ -83,7 +83,9 @@ export function RacesTable({ data }: RacesTableProps) {
             )
           }
         ]}
-        data={filteredData}
+        data={[...filteredData].sort(
+          (a, b) => a.date.getTime() - b.date.getTime()
+        )}
       />
 
       <CreateRaceDialog

@@ -31,6 +31,9 @@ import { RaceCountdown } from "./race-countdown/RaceCountdown"
 import { SelectCircuitLocation } from "@/db/schema"
 import { TripPlannerButton } from "@/components/trip-planner-button"
 import { auth } from "@clerk/nextjs/server"
+import { sendGTMEvent } from "@next/third-parties/google"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface RaceDetailsPageProps {
   /** The race to display */
@@ -100,6 +103,25 @@ export function RaceDetailsPage({
       toast.error("Failed to share")
     }
   }
+
+  sendGTMEvent({
+    event: "view_item",
+    value: {
+      user_data: {
+        external_id: userId
+      },
+      x_fb_ud_external_id: userId,
+      items: [
+        {
+          item_name: race.name,
+          quantity: 1,
+          // price: 123.45,
+          item_category: "race",
+          item_brand: "F1"
+        }
+      ]
+    }
+  })
 
   return (
     <div className="min-h-screen">
@@ -202,37 +224,44 @@ export function RaceDetailsPage({
           onValueChange={setActiveTab}
           className="space-y-8"
         >
-          <TabsList className="grid w-full grid-cols-6 lg:w-[800px]">
-            <TabsTrigger value="info">
-              <Flag className="mr-2 size-4" />
-              Information
-            </TabsTrigger>
-            <TabsTrigger value="tickets">
-              <Ticket className="mr-2 size-4" />
-              Tickets
-            </TabsTrigger>
-            <TabsTrigger value="travel">
-              <Plane className="mr-2 size-4" />
-              Travel
-            </TabsTrigger>
-            <TabsTrigger value="schedule">
-              <CalendarDays className="mr-2 size-4" />
-              Schedule
-            </TabsTrigger>
-            <TabsTrigger value="reviews">
-              <Star className="mr-2 size-4" />
-              Reviews
-            </TabsTrigger>
-            <TabsTrigger value="itinerary">
-              <Calendar className="mr-2 size-4" />
-              Itinerary
-            </TabsTrigger>
-          </TabsList>
+          <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-14 z-40 -mx-6 px-6 py-4 backdrop-blur">
+            <TabsList className="w-full">
+              <TabsTrigger value="info" className="flex-1">
+                <Flag className="mr-2 size-4" />
+                Information
+              </TabsTrigger>
+              <TabsTrigger value="tickets" className="flex-1">
+                <Ticket className="mr-2 size-4" />
+                Tickets
+              </TabsTrigger>
+              <TabsTrigger value="travel" className="flex-1">
+                <Plane className="mr-2 size-4" />
+                Travel
+              </TabsTrigger>
+              <TabsTrigger value="schedule" className="flex-1">
+                <CalendarDays className="mr-2 size-4" />
+                Schedule
+              </TabsTrigger>
+              <TabsTrigger value="reviews" className="flex-1">
+                <Star className="mr-2 size-4" />
+                Reviews
+              </TabsTrigger>
+              <TabsTrigger value="itinerary" className="flex-1">
+                <Calendar className="mr-2 size-4" />
+                Itinerary
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="info" className="space-y-8">
             <div className="prose prose-gray dark:prose-invert max-w-none">
               <h2>About the Race</h2>
-              <p>{race.description}</p>
+              <ReactMarkdown
+                className="prose prose-gray dark:prose-invert max-w-none"
+                remarkPlugins={[remarkGfm]}
+              >
+                {race.description || ""}
+              </ReactMarkdown>
 
               {race.circuit?.details && (
                 <>

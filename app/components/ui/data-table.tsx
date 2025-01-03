@@ -23,13 +23,17 @@ import { useState } from "react"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  defaultSort?: { id: string; desc: boolean }
 }
 
 export function DataTable<TData, TValue>({
   columns,
-  data
+  data,
+  defaultSort
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sorting, setSorting] = useState<SortingState>(
+    defaultSort ? [defaultSort] : []
+  )
   const [globalFilter, setGlobalFilter] = useState("")
 
   const table = useReactTable({

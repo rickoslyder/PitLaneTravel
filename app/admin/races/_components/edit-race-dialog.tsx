@@ -9,6 +9,7 @@ import {
   DialogFooter
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Form,
   FormControl,
@@ -32,6 +33,12 @@ import { SelectCircuit, SelectRace } from "@/db/schema"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import dynamic from "next/dynamic"
+
+const MDEditor = dynamic(
+  () => import("@uiw/react-md-editor").then(mod => mod.default),
+  { ssr: false }
+)
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -253,7 +260,14 @@ export function EditRaceDialog({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="Add a description..." {...field} />
+                    <div data-color-mode="dark">
+                      <MDEditor
+                        value={field.value || ""}
+                        onChange={value => field.onChange(value || "")}
+                        preview="edit"
+                        height={200}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
