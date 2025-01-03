@@ -50,6 +50,23 @@ interface Accommodation {
   confirmationCode: string | null
 }
 
+interface SavedMerch {
+  id: string
+  name: string
+  description: string
+  category:
+    | "clothing"
+    | "accessories"
+    | "memorabilia"
+    | "collectibles"
+    | "other"
+  price: string
+  currency: string
+  imageUrl?: string
+  purchaseUrl?: string
+  inStock: string
+}
+
 export const tripsTable = pgTable("trips", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id").notNull(),
@@ -85,6 +102,7 @@ export const tripsTable = pgTable("trips", {
   transportationNotes: text("transportation_notes"),
   packingList: text("packing_list").array(),
   customNotes: jsonb("custom_notes").default({}),
+  savedMerch: jsonb("saved_merch").$type<SavedMerch[]>().default([]),
 
   // Timestamps
   createdAt: timestamp("created_at", { withTimezone: false })

@@ -25,6 +25,23 @@ export interface Accommodation {
   confirmationCode: string | null
 }
 
+export interface SavedMerch {
+  id: string
+  name: string
+  description: string
+  category:
+    | "clothing"
+    | "accessories"
+    | "memorabilia"
+    | "collectibles"
+    | "other"
+  price: string
+  currency: string
+  imageUrl?: string
+  purchaseUrl?: string
+  inStock: string
+}
+
 export interface Trip {
   id: string
   userId: string
@@ -40,6 +57,7 @@ export interface Trip {
   packingList: string[]
   customNotes: Record<string, any>
   activities?: string[]
+  savedMerch?: SavedMerch[]
   createdAt: Date
   updatedAt: Date
 }

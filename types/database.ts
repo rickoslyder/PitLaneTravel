@@ -504,6 +504,59 @@ export type Database = {
           }
         ]
       }
+      merch: {
+        Row: {
+          category: Database["public"]["Enums"]["merch_category"]
+          created_at: string
+          currency: string
+          description: string
+          id: string
+          image_url: string | null
+          in_stock: string
+          name: string
+          price: string
+          purchase_url: string | null
+          race_id: string
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["merch_category"]
+          created_at?: string
+          currency?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          in_stock?: string
+          name: string
+          price: string
+          purchase_url?: string | null
+          race_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["merch_category"]
+          created_at?: string
+          currency?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          in_stock?: string
+          name?: string
+          price?: string
+          purchase_url?: string | null
+          race_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merch_race_id_fkey"
+            columns: ["race_id"]
+            isOneToOne: false
+            referencedRelation: "races"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -1282,6 +1335,7 @@ export type Database = {
           id: string
           packing_list: string[] | null
           race_id: string
+          saved_merch: Json | null
           shared_with: string[] | null
           status: Database["public"]["Enums"]["trip_status"]
           title: string
@@ -1299,6 +1353,7 @@ export type Database = {
           id?: string
           packing_list?: string[] | null
           race_id: string
+          saved_merch?: Json | null
           shared_with?: string[] | null
           status?: Database["public"]["Enums"]["trip_status"]
           title: string
@@ -1316,6 +1371,7 @@ export type Database = {
           id?: string
           packing_list?: string[] | null
           race_id?: string
+          saved_merch?: Json | null
           shared_with?: string[] | null
           status?: Database["public"]["Enums"]["trip_status"]
           title?: string
@@ -1454,6 +1510,12 @@ export type Database = {
         | "transport"
         | "airport"
       membership: "free" | "pro"
+      merch_category:
+        | "clothing"
+        | "accessories"
+        | "memorabilia"
+        | "collectibles"
+        | "other"
       notification_channel: "email" | "sms" | "both"
       notification_status: "pending" | "sent" | "failed" | "cancelled"
       notification_type:

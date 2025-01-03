@@ -8,9 +8,18 @@ import { Trip } from "@/types/trip"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { motion } from "framer-motion"
-import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { updateTripAction } from "@/actions/db/trips-actions"
+import {
+  Info,
+  Plane,
+  Hotel,
+  Car,
+  Briefcase,
+  ShoppingBag,
+  MessageSquare,
+  Loader2
+} from "lucide-react"
 
 import { TripHeader } from "./trip-header"
 import { RaceInfo } from "./race-info"
@@ -19,6 +28,7 @@ import { FlightsTab } from "./flights-tab"
 import { AccommodationTab } from "./accommodation-tab"
 import { TransportTab } from "./transport-tab"
 import { PackingTab } from "./packing-tab"
+import { MerchTab } from "./merch-tab"
 import { AiTab } from "./ai-tab"
 
 interface TripDetailsProps {
@@ -47,7 +57,8 @@ export function TripDetails({ trip, race, userId }: TripDetailsProps) {
         accommodation: editedTrip.accommodation,
         transportationNotes: editedTrip.transportationNotes,
         packingList: editedTrip.packingList,
-        customNotes: editedTrip.customNotes
+        customNotes: editedTrip.customNotes,
+        savedMerch: editedTrip.savedMerch
       })
       if (result.isSuccess) {
         toast.success("Trip details updated successfully")
@@ -99,13 +110,35 @@ export function TripDetails({ trip, race, userId }: TripDetailsProps) {
         onValueChange={setActiveTab}
         className="space-y-8"
       >
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6">
-          <TabsTrigger value="info">Trip Info</TabsTrigger>
-          <TabsTrigger value="flights">Flights</TabsTrigger>
-          <TabsTrigger value="accommodation">Accommodation</TabsTrigger>
-          <TabsTrigger value="transport">Transport</TabsTrigger>
-          <TabsTrigger value="packing">Packing</TabsTrigger>
-          <TabsTrigger value="ai">AI Assistant</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7">
+          <TabsTrigger value="info" className="gap-2">
+            <Info className="size-4" />
+            Info
+          </TabsTrigger>
+          <TabsTrigger value="flights" className="gap-2">
+            <Plane className="size-4" />
+            Flights
+          </TabsTrigger>
+          <TabsTrigger value="accommodation" className="gap-2">
+            <Hotel className="size-4" />
+            Accommodation
+          </TabsTrigger>
+          <TabsTrigger value="transport" className="gap-2">
+            <Car className="size-4" />
+            Transport
+          </TabsTrigger>
+          <TabsTrigger value="packing" className="gap-2">
+            <Briefcase className="size-4" />
+            Packing
+          </TabsTrigger>
+          <TabsTrigger value="merch" className="gap-2">
+            <ShoppingBag className="size-4" />
+            Merch
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="gap-2">
+            <MessageSquare className="size-4" />
+            AI Assistant
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="info">
@@ -149,6 +182,17 @@ export function TripDetails({ trip, race, userId }: TripDetailsProps) {
           <PackingTab
             trip={trip}
             race={race}
+            userId={userId}
+            editingSection={editingSection}
+            setEditingSection={setEditingSection}
+            editedTrip={editedTrip}
+            setEditedTrip={setEditedTrip}
+          />
+        </TabsContent>
+
+        <TabsContent value="merch">
+          <MerchTab
+            trip={trip}
             userId={userId}
             editingSection={editingSection}
             setEditingSection={setEditingSection}

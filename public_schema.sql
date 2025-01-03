@@ -89,6 +89,18 @@ CREATE TYPE "public"."membership" AS ENUM (
 ALTER TYPE "public"."membership" OWNER TO "postgres";
 
 
+CREATE TYPE "public"."merch_category" AS ENUM (
+    'clothing',
+    'accessories',
+    'memorabilia',
+    'collectibles',
+    'other'
+);
+
+
+ALTER TYPE "public"."merch_category" OWNER TO "postgres";
+
+
 CREATE TYPE "public"."notification_channel" AS ENUM (
     'email',
     'sms',
@@ -350,6 +362,21 @@ CREATE TABLE IF NOT EXISTS "public"."circuits" (
 ALTER TABLE "public"."circuits" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."currency_rates" (
+    "id" "text" NOT NULL,
+    "from_currency" "text" NOT NULL,
+    "to_currency" "text" NOT NULL,
+    "rate" numeric(20,10) NOT NULL,
+    "last_updated" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "last_fetch_success" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "last_fetch_error" "text",
+    "is_active" boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE "public"."currency_rates" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."flight_bookings" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "user_id" "text" NOT NULL,
@@ -423,6 +450,25 @@ CREATE TABLE IF NOT EXISTS "public"."meetups" (
 
 
 ALTER TABLE "public"."meetups" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."merch" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "race_id" "uuid" NOT NULL,
+    "name" "text" NOT NULL,
+    "description" "text" NOT NULL,
+    "category" "public"."merch_category" NOT NULL,
+    "price" "text" NOT NULL,
+    "currency" "text" DEFAULT 'USD'::"text" NOT NULL,
+    "image_url" "text",
+    "purchase_url" "text",
+    "in_stock" "text" DEFAULT 'available'::"text" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+);
+
+
+ALTER TABLE "public"."merch" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."notifications" (
@@ -930,6 +976,11 @@ ALTER TABLE ONLY "public"."circuits"
 
 
 
+ALTER TABLE ONLY "public"."currency_rates"
+    ADD CONSTRAINT "currency_rates_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."flight_bookings"
     ADD CONSTRAINT "flight_bookings_pkey" PRIMARY KEY ("id");
 
@@ -947,6 +998,11 @@ ALTER TABLE ONLY "public"."local_attractions"
 
 ALTER TABLE ONLY "public"."meetups"
     ADD CONSTRAINT "meetups_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."merch"
+    ADD CONSTRAINT "merch_pkey" PRIMARY KEY ("id");
 
 
 
@@ -1082,6 +1138,10 @@ ALTER TABLE ONLY "public"."waitlist"
 
 ALTER TABLE ONLY "public"."world_plugs"
     ADD CONSTRAINT "world_plugs_pkey" PRIMARY KEY ("id");
+
+
+
+CREATE UNIQUE INDEX "currency_pair_idx" ON "public"."currency_rates" USING "btree" ("from_currency", "to_currency");
 
 
 
@@ -1229,6 +1289,10 @@ CREATE INDEX "idx_world_plugs_name" ON "public"."world_plugs" USING "btree" ("na
 
 
 
+CREATE INDEX "merch_race_id_idx" ON "public"."merch" USING "btree" ("race_id");
+
+
+
 CREATE OR REPLACE TRIGGER "set_ticket_features_updated_at" BEFORE UPDATE ON "public"."ticket_features" FOR EACH ROW EXECUTE FUNCTION "public"."set_current_timestamp_updated_at"();
 
 
@@ -1368,6 +1432,11 @@ ALTER TABLE ONLY "public"."meetups"
 
 
 
+ALTER TABLE ONLY "public"."merch"
+    ADD CONSTRAINT "merch_race_id_fkey" FOREIGN KEY ("race_id") REFERENCES "public"."races"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."package_tickets"
     ADD CONSTRAINT "package_tickets_package_id_fkey" FOREIGN KEY ("package_id") REFERENCES "public"."ticket_packages"("id") ON DELETE CASCADE;
 
@@ -1473,6 +1542,25 @@ ALTER TABLE ONLY "public"."waitlist"
 
 
 
+CREATE POLICY "Enable delete for authenticated users only" ON "public"."merch" FOR DELETE USING (("auth"."role"() = 'authenticated'::"text"));
+
+
+
+CREATE POLICY "Enable insert for authenticated users only" ON "public"."merch" FOR INSERT WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+
+
+CREATE POLICY "Enable read access for all users" ON "public"."merch" FOR SELECT USING (true);
+
+
+
+CREATE POLICY "Enable update for authenticated users only" ON "public"."merch" FOR UPDATE USING (("auth"."role"() = 'authenticated'::"text")) WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+
+
+ALTER TABLE "public"."merch" ENABLE ROW LEVEL SECURITY;
+
+
 GRANT USAGE ON SCHEMA "public" TO "postgres";
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
@@ -1540,6 +1628,12 @@ GRANT ALL ON TABLE "public"."circuits" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."currency_rates" TO "anon";
+GRANT ALL ON TABLE "public"."currency_rates" TO "authenticated";
+GRANT ALL ON TABLE "public"."currency_rates" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."flight_bookings" TO "anon";
 GRANT ALL ON TABLE "public"."flight_bookings" TO "authenticated";
 GRANT ALL ON TABLE "public"."flight_bookings" TO "service_role";
@@ -1555,6 +1649,12 @@ GRANT ALL ON TABLE "public"."local_attractions" TO "service_role";
 GRANT ALL ON TABLE "public"."meetups" TO "anon";
 GRANT ALL ON TABLE "public"."meetups" TO "authenticated";
 GRANT ALL ON TABLE "public"."meetups" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."merch" TO "anon";
+GRANT ALL ON TABLE "public"."merch" TO "authenticated";
+GRANT ALL ON TABLE "public"."merch" TO "service_role";
 
 
 
