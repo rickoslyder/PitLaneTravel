@@ -9,18 +9,5 @@
       "destination": "https://us.i.posthog.com/:path*"
     }
   ],
-  "crons": [
-    {
-      "path": "/api/cron/check-waitlist",
-      "schedule": "0 0 * * *"
-    },
-    {
-      "path": "/api/cron/cleanup-notifications",
-      "schedule": "30 0 * * *"
-    },
-    {
-      "path": "/api/cron/update-exchange-rates",
-      "schedule": "0 6 * * *"
-    }
-  ]
+  "crons": []
 }
