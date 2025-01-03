@@ -17,6 +17,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { cn } from "@/lib/utils"
 import { ClerkProvider } from "@clerk/nextjs"
 import { auth } from "@clerk/nextjs/server"
+import { GoogleTagManager } from "@next/third-parties/google"
+import { gtmPixelID, gtmServerID } from "@/lib/google-tag-manager"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
@@ -79,6 +81,8 @@ export default async function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
+        <GoogleTagManager gtmId={gtmPixelID} />
+        <GoogleTagManager gtmId={gtmServerID} />
         <body
           className={cn(
             "bg-background mx-auto min-h-screen w-full scroll-smooth antialiased",
