@@ -7,7 +7,7 @@ CREATE TYPE "public"."membership" AS ENUM ('free', 'pro');
 
 CREATE TYPE "public"."trip_visibility" AS ENUM ('private', 'public', 'shared');
 
-CREATE TYPE "public"."notification_type" AS ENUM ('email', 'sms', 'both');
+CREATE TYPE "public"."notification_channel" AS ENUM ('email', 'sms', 'both');
 
 CREATE TYPE "public"."waitlist_status" AS ENUM ('pending', 'notified', 'purchased', 'expired');
 
@@ -300,7 +300,7 @@ CREATE TABLE IF NOT EXISTS "public"."waitlist" (
     "ticket_category_id" text NOT NULL,
     "email" text NOT NULL,
     "phone" text,
-    "notification_type" notification_type NOT NULL,
+    "notification_channel" notification_channel NOT NULL,
     "status" waitlist_status DEFAULT 'pending' NOT NULL,
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL

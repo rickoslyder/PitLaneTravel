@@ -45,7 +45,7 @@ export function WaitlistForm({
   const [open, setOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
-  const [notificationType, setNotificationType] = useState("email")
+  const [notificationChannel, setNotificationChannel] = useState("email")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
   const { userId } = useAuth()
@@ -70,8 +70,8 @@ export function WaitlistForm({
         raceId,
         ticketCategoryId,
         email,
-        phone: notificationType !== "email" ? phone : null,
-        notificationType,
+        phone: notificationChannel !== "email" ? phone : null,
+        notificationChannel,
         status: "pending"
       })
 
@@ -127,13 +127,13 @@ export function WaitlistForm({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="notification-type">Notification Type</Label>
+            <Label htmlFor="notification-type">Notification Channel</Label>
             <Select
-              value={notificationType}
-              onValueChange={setNotificationType}
+              value={notificationChannel}
+              onValueChange={setNotificationChannel}
             >
               <SelectTrigger id="notification-type">
-                <SelectValue placeholder="Select notification type" />
+                <SelectValue placeholder="Select notification channel" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="email">Email Only</SelectItem>
@@ -142,7 +142,7 @@ export function WaitlistForm({
               </SelectContent>
             </Select>
           </div>
-          {notificationType !== "email" && (
+          {notificationChannel !== "email" && (
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
               <Input

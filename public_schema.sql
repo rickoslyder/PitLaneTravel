@@ -46,6 +46,26 @@ CREATE TYPE "public"."booking_status" AS ENUM (
 ALTER TYPE "public"."booking_status" OWNER TO "postgres";
 
 
+CREATE TYPE "public"."feature_category" AS ENUM (
+    'access',
+    'hospitality',
+    'experience'
+);
+
+
+ALTER TYPE "public"."feature_category" OWNER TO "postgres";
+
+
+CREATE TYPE "public"."feature_type" AS ENUM (
+    'included',
+    'optional',
+    'upgrade'
+);
+
+
+ALTER TYPE "public"."feature_type" OWNER TO "postgres";
+
+
 CREATE TYPE "public"."location_type" AS ENUM (
     'circuit',
     'city_center',
@@ -69,14 +89,46 @@ CREATE TYPE "public"."membership" AS ENUM (
 ALTER TYPE "public"."membership" OWNER TO "postgres";
 
 
-CREATE TYPE "public"."notification_type" AS ENUM (
+CREATE TYPE "public"."notification_channel" AS ENUM (
     'email',
     'sms',
     'both'
 );
 
 
+ALTER TYPE "public"."notification_channel" OWNER TO "postgres";
+
+
+CREATE TYPE "public"."notification_status" AS ENUM (
+    'pending',
+    'sent',
+    'failed',
+    'cancelled'
+);
+
+
+ALTER TYPE "public"."notification_status" OWNER TO "postgres";
+
+
+CREATE TYPE "public"."notification_type" AS ENUM (
+    'ticket_available',
+    'price_change',
+    'package_available'
+);
+
+
 ALTER TYPE "public"."notification_type" OWNER TO "postgres";
+
+
+CREATE TYPE "public"."package_type" AS ENUM (
+    'weekend',
+    'vip',
+    'hospitality',
+    'custom'
+);
+
+
+ALTER TYPE "public"."package_type" OWNER TO "postgres";
 
 
 CREATE TYPE "public"."race_status" AS ENUM (
@@ -161,6 +213,19 @@ $$;
 
 
 ALTER FUNCTION "public"."mark_sprint_weekends"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."set_current_timestamp_updated_at"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."set_current_timestamp_updated_at"() OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."set_updated_at"() RETURNS "trigger"
@@ -311,7 +376,8 @@ CREATE TABLE IF NOT EXISTS "public"."flight_bookings" (
     "payment_required_by" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "completed_at" timestamp with time zone
+    "completed_at" timestamp with time zone,
+    "race_id" "uuid" NOT NULL
 );
 
 
@@ -357,6 +423,24 @@ CREATE TABLE IF NOT EXISTS "public"."meetups" (
 
 
 ALTER TABLE "public"."meetups" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."notifications" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "user_id" "text" NOT NULL,
+    "type" "public"."notification_type" NOT NULL,
+    "title" "text" NOT NULL,
+    "message" "text" NOT NULL,
+    "status" "public"."notification_status" DEFAULT 'pending'::"public"."notification_status" NOT NULL,
+    "metadata" "text",
+    "scheduled_for" timestamp with time zone,
+    "sent_at" timestamp with time zone,
+    "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE "public"."notifications" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."package_tickets" (
@@ -527,7 +611,15 @@ ALTER TABLE "public"."ticket_feature_mappings" OWNER TO "postgres";
 CREATE TABLE IF NOT EXISTS "public"."ticket_features" (
     "id" integer NOT NULL,
     "name" "text" NOT NULL,
-    "description" "text"
+    "description" "text",
+    "category" "public"."feature_category" DEFAULT 'access'::"public"."feature_category" NOT NULL,
+    "feature_type" "public"."feature_type" DEFAULT 'included'::"public"."feature_type" NOT NULL,
+    "icon" "text",
+    "display_priority" integer DEFAULT 0 NOT NULL,
+    "is_active" boolean DEFAULT true NOT NULL,
+    "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_by" "text"
 );
 
 
@@ -553,8 +645,22 @@ ALTER SEQUENCE "public"."ticket_features_id_seq" OWNED BY "public"."ticket_featu
 CREATE TABLE IF NOT EXISTS "public"."ticket_packages" (
     "id" integer NOT NULL,
     "name" "text" NOT NULL,
-    "description" "text",
-    "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    "description" "text" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "race_id" "uuid" NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "updated_by" "text",
+    "base_price" numeric(10,2) DEFAULT 0 NOT NULL,
+    "currency" "text" DEFAULT 'USD'::"text" NOT NULL,
+    "max_quantity" integer DEFAULT 100 NOT NULL,
+    "valid_from" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "valid_to" timestamp with time zone,
+    "terms_and_conditions" "text" DEFAULT ''::"text" NOT NULL,
+    "is_featured" boolean DEFAULT false NOT NULL,
+    "package_type" "public"."package_type" DEFAULT 'custom'::"public"."package_type" NOT NULL,
+    CONSTRAINT "ticket_packages_base_price_check" CHECK (("base_price" >= (0)::numeric)),
+    CONSTRAINT "ticket_packages_max_quantity_check" CHECK (("max_quantity" > 0)),
+    CONSTRAINT "ticket_packages_valid_dates_check" CHECK ((("valid_to" IS NULL) OR ("valid_to" > "valid_from")))
 );
 
 
@@ -702,10 +808,12 @@ CREATE TABLE IF NOT EXISTS "public"."waitlist" (
     "ticket_category_id" "text" NOT NULL,
     "email" "text" NOT NULL,
     "phone" "text",
-    "notification_type" "public"."notification_type" NOT NULL,
+    "notification_channel" "public"."notification_channel" NOT NULL,
     "status" "public"."waitlist_status" DEFAULT 'pending'::"public"."waitlist_status" NOT NULL,
     "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "notification_count" integer DEFAULT 0 NOT NULL,
+    "last_notified_at" timestamp with time zone
 );
 
 
@@ -839,6 +947,11 @@ ALTER TABLE ONLY "public"."local_attractions"
 
 ALTER TABLE ONLY "public"."meetups"
     ADD CONSTRAINT "meetups_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."notifications"
+    ADD CONSTRAINT "notifications_pkey" PRIMARY KEY ("id");
 
 
 
@@ -1012,6 +1125,10 @@ CREATE INDEX "idx_flight_bookings_departure_time" ON "public"."flight_bookings" 
 
 
 
+CREATE INDEX "idx_flight_bookings_race_id" ON "public"."flight_bookings" USING "btree" ("race_id");
+
+
+
 CREATE INDEX "idx_flight_bookings_status" ON "public"."flight_bookings" USING "btree" ("status");
 
 
@@ -1084,6 +1201,10 @@ CREATE INDEX "idx_supporting_series_status" ON "public"."supporting_series" USIN
 
 
 
+CREATE INDEX "idx_ticket_packages_race_id" ON "public"."ticket_packages" USING "btree" ("race_id");
+
+
+
 CREATE INDEX "idx_transport_info_circuit_id" ON "public"."transport_info" USING "btree" ("circuit_id");
 
 
@@ -1105,6 +1226,14 @@ CREATE INDEX "idx_waitlist_user_id" ON "public"."waitlist" USING "btree" ("user_
 
 
 CREATE INDEX "idx_world_plugs_name" ON "public"."world_plugs" USING "btree" ("name");
+
+
+
+CREATE OR REPLACE TRIGGER "set_ticket_features_updated_at" BEFORE UPDATE ON "public"."ticket_features" FOR EACH ROW EXECUTE FUNCTION "public"."set_current_timestamp_updated_at"();
+
+
+
+CREATE OR REPLACE TRIGGER "set_ticket_packages_updated_at" BEFORE UPDATE ON "public"."ticket_packages" FOR EACH ROW EXECUTE FUNCTION "public"."set_current_timestamp_updated_at"();
 
 
 
@@ -1148,6 +1277,10 @@ CREATE OR REPLACE TRIGGER "update_meetups_updated_at" BEFORE UPDATE ON "public".
 
 
 
+CREATE OR REPLACE TRIGGER "update_notifications_updated_at" BEFORE UPDATE ON "public"."notifications" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at_column"();
+
+
+
 CREATE OR REPLACE TRIGGER "update_podium_results_updated_at" BEFORE UPDATE ON "public"."podium_results" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at_column"();
 
 
@@ -1169,6 +1302,10 @@ CREATE OR REPLACE TRIGGER "update_saved_itineraries_updated_at" BEFORE UPDATE ON
 
 
 CREATE OR REPLACE TRIGGER "update_supporting_series_updated_at" BEFORE UPDATE ON "public"."supporting_series" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at_column"();
+
+
+
+CREATE OR REPLACE TRIGGER "update_ticket_packages_updated_at" BEFORE UPDATE ON "public"."ticket_packages" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at_column"();
 
 
 
@@ -1212,6 +1349,11 @@ ALTER TABLE ONLY "public"."circuit_locations"
 
 
 ALTER TABLE ONLY "public"."flight_bookings"
+    ADD CONSTRAINT "flight_bookings_race_id_fkey" FOREIGN KEY ("race_id") REFERENCES "public"."races"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."flight_bookings"
     ADD CONSTRAINT "flight_bookings_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id") ON DELETE SET NULL;
 
 
@@ -1227,7 +1369,22 @@ ALTER TABLE ONLY "public"."meetups"
 
 
 ALTER TABLE ONLY "public"."package_tickets"
-    ADD CONSTRAINT "package_tickets_package_id_fkey" FOREIGN KEY ("package_id") REFERENCES "public"."ticket_packages"("id");
+    ADD CONSTRAINT "package_tickets_package_id_fkey" FOREIGN KEY ("package_id") REFERENCES "public"."ticket_packages"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."package_tickets"
+    ADD CONSTRAINT "package_tickets_package_id_ticket_packages_id_fk" FOREIGN KEY ("package_id") REFERENCES "public"."ticket_packages"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."package_tickets"
+    ADD CONSTRAINT "package_tickets_ticket_id_fkey" FOREIGN KEY ("ticket_id") REFERENCES "public"."tickets"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."package_tickets"
+    ADD CONSTRAINT "package_tickets_ticket_id_tickets_id_fk" FOREIGN KEY ("ticket_id") REFERENCES "public"."tickets"("id") ON DELETE CASCADE;
 
 
 
@@ -1262,7 +1419,27 @@ ALTER TABLE ONLY "public"."supporting_series"
 
 
 ALTER TABLE ONLY "public"."ticket_feature_mappings"
-    ADD CONSTRAINT "ticket_feature_mappings_feature_id_fkey" FOREIGN KEY ("feature_id") REFERENCES "public"."ticket_features"("id");
+    ADD CONSTRAINT "ticket_feature_mappings_feature_id_fkey" FOREIGN KEY ("feature_id") REFERENCES "public"."ticket_features"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."ticket_feature_mappings"
+    ADD CONSTRAINT "ticket_feature_mappings_feature_id_ticket_features_id_fk" FOREIGN KEY ("feature_id") REFERENCES "public"."ticket_features"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."ticket_feature_mappings"
+    ADD CONSTRAINT "ticket_feature_mappings_ticket_id_fkey" FOREIGN KEY ("ticket_id") REFERENCES "public"."tickets"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."ticket_feature_mappings"
+    ADD CONSTRAINT "ticket_feature_mappings_ticket_id_tickets_id_fk" FOREIGN KEY ("ticket_id") REFERENCES "public"."tickets"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."ticket_packages"
+    ADD CONSTRAINT "ticket_packages_race_id_fkey" FOREIGN KEY ("race_id") REFERENCES "public"."races"("id") ON DELETE CASCADE;
 
 
 
@@ -1312,6 +1489,12 @@ GRANT ALL ON TYPE "public"."location_type" TO "service_role";
 GRANT ALL ON FUNCTION "public"."mark_sprint_weekends"() TO "anon";
 GRANT ALL ON FUNCTION "public"."mark_sprint_weekends"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."mark_sprint_weekends"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."set_current_timestamp_updated_at"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_current_timestamp_updated_at"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_current_timestamp_updated_at"() TO "service_role";
 
 
 
@@ -1372,6 +1555,12 @@ GRANT ALL ON TABLE "public"."local_attractions" TO "service_role";
 GRANT ALL ON TABLE "public"."meetups" TO "anon";
 GRANT ALL ON TABLE "public"."meetups" TO "authenticated";
 GRANT ALL ON TABLE "public"."meetups" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."notifications" TO "anon";
+GRANT ALL ON TABLE "public"."notifications" TO "authenticated";
+GRANT ALL ON TABLE "public"."notifications" TO "service_role";
 
 
 

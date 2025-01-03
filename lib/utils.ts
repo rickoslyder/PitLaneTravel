@@ -89,3 +89,25 @@ export function formatPassengerTitle(title: string): string {
   }
   return titleMap[title.toLowerCase()] || title
 }
+
+export function formatPrice(amount: number, currency: string = "USD"): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount)
+}
+
+export function formatTicketType(type: string) {
+  switch (type) {
+    case "grandstand":
+      return "Grandstand"
+    case "general":
+      return "General Admission"
+    case "vip":
+      return "VIP"
+    default:
+      return type
+  }
+}

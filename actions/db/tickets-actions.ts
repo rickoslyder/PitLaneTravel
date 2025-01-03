@@ -11,13 +11,8 @@ import {
   InsertTicketFeature,
   SelectTicketFeature,
   ticketFeaturesTable,
-  InsertTicketFeatureMapping,
   ticketFeatureMappingsTable,
-  InsertTicketPackage,
-  SelectTicketPackage,
-  ticketPackagesTable,
-  InsertPackageTicket,
-  packageTicketsTable
+  racesTable
 } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq, and, isNull, desc } from "drizzle-orm"
@@ -29,29 +24,39 @@ export async function createTicketAction(
   featureIds?: number[]
 ): Promise<ActionState<SelectTicket>> {
   try {
-    const [newTicket] = await db.insert(ticketsTable).values(data).returning()
+    // Start transaction to ensure all related data is created
+    return await db.transaction(async (tx) => {
+      // Create ticket
+      const [newTicket] = await tx.insert(ticketsTable).values(data).returning()
 
-    // Add pricing
-    await db.insert(ticketPricingTable).values({
-      ticketId: newTicket.id,
-      ...pricing
+      // Add pricing with validation
+      if (!pricing.validFrom) {
+        pricing.validFrom = new Date()
+      }
+      await tx.insert(ticketPricingTable).values({
+        ticketId: newTicket.id,
+        price: pricing.price.toString(), // Convert to string for DB
+        currency: pricing.currency,
+        validFrom: pricing.validFrom,
+        validTo: pricing.validTo
+      })
+
+      // Add features if provided
+      if (featureIds?.length) {
+        await tx.insert(ticketFeatureMappingsTable).values(
+          featureIds.map(featureId => ({
+            ticketId: newTicket.id,
+            featureId
+          }))
+        )
+      }
+
+      return {
+        isSuccess: true,
+        message: "Ticket created successfully",
+        data: newTicket
+      }
     })
-
-    // Add features if provided
-    if (featureIds?.length) {
-      await db.insert(ticketFeatureMappingsTable).values(
-        featureIds.map(featureId => ({
-          ticketId: newTicket.id,
-          featureId
-        }))
-      )
-    }
-
-    return {
-      isSuccess: true,
-      message: "Ticket created successfully",
-      data: newTicket
-    }
   } catch (error) {
     console.error("Error creating ticket:", error)
     return { isSuccess: false, message: "Failed to create ticket" }
@@ -84,17 +89,52 @@ export async function getTicketAction(
 
 export async function getRaceTicketsAction(
   raceId: string
-): Promise<ActionState<SelectTicket[]>> {
+): Promise<ActionState<(SelectTicket & { currentPrice?: SelectTicketPricing; features?: SelectTicketFeature[] })[]>> {
   try {
-    const raceTickets = await db
-      .select()
+    // Get tickets with their current pricing and features
+    const tickets = await db
+      .select({
+        ticket: ticketsTable,
+        currentPrice: ticketPricingTable,
+        features: ticketFeaturesTable
+      })
       .from(ticketsTable)
+      .leftJoin(
+        ticketPricingTable,
+        and(
+          eq(ticketPricingTable.ticketId, ticketsTable.id),
+          isNull(ticketPricingTable.validTo)
+        )
+      )
+      .leftJoin(
+        ticketFeatureMappingsTable,
+        eq(ticketFeatureMappingsTable.ticketId, ticketsTable.id)
+      )
+      .leftJoin(
+        ticketFeaturesTable,
+        eq(ticketFeaturesTable.id, ticketFeatureMappingsTable.featureId)
+      )
       .where(eq(ticketsTable.raceId, raceId))
+
+    // Group features by ticket
+    const groupedTickets = tickets.reduce((acc, row) => {
+      const ticketId = row.ticket.id
+      if (!acc[ticketId]) {
+        acc[ticketId] = {
+          ...row.ticket,
+          currentPrice: row.currentPrice,
+          features: row.features ? [row.features] : []
+        }
+      } else if (row.features) {
+        acc[ticketId].features.push(row.features)
+      }
+      return acc
+    }, {} as Record<number, any>)
 
     return {
       isSuccess: true,
       message: "Race tickets retrieved successfully",
-      data: raceTickets
+      data: Object.values(groupedTickets)
     }
   } catch (error) {
     console.error("Error getting race tickets:", error)
@@ -127,96 +167,22 @@ export async function getTicketFeaturesAction(
 ): Promise<ActionState<SelectTicketFeature[]>> {
   try {
     const features = await db
-      .select({
-        id: ticketFeaturesTable.id,
-        name: ticketFeaturesTable.name,
-        description: ticketFeaturesTable.description
-      })
+      .select()
       .from(ticketFeatureMappingsTable)
       .innerJoin(
         ticketFeaturesTable,
-        eq(ticketFeatureMappingsTable.featureId, ticketFeaturesTable.id)
+        eq(ticketFeaturesTable.id, ticketFeatureMappingsTable.featureId)
       )
       .where(eq(ticketFeatureMappingsTable.ticketId, ticketId))
 
     return {
       isSuccess: true,
       message: "Ticket features retrieved successfully",
-      data: features
+      data: features.map(f => f.ticket_features)
     }
   } catch (error) {
     console.error("Error getting ticket features:", error)
     return { isSuccess: false, message: "Failed to get ticket features" }
-  }
-}
-
-// Ticket Packages Actions
-export async function createTicketPackageAction(
-  data: InsertTicketPackage,
-  tickets: { ticketId: number; quantity: number; discountPercentage?: string }[]
-): Promise<ActionState<SelectTicketPackage>> {
-  try {
-    const [newPackage] = await db
-      .insert(ticketPackagesTable)
-      .values(data)
-      .returning()
-
-    await db.insert(packageTicketsTable).values(
-      tickets.map(ticket => ({
-        packageId: newPackage.id,
-        ticketId: ticket.ticketId,
-        quantity: ticket.quantity,
-        discountPercentage: ticket.discountPercentage
-      }))
-    )
-
-    return {
-      isSuccess: true,
-      message: "Ticket package created successfully",
-      data: newPackage
-    }
-  } catch (error) {
-    console.error("Error creating ticket package:", error)
-    return { isSuccess: false, message: "Failed to create ticket package" }
-  }
-}
-
-export async function getPackageTicketsAction(
-  packageId: number
-): Promise<ActionState<(SelectTicket & { quantity: number; discountPercentage: string | null })[]>> {
-  try {
-    const tickets = await db
-      .select({
-        id: ticketsTable.id,
-        raceId: ticketsTable.raceId,
-        title: ticketsTable.title,
-        description: ticketsTable.description,
-        ticketType: ticketsTable.ticketType,
-        availability: ticketsTable.availability,
-        daysIncluded: ticketsTable.daysIncluded,
-        isChildTicket: ticketsTable.isChildTicket,
-        resellerUrl: ticketsTable.resellerUrl,
-        createdAt: ticketsTable.createdAt,
-        updatedAt: ticketsTable.updatedAt,
-        updatedBy: ticketsTable.updatedBy,
-        quantity: packageTicketsTable.quantity,
-        discountPercentage: packageTicketsTable.discountPercentage
-      })
-      .from(packageTicketsTable)
-      .innerJoin(
-        ticketsTable,
-        eq(packageTicketsTable.ticketId, ticketsTable.id)
-      )
-      .where(eq(packageTicketsTable.packageId, packageId))
-
-    return {
-      isSuccess: true,
-      message: "Package tickets retrieved successfully",
-      data: tickets
-    }
-  } catch (error) {
-    console.error("Error getting package tickets:", error)
-    return { isSuccess: false, message: "Failed to get package tickets" }
   }
 }
 
@@ -248,6 +214,7 @@ export async function getTicketPricingHistoryAction(
       .select()
       .from(ticketPricingTable)
       .where(eq(ticketPricingTable.ticketId, ticketId))
+      .orderBy(desc(ticketPricingTable.validFrom))
 
     return {
       isSuccess: true,
@@ -260,17 +227,27 @@ export async function getTicketPricingHistoryAction(
   }
 }
 
-export async function getTicketsAction(): Promise<ActionState<SelectTicket[]>> {
+export async function getTicketsAction(): Promise<ActionState<(SelectTicket & { race: { name: string; season: number } })[]>> {
   try {
     const tickets = await db
-      .select()
+      .select({
+        ticket: ticketsTable,
+        race: {
+          name: racesTable.name,
+          season: racesTable.season
+        }
+      })
       .from(ticketsTable)
+      .innerJoin(racesTable, eq(ticketsTable.raceId, racesTable.id))
       .orderBy(desc(ticketsTable.createdAt))
 
     return {
       isSuccess: true,
       message: "Tickets retrieved successfully",
-      data: tickets
+      data: tickets.map(({ ticket, race }) => ({
+        ...ticket,
+        race
+      }))
     }
   } catch (error) {
     console.error("Error getting tickets:", error)
@@ -314,5 +291,81 @@ export async function deleteTicketAction(
   } catch (error) {
     console.error("Error deleting ticket:", error)
     return { isSuccess: false, message: "Failed to delete ticket" }
+  }
+}
+
+export async function updateTicketPricingAction(
+  ticketId: number,
+  pricing: {
+    price: number
+    currency: string
+    validFrom: Date
+    validTo?: Date
+  }
+): Promise<ActionState<void>> {
+  try {
+    return await db.transaction(async (tx) => {
+      // Set end date for current price
+      await tx
+        .update(ticketPricingTable)
+        .set({ validTo: pricing.validFrom })
+        .where(
+          and(
+            eq(ticketPricingTable.ticketId, ticketId),
+            isNull(ticketPricingTable.validTo)
+          )
+        )
+
+      // Insert new price
+      await tx.insert(ticketPricingTable).values({
+        ticketId,
+        price: pricing.price.toString(), // Convert to string for DB
+        currency: pricing.currency,
+        validFrom: pricing.validFrom,
+        validTo: pricing.validTo
+      })
+
+      return {
+        isSuccess: true,
+        message: "Ticket pricing updated successfully",
+        data: undefined
+      }
+    })
+  } catch (error) {
+    console.error("Error updating ticket pricing:", error)
+    return { isSuccess: false, message: "Failed to update ticket pricing" }
+  }
+}
+
+export async function updateTicketFeaturesAction(
+  ticketId: number,
+  featureIds: number[]
+): Promise<ActionState<void>> {
+  try {
+    return await db.transaction(async (tx) => {
+      // Remove existing features
+      await tx
+        .delete(ticketFeatureMappingsTable)
+        .where(eq(ticketFeatureMappingsTable.ticketId, ticketId))
+
+      // Add new features
+      if (featureIds.length > 0) {
+        await tx.insert(ticketFeatureMappingsTable).values(
+          featureIds.map(featureId => ({
+            ticketId,
+            featureId
+          }))
+        )
+      }
+
+      return {
+        isSuccess: true,
+        message: "Ticket features updated successfully",
+        data: undefined
+      }
+    })
+  } catch (error) {
+    console.error("Error updating ticket features:", error)
+    return { isSuccess: false, message: "Failed to update ticket features" }
   }
 }

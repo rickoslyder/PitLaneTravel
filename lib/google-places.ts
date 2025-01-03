@@ -235,9 +235,7 @@ export async function findAirportDetails(searchTerm: string): Promise<{
 /**
  * Find airport coordinates using name or code
  */
-export async function findAirportCoordinates(
-  searchTerm: string
-): Promise<{
+export async function findAirportCoordinates(searchTerm: string): Promise<{
   latitude: number
   longitude: number
   airportCode?: string

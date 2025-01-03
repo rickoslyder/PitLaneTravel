@@ -29,7 +29,8 @@ import {
   Hotel,
   CreditCard,
   Briefcase,
-  ChevronDown
+  ChevronDown,
+  DollarSign
 } from "lucide-react"
 import PitLaneTravelLogo from "@/logos/PitLaneTravelLogo"
 
@@ -56,6 +57,11 @@ const sections: NavSection[] = [
   {
     title: "Race Management",
     items: [
+      {
+        title: "Races",
+        href: "/admin/races",
+        icon: <Flag className="mr-2 size-4" />
+      },
       {
         title: "Circuits",
         href: "/admin/circuits",
@@ -130,6 +136,11 @@ const sections: NavSection[] = [
         title: "Users",
         href: "/admin/users",
         icon: <Users className="mr-2 size-4" />
+      },
+      {
+        title: "Exchange Rates",
+        href: "/admin/exchange-rates",
+        icon: <DollarSign className="mr-2 size-4" />
       }
     ]
   }

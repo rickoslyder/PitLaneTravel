@@ -1,4 +1,4 @@
-import { SelectCircuitLocation } from "@/db/schema"
+import { SelectCircuitLocation } from "@/db/schema/circuit-locations-schema"
 
 export type Json =
   | string
@@ -251,6 +251,39 @@ export type Database = {
         }
         Relationships: []
       }
+      currency_rates: {
+        Row: {
+          from_currency: string
+          id: string
+          is_active: boolean
+          last_fetch_error: string | null
+          last_fetch_success: string
+          last_updated: string
+          rate: number
+          to_currency: string
+        }
+        Insert: {
+          from_currency: string
+          id: string
+          is_active?: boolean
+          last_fetch_error?: string | null
+          last_fetch_success?: string
+          last_updated?: string
+          rate: number
+          to_currency: string
+        }
+        Update: {
+          from_currency?: string
+          id?: string
+          is_active?: boolean
+          last_fetch_error?: string | null
+          last_fetch_success?: string
+          last_updated?: string
+          rate?: number
+          to_currency?: string
+        }
+        Relationships: []
+      }
       flight_bookings: {
         Row: {
           added_to_trip: boolean
@@ -471,6 +504,48 @@ export type Database = {
           }
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          metadata: string | null
+          scheduled_for: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["notification_status"]
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["notification_status"]
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["notification_status"]
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       package_tickets: {
         Row: {
           discount_percentage: number | null
@@ -496,6 +571,27 @@ export type Database = {
             columns: ["package_id"]
             isOneToOne: false
             referencedRelation: "ticket_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "package_tickets_package_id_ticket_packages_id_fk"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "package_tickets_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "package_tickets_ticket_id_tickets_id_fk"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
             referencedColumns: ["id"]
           }
         ]
@@ -872,47 +968,133 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "ticket_features"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_feature_mappings_feature_id_ticket_features_id_fk"
+            columns: ["feature_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_features"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_feature_mappings_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_feature_mappings_ticket_id_tickets_id_fk"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
           }
         ]
       }
       ticket_features: {
         Row: {
+          category: Database["public"]["Enums"]["feature_category"]
+          created_at: string
           description: string | null
+          display_priority: number
+          feature_type: Database["public"]["Enums"]["feature_type"]
+          icon: string | null
           id: number
+          is_active: boolean
           name: string
+          updated_at: string
+          updated_by: string | null
         }
         Insert: {
+          category?: Database["public"]["Enums"]["feature_category"]
+          created_at?: string
           description?: string | null
+          display_priority?: number
+          feature_type?: Database["public"]["Enums"]["feature_type"]
+          icon?: string | null
           id?: number
+          is_active?: boolean
           name: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Update: {
+          category?: Database["public"]["Enums"]["feature_category"]
+          created_at?: string
           description?: string | null
+          display_priority?: number
+          feature_type?: Database["public"]["Enums"]["feature_type"]
+          icon?: string | null
           id?: number
+          is_active?: boolean
           name?: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
       ticket_packages: {
         Row: {
+          base_price: number
           created_at: string
-          description: string | null
+          currency: string
+          description: string
           id: number
+          is_featured: boolean
+          max_quantity: number
           name: string
+          package_type: Database["public"]["Enums"]["package_type"]
+          race_id: string
+          terms_and_conditions: string
+          updated_at: string
+          updated_by: string | null
+          valid_from: string
+          valid_to: string | null
         }
         Insert: {
+          base_price?: number
           created_at?: string
-          description?: string | null
+          currency?: string
+          description: string
           id?: number
+          is_featured?: boolean
+          max_quantity?: number
           name: string
+          package_type?: Database["public"]["Enums"]["package_type"]
+          race_id: string
+          terms_and_conditions?: string
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string
+          valid_to?: string | null
         }
         Update: {
+          base_price?: number
           created_at?: string
-          description?: string | null
+          currency?: string
+          description?: string
           id?: number
+          is_featured?: boolean
+          max_quantity?: number
           name?: string
+          package_type?: Database["public"]["Enums"]["package_type"]
+          race_id?: string
+          terms_and_conditions?: string
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string
+          valid_to?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ticket_packages_race_id_fkey"
+            columns: ["race_id"]
+            isOneToOne: false
+            referencedRelation: "races"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       ticket_pricing: {
         Row: {
@@ -1157,7 +1339,9 @@ export type Database = {
           created_at: string
           email: string
           id: string
-          notification_type: Database["public"]["Enums"]["notification_type"]
+          last_notified_at: string | null
+          notification_channel: Database["public"]["Enums"]["notification_channel"]
+          notification_count: number
           phone: string | null
           race_id: string
           status: Database["public"]["Enums"]["waitlist_status"]
@@ -1169,7 +1353,9 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
-          notification_type: Database["public"]["Enums"]["notification_type"]
+          last_notified_at?: string | null
+          notification_channel: Database["public"]["Enums"]["notification_channel"]
+          notification_count?: number
           phone?: string | null
           race_id: string
           status?: Database["public"]["Enums"]["waitlist_status"]
@@ -1181,7 +1367,9 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
-          notification_type?: Database["public"]["Enums"]["notification_type"]
+          last_notified_at?: string | null
+          notification_channel?: Database["public"]["Enums"]["notification_channel"]
+          notification_count?: number
           phone?: string | null
           race_id?: string
           status?: Database["public"]["Enums"]["waitlist_status"]
@@ -1255,6 +1443,8 @@ export type Database = {
         | "failed"
         | "expired"
         | "cancelled"
+      feature_category: "access" | "hospitality" | "experience"
+      feature_type: "included" | "optional" | "upgrade"
       location_type:
         | "circuit"
         | "city_center"
@@ -1264,7 +1454,13 @@ export type Database = {
         | "transport"
         | "airport"
       membership: "free" | "pro"
-      notification_type: "email" | "sms" | "both"
+      notification_channel: "email" | "sms" | "both"
+      notification_status: "pending" | "sent" | "failed" | "cancelled"
+      notification_type:
+        | "ticket_available"
+        | "price_change"
+        | "package_available"
+      package_type: "weekend" | "vip" | "hospitality" | "custom"
       race_status: "upcoming" | "in_progress" | "completed" | "cancelled"
       supporting_series_status:
         | "scheduled"

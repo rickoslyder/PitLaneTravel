@@ -3,7 +3,11 @@ import path from 'path'
 
 const databaseTypesPath = path.join(process.cwd(), 'types', 'database.ts')
 
-// Check if file exists and was modified in the last 5 seconds
+// List of imports to prepend
+const imports = [
+  'import { SelectCircuitLocation } from "@/db/schema/circuit-locations-schema"'
+]
+
 try {
   const stats = fs.statSync(databaseTypesPath)
   const now = new Date()
@@ -17,6 +21,16 @@ try {
   }
 
   console.log('✨ Supabase types generated successfully')
+
+  // Read the existing file content
+  const existingContent = fs.readFileSync(databaseTypesPath, 'utf8')
+
+  // Prepare the new content with imports
+  const newContent = `${imports.join('\n')}\n\n${existingContent}`
+
+  // Write the combined content back to the file
+  fs.writeFileSync(databaseTypesPath, newContent)
+  console.log('✨ Imports prepended successfully')
 
   const customTypes = `
 export type RaceWithCircuit = Database["public"]["Tables"]["races"]["Row"] & {
@@ -53,6 +67,7 @@ export interface RaceWithCircuitAndSeries {
     openf1_short_name: string | null
     timezone_id: string | null
     timezone_name: string | null
+    website_url: string | null
     created_at: string
     updated_at: string
     locations?: SelectCircuitLocation[]

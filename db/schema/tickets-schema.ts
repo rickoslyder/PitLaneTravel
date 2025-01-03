@@ -27,14 +27,13 @@ export const ticketsTable = pgTable("tickets", {
   daysIncluded: jsonb("days_included").notNull(),
   isChildTicket: boolean("is_child_ticket").default(false).notNull(),
   resellerUrl: text("reseller_url").notNull(),
+  updatedBy: text("updated_by"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .defaultNow()
     .notNull()
-    .$onUpdate(() => new Date()),
-  updatedBy: text("updated_by")
 })
 
 export type InsertTicket = typeof ticketsTable.$inferInsert

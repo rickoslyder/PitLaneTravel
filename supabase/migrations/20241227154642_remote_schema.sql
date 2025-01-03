@@ -100,14 +100,14 @@ CREATE TYPE "public"."membership" AS ENUM (
 ALTER TYPE "public"."membership" OWNER TO "postgres";
 
 
-CREATE TYPE "public"."notification_type" AS ENUM (
+CREATE TYPE "public"."notification_channel" AS ENUM (
     'email',
     'sms',
     'both'
 );
 
 
-ALTER TYPE "public"."notification_type" OWNER TO "postgres";
+ALTER TYPE "public"."notification_channel" OWNER TO "postgres";
 
 
 CREATE TYPE "public"."race_status" AS ENUM (
@@ -628,7 +628,7 @@ CREATE TABLE IF NOT EXISTS "public"."waitlist" (
     "ticket_category_id" "text" NOT NULL,
     "email" "text" NOT NULL,
     "phone" "text",
-    "notification_type" "public"."notification_type" NOT NULL,
+    "notification_channel" "public"."notification_channel" NOT NULL,
     "status" "public"."waitlist_status" DEFAULT 'pending'::"public"."waitlist_status" NOT NULL,
     "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL

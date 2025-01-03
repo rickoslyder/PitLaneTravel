@@ -232,3 +232,20 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
     return { isSuccess: false, message: "Failed to get race" }
   }
 }
+
+export async function deleteRaceAction(id: string): Promise<ActionState<void>> {
+    try {
+        await db.delete(racesTable).where(eq(racesTable.id, id))
+        return {
+            isSuccess: true,
+            message: "Race deleted successfully",
+            data: undefined
+        }
+    } catch (error) {
+        console.error("Error deleting race:", error)
+        return {
+            isSuccess: false,
+            message: "Failed to delete race"
+        }
+    }
+}

@@ -15,6 +15,13 @@
       "when": 1735068154581,
       "tag": "0001_silent_the_order",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1735813956345,
+      "tag": "0002_youthful_warbird",
+      "breakpoints": true
     }
   ]
 }
