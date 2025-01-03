@@ -5,6 +5,7 @@ import { circuitLocationsTable, circuitsTable, racesTable, supportingSeriesTable
 import { ActionState } from "@/types"
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import { eq, sql } from "drizzle-orm"
+import { InsertRace, SelectRace } from "@/db/schema/races-schema"
 
 export async function getRacesAction(filters?: {
   year?: number
@@ -248,4 +249,70 @@ export async function deleteRaceAction(id: string): Promise<ActionState<void>> {
             message: "Failed to delete race"
         }
     }
+}
+
+export async function createRaceAction(
+  data: {
+    name: string
+    date: Date
+    season: number
+    round: number
+    country: string
+    circuitId: string
+    description?: string | null
+    weekendStart?: Date | null
+    weekendEnd?: Date | null
+    status: "in_progress" | "upcoming" | "completed" | "cancelled"
+    isSprintWeekend: boolean
+    openf1MeetingKey?: number | null
+    openf1SessionKey?: number | null
+  }
+): Promise<ActionState<SelectRace>> {
+  try {
+    const [newRace] = await db.insert(racesTable).values(data).returning()
+    return {
+      isSuccess: true,
+      message: "Race created successfully",
+      data: newRace
+    }
+  } catch (error) {
+    console.error("Error creating race:", error)
+    return { isSuccess: false, message: "Failed to create race" }
+  }
+}
+
+export async function updateRaceAction(
+  id: string,
+  data: Partial<{
+    name: string
+    date: Date
+    season: number
+    round: number
+    country: string
+    circuitId: string
+    description?: string | null
+    weekendStart?: Date | null
+    weekendEnd?: Date | null
+    status: "in_progress" | "upcoming" | "completed" | "cancelled"
+    isSprintWeekend: boolean
+    openf1MeetingKey?: number | null
+    openf1SessionKey?: number | null
+  }>
+): Promise<ActionState<SelectRace>> {
+  try {
+    const [updatedRace] = await db
+      .update(racesTable)
+      .set(data)
+      .where(eq(racesTable.id, id))
+      .returning()
+
+    return {
+      isSuccess: true,
+      message: "Race updated successfully",
+      data: updatedRace
+    }
+  } catch (error) {
+    console.error("Error updating race:", error)
+    return { isSuccess: false, message: "Failed to update race" }
+  }
 }

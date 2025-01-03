@@ -130,4 +130,21 @@ export async function updateTicketFeatureAction(
         console.error("Error updating feature:", error)
         return { isSuccess: false, message: "Failed to update feature" }
     }
+}
+
+export async function deleteTicketFeatureAction(
+    id: number
+): Promise<ActionState<void>> {
+    try {
+        await db.delete(ticketFeaturesTable).where(eq(ticketFeaturesTable.id, id))
+
+        return {
+            isSuccess: true,
+            message: "Feature deleted successfully",
+            data: undefined
+        }
+    } catch (error) {
+        console.error("Error deleting feature:", error)
+        return { isSuccess: false, message: "Failed to delete feature" }
+    }
 } 

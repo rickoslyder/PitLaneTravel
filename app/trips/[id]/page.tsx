@@ -8,6 +8,7 @@ import { getCircuitWithDetailsAction } from "@/actions/db/circuits-actions"
 import { TripDetails } from "./_components/trip-details"
 import { RaceWithDetails, LocalAttraction, TransportInfo } from "@/types/race"
 import { SelectCircuitLocation, SelectLocalAttraction } from "@/db/schema"
+import { SavedMerch } from "@/types/trip"
 
 interface TripPageProps {
   params: Promise<{
@@ -169,7 +170,8 @@ export default async function TripPage({ params }: TripPageProps) {
     accommodation: tripResult.data.accommodation as Accommodation | null,
     transportationNotes: tripResult.data.transportationNotes,
     packingList: tripResult.data.packingList || [],
-    customNotes: tripResult.data.customNotes as Record<string, any>
+    customNotes: tripResult.data.customNotes as Record<string, any>,
+    savedMerch: (tripResult.data.savedMerch as SavedMerch[]) || []
   }
 
   return (

@@ -4,12 +4,13 @@ import { getRacePackagesAction } from "@/actions/db/ticket-packages-actions"
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params
   try {
     const [ticketsResult, packagesResult] = await Promise.all([
-      getRaceTicketsAction(params.id),
-      getRacePackagesAction(params.id)
+      getRaceTicketsAction(resolvedParams.id),
+      getRacePackagesAction(resolvedParams.id)
     ])
 
     if (!ticketsResult.isSuccess || !packagesResult.isSuccess) {
