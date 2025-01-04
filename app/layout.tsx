@@ -17,12 +17,12 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { cn } from "@/lib/utils"
 import { ClerkProvider } from "@clerk/nextjs"
 import { auth } from "@clerk/nextjs/server"
-import { GoogleTagManager, sendGTMEvent } from "@next/third-parties/google"
+import { GoogleTagManager } from "@next/third-parties/google"
 import { gtmPixelID, gtmServerID } from "@/lib/google-tag-manager"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-
+import { PageViewTracker } from "./components/gtm/page-view-tracker"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -37,16 +37,6 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const { userId } = await auth()
-
-  sendGTMEvent({
-    event: "page_view",
-    value: {
-      user_data: {
-        external_id: userId ?? null
-      },
-      x_fb_ud_external_id: userId ?? null
-    }
-  })
 
   if (userId) {
     try {
@@ -107,6 +97,8 @@ export default async function RootLayout({
           >
             <PostHogUserIdentify />
             <PostHogPageview />
+
+            <PageViewTracker userId={userId} />
 
             {children}
 
