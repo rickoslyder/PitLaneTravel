@@ -40,6 +40,8 @@ export function FlightOffers({
                 external_id: userId ?? null
               },
               x_fb_ud_external_id: userId ?? null,
+              x_fb_cd_content_ids: [offer.id],
+              x_fb_cd_content_category: "flight",
               items: [
                 {
                   item_name: flightDetails,

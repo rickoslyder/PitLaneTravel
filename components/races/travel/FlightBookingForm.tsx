@@ -274,15 +274,19 @@ export function FlightBookingForm({
           external_id: userId ?? null,
           email: formattedPassengers[0].email,
           phone_number: formattedPassengers[0].phone_number,
+          dob: formattedPassengers[0].born_on,
           title: formattedPassengers[0].title,
-          gender: formattedPassengers[0].gender,
-          passenger_type: formattedPassengers[0].type,
-          first_name: formattedPassengers[0].given_name,
-          last_name: formattedPassengers[0].family_name,
-          city: offer.slices?.[0]?.departure?.city,
-          dob: formattedPassengers[0].born_on
+          address: {
+            gender: formattedPassengers[0].gender,
+            first_name: formattedPassengers[0].given_name,
+            last_name: formattedPassengers[0].family_name,
+            city: offer.slices?.[0]?.departure?.city
+          }
         },
         x_fb_ud_external_id: userId ?? null,
+        passenger_type: formattedPassengers[0].type,
+        x_fb_cd_content_ids: [offer.id],
+        x_fb_cd_content_category: "flight",
         items: [
           {
             item_name: flightDetails,
@@ -326,19 +330,23 @@ export function FlightBookingForm({
         event: "purchase",
         user_data: {
           external_id: userId ?? null,
-          email: formattedPassengers[0].email,
           phone_number: formattedPassengers[0].phone_number,
+          email_address: formattedPassengers[0].email,
           title: formattedPassengers[0].title,
-          gender: formattedPassengers[0].gender,
-          passenger_type: formattedPassengers[0].type,
-          first_name: formattedPassengers[0].given_name,
-          last_name: formattedPassengers[0].family_name,
-          city: offer.slices?.[0]?.departure?.city,
+          address: {
+            gender: formattedPassengers[0].gender,
+            first_name: formattedPassengers[0].given_name,
+            last_name: formattedPassengers[0].family_name,
+            city: offer.slices?.[0]?.departure?.city
+          },
           dob: formattedPassengers[0].born_on
         },
+        passenger_type: formattedPassengers[0].type,
         x_fb_ud_external_id: userId ?? null,
         currency: offer.total_currency,
         value: offer.total_amount,
+        x_fb_cd_content_ids: [offer.id],
+        x_fb_cd_content_category: "flight",
         items: [
           {
             item_name: flightDetails,
@@ -375,6 +383,8 @@ export function FlightBookingForm({
           external_id: userId ?? null
         },
         x_fb_ud_external_id: userId ?? null,
+        x_fb_cd_content_ids: [offer.id],
+        x_fb_cd_content_category: "flight",
         items: [
           {
             item_name: flightDetails,

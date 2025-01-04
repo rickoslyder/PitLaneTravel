@@ -35,6 +35,7 @@ const HeroImage = ({
         width: width ? width : 1080,
         quality: 100
       })}
+      priority={true}
     />
   )
 }

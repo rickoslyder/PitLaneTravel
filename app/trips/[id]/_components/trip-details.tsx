@@ -92,6 +92,8 @@ export function TripDetails({ trip, race, userId }: TripDetailsProps) {
       external_id: userId ?? null
     },
     x_fb_ud_external_id: userId ?? null,
+    x_fb_cd_content_ids: [trip.id],
+    x_fb_cd_content_category: "trip",
     items: [
       {
         item_name: trip.title,
