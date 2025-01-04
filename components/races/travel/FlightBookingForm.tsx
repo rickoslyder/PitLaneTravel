@@ -378,7 +378,7 @@ export function FlightBookingForm({
           )
           .join(" / ") || "Flight number not available"
       sendGTMEvent({
-        event: "initiate_checkout",
+        event: "begin_checkout",
         user_data: {
           external_id: userId ?? null
         },
