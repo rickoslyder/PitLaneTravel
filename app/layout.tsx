@@ -38,6 +38,16 @@ export default async function RootLayout({
 }) {
   const { userId } = await auth()
 
+  sendGTMEvent({
+    event: "page_view",
+    value: {
+      user_data: {
+        external_id: userId ?? null
+      },
+      x_fb_ud_external_id: userId ?? null
+    }
+  })
+
   if (userId) {
     try {
       console.log("[Layout] Checking profile for user:", userId)
@@ -77,16 +87,6 @@ export default async function RootLayout({
       // Don't throw here, let the user continue even if there are errors
     }
   }
-
-  sendGTMEvent({
-    event: "page_view",
-    value: {
-      user_data: {
-        external_id: userId ?? null
-      },
-      x_fb_ud_external_id: userId ?? null
-    }
-  })
 
   return (
     <ClerkProvider>
