@@ -17,7 +17,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { cn } from "@/lib/utils"
 import { ClerkProvider } from "@clerk/nextjs"
 import { auth } from "@clerk/nextjs/server"
-import { GoogleTagManager } from "@next/third-parties/google"
+import { GoogleTagManager, sendGTMEvent } from "@next/third-parties/google"
 import { gtmPixelID, gtmServerID } from "@/lib/google-tag-manager"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
@@ -77,6 +77,16 @@ export default async function RootLayout({
       // Don't throw here, let the user continue even if there are errors
     }
   }
+
+  sendGTMEvent({
+    event: "page_view",
+    value: {
+      user_data: {
+        external_id: userId ?? null
+      },
+      x_fb_ud_external_id: userId ?? null
+    }
+  })
 
   return (
     <ClerkProvider>

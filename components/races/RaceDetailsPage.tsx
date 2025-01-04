@@ -122,9 +122,9 @@ export function RaceDetailsPage({
     event: "view_item",
     value: {
       user_data: {
-        external_id: userId
+        external_id: userId ?? null
       },
-      x_fb_ud_external_id: userId,
+      x_fb_ud_external_id: userId ?? null,
       items: [
         {
           item_name: race.name,

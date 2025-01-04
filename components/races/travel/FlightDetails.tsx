@@ -11,6 +11,7 @@ interface FlightDetailsProps {
   flight: TransformedFlightOffer
   onSelect: () => void
   isSelected?: boolean
+  userId?: string
 }
 
 function FlightSegment({
@@ -157,7 +158,8 @@ function FlightSlice({
 export function FlightDetails({
   flight,
   onSelect,
-  isSelected
+  isSelected,
+  userId
 }: FlightDetailsProps) {
   return (
     <Card

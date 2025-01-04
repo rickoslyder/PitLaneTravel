@@ -21,9 +21,13 @@ import { SelectCircuitLocation } from "@/db/schema"
 
 interface FlightSearchContainerProps {
   races: RaceWithCircuitAndSeries[]
+  userId: string | null
 }
 
-export function FlightSearchContainer({ races }: FlightSearchContainerProps) {
+export function FlightSearchContainer({
+  races,
+  userId
+}: FlightSearchContainerProps) {
   const [selectedRace, setSelectedRace] = useState<RaceWithCircuitAndSeries>()
   const [isSearching, setIsSearching] = useState(false)
   const [offers, setOffers] = useState<TransformedFlightOffer[]>([])
@@ -140,6 +144,7 @@ export function FlightSearchContainer({ races }: FlightSearchContainerProps) {
           passengerCount={passengerCount}
           onClose={() => setSelectedOffer(undefined)}
           raceId={selectedRace?.id}
+          userId={userId ?? undefined}
         />
       )}
     </div>

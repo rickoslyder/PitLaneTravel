@@ -23,7 +23,7 @@ export default async function FlightsPage() {
         </p>
       </div>
 
-      <FlightSearchContainer races={upcomingRaces} />
+      <FlightSearchContainer races={upcomingRaces} userId={userId} />
     </div>
   )
 }

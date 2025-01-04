@@ -45,12 +45,14 @@ import PhoneInput, {
   formatPhoneNumber
 } from "react-phone-number-input"
 import "react-phone-number-input/style.css"
+import { sendGTMEvent } from "@next/third-parties/google"
 
 interface FlightBookingFormProps {
   offer: TransformedFlightOffer
   passengerCount: number
   onClose: () => void
   raceId?: string
+  userId?: string
 }
 
 interface PassengerDetails {
@@ -191,7 +193,8 @@ export function FlightBookingForm({
   offer,
   passengerCount,
   onClose,
-  raceId
+  raceId,
+  userId
 }: FlightBookingFormProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState("flight")
@@ -249,6 +252,13 @@ export function FlightBookingForm({
     }
 
     setIsLoading(true)
+    let flightDetails =
+      offer.slices
+        ?.map(slice =>
+          slice.segments.map(segment => segment.flight_number).join(", ")
+        )
+        .join(" / ") || "Flight number not available"
+
     try {
       // Format phone numbers before submission
       const formattedPassengers = passengers.map(passenger => ({
@@ -257,6 +267,34 @@ export function FlightBookingForm({
           ? passenger.phone_number
           : `+${passenger.phone_number.replace(/^0+/, "")}`
       }))
+
+      sendGTMEvent({
+        event: "add_payment_info",
+        value: {
+          user_data: {
+            external_id: userId ?? null,
+            email: formattedPassengers[0].email,
+            phone_number: formattedPassengers[0].phone_number,
+            title: formattedPassengers[0].title,
+            gender: formattedPassengers[0].gender,
+            passenger_type: formattedPassengers[0].type,
+            first_name: formattedPassengers[0].given_name,
+            last_name: formattedPassengers[0].family_name,
+            city: offer.slices?.[0]?.departure?.city,
+            dob: formattedPassengers[0].born_on
+          },
+          x_fb_ud_external_id: userId ?? null,
+          items: [
+            {
+              item_name: flightDetails,
+              quantity: 1,
+              price: offer.total_amount,
+              item_category: "flight",
+              item_brand: offer.airline.name
+            }
+          ]
+        }
+      })
 
       const response = await fetch("/api/flights/book", {
         method: "POST",
@@ -286,6 +324,33 @@ export function FlightBookingForm({
       }
 
       toast.success("Flight booked successfully!")
+      sendGTMEvent({
+        event: "purchase",
+        value: {
+          user_data: {
+            external_id: userId ?? null,
+            email: formattedPassengers[0].email,
+            phone_number: formattedPassengers[0].phone_number,
+            title: formattedPassengers[0].title,
+            gender: formattedPassengers[0].gender,
+            passenger_type: formattedPassengers[0].type,
+            first_name: formattedPassengers[0].given_name,
+            last_name: formattedPassengers[0].family_name,
+            city: offer.slices?.[0]?.departure?.city,
+            dob: formattedPassengers[0].born_on
+          },
+          x_fb_ud_external_id: userId ?? null,
+          items: [
+            {
+              item_name: flightDetails,
+              quantity: 1,
+              price: offer.total_amount,
+              item_category: "flight",
+              item_brand: offer.airline.name
+            }
+          ]
+        }
+      })
       router.push(`/flights/confirmation?bookingId=${data.data.bookingId}`)
     } catch (error) {
       console.error("Error booking flight:", error)
@@ -300,6 +365,30 @@ export function FlightBookingForm({
   const nextStep = () => {
     if (currentStep === "flight") {
       setCurrentStep("passengers")
+      let flightDetails =
+        offer.slices
+          ?.map(slice =>
+            slice.segments.map(segment => segment.flight_number).join(", ")
+          )
+          .join(" / ") || "Flight number not available"
+      sendGTMEvent({
+        event: "initiate_checkout",
+        value: {
+          user_data: {
+            external_id: userId ?? null
+          },
+          x_fb_ud_external_id: userId ?? null,
+          items: [
+            {
+              item_name: flightDetails,
+              quantity: 1,
+              price: offer.total_amount,
+              item_category: "flight",
+              item_brand: offer.airline.name
+            }
+          ]
+        }
+      })
     } else if (currentStep === "passengers") {
       // Validate all passenger details before proceeding
       const isValid = passengers.every(passenger => {

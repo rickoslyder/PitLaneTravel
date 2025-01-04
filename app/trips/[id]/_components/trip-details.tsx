@@ -30,6 +30,7 @@ import { TransportTab } from "./transport-tab"
 import { PackingTab } from "./packing-tab"
 import { MerchTab } from "./merch-tab"
 import { AiTab } from "./ai-tab"
+import { sendGTMEvent } from "@next/third-parties/google"
 
 interface TripDetailsProps {
   trip: Trip
@@ -84,6 +85,25 @@ export function TripDetails({ trip, race, userId }: TripDetailsProps) {
       }
     }))
   }
+
+  sendGTMEvent({
+    event: "view_item",
+    value: {
+      user_data: {
+        external_id: userId ?? null
+      },
+      x_fb_ud_external_id: userId ?? null,
+      items: [
+        {
+          item_name: trip.title,
+          quantity: 1,
+          // price: 123.45,
+          item_category: "trip",
+          item_brand: race.name
+        }
+      ]
+    }
+  })
 
   return (
     <motion.div
