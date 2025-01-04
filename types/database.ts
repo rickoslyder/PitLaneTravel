@@ -720,6 +720,53 @@ export type Database = {
         }
         Relationships: []
       }
+      race_history: {
+        Row: {
+          created_at: string
+          full_history: string
+          id: string
+          memorable_moments: Json
+          meta_description: string | null
+          meta_title: string | null
+          race_id: string
+          record_breakers: Json
+          timeline: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_history: string
+          id?: string
+          memorable_moments?: Json
+          meta_description?: string | null
+          meta_title?: string | null
+          race_id: string
+          record_breakers?: Json
+          timeline?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_history?: string
+          id?: string
+          memorable_moments?: Json
+          meta_description?: string | null
+          meta_title?: string | null
+          race_id?: string
+          record_breakers?: Json
+          timeline?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "race_history_race_id_fkey"
+            columns: ["race_id"]
+            isOneToOne: false
+            referencedRelation: "races"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       race_weather: {
         Row: {
           cloud_cover: number | null
@@ -949,6 +996,96 @@ export type Database = {
             referencedColumns: ["id"]
           }
         ]
+      }
+      stripe_accounts: {
+        Row: {
+          attrs: Json | null
+          business_type: string | null
+          country: string | null
+          created: string | null
+          email: string | null
+          id: string | null
+          type: string | null
+        }
+        Insert: {
+          attrs?: Json | null
+          business_type?: string | null
+          country?: string | null
+          created?: string | null
+          email?: string | null
+          id?: string | null
+          type?: string | null
+        }
+        Update: {
+          attrs?: Json | null
+          business_type?: string | null
+          country?: string | null
+          created?: string | null
+          email?: string | null
+          id?: string | null
+          type?: string | null
+        }
+        Relationships: []
+      }
+      stripe_balance: {
+        Row: {
+          amount: number | null
+          attrs: Json | null
+          balance_type: string | null
+          currency: string | null
+        }
+        Insert: {
+          amount?: number | null
+          attrs?: Json | null
+          balance_type?: string | null
+          currency?: string | null
+        }
+        Update: {
+          amount?: number | null
+          attrs?: Json | null
+          balance_type?: string | null
+          currency?: string | null
+        }
+        Relationships: []
+      }
+      stripe_balance_transactions: {
+        Row: {
+          amount: number | null
+          attrs: Json | null
+          created: string | null
+          currency: string | null
+          description: string | null
+          fee: number | null
+          id: string | null
+          net: number | null
+          status: string | null
+          type: string | null
+        }
+        Insert: {
+          amount?: number | null
+          attrs?: Json | null
+          created?: string | null
+          currency?: string | null
+          description?: string | null
+          fee?: number | null
+          id?: string | null
+          net?: number | null
+          status?: string | null
+          type?: string | null
+        }
+        Update: {
+          amount?: number | null
+          attrs?: Json | null
+          created?: string | null
+          currency?: string | null
+          description?: string | null
+          fee?: number | null
+          id?: string | null
+          net?: number | null
+          status?: string | null
+          type?: string | null
+        }
+        Relationships: []
       }
       supporting_series: {
         Row: {

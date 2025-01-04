@@ -8,6 +8,7 @@ import { notFound } from "next/navigation"
 import { RaceDetailsPage } from "@/components/races/RaceDetailsPage"
 import LocalAttractions from "@/components/races/LocalAttractions"
 import { RaceWithDetails } from "@/types/race"
+import { getRaceHistoryAction } from "@/actions/db/race-history-actions"
 
 interface RacePageProps {
   params: Promise<{
@@ -30,6 +31,9 @@ export default async function RacePage({ params }: RacePageProps) {
   if (!circuitResult.isSuccess) {
     return notFound()
   }
+
+  // Get race history
+  const historyResult = await getRaceHistoryAction(resolvedParams.id)
 
   // Get user's existing trip for this race if they're logged in
   let existingTripId: string | undefined
@@ -127,6 +131,7 @@ export default async function RacePage({ params }: RacePageProps) {
         race={raceWithDetails}
         userId={userId}
         existingTripId={existingTripId}
+        history={historyResult.isSuccess ? historyResult.data : undefined}
       />
       <LocalAttractions circuit={circuitResult.data} />
     </div>

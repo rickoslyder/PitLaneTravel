@@ -16,7 +16,10 @@ import {
   Star,
   Ticket,
   Trophy,
-  Timer
+  Timer,
+  Clock,
+  ScrollText,
+  ArrowRight
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
@@ -31,9 +34,17 @@ import { RaceCountdown } from "./race-countdown/RaceCountdown"
 import { SelectCircuitLocation } from "@/db/schema"
 import { TripPlannerButton } from "@/components/trip-planner-button"
 import { auth } from "@clerk/nextjs/server"
-import { sendGTMEvent } from "@next/third-parties/google"
+import { sendGTMEvent, YouTubeEmbed } from "@next/third-parties/google"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { Separator } from "@/components/ui/separator"
+import Link from "next/link"
+import {
+  SelectRaceHistory,
+  TimelineEvent,
+  RecordBreaker,
+  MemorableMoment
+} from "@/db/schema/race-history-schema"
 
 interface RaceDetailsPageProps {
   /** The race to display */
@@ -42,12 +53,15 @@ interface RaceDetailsPageProps {
   existingTripId?: string
   /** The current user's ID */
   userId?: string | null
+  /** The race's history data */
+  history?: SelectRaceHistory
 }
 
 export function RaceDetailsPage({
   race,
   existingTripId,
-  userId
+  userId,
+  history
 }: RaceDetailsPageProps) {
   const [activeTab, setActiveTab] = useState("info")
   const raceDate = new Date(race.date)
@@ -263,6 +277,101 @@ export function RaceDetailsPage({
                 {race.description || ""}
               </ReactMarkdown>
 
+              <h2>Circuit History</h2>
+              <div className="not-prose grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <Clock className="text-primary size-5" />
+                      <CardTitle>Timeline</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="relative space-y-4 pl-6">
+                      <div className="bg-border/50 absolute inset-y-0 left-2 w-px" />
+
+                      {history?.timeline.map(
+                        (event: TimelineEvent, index: number) => (
+                          <div key={index} className="relative">
+                            <div className="bg-primary absolute -left-6 top-1.5 size-3 rounded-full" />
+                            <div className="space-y-1">
+                              <div className="text-muted-foreground text-sm">
+                                {event.year}
+                              </div>
+                              <div>{event.title}</div>
+                              {event.description && (
+                                <div className="text-muted-foreground text-sm">
+                                  {event.description}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <ScrollText className="text-primary size-5" />
+                      <CardTitle>Notable Moments</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div>
+                      <h4 className="font-semibold">Record Breakers</h4>
+                      <div className="mt-2 space-y-2">
+                        {history?.recordBreakers.map(
+                          (record: RecordBreaker, index: number) => (
+                            <div key={index} className="rounded-lg border p-3">
+                              <div className="text-sm font-medium">
+                                {record.title}
+                              </div>
+                              <div className="text-muted-foreground mt-1">
+                                {record.description}
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <h4 className="font-semibold">Memorable Moments</h4>
+                      <div className="mt-2 space-y-4">
+                        {history?.memorableMoments.map(
+                          (moment: MemorableMoment, index: number) => (
+                            <div key={index}>
+                              <div className="text-sm font-medium">
+                                {moment.year}: {moment.title}
+                              </div>
+                              <div className="text-muted-foreground mt-1">
+                                {moment.description}
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {history && (
+                <div className="mt-8 flex justify-center">
+                  <Link href={`/races/${race.id}/history`}>
+                    <Button variant="outline" size="lg" className="gap-2">
+                      Read Full History
+                      <ArrowRight className="size-4" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
+
               {race.circuit?.details && (
                 <>
                   <h2>Circuit Information</h2>
@@ -408,6 +517,16 @@ export function RaceDetailsPage({
                   </div>
                 </>
               )}
+
+              <h2>Previous Race Results & Highlights</h2>
+              <div className="prose prose-gray dark:prose-invert max-w-none">
+                <YouTubeEmbed
+                  videoid="gYzVprg_NNs"
+                  // params="controls=0"
+                  width={560}
+                  height={315}
+                />
+              </div>
             </div>
           </TabsContent>
 

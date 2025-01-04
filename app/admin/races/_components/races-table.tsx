@@ -4,13 +4,14 @@ import { useState } from "react"
 import { SelectRace } from "@/db/schema"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Trash } from "lucide-react"
+import { Plus, Trash, History } from "lucide-react"
 import { DataTable } from "@/components/ui/data-table"
 import { racesColumns } from "./races-columns"
 import { CreateRaceDialog } from "./create-race-dialog"
 import { EditRaceDialog } from "./edit-race-dialog"
 import { toast } from "sonner"
 import { deleteRaceAction } from "@/actions/db/races-actions"
+import { RaceHistoryDialog } from "./race-history-dialog"
 
 interface RacesTableProps {
   data: SelectRace[]
@@ -19,6 +20,7 @@ interface RacesTableProps {
 export function RacesTable({ data }: RacesTableProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false)
   const [selectedRace, setSelectedRace] = useState<SelectRace | null>(null)
   const [filterValue, setFilterValue] = useState("")
 
@@ -75,6 +77,16 @@ export function RacesTable({ data }: RacesTableProps) {
                 </Button>
                 <Button
                   variant="ghost"
+                  onClick={() => {
+                    setSelectedRace(row.original)
+                    setIsHistoryDialogOpen(true)
+                  }}
+                >
+                  <History className="mr-2 size-4" />
+                  History
+                </Button>
+                <Button
+                  variant="ghost"
                   onClick={() => handleDelete(row.original.id)}
                 >
                   <Trash className="text-destructive size-4" />
@@ -94,11 +106,18 @@ export function RacesTable({ data }: RacesTableProps) {
       />
 
       {selectedRace && (
-        <EditRaceDialog
-          open={isEditDialogOpen}
-          onOpenChange={setIsEditDialogOpen}
-          race={selectedRace}
-        />
+        <>
+          <EditRaceDialog
+            open={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+            race={selectedRace}
+          />
+          <RaceHistoryDialog
+            open={isHistoryDialogOpen}
+            onOpenChange={setIsHistoryDialogOpen}
+            race={selectedRace}
+          />
+        </>
       )}
     </div>
   )

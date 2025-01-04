@@ -23,8 +23,9 @@
     "db:update-timezones": "tsx scripts/update-circuit-timezones.ts",
     "prepare": "husky install",
     "db:push": "drizzle-kit push",
-    "supasync": "supabase db dump --schema public --file public_schema.sql && supabase db push && npx supabase gen types typescript --project-id \"vsszkzazjhvlecyryzon\" --schema public > types/database.ts && tsx scripts/append-types.ts",
-    "supasync:include-all": "supabase db dump --schema public --file public_schema.sql && supabase db push --include-all && npx supabase gen types typescript --project-id \"vsszkzazjhvlecyryzon\" --schema public > types/database.ts && tsx scripts/append-types.ts"
+    "gen-types": "npx supabase gen types typescript --project-id \"vsszkzazjhvlecyryzon\" --schema public > types/database.ts && tsx scripts/append-types.ts",
+    "supasync": "supabase db dump --schema public --file public_schema.sql && supabase db push && npm run gen-types",
+    "supasync:include-all": "supabase db dump --schema public --file public_schema.sql && supabase db push --include-all && npm run gen-types"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.11",
