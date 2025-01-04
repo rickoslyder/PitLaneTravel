@@ -340,6 +340,8 @@ export function FlightBookingForm({
             dob: formattedPassengers[0].born_on
           },
           x_fb_ud_external_id: userId ?? null,
+          currency: offer.total_currency,
+          value: offer.total_amount,
           items: [
             {
               item_name: flightDetails,
