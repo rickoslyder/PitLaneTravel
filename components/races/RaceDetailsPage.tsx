@@ -120,21 +120,19 @@ export function RaceDetailsPage({
 
   sendGTMEvent({
     event: "view_item",
-    value: {
-      user_data: {
-        external_id: userId ?? null
-      },
-      x_fb_ud_external_id: userId ?? null,
-      items: [
-        {
-          item_name: race.name,
-          quantity: 1,
-          // price: 123.45,
-          item_category: "race",
-          item_brand: "F1"
-        }
-      ]
-    }
+    user_data: {
+      external_id: userId ?? null
+    },
+    x_fb_ud_external_id: userId ?? null,
+    items: [
+      {
+        item_name: race.name,
+        quantity: 1,
+        // price: 123.45,
+        item_category: "race",
+        item_brand: "F1"
+      }
+    ]
   })
 
   return (

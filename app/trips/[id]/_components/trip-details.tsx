@@ -88,21 +88,19 @@ export function TripDetails({ trip, race, userId }: TripDetailsProps) {
 
   sendGTMEvent({
     event: "view_item",
-    value: {
-      user_data: {
-        external_id: userId ?? null
-      },
-      x_fb_ud_external_id: userId ?? null,
-      items: [
-        {
-          item_name: trip.title,
-          quantity: 1,
-          // price: 123.45,
-          item_category: "trip",
-          item_brand: race.name
-        }
-      ]
-    }
+    user_data: {
+      external_id: userId ?? null
+    },
+    x_fb_ud_external_id: userId ?? null,
+    items: [
+      {
+        item_name: trip.title,
+        quantity: 1,
+        // price: 123.45,
+        item_category: "trip",
+        item_brand: race.name
+      }
+    ]
   })
 
   return (

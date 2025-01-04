@@ -36,21 +36,19 @@ export function FlightOffers({
                 .join(" / ") || "Flight number not available"
             sendGTMEvent({
               event: "add_to_cart",
-              value: {
-                user_data: {
-                  external_id: userId ?? null
-                },
-                x_fb_ud_external_id: userId ?? null,
-                items: [
-                  {
-                    item_name: flightDetails,
-                    quantity: 1,
-                    price: offer.total_amount,
-                    item_category: "flight",
-                    item_brand: offer.airline.name
-                  }
-                ]
-              }
+              user_data: {
+                external_id: userId ?? null
+              },
+              x_fb_ud_external_id: userId ?? null,
+              items: [
+                {
+                  item_name: flightDetails,
+                  quantity: 1,
+                  price: offer.total_amount,
+                  item_category: "flight",
+                  item_brand: offer.airline.name
+                }
+              ]
             })
           }}
           isSelected={selectedOfferId === offer.id}

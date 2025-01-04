@@ -12,12 +12,10 @@ export function PageViewTracker({ userId }: { userId: string | null }) {
     if (pathname) {
       sendGTMEvent({
         event: "page_view",
-        value: {
-          user_data: {
-            external_id: userId ?? null
-          },
-          x_fb_ud_external_id: userId ?? null
-        }
+        user_data: {
+          external_id: userId ?? null
+        },
+        x_fb_ud_external_id: userId ?? null
       })
     }
   }, [pathname])

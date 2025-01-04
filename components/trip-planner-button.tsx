@@ -59,21 +59,19 @@ export function TripPlannerButton({
         toast.success("Trip plan created!")
         sendGTMEvent({
           event: "add_to_wishlist",
-          value: {
-            user_data: {
-              external_id: userId ?? null
-            },
-            x_fb_ud_external_id: userId ?? null,
-            items: [
-              {
-                item_name: `${race.name} Trip`,
-                quantity: 1,
-                // price: offer.total_amount,
-                item_category: "trip",
-                item_brand: race.name
-              }
-            ]
-          }
+          user_data: {
+            external_id: userId ?? null
+          },
+          x_fb_ud_external_id: userId ?? null,
+          items: [
+            {
+              item_name: `${race.name} Trip`,
+              quantity: 1,
+              // price: offer.total_amount,
+              item_category: "trip",
+              item_brand: race.name
+            }
+          ]
         })
         router.push(`/trips/${result.data.id}`)
       } else {
