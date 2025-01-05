@@ -23,6 +23,8 @@ interface SearchRequestBody {
   passengers: number
 }
 
+export const maxDuration = 60
+
 export async function POST(request: Request) {
   try {
     const {

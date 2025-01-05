@@ -51,6 +51,8 @@ function isValidAirport(airport: any): airport is ValidAirport {
   )
 }
 
+export const maxDuration = 60
+
 export async function GET(request: Request) {
   try {
     console.log("Airport search request received")

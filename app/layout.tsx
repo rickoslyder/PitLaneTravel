@@ -80,6 +80,15 @@ export default async function RootLayout({
 
   return (
     <ClerkProvider>
+      <link
+        rel="manifest"
+        href="https://progressier.app/fCbsNMgvDZeSMoERSrZK/progressier.json"
+      />
+      <script
+        defer
+        async={true}
+        src="https://progressier.app/fCbsNMgvDZeSMoERSrZK/script.js"
+      ></script>
       <html lang="en" suppressHydrationWarning>
         <GoogleTagManager gtmId={gtmPixelID} />
         <GoogleTagManager gtmId={gtmServerID} />

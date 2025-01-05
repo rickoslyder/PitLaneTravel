@@ -25,10 +25,19 @@
     "db:push": "drizzle-kit push",
     "gen-types": "npx supabase gen types typescript --project-id \"vsszkzazjhvlecyryzon\" --schema public > types/database.ts && tsx scripts/append-types.ts",
     "supasync": "supabase db dump --schema public --file public_schema.sql && supabase db push && npm run gen-types",
-    "supasync:include-all": "supabase db dump --schema public --file public_schema.sql && supabase db push --include-all && npm run gen-types"
+    "supasync:include-all": "supabase db dump --schema public --file public_schema.sql && supabase db push --include-all && npm run gen-types",
+    "ionic:build": "npm run build",
+    "ionic:serve": "npm run start"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.11",
+    "@capacitor/android": "6.2.0",
+    "@capacitor/app": "6.0.2",
+    "@capacitor/cli": "6.2.0",
+    "@capacitor/core": "6.2.0",
+    "@capacitor/haptics": "6.0.2",
+    "@capacitor/keyboard": "6.0.3",
+    "@capacitor/status-bar": "6.0.2",
     "@clerk/backend": "^1.20.1",
     "@clerk/nextjs": "^6.9.6",
     "@clerk/themes": "^2.1.53",
