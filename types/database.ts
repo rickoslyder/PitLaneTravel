@@ -214,6 +214,7 @@ export type Database = {
           openf1_short_name: string | null
           timezone_id: string | null
           timezone_name: string | null
+          track_map_url: string | null
           updated_at: string
           website_url: string | null
         }
@@ -230,6 +231,7 @@ export type Database = {
           openf1_short_name?: string | null
           timezone_id?: string | null
           timezone_name?: string | null
+          track_map_url?: string | null
           updated_at?: string
           website_url?: string | null
         }
@@ -246,6 +248,7 @@ export type Database = {
           openf1_short_name?: string | null
           timezone_id?: string | null
           timezone_name?: string | null
+          track_map_url?: string | null
           updated_at?: string
           website_url?: string | null
         }
