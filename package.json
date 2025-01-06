@@ -27,7 +27,8 @@
     "supasync": "supabase db dump --schema public --file public_schema.sql && supabase db push && npm run gen-types",
     "supasync:include-all": "supabase db dump --schema public --file public_schema.sql && supabase db push --include-all && npm run gen-types",
     "ionic:build": "npm run build",
-    "ionic:serve": "npm run start"
+    "ionic:serve": "npm run start",
+    "migrate:track-maps": "tsx scripts/migrate-track-maps.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.11",
@@ -120,6 +121,7 @@
     "svix": "^1.44.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.19.2",
     "uuid": "^11.0.3",
     "vaul": "^0.9.9",
     "zod": "^3.24.1",

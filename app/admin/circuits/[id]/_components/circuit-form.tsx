@@ -8,7 +8,7 @@ import { SelectCircuit } from "@/db/schema"
 import { useState } from "react"
 import { toast } from "sonner"
 import { updateCircuitAction } from "@/actions/db/circuits-actions"
-import { Circle as CircuitIcon, MapPin, Globe, Image } from "lucide-react"
+import { Circle as CircuitIcon, MapPin, Globe, Image, Map } from "lucide-react"
 
 interface CircuitFormProps {
   circuit: SelectCircuit
@@ -21,6 +21,7 @@ export default function CircuitForm({ circuit }: CircuitFormProps) {
   const [latitude, setLatitude] = useState(circuit.latitude || "")
   const [longitude, setLongitude] = useState(circuit.longitude || "")
   const [imageUrl, setImageUrl] = useState(circuit.imageUrl || "")
+  const [trackMapUrl, setTrackMapUrl] = useState(circuit.trackMapUrl || "")
   const [isLoading, setIsLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -34,7 +35,8 @@ export default function CircuitForm({ circuit }: CircuitFormProps) {
         location,
         latitude,
         longitude,
-        imageUrl
+        imageUrl,
+        trackMapUrl
       })
 
       if (result.isSuccess) {
@@ -149,6 +151,21 @@ export default function CircuitForm({ circuit }: CircuitFormProps) {
             value={imageUrl}
             onChange={e => setImageUrl(e.target.value)}
             placeholder="Enter image URL"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="trackMapUrl">
+            <div className="flex items-center gap-2">
+              <Map className="size-4" />
+              Track Map URL
+            </div>
+          </Label>
+          <Input
+            id="trackMapUrl"
+            value={trackMapUrl}
+            onChange={e => setTrackMapUrl(e.target.value)}
+            placeholder="Enter track map URL"
           />
         </div>
 

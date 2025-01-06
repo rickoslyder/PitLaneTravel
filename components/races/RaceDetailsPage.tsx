@@ -45,6 +45,7 @@ import {
   RecordBreaker,
   MemorableMoment
 } from "@/db/schema/race-history-schema"
+import { TrackMap } from "./track-map"
 
 interface RaceDetailsPageProps {
   /** The race to display */
@@ -277,101 +278,6 @@ export function RaceDetailsPage({
                 {race.description || ""}
               </ReactMarkdown>
 
-              <h2>Circuit History</h2>
-              <div className="not-prose grid grid-cols-1 gap-8 lg:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <Clock className="text-primary size-5" />
-                      <CardTitle>Timeline</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="relative space-y-4 pl-6">
-                      <div className="bg-border/50 absolute inset-y-0 left-2 w-px" />
-
-                      {history?.timeline.map(
-                        (event: TimelineEvent, index: number) => (
-                          <div key={index} className="relative">
-                            <div className="bg-primary absolute -left-6 top-1.5 size-3 rounded-full" />
-                            <div className="space-y-1">
-                              <div className="text-muted-foreground text-sm">
-                                {event.year}
-                              </div>
-                              <div>{event.title}</div>
-                              {event.description && (
-                                <div className="text-muted-foreground text-sm">
-                                  {event.description}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <ScrollText className="text-primary size-5" />
-                      <CardTitle>Notable Moments</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <h4 className="font-semibold">Record Breakers</h4>
-                      <div className="mt-2 space-y-2">
-                        {history?.recordBreakers.map(
-                          (record: RecordBreaker, index: number) => (
-                            <div key={index} className="rounded-lg border p-3">
-                              <div className="text-sm font-medium">
-                                {record.title}
-                              </div>
-                              <div className="text-muted-foreground mt-1">
-                                {record.description}
-                              </div>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div>
-                      <h4 className="font-semibold">Memorable Moments</h4>
-                      <div className="mt-2 space-y-4">
-                        {history?.memorableMoments.map(
-                          (moment: MemorableMoment, index: number) => (
-                            <div key={index}>
-                              <div className="text-sm font-medium">
-                                {moment.year}: {moment.title}
-                              </div>
-                              <div className="text-muted-foreground mt-1">
-                                {moment.description}
-                              </div>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {history && (
-                <div className="mt-8 flex justify-center">
-                  <Link href={`/races/${race.id}/history`}>
-                    <Button variant="outline" size="lg" className="gap-2">
-                      Read Full History
-                      <ArrowRight className="size-4" />
-                    </Button>
-                  </Link>
-                </div>
-              )}
-
               {race.circuit?.details && (
                 <>
                   <h2>Circuit Information</h2>
@@ -516,6 +422,109 @@ export function RaceDetailsPage({
                     </Card>
                   </div>
                 </>
+              )}
+
+              <h2>Track Map</h2>
+              <div className="not-prose">
+                <TrackMap
+                  trackMapUrl={race.circuit?.track_map_url}
+                  name={race.circuit?.name || race.name}
+                />
+              </div>
+
+              <h2>Circuit History</h2>
+              <div className="not-prose grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <Clock className="text-primary size-5" />
+                      <CardTitle>Timeline</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="relative space-y-4 pl-6">
+                      <div className="bg-border/50 absolute inset-y-0 left-2 w-px" />
+
+                      {history?.timeline.map(
+                        (event: TimelineEvent, index: number) => (
+                          <div key={index} className="relative">
+                            <div className="bg-primary absolute -left-6 top-1.5 size-3 rounded-full" />
+                            <div className="space-y-1">
+                              <div className="text-muted-foreground text-sm">
+                                {event.year}
+                              </div>
+                              <div>{event.title}</div>
+                              {event.description && (
+                                <div className="text-muted-foreground text-sm">
+                                  {event.description}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <ScrollText className="text-primary size-5" />
+                      <CardTitle>Notable Moments</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div>
+                      <h4 className="font-semibold">Record Breakers</h4>
+                      <div className="mt-2 space-y-2">
+                        {history?.recordBreakers.map(
+                          (record: RecordBreaker, index: number) => (
+                            <div key={index} className="rounded-lg border p-3">
+                              <div className="text-sm font-medium">
+                                {record.title}
+                              </div>
+                              <div className="text-muted-foreground mt-1">
+                                {record.description}
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <h4 className="font-semibold">Memorable Moments</h4>
+                      <div className="mt-2 space-y-4">
+                        {history?.memorableMoments.map(
+                          (moment: MemorableMoment, index: number) => (
+                            <div key={index}>
+                              <div className="text-sm font-medium">
+                                {moment.year}: {moment.title}
+                              </div>
+                              <div className="text-muted-foreground mt-1">
+                                {moment.description}
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {history && (
+                <div className="mt-8 flex justify-center">
+                  <Link href={`/races/${race.id}/history`}>
+                    <Button variant="outline" size="lg" className="gap-2">
+                      Read Full History
+                      <ArrowRight className="size-4" />
+                    </Button>
+                  </Link>
+                </div>
               )}
 
               <h2>Previous Race Results & Highlights</h2>

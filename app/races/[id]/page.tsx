@@ -57,6 +57,7 @@ export default async function RacePage({ params }: RacePageProps) {
           latitude: Number(circuitResult.data.latitude),
           longitude: Number(circuitResult.data.longitude),
           image_url: circuitResult.data.imageUrl,
+          track_map_url: circuitResult.data.trackMapUrl,
           openf1_key: circuitResult.data.openf1Key,
           openf1_short_name: circuitResult.data.openf1ShortName,
           timezone_id: circuitResult.data.timezoneId,
