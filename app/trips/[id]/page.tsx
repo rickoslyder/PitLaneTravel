@@ -85,6 +85,7 @@ export default async function TripPage({ params }: TripPageProps) {
           created_at: circuitResult.data.createdAt.toISOString(),
           updated_at: circuitResult.data.updatedAt.toISOString(),
           website_url: circuitResult.data.websiteUrl,
+          track_map_url: circuitResult.data.trackMapUrl,
           details: circuitResult.data.details
             ? {
                 id: circuitResult.data.details.id,

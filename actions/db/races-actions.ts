@@ -47,6 +47,7 @@ export async function getRacesAction(filters?: {
           timezone_id: circuitsTable.timezoneId,
           timezone_name: circuitsTable.timezoneName,
           website_url: circuitsTable.websiteUrl,
+          track_map_url: circuitsTable.trackMapUrl,
           created_at: circuitsTable.createdAt,
           updated_at: circuitsTable.updatedAt
         }
@@ -122,6 +123,7 @@ export async function getRacesAction(filters?: {
           created_at: race.circuit.created_at.toISOString(),
           updated_at: race.circuit.updated_at.toISOString(),
           website_url: race.circuit.website_url,
+          track_map_url: race.circuit.track_map_url,
           locations: locationsByCircuitId[race.circuit.id] || []
         } : null,
         supporting_series: seriesByRaceId[race.id] || []
@@ -164,6 +166,7 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
           latitude: circuitsTable.latitude,
           longitude: circuitsTable.longitude,
           image_url: circuitsTable.imageUrl,
+          track_map_url: circuitsTable.trackMapUrl,
           openf1_key: circuitsTable.openf1Key,
           openf1_short_name: circuitsTable.openf1ShortName,
           timezone_id: circuitsTable.timezoneId,

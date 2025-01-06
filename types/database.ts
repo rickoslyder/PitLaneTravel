@@ -1808,6 +1808,7 @@ export interface RaceWithCircuitAndSeries {
     latitude: number
     longitude: number
     image_url: string | null
+    track_map_url: string | null
     openf1_key: number | null
     openf1_short_name: string | null
     timezone_id: string | null
