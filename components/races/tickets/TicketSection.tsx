@@ -31,6 +31,9 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { SUPPORTED_CURRENCIES, formatCurrency } from "@/config/currencies"
+import { generateMaskedUrlAction } from "@/actions/db/ticket-redirect-actions"
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
 
 export function TicketCardSkeleton() {
   return (
@@ -92,6 +95,21 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
     packages: (SelectTicketPackage & { tickets: any[] })[]
   } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedType, setSelectedType] = useState<string>("all")
+
+  const filteredTickets = data?.tickets?.filter(ticket => {
+    const matchesSearch =
+      searchQuery === "" ||
+      ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.seatingDetails?.toLowerCase().includes(searchQuery.toLowerCase())
+
+    const matchesType =
+      selectedType === "all" || ticket.ticketType === selectedType
+
+    return matchesSearch && matchesType
+  })
 
   useEffect(() => {
     async function fetchData() {
@@ -145,6 +163,29 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
         </p>
       </div>
 
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:w-96">
+          <Search className="text-muted-foreground absolute left-2 top-2.5 size-4" />
+          <Input
+            placeholder="Search tickets..."
+            className="pl-8"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <Select value={selectedType} onValueChange={setSelectedType}>
+          <SelectTrigger className="w-full sm:w-[200px]">
+            <SelectValue placeholder="Filter by type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="general_admission">General Admission</SelectItem>
+            <SelectItem value="grandstand">Grandstand</SelectItem>
+            <SelectItem value="vip">VIP</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <Tabs defaultValue="individual">
         <TabsList>
           <TabsTrigger value="individual">Individual Tickets</TabsTrigger>
@@ -153,7 +194,7 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
 
         <TabsContent value="individual">
           <div className="grid gap-6 lg:grid-cols-3">
-            {data?.tickets?.map((ticket, index) => (
+            {filteredTickets?.map((ticket, index) => (
               <TicketCard key={ticket.id} ticket={ticket} index={index} />
             ))}
           </div>
@@ -190,6 +231,32 @@ function TicketCard({
   )
   const [convertedPrice, setConvertedPrice] = useState<number | null>(null)
   const [conversionRate, setConversionRate] = useState<number | null>(null)
+  const [maskedUrl, setMaskedUrl] = useState<string | null>(null)
+  const [isLoadingUrl, setIsLoadingUrl] = useState(true)
+
+  useEffect(() => {
+    async function generateUrl() {
+      try {
+        setIsLoadingUrl(true)
+        const result = await generateMaskedUrlAction(
+          ticket.id,
+          ticket.resellerUrl
+        )
+        if (result.isSuccess) {
+          setMaskedUrl(result.data)
+        } else {
+          // Fallback to original URL if masking fails
+          setMaskedUrl(ticket.resellerUrl)
+        }
+      } catch (error) {
+        console.error("Error generating masked URL:", error)
+        setMaskedUrl(ticket.resellerUrl)
+      } finally {
+        setIsLoadingUrl(false)
+      }
+    }
+    generateUrl()
+  }, [ticket.id, ticket.resellerUrl])
 
   const handleCurrencyChange = useCallback(
     async (currency: string) => {
@@ -231,14 +298,17 @@ function TicketCard({
 
   const formatTicketType = (type: string) => {
     switch (type) {
+      case "general_admission":
+        return "General Admission"
       case "grandstand":
         return "Grandstand"
-      case "general":
-        return "General Admission"
       case "vip":
         return "VIP"
       default:
         return type
+          .split("_")
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ")
     }
   }
 
@@ -250,39 +320,54 @@ function TicketCard({
     >
       <Card
         className={cn(
-          "relative overflow-hidden transition-shadow hover:shadow-lg"
+          "relative overflow-hidden transition-shadow hover:shadow-lg",
+          ticket.isChildTicket && "border-primary/50"
         )}
       >
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                {ticket.title}
-                <Badge variant="outline">
-                  {formatTicketType(ticket.ticketType)}
-                </Badge>
-              </CardTitle>
-              <p className="text-muted-foreground mt-1 text-sm">
-                {ticket.description}
-              </p>
-            </div>
-            <Badge
-              variant="secondary"
-              className={cn(
-                ticket.availability === "available"
-                  ? "bg-green-500/10 text-green-500"
-                  : ticket.availability === "limited"
-                    ? "bg-yellow-500/10 text-yellow-500"
-                    : "bg-red-500/10 text-red-500"
-              )}
-            >
-              {ticket.availability.charAt(0).toUpperCase() +
-                ticket.availability.slice(1)}{" "}
-            </Badge>
+        {ticket.isChildTicket && (
+          <div className="bg-primary absolute left-0 top-0 px-2 py-0.5 text-xs text-white">
+            Child Ticket
           </div>
+        )}
+
+        <CardHeader className="space-y-2">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1">
+                <CardTitle className="flex items-center gap-2">
+                  {ticket.seatingDetails || ticket.title}
+                </CardTitle>
+                {ticket.seatingDetails && (
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    {ticket.title}
+                  </p>
+                )}
+              </div>
+              <Badge
+                variant="secondary"
+                className={cn(
+                  "shrink-0",
+                  ticket.availability === "available"
+                    ? "bg-green-500/10 text-green-500"
+                    : ticket.availability === "limited"
+                      ? "bg-yellow-500/10 text-yellow-500"
+                      : "bg-red-500/10 text-red-500"
+                )}
+              >
+                {ticket.availability.charAt(0).toUpperCase() +
+                  ticket.availability.slice(1)}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">
+                {formatTicketType(ticket.ticketType)}
+              </Badge>
+            </div>
+          </div>
+          <p className="text-muted-foreground text-sm">{ticket.description}</p>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-8">
           {ticket.currentPrice && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -317,20 +402,28 @@ function TicketCard({
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             {ticket.features && ticket.features.length > 0 && (
               <div>
                 <div className="text-muted-foreground mb-2 text-sm font-medium">
                   Features
                 </div>
-                <ul className="text-muted-foreground space-y-2 text-sm">
+                <div
+                  className={cn(
+                    "grid gap-2",
+                    ticket.features.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                  )}
+                >
                   {ticket.features.map(feature => (
-                    <li key={feature.id} className="flex items-center gap-2">
-                      <Ticket className="size-4" />
+                    <div
+                      key={feature.id}
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      {getFeatureIcon(feature.category)}
                       {feature.name}
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 
@@ -347,11 +440,15 @@ function TicketCard({
                       : Array.isArray(ticket.daysIncluded) &&
                         ticket.daysIncluded.includes(day)
 
-                  return isIncluded ? (
-                    <Badge key={day} variant="secondary" className="capitalize">
+                  return (
+                    <Badge
+                      key={day}
+                      variant={isIncluded ? "secondary" : "outline"}
+                      className={cn("capitalize", !isIncluded && "opacity-50")}
+                    >
                       {day}
                     </Badge>
-                  ) : null
+                  )
                 })}
               </div>
             </div>
@@ -359,12 +456,17 @@ function TicketCard({
 
           {ticket.availability === "available" ? (
             <a
-              href={ticket.resellerUrl}
+              href={maskedUrl || "#"}
               target="_blank"
               rel="noopener noreferrer"
+              className={cn(
+                (!maskedUrl || isLoadingUrl) &&
+                  "pointer-events-none opacity-50",
+                "mt-4 block"
+              )}
             >
-              <Button className="w-full" size="lg">
-                Purchase Tickets
+              <Button className="w-full" size="lg" disabled={isLoadingUrl}>
+                {isLoadingUrl ? "Loading..." : "Purchase Tickets"}
               </Button>
             </a>
           ) : (
@@ -379,6 +481,25 @@ function TicketCard({
       </Card>
     </motion.div>
   )
+}
+
+function getFeatureIcon(category: string) {
+  switch (category?.toLowerCase()) {
+    case "hospitality":
+      return <Coffee className="size-4" />
+    case "catering":
+      return <Utensils className="size-4" />
+    case "access":
+      return <Star className="size-4" />
+    case "view":
+      return <Tv className="size-4" />
+    case "comfort":
+      return <Umbrella className="size-4" />
+    case "connectivity":
+      return <Wifi className="size-4" />
+    default:
+      return <Ticket className="size-4" />
+  }
 }
 
 function PackageCard({

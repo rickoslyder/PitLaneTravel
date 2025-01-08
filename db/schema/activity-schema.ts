@@ -1,4 +1,5 @@
 import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
+import { profilesTable } from "./profiles-schema"
 
 export const adminActivityTypeEnum = pgEnum("admin_activity_type", [
   "ticket",
@@ -12,7 +13,12 @@ export const adminActivitiesTable = pgTable("admin_activities", {
   id: uuid("id").defaultRandom().primaryKey(),
   type: adminActivityTypeEnum("type").notNull(),
   description: text("description").notNull(),
-  userId: text("user_id").notNull(),
+  userId: text("user_id")
+    .references(() => profilesTable.userId, {
+      onDelete: "restrict",
+      onUpdate: "cascade"
+    })
+    .notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

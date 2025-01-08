@@ -24,15 +24,38 @@ export async function createTicketAction(
   featureIds?: number[]
 ): Promise<ActionState<SelectTicket>> {
   try {
+    // Debug log the incoming data
+    console.log("Creating ticket with data:", {
+      ...data,
+      seatingDetails: data.seatingDetails || "NO_SEATING_DETAILS"
+    })
+
     // Start transaction to ensure all related data is created
     return await db.transaction(async (tx) => {
       // Create ticket
       const [newTicket] = await tx.insert(ticketsTable).values(data).returning()
 
+      // Debug log the created ticket
+      console.log("Created ticket:", {
+        ...newTicket,
+        seatingDetails: newTicket.seatingDetails || "NO_SEATING_DETAILS"
+      })
+
       // Add pricing with validation
       if (!pricing.validFrom) {
         pricing.validFrom = new Date()
       }
+
+      // Ensure validFrom is a Date object
+      if (typeof pricing.validFrom === 'string') {
+        pricing.validFrom = new Date(pricing.validFrom)
+      }
+
+      // Ensure validTo is a Date object if it exists
+      if (pricing.validTo && typeof pricing.validTo === 'string') {
+        pricing.validTo = new Date(pricing.validTo)
+      }
+
       await tx.insert(ticketPricingTable).values({
         ticketId: newTicket.id,
         price: pricing.price.toString(), // Convert to string for DB

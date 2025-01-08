@@ -43,21 +43,25 @@ import { SUPPORTED_CURRENCIES, DEFAULT_CURRENCY } from "@/config/currencies"
 import { Loader2 } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { formatCurrency } from "@/config/currencies"
+import { Label } from "@/components/ui/label"
 
 const formSchema = z.object({
+  raceId: z.string().min(1, "Race is required"),
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  ticket_type: z.string().min(1, "Type is required"),
+  ticketType: z.enum(["general_admission", "grandstand", "vip"], {
+    required_error: "Ticket type is required"
+  }),
+  seatingDetails: z.string().optional(),
   availability: z.string().min(1, "Availability is required"),
-  race_id: z.string().uuid("Invalid race ID"),
-  reseller_url: z.string().url("Must be a valid URL"),
-  days_included: z.array(z.string()).min(1, "Must include at least one day"),
-  is_child_ticket: z.boolean().default(false),
-  price: z.coerce.number().min(0, "Price must be positive"),
+  daysIncluded: z.record(z.boolean()),
+  isChildTicket: z.boolean().default(false),
+  resellerUrl: z.string().min(1, "Reseller URL is required"),
+  price: z.coerce.number().min(0, "Price must be greater than 0"),
   currency: z.string().min(1, "Currency is required")
 })
 
-type FormValues = z.infer<typeof formSchema>
+type FormData = z.infer<typeof formSchema>
 
 interface CreateTicketDialogProps {
   children: React.ReactNode
@@ -71,22 +75,23 @@ export function CreateTicketDialog({
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [formData, setFormData] = useState<FormValues | null>(null)
+  const [formData, setFormData] = useState<FormData | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const { userId } = useAuth()
 
-  const form = useForm<FormValues>({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       description: "",
-      ticket_type: "",
+      ticketType: "general_admission" as const,
+      seatingDetails: "",
       availability: "available",
-      race_id: "",
-      reseller_url: "",
-      days_included: ["thursday", "friday", "saturday", "sunday"],
-      is_child_ticket: false,
+      raceId: "",
+      resellerUrl: "",
+      daysIncluded: { friday: false, saturday: false, sunday: false },
+      isChildTicket: false,
       price: 0,
       currency: DEFAULT_CURRENCY.code
     }
@@ -99,16 +104,24 @@ export function CreateTicketDialog({
       const duplicateData = searchParams.get("duplicate")
       if (duplicateData) {
         try {
-          const data = JSON.parse(duplicateData) as Partial<FormValues>
+          const data = JSON.parse(duplicateData) as Partial<FormData>
           Object.keys(data).forEach(key => {
-            const value = data[key as keyof FormValues]
+            const value = data[key as keyof FormData]
             if (value !== undefined) {
-              form.setValue(key as keyof FormValues, value as any)
+              if (key === "daysIncluded") {
+                // Handle days included separately since it's a record
+                const daysRecord = value as Record<string, boolean>
+                Object.entries(daysRecord).forEach(([day, included]) => {
+                  form.setValue(`daysIncluded.${day}`, included)
+                })
+              } else {
+                form.setValue(key as keyof FormData, value as any)
+              }
             }
           })
           toast.info("Ticket data pre-filled from duplicate")
         } catch (error) {
-          console.error("Error parsing duplicate data:", error)
+          console.error("Failed to parse duplicate data:", error)
           toast.error("Failed to load duplicate ticket data")
         }
       }
@@ -120,24 +133,50 @@ export function CreateTicketDialog({
     }
   }, [searchParams, form])
 
-  async function onSubmit(values: FormValues) {
+  async function onSubmit(values: FormData) {
     if (!userId) {
       toast.error("Authentication Error", {
-        description: "You must be logged in to create a ticket"
+        description: "You must be logged in to create tickets"
       })
       return
     }
 
-    if (!values.race_id) {
-      toast.error("Validation Error", {
-        description: "Please select a race for this ticket"
-      })
-      return
-    }
-
-    // Store form data and show confirmation dialog
+    setIsSubmitting(true)
     setFormData(values)
-    setShowConfirm(true)
+
+    try {
+      const { price, currency, ...ticketData } = values
+      const result = await createTicketAction(
+        {
+          ...ticketData,
+          updatedBy: userId
+        },
+        {
+          price: price.toFixed(2),
+          currency,
+          validFrom: new Date()
+        }
+      )
+
+      if (result.isSuccess) {
+        toast.success("Success", {
+          description: "Ticket created successfully"
+        })
+        router.refresh()
+        setOpen(false)
+      } else {
+        toast.error("Error", {
+          description: result.message
+        })
+      }
+    } catch (error) {
+      toast.error("Error", {
+        description: "Something went wrong"
+      })
+    } finally {
+      setIsSubmitting(false)
+      setFormData(null)
+    }
   }
 
   async function handleConfirm() {
@@ -148,16 +187,16 @@ export function CreateTicketDialog({
       const {
         price,
         currency,
-        race_id,
-        ticket_type,
-        reseller_url,
-        days_included,
-        is_child_ticket,
+        raceId,
+        ticketType,
+        resellerUrl,
+        daysIncluded,
+        isChildTicket,
         ...rest
       } = formData
 
       // Validate days included
-      if (days_included.length === 0) {
+      if (Object.values(daysIncluded).every(Boolean)) {
         toast.error("Validation Error", {
           description: "Please select at least one day for this ticket"
         })
@@ -167,14 +206,11 @@ export function CreateTicketDialog({
       const result = await createTicketAction(
         {
           ...rest,
-          raceId: race_id,
-          ticketType: ticket_type,
-          resellerUrl: reseller_url,
-          daysIncluded: days_included.reduce(
-            (acc, day) => ({ ...acc, [day]: true }),
-            { thursday: false, friday: false, saturday: false, sunday: false }
-          ),
-          isChildTicket: is_child_ticket
+          raceId,
+          ticketType,
+          resellerUrl,
+          daysIncluded,
+          isChildTicket
         },
         {
           price: String(price),
@@ -245,10 +281,10 @@ export function CreateTicketDialog({
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name="race_id"
+                name="raceId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Race</FormLabel>
@@ -308,10 +344,10 @@ export function CreateTicketDialog({
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="ticket_type"
+                  name="ticketType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Type</FormLabel>
+                      <FormLabel>Ticket Type</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -322,10 +358,10 @@ export function CreateTicketDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="grandstand">Grandstand</SelectItem>
-                          <SelectItem value="general">
+                          <SelectItem value="general_admission">
                             General Admission
                           </SelectItem>
+                          <SelectItem value="grandstand">Grandstand</SelectItem>
                           <SelectItem value="vip">VIP</SelectItem>
                         </SelectContent>
                       </Select>
@@ -363,7 +399,7 @@ export function CreateTicketDialog({
 
               <FormField
                 control={form.control}
-                name="reseller_url"
+                name="resellerUrl"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Reseller URL</FormLabel>
@@ -437,45 +473,27 @@ export function CreateTicketDialog({
 
               <FormField
                 control={form.control}
-                name="days_included"
-                render={() => (
+                name="daysIncluded"
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Days Included</FormLabel>
-                    <div className="flex gap-4">
-                      {["thursday", "friday", "saturday", "sunday"].map(day => (
-                        <FormField
-                          key={day}
-                          control={form.control}
-                          name="days_included"
-                          render={({ field }) => {
-                            return (
-                              <FormItem
-                                key={day}
-                                className="flex flex-row items-start space-x-3 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes(day)}
-                                    onCheckedChange={checked => {
-                                      return checked
-                                        ? field.onChange([...field.value, day])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                              value => value !== day
-                                            )
-                                          )
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal capitalize">
-                                  {day}
-                                </FormLabel>
-                              </FormItem>
-                            )
-                          }}
-                        />
-                      ))}
-                    </div>
+                    <FormControl>
+                      <div className="flex flex-col gap-2">
+                        {["friday", "saturday", "sunday"].map(day => (
+                          <div key={day} className="flex items-center gap-2">
+                            <Checkbox
+                              checked={field.value[day] || false}
+                              onCheckedChange={checked => {
+                                const newValue = { ...field.value }
+                                newValue[day] = checked === true
+                                field.onChange(newValue)
+                              }}
+                            />
+                            <Label className="capitalize">{day}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -483,7 +501,7 @@ export function CreateTicketDialog({
 
               <FormField
                 control={form.control}
-                name="is_child_ticket"
+                name="isChildTicket"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
@@ -495,9 +513,26 @@ export function CreateTicketDialog({
                     <div className="space-y-1 leading-none">
                       <FormLabel>Child Ticket</FormLabel>
                       <FormDescription>
-                        Is this ticket for children?
+                        Is this ticket specifically for children?
                       </FormDescription>
                     </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="seatingDetails"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Seating Details</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g. Gold 2 VIP Lounge" />
+                    </FormControl>
+                    <FormDescription>
+                      Optional details about specific seating location
+                    </FormDescription>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

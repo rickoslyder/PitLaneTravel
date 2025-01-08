@@ -14,7 +14,9 @@ export const packageTypeEnum = pgEnum("package_type", [
   "weekend",
   "vip",
   "hospitality",
-  "custom"
+  "custom",
+  "hotel_and_transfer",
+  "paddock_club"
 ])
 
 export const ticketPackagesTable = pgTable("ticket_packages", {

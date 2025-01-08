@@ -14,6 +14,10 @@ module.exports = {
       {
         protocol: "https",
         hostname: "vsszkzazjhvlecyryzon.supabase.co"
+      },
+      {
+        protocol: "https",
+        hostname: "*"
       }
     ]
   }

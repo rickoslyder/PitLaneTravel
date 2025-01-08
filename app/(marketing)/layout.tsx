@@ -26,7 +26,7 @@ export default async function MarketingLayout({
             <div>
               <h3 className="text-lg font-semibold">About PitLane Travel</h3>
               <p className="text-muted-foreground mt-4 text-sm">
-                Your premier destination for Formula 1 travel experiences. We
+                Your trusted platform for Formula 1 travel planning. We help
                 make attending F1 races seamless and unforgettable.
               </p>
             </div>
@@ -52,10 +52,10 @@ export default async function MarketingLayout({
                 </li>
                 <li>
                   <a
-                    href="/experiences"
+                    href="/about"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    VIP Experiences
+                    About Us
                   </a>
                 </li>
               </ul>
@@ -66,10 +66,10 @@ export default async function MarketingLayout({
               <ul className="mt-4 space-y-2 text-sm">
                 <li>
                   <a
-                    href="/help"
+                    href="/faq"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Help Center
+                    FAQs
                   </a>
                 </li>
                 <li>
@@ -82,10 +82,10 @@ export default async function MarketingLayout({
                 </li>
                 <li>
                   <a
-                    href="/faq"
+                    href="/help"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    FAQs
+                    Help Center
                   </a>
                 </li>
               </ul>
@@ -112,10 +112,10 @@ export default async function MarketingLayout({
                 </li>
                 <li>
                   <a
-                    href="/refund"
+                    href="/cancellation"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Refund Policy
+                    Cancellation Policy
                   </a>
                 </li>
               </ul>
@@ -128,7 +128,6 @@ export default async function MarketingLayout({
             <p>
               © {new Date().getFullYear()} PitLane Travel. All rights reserved.
             </p>
-            <p>Official F1® Travel Partner</p>
           </div>
         </div>
       </footer>
