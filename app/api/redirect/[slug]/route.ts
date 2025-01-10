@@ -1,14 +1,15 @@
 import { db } from "@/db/db"
 import { ticketRedirectsTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(
-  request: Request,
-  { params }: { params: { slug: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params
+    const resolvedParams = await params
+    const { slug } = resolvedParams
 
     // Find the redirect
     const [redirect] = await db

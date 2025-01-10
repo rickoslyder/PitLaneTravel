@@ -1,6 +1,6 @@
 "use server"
 
-export default function CancellationPage() {
+export default async function CancellationPage() {
   return (
     <div className="container mx-auto px-4 py-20">
       <div className="prose prose-gray dark:prose-invert mx-auto max-w-4xl">
