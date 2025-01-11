@@ -15,29 +15,13 @@ import {
   SidebarProvider,
   SidebarTrigger
 } from "@/components/ui/sidebar"
-import { auth } from "@clerk/nextjs/server"
-import { getProfileAction } from "@/actions/db/profiles-actions"
-import { AdminButton } from "@/components/admin/admin-buttons"
-import { cookies } from "next/headers"
+import AdminCheckWrapper from "./_components/admin-check"
 
-export default async function TripsLayout({
-  children,
-  searchParams
+export default async function Layout({
+  children
 }: {
   children: React.ReactNode
-  searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const { userId } = await auth()
-  let isAdmin = false
-  const showAdmin = !searchParams["noadmin"]
-
-  if (userId) {
-    const result = await getProfileAction(userId)
-    if (result.isSuccess) {
-      isAdmin = result.data.isAdmin
-    }
-  }
-
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -61,7 +45,7 @@ export default async function TripsLayout({
                 </Breadcrumb>
               </div>
 
-              {isAdmin && showAdmin && <AdminButton type="trips" />}
+              <AdminCheckWrapper />
             </div>
           </header>
 
