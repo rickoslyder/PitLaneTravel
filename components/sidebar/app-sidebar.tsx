@@ -20,7 +20,11 @@ import {
   Ticket,
   Settings,
   Heart,
-  Archive
+  Archive,
+  Users,
+  Clock,
+  Sun,
+  Wallet
 } from "lucide-react"
 import * as React from "react"
 
@@ -45,76 +49,76 @@ const data = {
     email: "fan@example.com",
     avatar: "/avatars/default.jpg"
   },
-  teams: [
-    {
-      name: "2025 Season",
-      logo: Calendar,
-      plan: "Active"
-    },
-    {
-      name: "2024 Archive",
-      logo: Archive,
-      plan: "Archive"
-    }
-  ],
   navMain: [
     {
-      title: "Races",
+      title: "Race Calendar",
       url: "/races",
       icon: Flag,
       isActive: true,
+      isPremium: true,
       items: [
-        { title: "Calendar", url: "/races" },
-        { title: "Map View", url: "/races/map" },
-        { title: "Compare Races", url: "/races/compare" }
+        { title: "2025 Season", url: "/races", isPrimary: true },
+        { title: "Interactive Map", url: "/races/map", icon: Map },
+        { title: "Compare Events", url: "/races/compare" },
+        { title: "2024 Archive", url: "/races/archive", icon: Archive }
       ]
     },
     {
-      title: "Trips",
+      title: "My F1 Trips",
       url: "/trips",
       icon: Calendar,
+      isPremium: true,
       items: [
-        { title: "My Trips", url: "/trips" },
-        { title: "Trip Planner", url: "/trips/planner" },
-        { title: "Shared Trips", url: "/trips/shared" }
+        { title: "Active Trips", url: "/trips", isPrimary: true },
+        { title: "AI Trip Planner", url: "/trips/planner", isNew: true },
+        { title: "Group Trips", url: "/trips/shared", icon: Users },
+        { title: "Past Trips", url: "/trips/archive" }
       ]
     },
     {
-      title: "Travel",
+      title: "Travel Hub",
       url: "/travel",
       icon: Plane,
       items: [
-        { title: "Flights", url: "/flights" },
-        { title: "My Bookings", url: "/bookings" },
-        { title: "Hotels", url: "/travel/hotels" },
-        { title: "Transport", url: "/travel/transport" }
+        { title: "Flight Search", url: "/flights", isPrimary: true },
+        { title: "Hotels", url: "/travel/hotels", icon: Hotel },
+        { title: "Transport", url: "/travel/transport", icon: Car },
+        { title: "My Bookings", url: "/bookings", icon: Ticket }
       ]
     },
     {
-      title: "Circuit Info",
+      title: "Circuit Guides",
       url: "/circuits",
       icon: Info,
       items: [
-        { title: "Grandstands", url: "/circuits/grandstands" },
-        { title: "Local Guide", url: "/circuits/guide" },
-        { title: "Weather", url: "/circuits/weather" }
-      ]
-    },
-    {
-      title: "Account",
-      url: "/account",
-      icon: User,
-      items: [
-        { title: "Profile", url: "/account/profile" },
-        { title: "My Trips", url: "/account/trips" },
-        { title: "Settings", url: "/account/settings" }
+        {
+          title: "Grandstand Guide",
+          url: "/circuits/grandstands",
+          isPrimary: true
+        },
+        { title: "Local Area", url: "/circuits/guide", icon: Map },
+        { title: "Track Weather", url: "/circuits/weather", icon: Sun }
       ]
     }
   ],
-  projects: [
-    { name: "Saved Races", url: "/saved/races", icon: Heart },
-    { name: "Trip Plans", url: "/saved/trips", icon: Calendar },
-    { name: "Recent Views", url: "/saved/recent", icon: Star }
+  quickAccess: [
+    {
+      name: "Saved Items",
+      url: "/saved",
+      icon: Heart,
+      badge: "3"
+    },
+    {
+      name: "Recent Views",
+      url: "/recent",
+      icon: Clock
+    },
+    {
+      name: "Trip Budget",
+      url: "/budget",
+      icon: Wallet,
+      isNew: true
+    }
   ]
 }
 
@@ -122,18 +126,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <Link href="/races">
-          <PitLaneTravelLogo className="m-2 h-[35px]" />
+        <Link href="/races" className="block px-2 py-4">
+          <PitLaneTravelLogo className="h-[34px]" />
         </Link>
-        {/* <TeamSwitcher teams={data.teams} /> */}
       </SidebarHeader>
-      <SidebarContent>
+
+      <SidebarContent className="space-y-6">
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <div className="px-2">
+          <div className="text-muted-foreground mb-2 px-4 text-xs font-medium">
+            Quick Access
+          </div>
+          <NavProjects projects={data.quickAccess} />
+        </div>
       </SidebarContent>
+
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   )

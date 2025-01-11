@@ -22,6 +22,7 @@ import {
   SidebarMenuItem,
   useSidebar
 } from "@/components/ui/sidebar"
+import { Badge } from "@/components/ui/badge"
 import {
   Folder,
   Forward,
@@ -29,28 +30,54 @@ import {
   Trash2,
   type LucideIcon
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-export function NavProjects({
-  projects
-}: {
-  projects: {
-    name: string
-    url: string
-    icon: LucideIcon
-  }[]
-}) {
+interface QuickAccessItem {
+  name: string
+  url: string
+  icon: LucideIcon
+  badge?: string
+  isNew?: boolean
+}
+
+export function NavProjects({ projects }: { projects: QuickAccessItem[] }) {
   const { isMobile } = useSidebar()
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map(item => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton
+              asChild
+              className={cn(
+                "relative",
+                item.isNew && "text-[#B17A50] dark:text-[#c19573]"
+              )}
+            >
               <a href={item.url}>
-                <item.icon />
+                <item.icon
+                  className={cn(
+                    item.isNew && "text-[#B17A50] dark:text-[#c19573]"
+                  )}
+                />
                 <span>{item.name}</span>
+                {item.badge && (
+                  <Badge
+                    variant="secondary"
+                    className="ml-auto rounded-sm bg-[#2e2c29]/10 px-1 py-0 text-[10px] text-[#2e2c29] dark:bg-[#c19573]/10 dark:text-[#c19573]"
+                  >
+                    {item.badge}
+                  </Badge>
+                )}
+                {item.isNew && (
+                  <Badge
+                    variant="secondary"
+                    className="ml-2 rounded-sm bg-[#B17A50]/10 px-1 py-0 text-[10px] text-[#B17A50] dark:bg-[#c19573]/10 dark:text-[#c19573]"
+                  >
+                    NEW
+                  </Badge>
+                )}
               </a>
             </SidebarMenuButton>
             <DropdownMenu>
@@ -66,28 +93,18 @@ export function NavProjects({
                 align={isMobile ? "end" : "start"}
               >
                 <DropdownMenuItem>
-                  <Folder className="text-muted-foreground" />
-                  <span>View Project</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Forward className="text-muted-foreground" />
-                  <span>Share Project</span>
+                  <Forward className="text-[#494641]" />
+                  <span>Open in New Tab</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Trash2 className="text-muted-foreground" />
-                  <span>Delete Project</span>
+                <DropdownMenuItem className="text-[#B17A50] dark:text-[#c19573]">
+                  <Trash2 className="text-current" />
+                  <span>Remove from Quick Access</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
         ))}
-        <SidebarMenuItem>
-          <SidebarMenuButton className="text-sidebar-foreground/70">
-            <MoreHorizontal className="text-sidebar-foreground/70" />
-            <span>More</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   )
