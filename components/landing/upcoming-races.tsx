@@ -93,7 +93,7 @@ export function UpcomingRaces({ races }: UpcomingRacesProps) {
                     </CardContent>
                     <CardFooter className="p-4 pt-0">
                       <Button asChild className="w-full" variant="outline">
-                        <Link href={`/races/${race.id}`}>
+                        <Link href={`/races/${race.slug || race.id}`}>
                           <Flag className="mr-2 size-4" />
                           View Race Details
                         </Link>

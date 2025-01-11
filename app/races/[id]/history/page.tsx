@@ -1,7 +1,10 @@
 "use server"
 
 import { auth } from "@clerk/nextjs/server"
-import { getRaceByIdAction } from "@/actions/db/races-actions"
+import {
+  getRaceByIdAction,
+  getRaceBySlugAction
+} from "@/actions/db/races-actions"
 import { getRaceHistoryAction } from "@/actions/db/race-history-actions"
 import { notFound } from "next/navigation"
 import { RaceHistoryPage } from "@/components/races/RaceHistoryPage"
@@ -17,7 +20,30 @@ export async function generateMetadata({
   params
 }: RaceHistoryPageProps): Promise<Metadata> {
   const { id } = await params
-  const raceHistoryResult = await getRaceHistoryAction(id)
+
+  // If identifier ends in 2025, try slug first
+  let raceResult
+  if (id.endsWith("2025")) {
+    raceResult = await getRaceBySlugAction(id)
+    if (!raceResult.isSuccess) {
+      raceResult = await getRaceByIdAction(id)
+    }
+  } else {
+    // For other cases, try ID first
+    raceResult = await getRaceByIdAction(id)
+    if (!raceResult.isSuccess) {
+      raceResult = await getRaceBySlugAction(id)
+    }
+  }
+
+  if (!raceResult.isSuccess) {
+    return {
+      title: "Race History",
+      description: "History of the race"
+    }
+  }
+
+  const raceHistoryResult = await getRaceHistoryAction(raceResult.data.id)
   if (!raceHistoryResult.isSuccess) {
     return {
       title: "Race History",
@@ -37,12 +63,26 @@ export default async function RaceHistoryRoute({
   const { id } = await params
   const { userId } = await auth()
 
-  const raceResult = await getRaceByIdAction(id)
+  // If identifier ends in 2025, try slug first
+  let raceResult
+  if (id.endsWith("2025")) {
+    raceResult = await getRaceBySlugAction(id)
+    if (!raceResult.isSuccess) {
+      raceResult = await getRaceByIdAction(id)
+    }
+  } else {
+    // For other cases, try ID first
+    raceResult = await getRaceByIdAction(id)
+    if (!raceResult.isSuccess) {
+      raceResult = await getRaceBySlugAction(id)
+    }
+  }
+
   if (!raceResult.isSuccess) {
     return notFound()
   }
 
-  const historyResult = await getRaceHistoryAction(id)
+  const historyResult = await getRaceHistoryAction(raceResult.data.id)
   if (!historyResult.isSuccess) {
     return notFound()
   }

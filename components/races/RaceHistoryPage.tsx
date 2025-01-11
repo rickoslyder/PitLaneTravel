@@ -17,7 +17,7 @@ export function RaceHistoryPage({ race, history }: RaceHistoryPageProps) {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-8">
-        <Link href={`/races/${race.id}`}>
+        <Link href={`/races/${race.slug || race.id}`}>
           <Button variant="ghost" className="gap-2">
             <ArrowLeft className="size-4" />
             Back to Race Details

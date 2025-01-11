@@ -10,7 +10,7 @@ export default async function TripsPage() {
   const { userId } = await auth()
 
   if (!userId) {
-    redirect("/sign-in")
+    redirect("/login")
   }
 
   const result = await getUserTripsAction(userId)

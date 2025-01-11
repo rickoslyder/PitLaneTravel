@@ -15,12 +15,29 @@ import {
   SidebarProvider,
   SidebarTrigger
 } from "@/components/ui/sidebar"
+import { auth } from "@clerk/nextjs/server"
+import { getProfileAction } from "@/actions/db/profiles-actions"
+import { AdminButton } from "@/components/admin/admin-buttons"
+import { cookies } from "next/headers"
 
 export default async function TripsLayout({
-  children
+  children,
+  searchParams
 }: {
   children: React.ReactNode
+  searchParams: { [key: string]: string | string[] | undefined }
 }) {
+  const { userId } = await auth()
+  let isAdmin = false
+  const showAdmin = !searchParams["noadmin"]
+
+  if (userId) {
+    const result = await getProfileAction(userId)
+    if (result.isSuccess) {
+      isAdmin = result.data.isAdmin
+    }
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -30,17 +47,21 @@ export default async function TripsLayout({
             <div className="flex h-14 items-center gap-4 px-4">
               <SidebarTrigger className="-ml-2" />
               <Separator orientation="vertical" className="h-6" />
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink href="/trips">My Trips</BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Trips</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
+              <div className="flex flex-1 items-center">
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem>
+                      <BreadcrumbLink href="/trips">My Trips</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>Trips</BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+
+              {isAdmin && showAdmin && <AdminButton type="trips" />}
             </div>
           </header>
 

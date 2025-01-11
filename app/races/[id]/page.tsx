@@ -1,7 +1,10 @@
 "use server"
 
 import { auth } from "@clerk/nextjs/server"
-import { getRaceByIdAction } from "@/actions/db/races-actions"
+import {
+  getRaceByIdAction,
+  getRaceBySlugAction
+} from "@/actions/db/races-actions"
 import { getCircuitWithDetailsAction } from "@/actions/db/circuits-actions"
 import { getUserTripForRaceAction } from "@/actions/db/trips-actions"
 import { notFound } from "next/navigation"
@@ -20,7 +23,21 @@ export default async function RacePage({ params }: RacePageProps) {
   const resolvedParams = await params
   const { userId } = await auth()
 
-  const raceResult = await getRaceByIdAction(resolvedParams.id)
+  // If identifier ends in 2025, try slug first
+  let raceResult
+  if (resolvedParams.id.endsWith("2025")) {
+    raceResult = await getRaceBySlugAction(resolvedParams.id)
+    if (!raceResult.isSuccess) {
+      raceResult = await getRaceByIdAction(resolvedParams.id)
+    }
+  } else {
+    // For other cases, try ID first
+    raceResult = await getRaceByIdAction(resolvedParams.id)
+    if (!raceResult.isSuccess) {
+      raceResult = await getRaceBySlugAction(resolvedParams.id)
+    }
+  }
+
   if (!raceResult.isSuccess) {
     return notFound()
   }
@@ -33,12 +50,15 @@ export default async function RacePage({ params }: RacePageProps) {
   }
 
   // Get race history
-  const historyResult = await getRaceHistoryAction(resolvedParams.id)
+  const historyResult = await getRaceHistoryAction(raceResult.data.id)
 
   // Get user's existing trip for this race if they're logged in
   let existingTripId: string | undefined
   if (userId) {
-    const tripResult = await getUserTripForRaceAction(userId, resolvedParams.id)
+    const tripResult = await getUserTripForRaceAction(
+      userId,
+      raceResult.data.id
+    )
     if (tripResult.isSuccess && tripResult.data) {
       existingTripId = tripResult.data.id
     }

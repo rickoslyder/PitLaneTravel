@@ -80,7 +80,7 @@ export function RacesPage({ initialRaces }: RacesPageProps) {
 
   const handleRaceClick = useCallback(
     (race: RaceWithCircuitAndSeries) => {
-      router.push(`/races/${race.id}`)
+      router.push(`/races/${race.slug || race.id}`)
     },
     [router]
   )

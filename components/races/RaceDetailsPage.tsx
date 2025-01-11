@@ -518,7 +518,7 @@ export function RaceDetailsPage({
 
               {history && (
                 <div className="mt-8 flex justify-center">
-                  <Link href={`/races/${race.id}/history`}>
+                  <Link href={`/races/${race.slug || race.id}/history`}>
                     <Button variant="outline" size="lg" className="gap-2">
                       Read Full History
                       <ArrowRight className="size-4" />

@@ -18,7 +18,7 @@ export default async function FlightConfirmationPage({
   const { userId } = await auth()
 
   if (!userId) {
-    redirect("/sign-in")
+    redirect("/login")
   }
 
   if (!resolvedSearchParams.bookingId) {

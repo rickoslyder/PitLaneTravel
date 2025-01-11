@@ -5,7 +5,7 @@ import { getRacesAction } from "@/actions/db/races-actions"
 
 export default async function FlightsPage() {
   const { userId } = await auth()
-  if (!userId) redirect("/sign-in")
+  if (!userId) redirect("/login")
 
   const { data: races, isSuccess } = await getRacesAction()
   if (!isSuccess || !races) {
