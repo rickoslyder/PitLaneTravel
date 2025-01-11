@@ -28,7 +28,8 @@
     "supasync:include-all": "supabase db dump --schema public --file public_schema.sql && supabase db push --include-all && npm run gen-types",
     "ionic:build": "npm run build",
     "ionic:serve": "npm run start",
-    "migrate:track-maps": "tsx scripts/migrate-track-maps.ts"
+    "migrate:track-maps": "tsx scripts/migrate-track-maps.ts",
+    "sitemap": "tsx scripts/generate-sitemap.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.11",

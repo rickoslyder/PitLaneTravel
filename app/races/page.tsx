@@ -9,14 +9,12 @@ import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 export default async function RacesServerPage() {
   const { userId } = await auth()
 
-  if (!userId) {
-    return redirect("/login")
-  }
-
-  const { data: profile } = await getProfileByUserIdAction(userId)
-
-  if (!profile) {
-    return redirect("/signup")
+  if (userId) {
+    // return redirect("/login")
+    const { data: profile } = await getProfileByUserIdAction(userId)
+    if (!profile) {
+      return redirect("/signup")
+    }
   }
 
   const { data: races } = await getRacesAction()

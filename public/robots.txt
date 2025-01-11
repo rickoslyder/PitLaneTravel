@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /contact
+Allow: /help
+Allow: /privacy
+Allow: /terms
+Allow: /races
+Allow: /races/map
+Allow: /races/*
+Allow: /flights
+
+# Prevent access to admin and authenticated routes
+Disallow: /admin/
+Disallow: /trips/
+Disallow: /bookings/
+
+# Prevent access to API routes
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://pitlanetravel.com/sitemap.xml 
