@@ -59,20 +59,30 @@ const formSchema = z.object({
 interface CreateRaceDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onSuccess?: () => void
 }
 
 export function CreateRaceDialog({
   open,
-  onOpenChange
+  onOpenChange,
+  onSuccess
 }: CreateRaceDialogProps) {
   const [loading, setLoading] = useState(false)
   const [circuits, setCircuits] = useState<SelectCircuit[]>([])
 
   useEffect(() => {
-    fetch("/api/circuits")
-      .then(res => res.json())
-      .then(data => setCircuits(data.data))
-      .catch(error => console.error("Error loading circuits:", error))
+    const fetchCircuits = async () => {
+      try {
+        const response = await fetch("/api/circuits")
+        const data = await response.json()
+        setCircuits(data.data || [])
+      } catch (error) {
+        console.error("Error fetching circuits:", error)
+        toast.error("Failed to load circuits")
+      }
+    }
+
+    fetchCircuits()
   }, [])
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -102,15 +112,13 @@ export function CreateRaceDialog({
         weekendStart: values.weekendStart
           ? new Date(values.weekendStart)
           : null,
-        weekendEnd: values.weekendEnd ? new Date(values.weekendEnd) : null,
-        openf1MeetingKey: null,
-        openf1SessionKey: null
+        weekendEnd: values.weekendEnd ? new Date(values.weekendEnd) : null
       })
 
       if (result.isSuccess) {
         toast.success("Race created successfully")
         onOpenChange(false)
-        window.location.reload()
+        onSuccess?.()
       } else {
         toast.error(result.message)
       }

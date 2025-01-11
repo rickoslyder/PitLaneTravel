@@ -319,3 +319,105 @@ export async function updateRaceAction(
     return { isSuccess: false, message: "Failed to update race" }
   }
 }
+
+export async function getRaceBySlugAction(slug: string): Promise<ActionState<RaceWithCircuitAndSeries>> {
+  try {
+    console.log("[Races] Getting race by slug:", slug)
+
+    const races = await db
+      .select({
+        id: racesTable.id,
+        circuit_id: racesTable.circuitId,
+        name: racesTable.name,
+        date: racesTable.date,
+        season: racesTable.season,
+        round: racesTable.round,
+        country: racesTable.country,
+        description: racesTable.description,
+        weekend_start: racesTable.weekendStart,
+        weekend_end: racesTable.weekendEnd,
+        status: racesTable.status,
+        slug: racesTable.slug,
+        is_sprint_weekend: racesTable.isSprintWeekend,
+        openf1_meeting_key: racesTable.openf1MeetingKey,
+        openf1_session_key: racesTable.openf1SessionKey,
+        created_at: racesTable.createdAt,
+        updated_at: racesTable.updatedAt,
+        circuit: {
+          id: circuitsTable.id,
+          name: circuitsTable.name,
+          country: circuitsTable.country,
+          location: circuitsTable.location,
+          latitude: circuitsTable.latitude,
+          longitude: circuitsTable.longitude,
+          image_url: circuitsTable.imageUrl,
+          track_map_url: circuitsTable.trackMapUrl,
+          openf1_key: circuitsTable.openf1Key,
+          openf1_short_name: circuitsTable.openf1ShortName,
+          timezone_id: circuitsTable.timezoneId,
+          timezone_name: circuitsTable.timezoneName,
+          website_url: circuitsTable.websiteUrl,
+          created_at: circuitsTable.createdAt,
+          updated_at: circuitsTable.updatedAt
+        }
+      })
+      .from(racesTable)
+      .leftJoin(circuitsTable, eq(racesTable.circuitId, circuitsTable.id))
+      .where(eq(racesTable.slug, slug))
+      .limit(1)
+
+    if (!races || races.length === 0) {
+      console.log("[Races] No race found with slug:", slug)
+      return {
+        isSuccess: false,
+        message: "Race not found"
+      }
+    }
+
+    const race = races[0]
+
+    // Get supporting series for the race
+    const supportingSeries = await db
+      .select()
+      .from(supportingSeriesTable)
+      .where(eq(supportingSeriesTable.raceId, race.id))
+
+    console.log("[Races] Race found successfully")
+    return {
+      isSuccess: true,
+      message: "Race retrieved successfully",
+      data: {
+        ...race,
+        date: race.date.toISOString(),
+        created_at: race.created_at.toISOString(),
+        updated_at: race.updated_at.toISOString(),
+        weekend_start: race.weekend_start?.toISOString() || null,
+        weekend_end: race.weekend_end?.toISOString() || null,
+        status: race.status,
+        circuit: race.circuit ? {
+          ...race.circuit,
+          latitude: Number(race.circuit.latitude),
+          longitude: Number(race.circuit.longitude),
+          created_at: race.circuit.created_at.toISOString(),
+          updated_at: race.circuit.updated_at.toISOString(),
+          website_url: race.circuit.website_url
+        } : null,
+        supporting_series: supportingSeries.map(series => ({
+          ...series,
+          created_at: series.createdAt.toISOString(),
+          updated_at: series.updatedAt.toISOString(),
+          start_time: series.startTime?.toISOString() || null,
+          end_time: series.endTime?.toISOString() || null,
+          race_id: series.raceId,
+          openf1_session_key: series.openf1SessionKey
+        }))
+      }
+    }
+  } catch (error) {
+    console.error("[Races] Error getting race:", error)
+    console.error("[Races] Error name:", error instanceof Error ? error.name : "Unknown")
+    console.error("[Races] Error message:", error instanceof Error ? error.message : "Unknown")
+    console.error("[Races] Error stack:", error instanceof Error ? error.stack : "Unknown")
+    return { isSuccess: false, message: "Failed to get race" }
+  }
+}

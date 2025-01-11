@@ -9,24 +9,25 @@ export function useRaceHistory(raceId: string) {
   const [error, setError] = useState<string | null>(null)
   const [history, setHistory] = useState<SelectRaceHistory | null>(null)
 
-  useEffect(() => {
-    async function fetchHistory() {
-      try {
-        const result = await getRaceHistoryAction(raceId)
-        if (result.isSuccess) {
-          setHistory(result.data)
-        } else {
-          setError(result.message)
-        }
-      } catch (error) {
-        setError("Failed to fetch race history")
-      } finally {
-        setLoading(false)
+  const fetchHistory = async () => {
+    try {
+      setLoading(true)
+      const result = await getRaceHistoryAction(raceId)
+      if (result.isSuccess) {
+        setHistory(result.data)
+      } else {
+        setError(result.message)
       }
+    } catch (error) {
+      setError("Failed to fetch race history")
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchHistory()
   }, [raceId])
 
-  return { loading, error, history }
+  return { loading, error, history, refresh: fetchHistory }
 }

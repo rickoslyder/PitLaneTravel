@@ -34,6 +34,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import dynamic from "next/dynamic"
+import { format } from "date-fns"
 
 const MDEditor = dynamic(
   () => import("@uiw/react-md-editor").then(mod => mod.default),
@@ -58,37 +59,47 @@ interface EditRaceDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   race: SelectRace
+  onSuccess?: () => void
 }
 
 export function EditRaceDialog({
   open,
   onOpenChange,
-  race
+  race,
+  onSuccess
 }: EditRaceDialogProps) {
   const [loading, setLoading] = useState(false)
   const [circuits, setCircuits] = useState<SelectCircuit[]>([])
 
   useEffect(() => {
-    fetch("/api/circuits")
-      .then(res => res.json())
-      .then(data => setCircuits(data.data))
-      .catch(error => console.error("Error loading circuits:", error))
+    const fetchCircuits = async () => {
+      try {
+        const response = await fetch("/api/circuits")
+        const data = await response.json()
+        setCircuits(data.data || [])
+      } catch (error) {
+        console.error("Error fetching circuits:", error)
+        toast.error("Failed to load circuits")
+      }
+    }
+
+    fetchCircuits()
   }, [])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: race.name,
-      date: new Date(race.date).toISOString().split("T")[0],
+      date: format(new Date(race.date), "yyyy-MM-dd"),
       season: race.season,
       round: race.round,
       country: race.country,
       description: race.description || "",
       weekendStart: race.weekendStart
-        ? new Date(race.weekendStart).toISOString().split("T")[0]
+        ? format(new Date(race.weekendStart), "yyyy-MM-dd")
         : "",
       weekendEnd: race.weekendEnd
-        ? new Date(race.weekendEnd).toISOString().split("T")[0]
+        ? format(new Date(race.weekendEnd), "yyyy-MM-dd")
         : "",
       status: race.status,
       isSprintWeekend: race.isSprintWeekend,
@@ -96,20 +107,19 @@ export function EditRaceDialog({
     }
   })
 
-  // Reset form when race changes
   useEffect(() => {
     form.reset({
       name: race.name,
-      date: new Date(race.date).toISOString().split("T")[0],
+      date: format(new Date(race.date), "yyyy-MM-dd"),
       season: race.season,
       round: race.round,
       country: race.country,
       description: race.description || "",
       weekendStart: race.weekendStart
-        ? new Date(race.weekendStart).toISOString().split("T")[0]
+        ? format(new Date(race.weekendStart), "yyyy-MM-dd")
         : "",
       weekendEnd: race.weekendEnd
-        ? new Date(race.weekendEnd).toISOString().split("T")[0]
+        ? format(new Date(race.weekendEnd), "yyyy-MM-dd")
         : "",
       status: race.status,
       isSprintWeekend: race.isSprintWeekend,
@@ -135,7 +145,7 @@ export function EditRaceDialog({
       if (result.isSuccess) {
         toast.success("Race updated successfully")
         onOpenChange(false)
-        window.location.reload()
+        onSuccess?.()
       } else {
         toast.error(result.message)
       }

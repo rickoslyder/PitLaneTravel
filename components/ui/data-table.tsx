@@ -34,13 +34,19 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   searchKey?: string
   searchPlaceholder?: string
+  pageSize?: number
+  currentPage?: number
+  onPageChange?: (page: number) => void
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
-  searchPlaceholder = "Search..."
+  searchPlaceholder = "Search...",
+  pageSize = 10,
+  currentPage = 0,
+  onPageChange
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -58,9 +64,40 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
-      columnFilters
+      columnFilters,
+      pagination: {
+        pageIndex: currentPage,
+        pageSize
+      }
+    },
+    manualPagination: true,
+    pageCount: Math.ceil(data.length / pageSize),
+    onPaginationChange: updater => {
+      if (typeof updater === "function") {
+        const state = updater({
+          pageIndex: currentPage,
+          pageSize
+        })
+        onPageChange?.(state.pageIndex)
+      }
     }
   })
+
+  // Update table when page size changes
+  React.useEffect(() => {
+    table.setPageSize(pageSize)
+  }, [pageSize, table])
+
+  // Update table when current page changes externally
+  React.useEffect(() => {
+    table.setPageIndex(currentPage)
+  }, [currentPage, table])
+
+  const visibleData = React.useMemo(() => {
+    const start = currentPage * pageSize
+    const end = start + pageSize
+    return data.slice(start, end)
+  }, [data, currentPage, pageSize])
 
   return (
     <div className="space-y-4">
@@ -99,22 +136,28 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map(row => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+            {visibleData.length ? (
+              visibleData.map(row => {
+                const tableRow = table
+                  .getRowModel()
+                  .rows.find(r => r.original === row)
+                if (!tableRow) return null
+                return (
+                  <TableRow
+                    key={tableRow.id}
+                    data-state={tableRow.getIsSelected() && "selected"}
+                  >
+                    {tableRow.getVisibleCells().map(cell => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                )
+              })
             ) : (
               <TableRow>
                 <TableCell
@@ -128,39 +171,48 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.setPageIndex(0)}
-          disabled={!table.getCanPreviousPage()}
-        >
-          <ChevronsLeft className="size-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          <ChevronRight className="size-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-          disabled={!table.getCanNextPage()}
-        >
-          <ChevronsRight className="size-4" />
-        </Button>
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="text-muted-foreground text-sm">
+          Showing {visibleData.length} of {data.length} results
+          <br />
+          Page {currentPage + 1} of {Math.ceil(data.length / pageSize)}
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange?.(0)}
+            disabled={currentPage === 0}
+          >
+            <ChevronsLeft className="size-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange?.(currentPage - 1)}
+            disabled={currentPage === 0}
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange?.(currentPage + 1)}
+            disabled={currentPage >= Math.ceil(data.length / pageSize) - 1}
+          >
+            <ChevronRight className="size-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              onPageChange?.(Math.ceil(data.length / pageSize) - 1)
+            }
+            disabled={currentPage >= Math.ceil(data.length / pageSize) - 1}
+          >
+            <ChevronsRight className="size-4" />
+          </Button>
+        </div>
       </div>
     </div>
   )
