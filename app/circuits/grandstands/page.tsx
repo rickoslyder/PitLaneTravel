@@ -1,32 +1,32 @@
 "use server"
 
-import { Hotel, CalendarClock, Building2 } from "lucide-react"
+import { Binoculars, CalendarClock } from "lucide-react"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "F1 Race Weekend Hotels | Accommodation Guide | PitLane Travel",
+  title: "F1 Grandstand Guide | Best Viewing Spots | PitLane Travel",
   description:
-    "Book the perfect hotel for your F1 race weekend. Find accommodation near circuits, compare prices, and read reviews from fellow F1 fans."
+    "Choose the perfect grandstand for your F1 experience. Compare views, prices, and amenities across different seating options at every Formula 1 circuit."
 }
 
-export default async function HotelsPage() {
+export default async function GrandstandsPage() {
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center space-y-8 px-4 text-center">
       <div className="relative">
         <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-[#B17A50] to-[#c19573] opacity-50 blur"></div>
         <div className="relative rounded-lg bg-white p-6 dark:bg-[#131211]">
-          <Building2 className="mx-auto size-16 text-[#B17A50] dark:text-[#c19573]" />
+          <Binoculars className="mx-auto size-16 text-[#B17A50] dark:text-[#c19573]" />
         </div>
       </div>
 
       <div className="space-y-4">
         <h1 className="text-4xl font-bold tracking-tight text-[#2e2c29] dark:text-white">
-          F1 Hotel Finder
+          Grandstand Guide
         </h1>
         <p className="mx-auto max-w-2xl text-lg text-[#494641] dark:text-[#c19573]">
-          Find and book the perfect accommodation for your F1 race weekend.
-          We're curating a selection of hotels, apartments, and unique stays
-          near every circuit on the calendar.
+          Find your perfect viewing spot at every F1 circuit. Our comprehensive
+          grandstand guide will help you choose the best seats with detailed
+          comparisons, photos, and fan reviews.
         </p>
       </div>
 
@@ -36,14 +36,14 @@ export default async function HotelsPage() {
       </div>
 
       <div className="mt-8 space-y-4 text-sm text-[#494641] dark:text-[#c19573]">
-        <p>Features coming to F1 Hotel Finder:</p>
+        <p>Features coming to Grandstand Guide:</p>
         <ul className="list-inside list-disc space-y-2">
-          <li>Circuit proximity scoring</li>
-          <li>Race weekend availability alerts</li>
-          <li>Group booking coordination</li>
-          <li>Local area insights</li>
-          <li>Price tracking and alerts</li>
-          <li>Verified F1 fan reviews</li>
+          <li>360° virtual seat previews</li>
+          <li>Price vs. view quality analysis</li>
+          <li>Shade coverage timing maps</li>
+          <li>Fan photo submissions</li>
+          <li>Amenity proximity scoring</li>
+          <li>Best moments by seating area</li>
         </ul>
       </div>
     </div>

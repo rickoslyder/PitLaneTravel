@@ -12,11 +12,70 @@ import { RaceDetailsPage } from "@/components/races/RaceDetailsPage"
 import LocalAttractions from "@/components/races/LocalAttractions"
 import { RaceWithDetails } from "@/types/race"
 import { getRaceHistoryAction } from "@/actions/db/race-history-actions"
+import { Metadata } from "next"
 
 interface RacePageProps {
   params: Promise<{
     id: string
   }>
+}
+
+// Helper function to reduce code duplication
+async function getRaceData(id: string) {
+  // If identifier ends in 2025, try slug first
+  let raceResult
+  if (id.endsWith("2025")) {
+    raceResult = await getRaceBySlugAction(id)
+    if (!raceResult.isSuccess) {
+      raceResult = await getRaceByIdAction(id)
+    }
+  } else {
+    // For other cases, try ID first
+    raceResult = await getRaceByIdAction(id)
+    if (!raceResult.isSuccess) {
+      raceResult = await getRaceBySlugAction(id)
+    }
+  }
+
+  if (!raceResult.isSuccess) {
+    return null
+  }
+
+  const circuitResult = await getCircuitWithDetailsAction(
+    raceResult.data.circuit_id
+  )
+  if (!circuitResult.isSuccess) {
+    return null
+  }
+
+  return {
+    race: raceResult.data,
+    circuit: circuitResult.data
+  }
+}
+
+export async function generateMetadata({
+  params
+}: RacePageProps): Promise<Metadata> {
+  const { id } = await params
+  const data = await getRaceData(id)
+
+  if (!data) {
+    return {
+      title: "Race Details | PitLane Travel",
+      description:
+        "Get comprehensive information about this Formula 1 race weekend, including circuit details, local attractions, and travel tips."
+    }
+  }
+
+  const { race, circuit } = data
+  const circuitName = circuit?.name || "the circuit"
+  const locationInfo = circuit?.location ? ` in ${circuit.location}` : ""
+
+  return {
+    title: `${race.name} 2025 | F1 Race Weekend Guide | PitLane Travel`,
+    description: `Plan your ${race.name} experience at ${circuitName}${locationInfo}. Get tickets, find flights & accommodation, and discover local attractions for an unforgettable F1 weekend.`
+  }
 }
 
 export default async function RacePage({ params }: RacePageProps) {

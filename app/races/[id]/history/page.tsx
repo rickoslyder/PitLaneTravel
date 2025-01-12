@@ -16,11 +16,8 @@ interface RaceHistoryPageProps {
   }>
 }
 
-export async function generateMetadata({
-  params
-}: RaceHistoryPageProps): Promise<Metadata> {
-  const { id } = await params
-
+// Helper function to reduce code duplication
+async function getRaceData(id: string) {
   // If identifier ends in 2025, try slug first
   let raceResult
   if (id.endsWith("2025")) {
@@ -37,23 +34,40 @@ export async function generateMetadata({
   }
 
   if (!raceResult.isSuccess) {
-    return {
-      title: "Race History",
-      description: "History of the race"
-    }
+    return null
   }
 
-  const raceHistoryResult = await getRaceHistoryAction(raceResult.data.id)
-  if (!raceHistoryResult.isSuccess) {
+  const historyResult = await getRaceHistoryAction(raceResult.data.id)
+  if (!historyResult.isSuccess) {
+    return null
+  }
+
+  return {
+    race: raceResult.data,
+    history: historyResult.data
+  }
+}
+
+export async function generateMetadata({
+  params
+}: RaceHistoryPageProps): Promise<Metadata> {
+  const { id } = await params
+  const data = await getRaceData(id)
+
+  if (!data) {
     return {
-      title: "Race History",
-      description: "History of the race"
+      title: "Race History | PitLane Travel",
+      description:
+        "Explore the history and memorable moments of this Formula 1 race"
     }
   }
 
   return {
-    title: raceHistoryResult.data.metaTitle || "Race History",
-    description: raceHistoryResult.data.metaDescription || "History of the race"
+    title:
+      data.history.metaTitle || `${data.race.name} History | PitLane Travel`,
+    description:
+      data.history.metaDescription ||
+      `Discover the rich history, memorable moments, and fascinating facts about the ${data.race.name}. Explore past winners, records, and iconic moments.`
   }
 }
 
@@ -63,33 +77,14 @@ export default async function RaceHistoryRoute({
   const { id } = await params
   const { userId } = await auth()
 
-  // If identifier ends in 2025, try slug first
-  let raceResult
-  if (id.endsWith("2025")) {
-    raceResult = await getRaceBySlugAction(id)
-    if (!raceResult.isSuccess) {
-      raceResult = await getRaceByIdAction(id)
-    }
-  } else {
-    // For other cases, try ID first
-    raceResult = await getRaceByIdAction(id)
-    if (!raceResult.isSuccess) {
-      raceResult = await getRaceBySlugAction(id)
-    }
-  }
-
-  if (!raceResult.isSuccess) {
-    return notFound()
-  }
-
-  const historyResult = await getRaceHistoryAction(raceResult.data.id)
-  if (!historyResult.isSuccess) {
+  const data = await getRaceData(id)
+  if (!data) {
     return notFound()
   }
 
   return (
     <div className="container py-8">
-      <RaceHistoryPage race={raceResult.data} history={historyResult.data} />
+      <RaceHistoryPage race={data.race} history={data.history} />
     </div>
   )
 }
