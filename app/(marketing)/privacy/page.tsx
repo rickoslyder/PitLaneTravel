@@ -133,13 +133,105 @@ export default async function PrivacyPage() {
           <li>Transaction records: 7 years</li>
           <li>Analytics: 26 months</li>
           <li>Provider data: Per provider policies</li>
+          <li>Marketing preferences: Until updated</li>
+          <li>Communication history: 3 years</li>
         </ul>
 
-        <h2>7. Contact Us</h2>
+        <h2>7. Cookies & Tracking</h2>
+        <h3>7.1 Essential Cookies</h3>
+        <ul>
+          <li>Authentication status</li>
+          <li>Session management</li>
+          <li>Security features</li>
+          <li>Basic functionality</li>
+        </ul>
+
+        <h3>7.2 Analytics Cookies</h3>
+        <ul>
+          <li>Usage patterns (PostHog)</li>
+          <li>Feature interaction</li>
+          <li>Performance monitoring</li>
+          <li>Error tracking</li>
+        </ul>
+
+        <h3>7.3 Marketing Cookies</h3>
+        <p>Only set with explicit consent:</p>
+        <ul>
+          <li>Personalization preferences</li>
+          <li>Marketing campaign tracking</li>
+          <li>Social media integration</li>
+        </ul>
+
+        <h2>8. International Data Transfers</h2>
+        <div className="rounded-lg border-l-4 border-blue-500 bg-blue-50 p-4 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
+          <p className="font-semibold">Data Transfer Notice:</p>
+          <ul>
+            <li>Data may be processed in different jurisdictions</li>
+            <li>We use EU-approved standard contractual clauses</li>
+            <li>Partners maintain adequate data protection standards</li>
+            <li>You can request information about data locations</li>
+          </ul>
+        </div>
+
+        <h2>9. Legal Basis (GDPR)</h2>
+        <h3>9.1 We process data based on:</h3>
+        <ul>
+          <li>Contract fulfillment (bookings, accounts)</li>
+          <li>Legal obligations (financial records)</li>
+          <li>Legitimate interests (platform improvement)</li>
+          <li>Consent (marketing, cookies)</li>
+        </ul>
+
+        <h3>9.2 Your GDPR Rights</h3>
+        <ul>
+          <li>Right to be informed</li>
+          <li>Right of access</li>
+          <li>Right to rectification</li>
+          <li>Right to erasure</li>
+          <li>Right to restrict processing</li>
+          <li>Right to data portability</li>
+          <li>Right to object</li>
+        </ul>
+
+        <h2>10. California Privacy Rights (CCPA)</h2>
+        <p>California residents have additional rights:</p>
+        <ul>
+          <li>Right to know what personal information is collected</li>
+          <li>Right to know if personal information is sold or disclosed</li>
+          <li>Right to say no to the sale of personal information</li>
+          <li>Right to access personal information</li>
+          <li>Right to equal service and price</li>
+        </ul>
+
+        <h2>11. Social Media Integration</h2>
+        <div className="rounded-lg border-l-4 border-yellow-500 bg-yellow-50 p-4 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
+          <p className="font-semibold">Social Media Notice:</p>
+          <ul>
+            <li>Social login data usage</li>
+            <li>Social sharing functionality</li>
+            <li>Platform interaction tracking</li>
+            <li>Third-party social widgets</li>
+          </ul>
+        </div>
+
+        <h2>12. Children's Privacy</h2>
+        <p>Our platform is not intended for children under 16:</p>
+        <ul>
+          <li>We do not knowingly collect data from children</li>
+          <li>Parent/guardian consent required for users under 16</li>
+          <li>Contact us to remove underage user data</li>
+        </ul>
+
+        <h2>13. Contact Us</h2>
         <p>
           For platform privacy inquiries only:
           <br />
           Email:{" "}
+          <a href="mailto:privacy@pitlanetravel.com">
+            privacy@pitlanetravel.com
+          </a>
+          <br />
+          Data Protection Officer:{" "}
           <a href="mailto:privacy@pitlanetravel.com">
             privacy@pitlanetravel.com
           </a>
@@ -151,6 +243,7 @@ export default async function PrivacyPage() {
         <div className="mt-8 text-sm">
           <p>Last updated: January 2025</p>
           <p>Effective date: February 1, 2025</p>
+          <p>Previous versions available upon request</p>
         </div>
       </div>
     </div>
