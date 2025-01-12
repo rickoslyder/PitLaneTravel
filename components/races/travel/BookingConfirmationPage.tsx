@@ -306,7 +306,15 @@ export function BookingConfirmationPage({
               </DialogContent>
             </Dialog>
           )}
-          <Button onClick={() => router.push("/flights")}>Done</Button>
+          <Button
+            onClick={() =>
+              router.push(
+                booking.addedToTrip ? `/trips/${selectedTripId}` : "/flights"
+              )
+            }
+          >
+            Done
+          </Button>
         </div>
       </CardContent>
     </Card>

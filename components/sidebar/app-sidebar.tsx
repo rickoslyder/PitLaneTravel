@@ -59,8 +59,8 @@ const data = {
       items: [
         { title: "2025 Season", url: "/races", isPrimary: true },
         { title: "Interactive Map", url: "/races/map", icon: Map },
-        { title: "Compare Events", url: "/races/compare" },
-        { title: "2024 Archive", url: "/races/archive", icon: Archive }
+        { title: "Compare Events", url: "/races/compare" }
+        // { title: "2024 Archive", url: "/races/archive", icon: Archive }
       ]
     },
     {
@@ -81,8 +81,8 @@ const data = {
       icon: Plane,
       items: [
         { title: "Flight Search", url: "/flights", isPrimary: true },
-        { title: "Hotels", url: "/travel/hotels", icon: Hotel },
-        { title: "Transport", url: "/travel/transport", icon: Car },
+        { title: "Hotels", url: "/hotels", icon: Hotel },
+        { title: "Transport", url: "/transport", icon: Car },
         { title: "My Bookings", url: "/bookings", icon: Ticket }
       ]
     },
