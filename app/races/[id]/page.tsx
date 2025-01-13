@@ -213,7 +213,7 @@ export default async function RacePage({ params }: RacePageProps) {
         existingTripId={existingTripId}
         history={historyResult.isSuccess ? historyResult.data : undefined}
       />
-      <LocalAttractions circuit={circuitResult.data} />
+      {/* <LocalAttractions circuit={circuitResult.data} /> */}
     </div>
   )
 }

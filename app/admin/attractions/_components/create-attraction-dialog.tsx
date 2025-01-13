@@ -30,6 +30,8 @@ import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
 import { createLocalAttractionAction } from "@/actions/db/local-attractions-actions"
 import { CircuitSelect } from "@/components/circuit-select"
+import { SelectCircuit } from "@/db/schema"
+import { getCircuitsAction } from "@/actions/db/circuits-actions"
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -46,6 +48,7 @@ type FormValues = z.infer<typeof formSchema>
 export function CreateAttractionDialog() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [circuits, setCircuits] = useState<SelectCircuit[]>([])
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -75,8 +78,25 @@ export function CreateAttractionDialog() {
     }
   }
 
+  async function loadCircuits() {
+    const result = await getCircuitsAction()
+    if (result.isSuccess) {
+      setCircuits(result.data)
+    } else {
+      toast.error("Failed to load circuits")
+    }
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={newOpen => {
+        setOpen(newOpen)
+        if (newOpen) {
+          loadCircuits()
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button>Add Attraction</Button>
       </DialogTrigger>
@@ -128,6 +148,7 @@ export function CreateAttractionDialog() {
                     <CircuitSelect
                       value={field.value}
                       onValueChange={field.onChange}
+                      circuits={circuits}
                     />
                   </FormControl>
                   <FormMessage />

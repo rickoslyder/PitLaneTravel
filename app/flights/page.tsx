@@ -4,13 +4,6 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { FlightSearchContainer } from "./_components/flight-search-container"
 import { getRacesAction } from "@/actions/db/races-actions"
-import { Metadata } from "next"
-
-export const metadata: Metadata = {
-  title: "F1 Race Weekend Flights | Best Flight Deals | PitLane Travel",
-  description:
-    "Find and book the best flights to Formula 1 races worldwide. Compare prices, schedules, and airlines to get to your next Grand Prix with ease."
-}
 
 export default async function FlightsPage() {
   const { userId } = await auth()

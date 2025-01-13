@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, Flag } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
+import { cn } from "@/lib/utils"
 
 interface UpcomingRacesProps {
   races: RaceWithCircuitAndSeries[]
@@ -16,19 +17,34 @@ interface UpcomingRacesProps {
 export function UpcomingRaces({ races }: UpcomingRacesProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
+  const getVisibleCount = () => {
+    if (typeof window === "undefined") return 4 // Default for SSR
+    if (window.innerWidth >= 1536) return 4 // 2xl: 4 items in one row
+    if (window.innerWidth >= 1024) return 3 // lg: exactly 3 items
+    if (window.innerWidth >= 768) return 4 // md: 4 items in 2x2 grid
+    return 1 // mobile: 1 item
+  }
+
   const nextSlide = () => {
-    setCurrentIndex(current => (current + 3 >= races.length ? 0 : current + 3))
+    const visibleCount = getVisibleCount()
+    setCurrentIndex(current =>
+      current + visibleCount >= races.length ? 0 : current + visibleCount
+    )
   }
 
   const prevSlide = () => {
+    const visibleCount = getVisibleCount()
     setCurrentIndex(current =>
-      current - 3 < 0 ? Math.max(races.length - 3, 0) : current - 3
+      current - visibleCount < 0
+        ? Math.max(races.length - visibleCount, 0)
+        : current - visibleCount
     )
   }
 
   if (!races.length) return null
 
-  const visibleRaces = races.slice(currentIndex, currentIndex + 3)
+  const visibleCount = getVisibleCount()
+  const visibleRaces = races.slice(currentIndex, currentIndex + visibleCount)
 
   return (
     <section className="bg-background py-20">
@@ -57,13 +73,18 @@ export function UpcomingRaces({ races }: UpcomingRacesProps) {
               <ChevronLeft className="size-6" />
             </Button>
 
-            <div className="mx-auto grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="mx-auto grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
               {visibleRaces.map((race, index) => (
                 <motion.div
                   key={race.id}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className={cn(
+                    "lg:col-span-1",
+                    // On lg screens, if this is the 4th item, hide it
+                    index === 3 && "lg:hidden 2xl:block"
+                  )}
                 >
                   <Card className="group h-full overflow-hidden">
                     <div className="relative aspect-[16/9]">
@@ -109,7 +130,7 @@ export function UpcomingRaces({ races }: UpcomingRacesProps) {
               size="icon"
               onClick={nextSlide}
               className="absolute -right-4 top-1/2 z-10 -translate-y-1/2"
-              disabled={currentIndex + 3 >= races.length}
+              disabled={currentIndex + visibleCount >= races.length}
             >
               <ChevronRight className="size-6" />
             </Button>

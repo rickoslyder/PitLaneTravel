@@ -10,7 +10,8 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable
+  useReactTable,
+  RowSelectionState
 } from "@tanstack/react-table"
 import {
   Table,
@@ -28,6 +29,7 @@ import {
   ChevronsLeft,
   ChevronsRight
 } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -37,6 +39,7 @@ interface DataTableProps<TData, TValue> {
   pageSize?: number
   currentPage?: number
   onPageChange?: (page: number) => void
+  onRowsSelected?: (rows: TData[]) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -46,25 +49,50 @@ export function DataTable<TData, TValue>({
   searchPlaceholder = "Search...",
   pageSize = 10,
   currentPage = 0,
-  onPageChange
+  onPageChange,
+  onRowsSelected
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
 
   const table = useReactTable({
     data,
-    columns,
+    columns: [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={value => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false
+      },
+      ...columns
+    ],
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
+      rowSelection,
       pagination: {
         pageIndex: currentPage,
         pageSize
@@ -92,6 +120,16 @@ export function DataTable<TData, TValue>({
   React.useEffect(() => {
     table.setPageIndex(currentPage)
   }, [currentPage, table])
+
+  // Notify parent of selected rows
+  React.useEffect(() => {
+    if (onRowsSelected) {
+      const selectedRows = table
+        .getSelectedRowModel()
+        .rows.map(row => row.original as TData)
+      onRowsSelected(selectedRows)
+    }
+  }, [rowSelection, table, onRowsSelected])
 
   const visibleData = React.useMemo(() => {
     const start = currentPage * pageSize
@@ -161,7 +199,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns.length + 1}
                   className="h-24 text-center"
                 >
                   No results.
@@ -176,6 +214,12 @@ export function DataTable<TData, TValue>({
           Showing {visibleData.length} of {data.length} results
           <br />
           Page {currentPage + 1} of {Math.ceil(data.length / pageSize)}
+          {table.getSelectedRowModel().rows.length > 0 && (
+            <>
+              <br />
+              {table.getSelectedRowModel().rows.length} rows selected
+            </>
+          )}
         </div>
         <div className="flex items-center space-x-2">
           <Button

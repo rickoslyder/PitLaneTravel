@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import {
   Select,
   SelectContent,
@@ -9,33 +8,24 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { SelectCircuit } from "@/db/schema"
-import { getCircuitsAction } from "@/actions/db/circuits-actions"
-import { toast } from "sonner"
 
 interface CircuitSelectProps {
   value: string
   onValueChange: (value: string) => void
+  circuits: SelectCircuit[]
+  placeholder?: string
 }
 
-export function CircuitSelect({ value, onValueChange }: CircuitSelectProps) {
-  const [circuits, setCircuits] = useState<SelectCircuit[]>([])
-
-  useEffect(() => {
-    async function fetchCircuits() {
-      const result = await getCircuitsAction()
-      if (result.isSuccess) {
-        setCircuits(result.data)
-      } else {
-        toast.error(result.message)
-      }
-    }
-    fetchCircuits()
-  }, [])
-
+export function CircuitSelect({
+  value,
+  onValueChange,
+  circuits,
+  placeholder = "Select a circuit"
+}: CircuitSelectProps) {
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger>
-        <SelectValue placeholder="Select a circuit" />
+        <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
         {circuits.map(circuit => (

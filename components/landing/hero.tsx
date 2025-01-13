@@ -17,7 +17,8 @@ import {
   Star,
   FlagIcon,
   StarIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  TimerIcon
 } from "lucide-react"
 import Link from "next/link"
 import posthog from "posthog-js"
@@ -26,6 +27,7 @@ import HeroVideoDialog from "../magicui/hero-video-dialog"
 import supabaseLoader from "@/supabase-image-loader"
 import Image from "next/image"
 import { useScroll, useTransform } from "framer-motion"
+import { useNextRace } from "@/hooks/useNextRace"
 
 const HeroImage = ({
   height,
@@ -60,124 +62,30 @@ export const HeroSection = () => {
   const opacity = useTransform(scrollY, [0, 300], [1, 0])
   const scale = useTransform(scrollY, [0, 300], [1, 0.95])
 
+  const { days, hours, minutes, seconds, raceName, isLoading, nextRace } =
+    useNextRace()
+
+  // Format time units to always show two digits
+  const formatTimeUnit = (unit: number | undefined) => {
+    if (unit === undefined) return "00"
+    return unit.toString().padStart(2, "0")
+  }
+
+  // Pulsing animation for the separators
+  const separatorVariants = {
+    animate: {
+      opacity: [1, 0.3, 1],
+      transition: {
+        duration: 1,
+        repeat: Infinity,
+        ease: "linear"
+      }
+    }
+  }
+
   return (
-    // <div className="flex flex-col items-center justify-center px-8 pt-24 text-center">
-    //   <motion.div
-    //     initial={{ opacity: 0, y: -20 }}
-    //     animate={{ opacity: 1, y: 0 }}
-    //     transition={{ duration: 0.6, ease: "easeOut" }}
-    //     className="flex items-center justify-center"
-    //   >
-    //     <AnimatedGradientText>
-    //       <Flag className="inline-block size-4" />
-    //       <hr className="mx-2 h-4 w-px shrink-0 bg-gray-300" />
-    //       <span
-    //         className={cn(
-    //           `animate-gradient inline bg-gradient-to-r from-[#E10600] via-[#FF0800] to-[#E10600] bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent`
-    //         )}
-    //       >
-    //         2025 F1 Season Now Available
-    //       </span>
-    //     </AnimatedGradientText>
-    //   </motion.div>
-
-    //   <motion.div
-    //     initial={{ opacity: 0, y: 20 }}
-    //     animate={{ opacity: 1, y: 0 }}
-    //     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-    //     className="mt-8 flex max-w-2xl flex-col items-center justify-center gap-6"
-    //   >
-    //     <motion.div
-    //       initial={{ scale: 0.95, opacity: 0 }}
-    //       animate={{ scale: 1, opacity: 1 }}
-    //       transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-    //       className="text-balance text-6xl font-bold"
-    //     >
-    //       Your Ultimate F1 Travel Experience
-    //     </motion.div>
-
-    //     <motion.div
-    //       initial={{ opacity: 0 }}
-    //       animate={{ opacity: 1 }}
-    //       transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
-    //       className="max-w-xl text-balance text-xl"
-    //     >
-    //       Plan your perfect Formula 1 race weekend with expert travel packages,
-    //       exclusive experiences, and seamless booking.
-    //     </motion.div>
-
-    //     <motion.div
-    //       initial={{ opacity: 0, y: 10 }}
-    //       animate={{ opacity: 1, y: 0 }}
-    //       transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
-    //       className="flex gap-4"
-    //     >
-    //       <Link href="/races" onClick={handleGetStartedClick}>
-    //         <Button className="bg-[#E10600] text-lg hover:bg-[#FF0800]">
-    //           <Flag className="mr-2 size-5" />
-    //           View 2025 Races
-    //         </Button>
-    //       </Link>
-    //       <Link href="/packages">
-    //         <Button variant="outline" className="text-lg">
-    //           <Star className="mr-2 size-5" />
-    //           Browse Packages
-    //         </Button>
-    //       </Link>
-    //     </motion.div>
-    //   </motion.div>
-
-    //   <motion.div
-    //     initial={{ opacity: 0, y: 30 }}
-    //     animate={{ opacity: 1, y: 0 }}
-    //     transition={{ duration: 1, delay: 1, ease: "easeOut" }}
-    //     className="mx-auto mt-20 flex w-full max-w-screen-lg items-center justify-center rounded-lg border shadow-lg"
-    //   >
-    //     {/* <HeroVideoDialog
-    //       animationStyle="top-in-bottom-out"
-    //       videoSrc="https://www.youtube.com/embed/dQw4w9WgXcQ"
-    //       thumbnailSrc={supabaseLoader({
-    //         src: "/assets/homepage/hero.jpeg",
-    //         height: 1000,
-    //         width: 1000,
-    //         quality: 75
-    //       })}
-    //       thumbnailAlt="F1 Race Experience"
-    //     /> */}
-    //     <HeroImage />
-    //   </motion.div>
-
-    //   <motion.div
-    //     initial={{ opacity: 0, y: 20 }}
-    //     animate={{ opacity: 1, y: 0 }}
-    //     transition={{ duration: 0.8, delay: 1.2, ease: "easeOut" }}
-    //     className="mt-20 grid grid-cols-1 gap-8 md:grid-cols-3"
-    //   >
-    //     <div className="flex flex-col items-center gap-2">
-    //       <Calendar className="size-8 text-[#E10600]" />
-    //       <h3 className="text-lg font-semibold">24 Race Weekends</h3>
-    //       <p className="text-muted-foreground">
-    //         Experience the thrill of F1 at iconic circuits worldwide
-    //       </p>
-    //     </div>
-    //     <div className="flex flex-col items-center gap-2">
-    //       <MapPin className="size-8 text-[#E10600]" />
-    //       <h3 className="text-lg font-semibold">Global Destinations</h3>
-    //       <p className="text-muted-foreground">
-    //         From Monaco to Melbourne, we've got you covered
-    //       </p>
-    //     </div>
-    //     <div className="flex flex-col items-center gap-2">
-    //       <Star className="size-8 text-[#E10600]" />
-    //       <h3 className="text-lg font-semibold">VIP Experiences</h3>
-    //       <p className="text-muted-foreground">
-    //         Access exclusive paddock club and team garage tours
-    //       </p>
-    //     </div>
-    //   </motion.div>
-    // </div>
     <>
-      <section className="relative flex min-h-[85vh] items-center justify-center overflow-hidden">
+      <section className="relative flex min-h-[95vh] items-center justify-center overflow-hidden">
         {/* Background image with parallax effect */}
         <motion.div style={{ scale }} className="absolute inset-0">
           <HeroImage />
@@ -216,10 +124,10 @@ export const HeroSection = () => {
               className="mb-6"
             >
               <h1 className="text-5xl font-bold tracking-tighter text-white drop-shadow-2xl [text-shadow:_0_4px_24px_rgba(0,0,0,0.3)] md:text-6xl lg:text-7xl">
-                Your Ultimate F1
+                Experience F1
                 <br />
-                <span className="bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
-                  Travel Experience
+                <span className="text-red-500 drop-shadow-lg [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
+                  Like Never Before
                 </span>
               </h1>
             </motion.div>
@@ -229,13 +137,110 @@ export const HeroSection = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="mb-12 max-w-2xl"
+              className="mb-8 max-w-2xl"
             >
               <p className="rounded-xl border border-white/10 bg-white/10 px-6 py-4 text-lg leading-relaxed text-white/90 shadow-xl backdrop-blur-md md:text-xl">
-                Plan your perfect Formula 1 race weekend with expert travel
-                packages, exclusive experiences, and seamless booking.
+                Turn race weekend planning into pure excitement: insider
+                knowledge, smart logistics, and local secrets for an
+                unforgettable F1 experience.
               </p>
             </motion.div>
+
+            {/* Next Race Countdown */}
+            {!isLoading && nextRace && (
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="mb-12"
+              >
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="group flex flex-col items-center space-y-4 rounded-2xl border border-white/10 bg-white/5 px-8 py-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:shadow-lg">
+                    <div className="flex items-center space-x-2 text-white/90">
+                      <TimerIcon className="size-5" />
+                      <span className="text-lg">
+                        Next Race: <span className="font-bold">{raceName}</span>
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex flex-col items-center">
+                        <motion.div
+                          key={days}
+                          initial={{ scale: 1.1 }}
+                          animate={{ scale: 1 }}
+                          className="text-4xl font-bold text-white"
+                        >
+                          {formatTimeUnit(days)}
+                        </motion.div>
+                        <div className="text-sm text-white/70">DAYS</div>
+                      </div>
+                      <motion.div
+                        variants={separatorVariants}
+                        animate="animate"
+                        className="text-2xl font-bold text-white/50"
+                      >
+                        :
+                      </motion.div>
+                      <div className="flex flex-col items-center">
+                        <motion.div
+                          key={hours}
+                          initial={{ scale: 1.1 }}
+                          animate={{ scale: 1 }}
+                          className="text-4xl font-bold text-white"
+                        >
+                          {formatTimeUnit(hours)}
+                        </motion.div>
+                        <div className="text-sm text-white/70">HOURS</div>
+                      </div>
+                      <motion.div
+                        variants={separatorVariants}
+                        animate="animate"
+                        className="text-2xl font-bold text-white/50"
+                      >
+                        :
+                      </motion.div>
+                      <div className="flex flex-col items-center">
+                        <motion.div
+                          key={minutes}
+                          initial={{ scale: 1.1 }}
+                          animate={{ scale: 1 }}
+                          className="text-4xl font-bold text-white"
+                        >
+                          {formatTimeUnit(minutes)}
+                        </motion.div>
+                        <div className="text-sm text-white/70">MINS</div>
+                      </div>
+                      <motion.div
+                        variants={separatorVariants}
+                        animate="animate"
+                        className="text-2xl font-bold text-white/50"
+                      >
+                        :
+                      </motion.div>
+                      <div className="flex flex-col items-center">
+                        <motion.div
+                          key={seconds}
+                          initial={{ scale: 1.1 }}
+                          animate={{ scale: 1 }}
+                          className="text-4xl font-bold text-white"
+                        >
+                          {formatTimeUnit(seconds)}
+                        </motion.div>
+                        <div className="text-sm text-white/70">SECS</div>
+                      </div>
+                    </div>
+                    {nextRace.circuit && (
+                      <div className="flex items-center space-x-2 text-white/90">
+                        <MapPin className="size-4" />
+                        <span className="text-lg font-medium">
+                          {nextRace.circuit.name}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
             {/* Group the buttons and scroll indicator together */}
             <div className="flex flex-col items-center">

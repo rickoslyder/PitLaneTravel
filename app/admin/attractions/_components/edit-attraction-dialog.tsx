@@ -31,7 +31,8 @@ import { toast } from "sonner"
 import { updateLocalAttractionAction } from "@/actions/db/local-attractions-actions"
 import { CircuitSelect } from "@/components/circuit-select"
 import { Edit } from "lucide-react"
-import { SelectLocalAttraction } from "@/db/schema"
+import { SelectCircuit, SelectLocalAttraction } from "@/db/schema"
+import { getCircuitsAction } from "@/actions/db/circuits-actions"
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -54,6 +55,7 @@ export function EditAttractionDialog({
 }: EditAttractionDialogProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [circuits, setCircuits] = useState<SelectCircuit[]>([])
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -84,8 +86,25 @@ export function EditAttractionDialog({
     }
   }
 
+  async function loadCircuits() {
+    const result = await getCircuitsAction()
+    if (result.isSuccess) {
+      setCircuits(result.data)
+    } else {
+      toast.error("Failed to load circuits")
+    }
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={newOpen => {
+        setOpen(newOpen)
+        if (newOpen) {
+          loadCircuits()
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <Edit className="size-4" />
@@ -139,6 +158,7 @@ export function EditAttractionDialog({
                     <CircuitSelect
                       value={field.value}
                       onValueChange={field.onChange}
+                      circuits={circuits}
                     />
                   </FormControl>
                   <FormMessage />
