@@ -43,9 +43,8 @@ export default async function Layout({
                     </BreadcrumbItem>
                   </BreadcrumbList>
                 </Breadcrumb>
+                <AdminCheckWrapper />
               </div>
-
-              <AdminCheckWrapper />
             </div>
           </header>
 

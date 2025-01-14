@@ -109,9 +109,9 @@ export const HeroSection = () => {
             >
               <Badge
                 variant="outline"
-                className="mb-8 border-white/20 bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-sm"
+                className="mb-6 border-white/20 bg-white/10 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:mb-8 sm:px-4 sm:py-2 sm:text-sm"
               >
-                <FlagIcon className="mr-2 size-4" />
+                <FlagIcon className="mr-2 size-3 sm:size-4" />
                 2025 F1 Season Now Available
               </Badge>
             </motion.div>
@@ -121,9 +121,9 @@ export const HeroSection = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="mb-6"
+              className="mb-4 sm:mb-6"
             >
-              <h1 className="text-5xl font-bold tracking-tighter text-white drop-shadow-2xl [text-shadow:_0_4px_24px_rgba(0,0,0,0.3)] md:text-6xl lg:text-7xl">
+              <h1 className="text-4xl font-bold tracking-tighter text-white drop-shadow-2xl [text-shadow:_0_4px_24px_rgba(0,0,0,0.3)] sm:text-5xl md:text-6xl lg:text-7xl">
                 Experience F1
                 <br />
                 <span className="text-red-500 drop-shadow-lg [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
@@ -137,9 +137,9 @@ export const HeroSection = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="mb-8 max-w-2xl"
+              className="mb-6 max-w-2xl px-4 sm:mb-8 sm:px-0"
             >
-              <p className="rounded-xl border border-white/10 bg-white/10 px-6 py-4 text-lg leading-relaxed text-white/90 shadow-xl backdrop-blur-md md:text-xl">
+              <p className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-base leading-relaxed text-white/90 shadow-xl backdrop-blur-md sm:px-6 sm:py-4 sm:text-lg md:text-xl">
                 Turn race weekend planning into pure excitement: insider
                 knowledge, smart logistics, and local secrets for an
                 unforgettable F1 experience.
@@ -152,32 +152,34 @@ export const HeroSection = () => {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
-                className="mb-12"
+                className="mb-8 w-full px-4 sm:mb-12 sm:px-0"
               >
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="group flex flex-col items-center space-y-4 rounded-2xl border border-white/10 bg-white/5 px-8 py-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:shadow-lg">
+                  <div className="group flex w-full flex-col items-center space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:shadow-lg sm:w-auto sm:px-8 sm:py-6">
                     <div className="flex items-center space-x-2 text-white/90">
-                      <TimerIcon className="size-5" />
-                      <span className="text-lg">
+                      <TimerIcon className="size-4 sm:size-5" />
+                      <span className="text-base sm:text-lg">
                         Next Race: <span className="font-bold">{raceName}</span>
                       </span>
                     </div>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2 sm:space-x-4">
                       <div className="flex flex-col items-center">
                         <motion.div
                           key={days}
                           initial={{ scale: 1.1 }}
                           animate={{ scale: 1 }}
-                          className="text-4xl font-bold text-white"
+                          className="text-2xl font-bold text-white sm:text-3xl md:text-4xl"
                         >
                           {formatTimeUnit(days)}
                         </motion.div>
-                        <div className="text-sm text-white/70">DAYS</div>
+                        <div className="text-xs text-white/70 sm:text-sm">
+                          DAYS
+                        </div>
                       </div>
                       <motion.div
                         variants={separatorVariants}
                         animate="animate"
-                        className="text-2xl font-bold text-white/50"
+                        className="text-xl font-bold text-white/50 sm:text-2xl"
                       >
                         :
                       </motion.div>
@@ -186,16 +188,18 @@ export const HeroSection = () => {
                           key={hours}
                           initial={{ scale: 1.1 }}
                           animate={{ scale: 1 }}
-                          className="text-4xl font-bold text-white"
+                          className="text-2xl font-bold text-white sm:text-3xl md:text-4xl"
                         >
                           {formatTimeUnit(hours)}
                         </motion.div>
-                        <div className="text-sm text-white/70">HOURS</div>
+                        <div className="text-xs text-white/70 sm:text-sm">
+                          HOURS
+                        </div>
                       </div>
                       <motion.div
                         variants={separatorVariants}
                         animate="animate"
-                        className="text-2xl font-bold text-white/50"
+                        className="text-xl font-bold text-white/50 sm:text-2xl"
                       >
                         :
                       </motion.div>
@@ -204,16 +208,18 @@ export const HeroSection = () => {
                           key={minutes}
                           initial={{ scale: 1.1 }}
                           animate={{ scale: 1 }}
-                          className="text-4xl font-bold text-white"
+                          className="text-2xl font-bold text-white sm:text-3xl md:text-4xl"
                         >
                           {formatTimeUnit(minutes)}
                         </motion.div>
-                        <div className="text-sm text-white/70">MINS</div>
+                        <div className="text-xs text-white/70 sm:text-sm">
+                          MINS
+                        </div>
                       </div>
                       <motion.div
                         variants={separatorVariants}
                         animate="animate"
-                        className="text-2xl font-bold text-white/50"
+                        className="text-xl font-bold text-white/50 sm:text-2xl"
                       >
                         :
                       </motion.div>
@@ -222,17 +228,19 @@ export const HeroSection = () => {
                           key={seconds}
                           initial={{ scale: 1.1 }}
                           animate={{ scale: 1 }}
-                          className="text-4xl font-bold text-white"
+                          className="text-2xl font-bold text-white sm:text-3xl md:text-4xl"
                         >
                           {formatTimeUnit(seconds)}
                         </motion.div>
-                        <div className="text-sm text-white/70">SECS</div>
+                        <div className="text-xs text-white/70 sm:text-sm">
+                          SECS
+                        </div>
                       </div>
                     </div>
                     {nextRace.circuit && (
                       <div className="flex items-center space-x-2 text-white/90">
-                        <MapPin className="size-4" />
-                        <span className="text-lg font-medium">
+                        <MapPin className="size-3 sm:size-4" />
+                        <span className="text-sm font-medium sm:text-lg">
                           {nextRace.circuit.name}
                         </span>
                       </div>
@@ -243,21 +251,21 @@ export const HeroSection = () => {
             )}
 
             {/* Group the buttons and scroll indicator together */}
-            <div className="flex flex-col items-center">
+            <div className="flex w-full flex-col items-center px-4 sm:px-0">
               {/* Buttons */}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
-                className="flex w-full flex-col justify-center gap-4 sm:flex-row"
+                className="flex w-full flex-col justify-center gap-3 sm:flex-row sm:gap-4"
               >
                 <Button
                   asChild
                   size="lg"
-                  className="bg-red-600 px-8 py-6 text-lg text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-red-700 hover:shadow-xl"
+                  className="bg-red-600 px-6 py-5 text-base text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-red-700 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
                 >
                   <Link href="/races">
-                    <FlagIcon className="mr-2 size-5" />
+                    <FlagIcon className="mr-2 size-4 sm:size-5" />
                     View 2025 Races
                   </Link>
                 </Button>
@@ -265,10 +273,10 @@ export const HeroSection = () => {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="border-white/20 bg-white/10 px-8 py-6 text-lg text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:shadow-xl"
+                  className="border-white/20 bg-white/10 px-6 py-5 text-base text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
                 >
                   <Link href="/packages">
-                    <StarIcon className="mr-2 size-5" />
+                    <StarIcon className="mr-2 size-4 sm:size-5" />
                     Browse Packages
                   </Link>
                 </Button>
@@ -279,9 +287,9 @@ export const HeroSection = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
-                className="mt-8" // Add margin top for spacing from buttons
+                className="mt-6 sm:mt-8"
               >
-                <ChevronDownIcon className="size-8 animate-bounce text-white/70" />
+                <ChevronDownIcon className="size-6 animate-bounce text-white/70 sm:size-8" />
               </motion.div>
             </div>
           </div>

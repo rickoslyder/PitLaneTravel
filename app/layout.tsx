@@ -23,7 +23,6 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { PageViewTracker } from "./components/gtm/page-view-tracker"
-import Script from "next/script"
 import Clarity from "@microsoft/clarity"
 
 const inter = Inter({ subsets: ["latin"] })

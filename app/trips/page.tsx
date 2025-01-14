@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { getUserTripsAction } from "@/actions/db/trips-actions"
 import { TripCard } from "./_components/trip-card"
 import { EmptyTrips } from "./_components/empty-trips"
+import AdminCheckWrapper from "./_components/admin-check"
 
 export default async function TripsPage() {
   const { userId } = await auth()
@@ -34,6 +35,7 @@ export default async function TripsPage() {
             Manage and plan your F1 race weekends
           </p>
         </div>
+        <AdminCheckWrapper />
       </div>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">

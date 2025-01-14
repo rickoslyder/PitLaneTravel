@@ -61,27 +61,22 @@ export default function Header() {
           : "bg-background"
       }`}
     >
-      <div className="mx-auto flex max-w-screen-2xl items-center justify-between p-4">
+      <div className="mx-auto flex max-w-screen-2xl items-center justify-between p-2 sm:p-4">
         <div className="flex items-center space-x-2 hover:cursor-pointer hover:opacity-80">
-          {/* <Rocket className="size-6" />
-          <Link href="/" className="text-xl font-bold">
-            Pit Lane Travel
-          </Link> */}
-          {/* <Rocket className="size-6" /> */}
           <Link href="/" className="text-xl font-bold">
             <PitLaneTravelLogo
-              className="h-[4vh]"
+              className="h-[32px] max-h-[40px] sm:h-[4vh]"
               onClick={() => router.push("/")}
             />
           </Link>
         </div>
 
-        <nav className="absolute left-1/2 hidden -translate-x-1/2 space-x-2 font-semibold md:flex">
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 space-x-1 font-semibold lg:flex lg:space-x-2">
           {navLinks.map(link => (
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-full px-3 py-1 hover:opacity-80"
+              className="whitespace-nowrap rounded-full px-2 py-1 text-sm hover:opacity-80 lg:px-3 lg:text-base"
             >
               {link.label}
             </Link>
@@ -92,7 +87,7 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="rounded-full px-3 py-1 hover:opacity-80"
+                className="whitespace-nowrap rounded-full px-2 py-1 text-sm hover:opacity-80 lg:px-3 lg:text-base"
               >
                 {link.label}
               </Link>
@@ -100,16 +95,29 @@ export default function Header() {
           </SignedIn>
         </nav>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-2 lg:gap-4">
           <ThemeSwitcher />
 
           <SignedOut>
-            <SignInButton>
-              <Button variant="outline">Login</Button>
-            </SignInButton>
+            <div className="hidden lg:block">
+              <SignInButton>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-sm lg:text-base"
+                >
+                  Login
+                </Button>
+              </SignInButton>
+            </div>
 
             <SignUpButton>
-              <Button className="bg-blue-500 hover:bg-blue-600">Sign Up</Button>
+              <Button
+                className="whitespace-nowrap bg-blue-500 text-sm hover:bg-blue-600 lg:text-base"
+                size="sm"
+              >
+                Sign Up
+              </Button>
             </SignUpButton>
           </SignedOut>
 
@@ -117,17 +125,18 @@ export default function Header() {
             <UserButton />
           </SignedIn>
 
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
               onClick={toggleMenu}
               aria-label="Toggle menu"
+              className="p-1 sm:p-2"
             >
               {isMenuOpen ? (
-                <X className="size-6" />
+                <X className="size-5 sm:size-6" />
               ) : (
-                <Menu className="size-6" />
+                <Menu className="size-5 sm:size-6" />
               )}
             </Button>
           </div>
@@ -135,12 +144,12 @@ export default function Header() {
       </div>
 
       {isMenuOpen && (
-        <nav className="bg-primary-foreground text-primary p-4 md:hidden">
-          <ul className="space-y-2">
+        <nav className="bg-background/95 fixed inset-0 top-[57px] backdrop-blur-sm md:hidden">
+          <ul className="mx-auto max-w-screen-2xl space-y-4 p-6">
             <li>
               <Link
                 href="/"
-                className="block hover:underline"
+                className="hover:text-primary/80 block text-lg font-medium"
                 onClick={toggleMenu}
               >
                 Home
@@ -150,7 +159,7 @@ export default function Header() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="block hover:underline"
+                  className="hover:text-primary/80 block text-lg font-medium"
                   onClick={toggleMenu}
                 >
                   {link.label}
@@ -162,7 +171,7 @@ export default function Header() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="block hover:underline"
+                    className="hover:text-primary/80 block text-lg font-medium"
                     onClick={toggleMenu}
                   >
                     {link.label}
@@ -170,6 +179,15 @@ export default function Header() {
                 </li>
               ))}
             </SignedIn>
+            <SignedOut>
+              <li className="pt-4 sm:hidden">
+                <SignInButton>
+                  <Button variant="outline" className="w-full">
+                    Login
+                  </Button>
+                </SignInButton>
+              </li>
+            </SignedOut>
           </ul>
         </nav>
       )}

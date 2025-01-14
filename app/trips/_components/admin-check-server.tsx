@@ -2,9 +2,8 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { getProfileAction } from "@/actions/db/profiles-actions"
-import { AdminButton } from "@/components/admin/admin-buttons"
 
-export async function AdminCheck() {
+export async function getIsAdmin() {
   const { userId } = await auth()
   let isAdmin = false
 
@@ -15,7 +14,5 @@ export async function AdminCheck() {
     }
   }
 
-  if (!isAdmin) return null
-
-  return <AdminButton type="trips" />
+  return isAdmin
 }
