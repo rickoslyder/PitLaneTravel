@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { SelectTicket } from "@/db/schema"
+import { SelectTicket, SelectTicketFeature } from "@/db/schema"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -30,7 +30,10 @@ import { TicketFeaturesCell } from "./ticket-features-cell"
 import { ManageTicketFeaturesDialog } from "./manage-ticket-features-dialog"
 
 export const columns: ColumnDef<
-  SelectTicket & { race: { name: string; season: number } }
+  SelectTicket & {
+    race: { name: string; season: number }
+    features?: SelectTicketFeature[]
+  }
 >[] = [
   {
     accessorKey: "title",
@@ -105,7 +108,7 @@ export const columns: ColumnDef<
   {
     accessorKey: "features",
     header: "Features",
-    cell: ({ row }) => <TicketFeaturesCell ticketId={Number(row.original.id)} />
+    cell: ({ row }) => <TicketFeaturesCell features={row.original.features} />
   },
   {
     id: "actions",
@@ -198,11 +201,12 @@ function ActionsCell({ row }: ActionsCellProps) {
           <Settings className="mr-2 size-4" />
           View Race Admin
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <ManageTicketFeaturesDialog ticket={row.original}>
-            <button className="w-full text-left">Manage Features</button>
-          </ManageTicketFeaturesDialog>
-        </DropdownMenuItem>
+        <ManageTicketFeaturesDialog ticket={row.original}>
+          <DropdownMenuItem onSelect={e => e.preventDefault()}>
+            <Settings className="mr-2 size-4" />
+            Manage Features
+          </DropdownMenuItem>
+        </ManageTicketFeaturesDialog>
       </DropdownMenuContent>
     </DropdownMenu>
   )

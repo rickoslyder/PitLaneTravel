@@ -5,14 +5,16 @@ import {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
+  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  RowSelectionState
+  OnChangeFn
 } from "@tanstack/react-table"
+
 import {
   Table,
   TableBody,
@@ -21,146 +23,96 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight
-} from "lucide-react"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
+interface DataTableProps<TData> {
+  columns: ColumnDef<TData, any>[]
   data: TData[]
-  searchKey?: string
-  searchPlaceholder?: string
   pageSize?: number
   currentPage?: number
   onPageChange?: (page: number) => void
+  columnVisibility?: VisibilityState
+  onColumnVisibilityChange?: OnChangeFn<VisibilityState>
+  searchKey?: string
+  searchPlaceholder?: string
   onRowsSelected?: (rows: TData[]) => void
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData>({
   columns,
   data,
-  searchKey,
-  searchPlaceholder = "Search...",
   pageSize = 10,
   currentPage = 0,
   onPageChange,
+  columnVisibility,
+  onColumnVisibilityChange,
+  searchKey,
+  searchPlaceholder,
   onRowsSelected
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
-  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
+  const [globalFilter, setGlobalFilter] = React.useState("")
+  const [rowSelection, setRowSelection] = React.useState({})
 
-  const table = useReactTable({
-    data,
-    columns: [
-      {
-        id: "select",
-        header: ({ table }) => (
-          <Checkbox
-            checked={table.getIsAllPageRowsSelected()}
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-            aria-label="Select all"
-          />
-        ),
-        cell: ({ row }) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-            aria-label="Select row"
-          />
-        ),
-        enableSorting: false,
-        enableHiding: false
-      },
-      ...columns
-    ],
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      rowSelection,
-      pagination: {
-        pageIndex: currentPage,
-        pageSize
-      }
-    },
-    manualPagination: true,
-    pageCount: Math.ceil(data.length / pageSize),
-    onPaginationChange: updater => {
-      if (typeof updater === "function") {
-        const state = updater({
-          pageIndex: currentPage,
-          pageSize
-        })
-        onPageChange?.(state.pageIndex)
-      }
-    }
-  })
-
-  // Update table when page size changes
-  React.useEffect(() => {
-    table.setPageSize(pageSize)
-  }, [pageSize, table])
-
-  // Update table when current page changes externally
-  React.useEffect(() => {
-    table.setPageIndex(currentPage)
-  }, [currentPage, table])
-
-  // Notify parent of selected rows
   React.useEffect(() => {
     if (onRowsSelected) {
       const selectedRows = table
-        .getSelectedRowModel()
-        .rows.map(row => row.original as TData)
+        .getFilteredSelectedRowModel()
+        .rows.map(row => row.original)
       onRowsSelected(selectedRows)
     }
-  }, [rowSelection, table, onRowsSelected])
+  }, [rowSelection])
 
-  const visibleData = React.useMemo(() => {
-    const start = currentPage * pageSize
-    const end = start + pageSize
-    return data.slice(start, end)
-  }, [data, currentPage, pageSize])
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    onColumnVisibilityChange,
+    onRowSelectionChange: setRowSelection,
+    enableRowSelection: true,
+    state: {
+      sorting,
+      columnFilters,
+      globalFilter,
+      pagination: {
+        pageIndex: currentPage,
+        pageSize
+      },
+      columnVisibility: columnVisibility || {},
+      rowSelection
+    }
+  })
 
   return (
-    <div className="space-y-4">
+    <div>
       {searchKey && (
         <div className="flex items-center py-4">
           <Input
-            placeholder={searchPlaceholder}
-            value={
-              (table.getColumn(searchKey)?.getFilterValue() as string) ?? ""
-            }
-            onChange={event =>
-              table.getColumn(searchKey)?.setFilterValue(event.target.value)
-            }
+            placeholder={searchPlaceholder || "Search..."}
+            value={globalFilter}
+            onChange={event => setGlobalFilter(event.target.value)}
             className="max-w-sm"
           />
         </div>
       )}
-      <div className="rounded-md border">
+      <div className="relative w-full overflow-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="whitespace-nowrap">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -174,32 +126,26 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {visibleData.length ? (
-              visibleData.map(row => {
-                const tableRow = table
-                  .getRowModel()
-                  .rows.find(r => r.original === row)
-                if (!tableRow) return null
-                return (
-                  <TableRow
-                    key={tableRow.id}
-                    data-state={tableRow.getIsSelected() && "selected"}
-                  >
-                    {tableRow.getVisibleCells().map(cell => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                )
-              })
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map(row => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map(cell => (
+                    <TableCell key={cell.id} className="whitespace-nowrap">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + 1}
+                  colSpan={columns.length}
                   className="h-24 text-center"
                 >
                   No results.
@@ -209,54 +155,23 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="text-muted-foreground text-sm">
-          Showing {visibleData.length} of {data.length} results
-          <br />
-          Page {currentPage + 1} of {Math.ceil(data.length / pageSize)}
-          {table.getSelectedRowModel().rows.length > 0 && (
-            <>
-              <br />
-              {table.getSelectedRowModel().rows.length} rows selected
-            </>
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange?.(0)}
-            disabled={currentPage === 0}
-          >
-            <ChevronsLeft className="size-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange?.(currentPage - 1)}
-            disabled={currentPage === 0}
-          >
-            <ChevronLeft className="size-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange?.(currentPage + 1)}
-            disabled={currentPage >= Math.ceil(data.length / pageSize) - 1}
-          >
-            <ChevronRight className="size-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              onPageChange?.(Math.ceil(data.length / pageSize) - 1)
-            }
-            disabled={currentPage >= Math.ceil(data.length / pageSize) - 1}
-          >
-            <ChevronsRight className="size-4" />
-          </Button>
-        </div>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Next
+        </Button>
       </div>
     </div>
   )

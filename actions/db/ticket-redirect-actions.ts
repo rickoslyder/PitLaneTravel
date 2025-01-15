@@ -35,7 +35,7 @@ export async function generateMaskedUrlAction(
       return {
         isSuccess: true,
         message: "Retrieved existing masked URL",
-        data: `${baseUrl}/redirect/${existingRedirect.slug}`
+        data: `${baseUrl}/api/redirect/${existingRedirect.slug}`
       }
     }
 
@@ -50,7 +50,7 @@ export async function generateMaskedUrlAction(
     return {
       isSuccess: true,
       message: "Generated new masked URL",
-      data: `${baseUrl}/redirect/${slug}`
+      data: `${baseUrl}/api/redirect/${slug}`
     }
   } catch (error) {
     console.error("Error generating masked URL:", error)

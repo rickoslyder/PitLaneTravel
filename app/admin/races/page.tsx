@@ -45,7 +45,7 @@ export default async function RacesPage() {
     .orderBy(desc(racesTable.date))
 
   return (
-    <div className="space-y-8">
+    <div className="container space-y-8 p-8">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Races</h2>
         <p className="text-muted-foreground">
@@ -53,7 +53,9 @@ export default async function RacesPage() {
         </p>
       </div>
 
-      <RacesTable data={races} />
+      <div className="rounded-md border">
+        <RacesTable data={races} />
+      </div>
     </div>
   )
 }

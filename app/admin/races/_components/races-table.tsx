@@ -4,7 +4,7 @@ import { useState } from "react"
 import { SelectRace } from "@/db/schema"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Trash, History } from "lucide-react"
+import { Plus, Trash, History, Settings } from "lucide-react"
 import { DataTable } from "@/components/ui/data-table"
 import { racesColumns } from "./races-columns"
 import { CreateRaceDialog } from "./create-race-dialog"
@@ -19,9 +19,24 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu"
+import { VisibilityState } from "@tanstack/react-table"
 
 interface RacesTableProps {
   data: SelectRace[]
+}
+
+const defaultVisibility: VisibilityState = {
+  season: false,
+  country: false,
+  status: false
 }
 
 export function RacesTable({ data: initialData }: RacesTableProps) {
@@ -33,6 +48,8 @@ export function RacesTable({ data: initialData }: RacesTableProps) {
   const [pageSize, setPageSize] = useState(10)
   const [currentPage, setCurrentPage] = useState(0)
   const [data, setData] = useState(initialData)
+  const [columnVisibility, setColumnVisibility] =
+    useState<VisibilityState>(defaultVisibility)
 
   const handleDelete = async (id: string) => {
     try {
@@ -90,8 +107,8 @@ export function RacesTable({ data: initialData }: RacesTableProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <Input
             placeholder="Filter races..."
             className="max-w-xs"
@@ -112,6 +129,35 @@ export function RacesTable({ data: initialData }: RacesTableProps) {
               <SelectItem value="50">50 per page</SelectItem>
             </SelectContent>
           </Select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Settings className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {racesColumns.map(column => {
+                if (!column.id) return null
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={columnVisibility[column.id] !== false}
+                    onCheckedChange={value =>
+                      setColumnVisibility(prev => ({
+                        ...prev,
+                        [column.id!]: value
+                      }))
+                    }
+                  >
+                    {column.id.replace(/([A-Z])/g, " $1").toLowerCase()}
+                  </DropdownMenuCheckboxItem>
+                )
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="mr-2 size-4" />
@@ -119,49 +165,53 @@ export function RacesTable({ data: initialData }: RacesTableProps) {
         </Button>
       </div>
 
-      <DataTable
-        columns={[
-          ...racesColumns,
-          {
-            id: "actions",
-            cell: ({ row }) => (
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setSelectedRace(row.original)
-                    setIsEditDialogOpen(true)
-                  }}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setSelectedRace(row.original)
-                    setIsHistoryDialogOpen(true)
-                  }}
-                >
-                  <History className="mr-2 size-4" />
-                  History
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleDelete(row.original.id)}
-                >
-                  <Trash className="text-destructive size-4" />
-                </Button>
-              </div>
-            )
-          }
-        ]}
-        data={[...filteredData].sort(
-          (a, b) => a.date.getTime() - b.date.getTime()
-        )}
-        pageSize={pageSize}
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-      />
+      <div className="rounded-md border">
+        <DataTable
+          columns={[
+            ...racesColumns,
+            {
+              id: "actions",
+              cell: ({ row }) => (
+                <div className="flex items-center justify-end gap-2 px-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setSelectedRace(row.original)
+                      setIsEditDialogOpen(true)
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setSelectedRace(row.original)
+                      setIsHistoryDialogOpen(true)
+                    }}
+                  >
+                    <History className="mr-2 size-4" />
+                    History
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleDelete(row.original.id)}
+                  >
+                    <Trash className="text-destructive size-4" />
+                  </Button>
+                </div>
+              )
+            }
+          ]}
+          data={[...filteredData].sort(
+            (a, b) => a.date.getTime() - b.date.getTime()
+          )}
+          pageSize={pageSize}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          columnVisibility={columnVisibility}
+          onColumnVisibilityChange={setColumnVisibility}
+        />
+      </div>
 
       <CreateRaceDialog
         open={isCreateDialogOpen}

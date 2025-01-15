@@ -73,7 +73,7 @@ export async function generateMetadata({
   const locationInfo = circuit?.location ? ` in ${circuit.location}` : ""
 
   return {
-    title: `${race.name} 2025 | F1 Race Weekend Guide | PitLane Travel`,
+    title: `${race.name} | F1 Race Weekend Guide | PitLane Travel`,
     description: `Plan your ${race.name} experience at ${circuitName}${locationInfo}. Get tickets, find flights & accommodation, and discover local attractions for an unforgettable F1 weekend.`
   }
 }
@@ -206,7 +206,7 @@ export default async function RacePage({ params }: RacePageProps) {
   }
 
   return (
-    <div className="container space-y-8 py-8">
+    <div className="space-y-8 sm:container sm:py-8">
       <RaceDetailsPage
         race={raceWithDetails}
         userId={userId}

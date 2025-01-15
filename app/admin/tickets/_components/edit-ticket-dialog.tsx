@@ -40,11 +40,12 @@ import {
   getTicketPricingHistoryAction,
   updateTicketPricingAction
 } from "@/actions/db/tickets-actions"
-import { SelectTicket } from "@/db/schema"
+import { SelectTicket, SelectTicketPricing } from "@/db/schema"
 import { useAuth } from "@clerk/nextjs"
 import { SUPPORTED_CURRENCIES, DEFAULT_CURRENCY } from "@/config/currencies"
-import { Loader2 } from "lucide-react"
+import { Loader2, Check, X } from "lucide-react"
 import { Label } from "@/components/ui/label"
+import { generateTicketDescriptionAction } from "@/actions/db/ai-actions"
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -65,14 +66,55 @@ type FormData = z.infer<typeof formSchema>
 
 interface EditTicketDialogProps {
   children: React.ReactNode
-  ticket: SelectTicket & { pricing: { price: string; currency: string } }
+  ticket: SelectTicket & {
+    pricing?: SelectTicketPricing
+    race: {
+      id: string
+      name: string
+      season: number
+    }
+  }
 }
 
 export function EditTicketDialog({ children, ticket }: EditTicketDialogProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const router = useRouter()
+  const [formData, setFormData] = useState<FormData | null>(null)
+  const [pricingHistory, setPricingHistory] = useState<SelectTicketPricing[]>(
+    []
+  )
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generateResult, setGenerateResult] = useState<
+    "success" | "error" | null
+  >(null)
   const { userId } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!open) {
+      setGenerateResult(null)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (generateResult) {
+      const timeout = setTimeout(() => {
+        setGenerateResult(null)
+      }, 2000)
+      return () => clearTimeout(timeout)
+    }
+  }, [generateResult])
+
+  useEffect(() => {
+    async function fetchPricingHistory() {
+      if (!open) return
+      const result = await getTicketPricingHistoryAction(ticket.id)
+      if (result.isSuccess) {
+        setPricingHistory(result.data)
+      }
+    }
+    fetchPricingHistory()
+  }, [open, ticket.id])
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -85,8 +127,8 @@ export function EditTicketDialog({ children, ticket }: EditTicketDialogProps) {
       daysIncluded: ticket.daysIncluded as Record<string, boolean>,
       isChildTicket: ticket.isChildTicket,
       resellerUrl: ticket.resellerUrl,
-      price: parseFloat(ticket.pricing.price),
-      currency: ticket.pricing.currency
+      price: ticket.pricing ? Number(ticket.pricing.price) : 0,
+      currency: ticket.pricing?.currency || DEFAULT_CURRENCY.code
     }
   })
 
@@ -109,10 +151,13 @@ export function EditTicketDialog({ children, ticket }: EditTicketDialogProps) {
 
       if (result.isSuccess) {
         // Update pricing if changed
-        if (
-          price !== parseFloat(ticket.pricing.price) ||
-          currency !== ticket.pricing.currency
-        ) {
+        const currentPrice = ticket.pricing
+          ? parseFloat(ticket.pricing.price)
+          : 0
+        const currentCurrency =
+          ticket.pricing?.currency || DEFAULT_CURRENCY.code
+
+        if (price !== currentPrice || currency !== currentCurrency) {
           const pricingResult = await updateTicketPricingAction(ticket.id, {
             price: Number(price.toFixed(2)),
             currency,
@@ -149,7 +194,7 @@ export function EditTicketDialog({ children, ticket }: EditTicketDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Edit Ticket</DialogTitle>
           <DialogDescription>
@@ -177,7 +222,61 @@ export function EditTicketDialog({ children, ticket }: EditTicketDialogProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Description</FormLabel>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="relative h-7 min-w-24"
+                      disabled={isGenerating}
+                      onClick={async () => {
+                        try {
+                          setIsGenerating(true)
+                          setGenerateResult(null)
+                          const result = await generateTicketDescriptionAction(
+                            ticket.title,
+                            ticket.race.name,
+                            field.value
+                          )
+                          if (result.isSuccess) {
+                            field.onChange(result.data)
+                            setGenerateResult("success")
+                            toast.success("Description generated successfully")
+                          } else {
+                            setGenerateResult("error")
+                            toast.error("Failed to generate description")
+                          }
+                        } catch (error) {
+                          setGenerateResult("error")
+                          toast.error("Error generating description")
+                        } finally {
+                          setIsGenerating(false)
+                        }
+                      }}
+                    >
+                      {isGenerating ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="size-3 animate-spin" />
+                          <span>Generating...</span>
+                        </div>
+                      ) : generateResult === "success" ? (
+                        <div className="flex items-center gap-2">
+                          <Check className="size-3 text-green-500" />
+                          <span>Generated</span>
+                        </div>
+                      ) : generateResult === "error" ? (
+                        <div className="flex items-center gap-2">
+                          <X className="size-3 text-red-500" />
+                          <span>Failed</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span>Generate New</span>
+                        </div>
+                      )}
+                    </Button>
+                  </div>
                   <FormControl>
                     <Textarea {...field} />
                   </FormControl>

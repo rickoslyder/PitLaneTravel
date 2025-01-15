@@ -250,27 +250,58 @@ export async function getTicketPricingHistoryAction(
   }
 }
 
-export async function getTicketsAction(): Promise<ActionState<(SelectTicket & { race: { name: string; season: number } })[]>> {
+export async function getTicketsAction(): Promise<ActionState<(SelectTicket & { race: { id: string; name: string; season: number }; pricing?: SelectTicketPricing; features?: SelectTicketFeature[] })[]>> {
   try {
     const tickets = await db
       .select({
         ticket: ticketsTable,
         race: {
+          id: racesTable.id,
           name: racesTable.name,
           season: racesTable.season
-        }
+        },
+        pricing: ticketPricingTable,
+        feature: ticketFeaturesTable
       })
       .from(ticketsTable)
       .innerJoin(racesTable, eq(ticketsTable.raceId, racesTable.id))
+      .leftJoin(
+        ticketPricingTable,
+        and(
+          eq(ticketPricingTable.ticketId, ticketsTable.id),
+          isNull(ticketPricingTable.validTo)
+        )
+      )
+      .leftJoin(
+        ticketFeatureMappingsTable,
+        eq(ticketFeatureMappingsTable.ticketId, ticketsTable.id)
+      )
+      .leftJoin(
+        ticketFeaturesTable,
+        eq(ticketFeaturesTable.id, ticketFeatureMappingsTable.featureId)
+      )
       .orderBy(desc(ticketsTable.createdAt))
+
+    // Group features by ticket
+    const groupedTickets = tickets.reduce((acc, row) => {
+      const ticketId = row.ticket.id
+      if (!acc[ticketId]) {
+        acc[ticketId] = {
+          ...row.ticket,
+          race: row.race,
+          pricing: row.pricing || undefined,
+          features: row.feature ? [row.feature] : []
+        }
+      } else if (row.feature) {
+        acc[ticketId].features.push(row.feature)
+      }
+      return acc
+    }, {} as Record<number, any>)
 
     return {
       isSuccess: true,
       message: "Tickets retrieved successfully",
-      data: tickets.map(({ ticket, race }) => ({
-        ...ticket,
-        race
-      }))
+      data: Object.values(groupedTickets)
     }
   } catch (error) {
     console.error("Error getting tickets:", error)
