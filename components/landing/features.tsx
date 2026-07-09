@@ -34,7 +34,7 @@ const features: FeatureProps[] = [
   {
     title: "Race Discovery",
     description:
-      "Find and compare F1 races worldwide with our comprehensive search tools",
+      "Find and compare races across every series worldwide with our comprehensive search tools",
     icon: Search
   },
   {
@@ -52,13 +52,13 @@ const features: FeatureProps[] = [
   {
     title: "Community Reviews",
     description:
-      "Read and share experiences from fellow F1 fans who've attended races",
+      "Read and share experiences from fellow motorsport fans who've attended races",
     icon: Users
   },
   {
     title: "Race Guides",
     description:
-      "Essential tips and local information for each Grand Prix weekend",
+      "Essential tips and local information for each race weekend",
     icon: Flag
   },
   {
@@ -74,7 +74,7 @@ const features: FeatureProps[] = [
   },
   {
     title: "Trip Planning",
-    description: "Tools to help organize your perfect F1 race weekend",
+    description: "Tools to help organize your perfect race weekend",
     icon: Calendar
   }
 ]
@@ -105,10 +105,10 @@ export const FeaturesSection = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <h2 className="mb-4 text-center text-4xl font-bold">
-            Plan Your Perfect F1 Weekend
+            Plan Your Perfect Race Weekend
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            Everything you need to research, plan, and organize your Formula 1
+            Everything you need to research, plan, and organize your race
             race experience.
           </p>
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">

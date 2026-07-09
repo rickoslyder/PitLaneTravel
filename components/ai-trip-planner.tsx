@@ -125,7 +125,7 @@ export function AiTripPlanner({
             {
               id: "init",
               role: "system",
-              content: `Welcome to your F1 trip planning assistant! I'm here to help you plan your trip to the ${tripDetails.race.name} at ${tripDetails.race.circuit?.name || "the circuit"}.
+              content: `Welcome to your race trip planning assistant! I'm here to help you plan your trip to the ${tripDetails.race.name} at ${tripDetails.race.circuit?.name || "the circuit"}.
 
 What would you like to know about:
 - Race weekend schedule and events
@@ -206,7 +206,7 @@ Just ask me anything about your trip!`
           <div>
             <CardTitle>AI Trip Planner</CardTitle>
             <CardDescription>
-              Get personalized suggestions for your F1 trip
+              Get personalized suggestions for your race trip
             </CardDescription>
           </div>
           <Badge variant="secondary" className="text-sm">

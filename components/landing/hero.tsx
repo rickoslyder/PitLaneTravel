@@ -307,7 +307,7 @@ export const HeroSection = () => {
             <Calendar className="size-8 text-[#E10600]" />
             <h3 className="text-lg font-semibold">24 Race Weekends</h3>
             <p className="text-muted-foreground text-center">
-              Experience the thrill of F1 at iconic circuits worldwide
+              Experience the thrill of racing at iconic circuits worldwide
             </p>
           </div>
 

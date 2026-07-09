@@ -18,7 +18,7 @@ const features = [
       "Access trustworthy, up-to-date advice on grandstand views, transportation, and local logistics.",
     icon: Info,
     details:
-      "Our team of F1 experts constantly updates our database with the latest information about each circuit, ensuring you have access to the most accurate and reliable data for your trip planning."
+      "Our team of motorsport experts constantly updates our database with the latest information about each circuit, ensuring you have access to the most accurate and reliable data for your trip planning."
   },
   {
     title: "Time-Saving Planning",
@@ -34,7 +34,7 @@ const features = [
       "Make informed choices about travel routes, budget options, and potential costs with our expert guidance.",
     icon: ThumbsUp,
     details:
-      "With our comprehensive cost breakdowns, user reviews, and expert recommendations, you can make decisions with confidence, knowing you're getting the best value for your F1 experience."
+      "With our comprehensive cost breakdowns, user reviews, and expert recommendations, you can make decisions with confidence, knowing you're getting the best value for your race experience."
   }
 ]
 
@@ -53,7 +53,7 @@ export default function WhyChooseFeaturesSection() {
             Why Choose PitLane Travel?
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            Experience Formula 1 travel planning done right, with expert
+            Experience motorsport travel planning done right, with expert
             guidance every step of the way.
           </p>
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-3">

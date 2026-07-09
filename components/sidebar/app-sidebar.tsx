@@ -45,7 +45,7 @@ import Link from "next/link"
 
 const data = {
   user: {
-    name: "F1 Fan",
+    name: "Race Fan",
     email: "fan@example.com",
     avatar: "/avatars/default.jpg"
   },
@@ -64,7 +64,7 @@ const data = {
       ]
     },
     {
-      title: "My F1 Trips",
+      title: "My Trips",
       url: "/trips",
       icon: Calendar,
       isPremium: true,

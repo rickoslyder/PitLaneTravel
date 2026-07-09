@@ -8,7 +8,7 @@ const testimonials = [
   {
     name: "Sarah L.",
     avatar: "SL",
-    text: "PitLane Travel made planning my first F1 trip a breeze. I felt so confident and prepared!",
+    text: "PitLane Travel made planning my first race trip a breeze. I felt so confident and prepared!",
     image: "/placeholder.svg?height=100&width=100"
   },
   {
@@ -38,7 +38,7 @@ export default function TestimonialSection() {
             What Our Users Say
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            Join thousands of F1 fans who've discovered their perfect race
+            Join thousands of race fans who've discovered their perfect race
             experience with PitLane Travel.
           </p>
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-3">
