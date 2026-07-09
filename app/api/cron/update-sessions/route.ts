@@ -4,19 +4,25 @@ import { racesTable, supportingSeriesTable } from "@/db/schema"
 import { and, gte, lte, isNotNull } from "drizzle-orm"
 import { RaceMapper } from "@/services/openf1/race-mapper"
 import { SupportingSeriesMapper } from "@/services/openf1/supporting-series-mapper"
+import { verifyCronRequest } from "@/lib/cron"
 
-// Only allow POST requests from Vercel Cron
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
-export async function POST(req: Request) {
-  try {
-    // Verify the request is from Vercel Cron
-    const authHeader = req.headers.get("authorization")
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return new NextResponse("Unauthorized", { status: 401 })
-    }
+// Vercel Cron invokes routes with GET; keep POST for manual/authenticated triggers.
+export async function GET(req: Request) {
+  return handleUpdateSessions(req)
+}
 
+export async function POST(req: Request) {
+  return handleUpdateSessions(req)
+}
+
+async function handleUpdateSessions(req: Request) {
+  const denied = verifyCronRequest(req)
+  if (denied) return denied
+
+  try {
     const now = new Date()
     const windowStart = new Date(now.getTime() - 2 * 60 * 60 * 1000) // 2 hours ago
     const windowEnd = new Date(now.getTime() + 2 * 60 * 60 * 1000) // 2 hours from now

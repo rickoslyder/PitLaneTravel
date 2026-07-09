@@ -5,6 +5,7 @@ import { meetupsTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { InsertMeetup, SelectMeetup } from "@/db/schema"
 import { and, eq, desc } from "drizzle-orm"
+import { assertOwnershipOrAdmin } from "@/lib/auth"
 
 export async function createMeetupAction(
   meetup: InsertMeetup
@@ -27,6 +28,7 @@ export async function getMeetupAction(
   userId: string
 ): Promise<ActionState<SelectMeetup>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [meetup] = await db
       .select()
       .from(meetupsTable)
@@ -74,6 +76,7 @@ export async function updateMeetupAction(
   data: Partial<InsertMeetup>
 ): Promise<ActionState<SelectMeetup>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [updatedMeetup] = await db
       .update(meetupsTable)
       .set(data)
@@ -100,6 +103,7 @@ export async function deleteMeetupAction(
   userId: string
 ): Promise<ActionState<void>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     await db
       .delete(meetupsTable)
       .where(and(eq(meetupsTable.id, id), eq(meetupsTable.userId, userId)))
@@ -120,6 +124,7 @@ export async function joinMeetupAction(
   userId: string
 ): Promise<ActionState<SelectMeetup>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [meetup] = await db
       .select()
       .from(meetupsTable)
@@ -165,6 +170,7 @@ export async function leaveMeetupAction(
   userId: string
 ): Promise<ActionState<SelectMeetup>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [meetup] = await db
       .select()
       .from(meetupsTable)

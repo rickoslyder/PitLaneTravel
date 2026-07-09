@@ -7,6 +7,7 @@ import {
   shouldUpdateWeatherAction,
   storeRaceWeatherAction
 } from "@/actions/db/race-weather-actions"
+import { verifyCronRequest } from "@/lib/cron"
 
 interface RaceWithCircuit {
   id: string
@@ -20,7 +21,10 @@ interface RaceWithCircuit {
   } | null
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const denied = verifyCronRequest(req)
+  if (denied) return denied
+
   try {
     // Get all upcoming races
     const races = await db

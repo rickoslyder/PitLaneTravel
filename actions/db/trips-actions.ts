@@ -5,6 +5,7 @@ import { InsertTrip, SelectTrip, tripsTable, racesTable, circuitsTable } from "@
 import { ActionState } from "@/types"
 import { eq, and, or } from "drizzle-orm"
 import { relations } from "drizzle-orm"
+import { requireAuth, assertOwnershipOrAdmin, AuthError } from "@/lib/auth"
 
 // Define relations
 const tripRelations = relations(tripsTable, ({ one }) => ({
@@ -36,13 +37,21 @@ export async function createTripAction(
   trip: InsertTrip
 ): Promise<ActionState<SelectTrip>> {
   try {
-    const [newTrip] = await db.insert(tripsTable).values(trip).returning()
+    // Force ownership to the authenticated user; never trust a client-supplied userId.
+    const userId = await requireAuth()
+    const [newTrip] = await db
+      .insert(tripsTable)
+      .values({ ...trip, userId })
+      .returning()
     return {
       isSuccess: true,
       message: "Trip created successfully",
       data: newTrip
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error creating trip:", error)
     return { isSuccess: false, message: "Failed to create trip" }
   }
@@ -53,6 +62,7 @@ export async function getTripAction(
   userId: string
 ): Promise<ActionState<SelectTrip>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [trip] = await db
       .select()
       .from(tripsTable)
@@ -73,6 +83,9 @@ export async function getTripAction(
       data: trip
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error getting trip:", error)
     return { isSuccess: false, message: "Failed to get trip" }
   }
@@ -82,6 +95,7 @@ export async function getUserTripsAction(
   userId: string
 ): Promise<ActionState<TripWithRace[]>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const trips = await db
       .select()
       .from(tripsTable)
@@ -107,6 +121,9 @@ export async function getUserTripsAction(
       })) as TripWithRace[]
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error getting trips:", error)
     return { isSuccess: false, message: "Failed to get trips" }
   }
@@ -117,6 +134,7 @@ export async function getUserTripForRaceAction(
   raceId: string
 ): Promise<ActionState<SelectTrip | undefined>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [trip] = await db
       .select()
       .from(tripsTable)
@@ -134,6 +152,9 @@ export async function getUserTripForRaceAction(
       data: trip
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error getting trip for race:", error)
     return { isSuccess: false, message: "Failed to get trip for race" }
   }
@@ -145,9 +166,12 @@ export async function updateTripAction(
   data: Partial<InsertTrip>
 ): Promise<ActionState<SelectTrip>> {
   try {
+    await assertOwnershipOrAdmin(userId)
+    // Never allow the update payload to reassign ownership.
+    const { userId: _ignored, ...safeData } = data
     const [updatedTrip] = await db
       .update(tripsTable)
-      .set(data)
+      .set(safeData)
       .where(and(eq(tripsTable.id, id), eq(tripsTable.userId, userId)))
       .returning()
 
@@ -161,6 +185,9 @@ export async function updateTripAction(
       data: updatedTrip
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error updating trip:", error)
     return { isSuccess: false, message: "Failed to update trip" }
   }
@@ -171,6 +198,7 @@ export async function deleteTripAction(
   userId: string
 ): Promise<ActionState<void>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     await db
       .delete(tripsTable)
       .where(and(eq(tripsTable.id, id), eq(tripsTable.userId, userId)))
@@ -180,6 +208,9 @@ export async function deleteTripAction(
       data: undefined
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error deleting trip:", error)
     return { isSuccess: false, message: "Failed to delete trip" }
   }
@@ -191,6 +222,7 @@ export async function shareTripAction(
   shareWithUserId: string
 ): Promise<ActionState<SelectTrip>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [trip] = await db
       .select()
       .from(tripsTable)
@@ -217,6 +249,9 @@ export async function shareTripAction(
       data: updatedTrip
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error sharing trip:", error)
     return { isSuccess: false, message: "Failed to share trip" }
   }

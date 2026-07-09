@@ -5,6 +5,7 @@ import { savedItinerariesTable } from "@/db/schema"
 import { InsertSavedItinerary, SelectSavedItinerary } from "@/db/schema"
 import { ActionState } from "@/types"
 import { and, eq } from "drizzle-orm"
+import { assertOwnershipOrAdmin } from "@/lib/auth"
 
 export async function createItineraryAction(
   userId: string,
@@ -41,6 +42,7 @@ export async function getItinerariesAction(
   raceId: string
 ): Promise<ActionState<SelectSavedItinerary[]>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const itineraries = await db
       .select()
       .from(savedItinerariesTable)
@@ -68,6 +70,7 @@ export async function updateItineraryAction(
   data: Partial<InsertSavedItinerary>
 ): Promise<ActionState<SelectSavedItinerary>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [updatedItinerary] = await db
       .update(savedItinerariesTable)
       .set({
@@ -102,6 +105,7 @@ export async function deleteItineraryAction(
   id: string
 ): Promise<ActionState<void>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     await db
       .delete(savedItinerariesTable)
       .where(

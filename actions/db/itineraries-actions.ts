@@ -10,6 +10,7 @@ import {
 } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq, and } from "drizzle-orm"
+import { assertOwnershipOrAdmin } from "@/lib/auth"
 
 interface ItineraryData {
   raceId: string
@@ -60,6 +61,7 @@ export async function getItineraryAction(
   id: string
 ): Promise<ActionState<SelectSavedItinerary>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [itinerary] = await db
       .select()
       .from(savedItinerariesTable)
@@ -87,6 +89,7 @@ export async function getUserItinerariesAction(
   userId: string
 ): Promise<ActionState<SelectSavedItinerary[]>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const itineraries = await db
       .select()
       .from(savedItinerariesTable)
@@ -110,6 +113,7 @@ export async function getRaceItinerariesAction(
   raceId: string
 ): Promise<ActionState<SelectSavedItinerary[]>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const itineraries = await db
       .select()
       .from(savedItinerariesTable)
@@ -139,6 +143,7 @@ export async function updateItineraryAction(
   itinerary: any
 ): Promise<ActionState<SelectSavedItinerary>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [updatedItinerary] = await db
       .update(savedItinerariesTable)
       .set({
@@ -171,6 +176,7 @@ export async function deleteItineraryAction(
   id: string
 ): Promise<ActionState<void>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     await db
       .delete(savedItinerariesTable)
       .where(
@@ -194,6 +200,7 @@ export async function getItineraryWithRaceAction(
   id: string
 ): Promise<ActionState<SelectSavedItinerary & { race: RaceDetails }>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const result = await db
       .select({
         id: savedItinerariesTable.id,

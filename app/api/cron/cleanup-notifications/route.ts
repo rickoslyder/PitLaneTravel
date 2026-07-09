@@ -1,11 +1,15 @@
 import { db } from "@/db/db"
 import { notificationsTable, waitlistTable } from "@/db/schema"
 import { lt, eq } from "drizzle-orm"
+import { verifyCronRequest } from "@/lib/cron"
 
 const NOTIFICATION_RETENTION_DAYS = 30
 const WAITLIST_EXPIRY_DAYS = 90
 
-export async function GET() {
+export async function GET(req: Request) {
+  const denied = verifyCronRequest(req)
+  if (denied) return denied
+
   try {
     const notificationRetentionDate = new Date()
     notificationRetentionDate.setDate(

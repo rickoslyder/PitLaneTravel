@@ -15,6 +15,7 @@ import {
 import { ActionState } from "@/types"
 import { eq } from "drizzle-orm"
 import { clerkClient } from "@clerk/nextjs/server"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 export async function createProfileAction(
   profile: InsertProfile
@@ -311,6 +312,9 @@ export async function toggleAdminAction(
   userId: string
 ): Promise<ActionState<SelectProfile>> {
   try {
+    // Only an existing admin may change admin status (prevents privilege escalation).
+    await requireAdmin()
+
     const [profile] = await db
       .select()
       .from(profilesTable)
@@ -336,6 +340,9 @@ export async function toggleAdminAction(
       data: updatedProfile
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error toggling admin status:", error)
     return { isSuccess: false, message: "Failed to toggle admin status" }
   }
@@ -346,6 +353,10 @@ export async function updateMembershipAction(
   membership: "free" | "pro"
 ): Promise<ActionState<SelectProfile>> {
   try {
+    // Admin-only: Stripe-driven membership changes go through
+    // updateProfileByStripeCustomerIdAction, not this action.
+    await requireAdmin()
+
     const [updatedProfile] = await db
       .update(profilesTable)
       .set({ membership })
@@ -358,6 +369,9 @@ export async function updateMembershipAction(
       data: updatedProfile
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error updating membership:", error)
     return { isSuccess: false, message: "Failed to update membership" }
   }

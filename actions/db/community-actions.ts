@@ -5,6 +5,7 @@ import { reviewsTable, tipsTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { InsertReview, SelectReview, InsertTip, SelectTip } from "@/db/schema"
 import { and, eq, desc } from "drizzle-orm"
+import { assertOwnershipOrAdmin } from "@/lib/auth"
 
 // Reviews
 export async function createReviewAction(
@@ -67,6 +68,7 @@ export async function updateReviewAction(
   data: Partial<InsertReview>
 ): Promise<ActionState<SelectReview>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [updatedReview] = await db
       .update(reviewsTable)
       .set(data)
@@ -93,6 +95,7 @@ export async function deleteReviewAction(
   userId: string
 ): Promise<ActionState<void>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     await db
       .delete(reviewsTable)
       .where(and(eq(reviewsTable.id, id), eq(reviewsTable.userId, userId)))
@@ -168,6 +171,7 @@ export async function updateTipAction(
   data: Partial<InsertTip>
 ): Promise<ActionState<SelectTip>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const [updatedTip] = await db
       .update(tipsTable)
       .set(data)
@@ -194,6 +198,7 @@ export async function deleteTipAction(
   userId: string
 ): Promise<ActionState<void>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     await db
       .delete(tipsTable)
       .where(and(eq(tipsTable.id, id), eq(tipsTable.userId, userId)))
