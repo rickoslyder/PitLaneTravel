@@ -13,9 +13,10 @@ config({ path: ".env.local" })
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
 import { db } from "@/db/db"
-import { circuitsTable, racesTable, seriesTable } from "@/db/schema"
+import { racesTable, seriesTable } from "@/db/schema"
 import { and, eq } from "drizzle-orm"
 import { buildRaceSlug } from "@/lib/series"
+import { findOrCreateCircuit } from "./_circuits"
 
 interface Round {
   round: number
@@ -26,26 +27,6 @@ interface Round {
   latitude: number
   longitude: number
   date: string
-}
-
-async function upsertCircuit(r: Round): Promise<string> {
-  const [existing] = await db
-    .select({ id: circuitsTable.id })
-    .from(circuitsTable)
-    .where(eq(circuitsTable.name, r.circuit))
-    .limit(1)
-  if (existing) return existing.id
-  const [created] = await db
-    .insert(circuitsTable)
-    .values({
-      name: r.circuit,
-      location: r.location,
-      country: r.country,
-      latitude: r.latitude.toString(),
-      longitude: r.longitude.toString()
-    })
-    .returning({ id: circuitsTable.id })
-  return created.id
 }
 
 async function main() {
@@ -63,7 +44,7 @@ async function main() {
   let added = 0
   let updated = 0
   for (const r of data.races) {
-    const circuitId = await upsertCircuit(r)
+    const { id: circuitId } = await findOrCreateCircuit(r)
     const slug = buildRaceSlug(
       { name: f1.name, shortName: f1.shortName, slug: f1.slug, eventNoun: f1.eventNoun },
       { name: r.name, country: r.country, season }

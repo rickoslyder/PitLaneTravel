@@ -1,0 +1,16 @@
+{
+  "_note": "Maps seed-data circuit names (from jolpica/ergast and hand-authored multi-series seeds) to the canonical circuit names already in the DB, so seeds reuse existing circuits instead of creating near-duplicates. Same physical venue = same circuit row, even when a series uses a different layout. Used by scripts/_circuits.ts.",
+  "aliases": {
+    "Albert Park Grand Prix Circuit": "Albert Park Circuit",
+    "Suzuka Circuit": "Suzuka International Racing Course",
+    "Circuit Park Zandvoort": "Circuit Zandvoort",
+    "Autodromo Nazionale di Monza": "Autodromo Nazionale Monza",
+    "Circuit of the Americas": "Circuit of The Americas",
+    "Las Vegas Strip Street Circuit": "Las Vegas Strip Circuit",
+    "Losail International Circuit": "Lusail International Circuit",
+    "Imola Circuit": "Autodromo Enzo e Dino Ferrari",
+    "Spa-Francorchamps": "Circuit de Spa-Francorchamps",
+    "Monaco Street Circuit": "Circuit de Monaco",
+    "Jeddah Street Circuit": "Jeddah Corniche Circuit"
+  }
+}
