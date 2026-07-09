@@ -306,9 +306,19 @@ Each stub becomes real, series-agnostic, and monetisable where applicable.
   multi-series UI, series landing pages, corrected branding and the grandstand/budget/
   transport/etc. pages actually ship. (The 2026 races already show on the old site because
   it reads the same DB.)
-- **F1 2026 calendar is 22/24** — jolpica omitted **Bahrain and Saudi Arabia** (both
-  already run by mid-2026, so not "upcoming", but add for a complete archive). Verify the
-  full official calendar and patch.
+- **F1 2026 calendar = 22 rounds, which is CORRECT** — verified via a multi-source
+  research + adversarial-verification pass (all 3 refutation attempts upheld it, high
+  confidence). The calendar was originally 24 (published 10 Jun 2025); F1 **cancelled** the
+  Bahrain GP (was R4, 12 Apr, Sakhir) and Saudi Arabian GP (was R5, 19 Apr, Jeddah) on
+  14 Mar 2026 on FIA safety grounds after the outbreak of the 2026 Iran war (Iran struck
+  US bases across the Gulf host nations). Cancelled, not rescheduled — the DB's 22 seeded
+  rounds are the real season. Residual: F1's Domenicali floated a possible later-2026
+  Gulf return, so treat 22 as current-but-provisional; re-check before the back half of
+  the season. OPTIONAL enhancement: surface Bahrain/Saudi 2026 as cancelled so fans
+  searching for them get an explanation — but the real 22-race season renumbered the
+  rounds (Miami is now R4), so their original R4/R5 slots are taken; adding them needs a
+  non-colliding round value (or relax the `(series_id, season, round)` unique index) plus
+  a small "cancelled race" UI treatment. Design decision, not a blind seed.
 - **Sample multi-series calendars NOT seeded** — `scripts/seed-sample-calendars.ts` carries
   placeholder dates; do not run against production until replaced with verified official
   FE/MotoGP/IndyCar/WEC calendars. Gbrain has grandstand guides for those series' circuits
