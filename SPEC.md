@@ -285,16 +285,38 @@ Each stub becomes real, series-agnostic, and monetisable where applicable.
 | E | Data + launch | 🔧 in progress — series + sample multi-series seeds authored; migrations not yet run; full de-brand sweep + full calendars + DNS remain |
 
 ### Remaining before launch (tracked)
-- Run migrations `0003_multi_series.sql`, `0004_grandstands.sql` and
-  `scripts/seed-series.ts` + `scripts/seed-sample-calendars.ts` against production.
-- Refresh the F1 calendar to the current season (the live homepage still implies 2025).
+
+**BLOCKED — needs production credentials (Vercel CLI token expired; hosted-Supabase
+`DATABASE_URL` not on the dev machine):** run the DB migrations + seeds, in order:
+```
+psql "$DATABASE_URL" -f db/migrations/0003_multi_series.sql
+psql "$DATABASE_URL" -f db/migrations/0004_grandstands.sql
+npx tsx scripts/seed-series.ts            # series + backfill existing races to F1
+npx tsx scripts/refresh-f1-calendar.ts    # 2026 F1 calendar (22 rounds)
+npx tsx scripts/seed-sample-calendars.ts  # sample FE/MotoGP/IndyCar/WEC rounds
+npx tsx scripts/seed-grandstands.ts       # grandstand guide content
+```
+All are idempotent/additive. `vercel env pull .env.local` (after `vercel login`) is the
+easiest way to get the connection string.
+
+**BLOCKED — DNS (needs registrar/Cloudflare access):** `www.pitlanetravel.com` — Vercel's
+canonical domain and the apex's 308 redirect target — has **no A/CNAME record** at the
+authoritative Cloudflare nameservers, so the canonical URL is fully down (the apex works).
+Add in Cloudflare DNS: `CNAME www → cname.vercel-dns.com` (DNS-only / grey cloud), or per
+Vercel's domain panel. This is the single highest-impact fix.
+
+**Done in the post-revamp pass (branch `revamp/multi-series`):**
+- ✅ 2026 F1 calendar authored from jolpica/ergast (`data/seeds/f1-2026-calendar.json`) +
+  `refresh-f1-calendar.ts`.
+- ✅ Branding sweep of user-facing F1-only copy across landing/races/footer/sidebar/
+  assistant components.
+- ✅ Grandstand guide content for six marquee circuits + `seed-grandstands.ts`.
+
+**Still code-side (not blocked, future work):**
 - Replace sample multi-series dates with verified official calendars; source per-series
   ticket inventory (affiliate BD).
-- Finish the branding sweep of the ~130 remaining F1 copy strings in `components/`.
 - Full CRUD dialogs for the admin Championships page (currently read view + actions API).
 - Build the Stripe-charge flight flow (D8) before enabling `FLIGHTS_BOOKING_ENABLED`.
-- Point `www.pitlanetravel.com` DNS at the Vercel deployment (currently not resolving).
-- Backfill grandstand content per circuit (the guide is data-driven and currently empty).
 
 Migrations are authored as Drizzle SQL under `db/migrations/`; they are **not** run here
 (no production `DATABASE_URL` in this environment) — apply with `npm run db:migrate` after
