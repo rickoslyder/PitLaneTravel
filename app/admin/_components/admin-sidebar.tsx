@@ -63,6 +63,11 @@ const sections: NavSection[] = [
         icon: <Flag className="mr-2 size-4" />
       },
       {
+        title: "Championships",
+        href: "/admin/championships",
+        icon: <Trophy className="mr-2 size-4" />
+      },
+      {
         title: "Circuits",
         href: "/admin/circuits",
         icon: <Circle className="mr-2 size-4" />

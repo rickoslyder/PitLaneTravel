@@ -1,0 +1,30 @@
+{
+  "_note": "Starter multi-series calendar seed. Venues/coordinates are real; dates are indicative placeholders for the 2026 season and MUST be verified against each series' official calendar before going live. Extend each series to its full calendar. Consumed by scripts/seed-sample-calendars.ts.",
+  "season": 2026,
+  "series": {
+    "motogp": [
+      { "round": 1, "circuit": "Losail International Circuit", "location": "Lusail", "country": "Qatar", "latitude": 25.4900, "longitude": 51.4542, "date": "2026-03-08", "name": "Qatar Grand Prix 2026" },
+      { "round": 2, "circuit": "Circuit of the Americas", "location": "Austin", "country": "United States", "latitude": 30.1328, "longitude": -97.6411, "date": "2026-03-29", "name": "Americas Grand Prix 2026" },
+      { "round": 3, "circuit": "Autodromo Internazionale del Mugello", "location": "Scarperia", "country": "Italy", "latitude": 43.9975, "longitude": 11.3719, "date": "2026-05-31", "name": "Italian Grand Prix 2026" },
+      { "round": 4, "circuit": "TT Circuit Assen", "location": "Assen", "country": "Netherlands", "latitude": 52.9622, "longitude": 6.5236, "date": "2026-06-28", "name": "Dutch TT 2026" }
+    ],
+    "formula-e": [
+      { "round": 1, "circuit": "Autódromo Hermanos Rodríguez", "location": "Mexico City", "country": "Mexico", "latitude": 19.4042, "longitude": -99.0907, "date": "2026-01-10", "name": "Mexico City E-Prix 2026" },
+      { "round": 2, "circuit": "Jeddah Street Circuit", "location": "Jeddah", "country": "Saudi Arabia", "latitude": 21.6319, "longitude": 39.1044, "date": "2026-02-14", "name": "Jeddah E-Prix 2026" },
+      { "round": 3, "circuit": "Monaco Street Circuit", "location": "Monaco", "country": "Monaco", "latitude": 43.7347, "longitude": 7.4206, "date": "2026-05-09", "name": "Monaco E-Prix 2026" },
+      { "round": 4, "circuit": "Tempelhof Airport Street Circuit", "location": "Berlin", "country": "Germany", "latitude": 52.4730, "longitude": 13.4030, "date": "2026-07-11", "name": "Berlin E-Prix 2026" }
+    ],
+    "indycar": [
+      { "round": 1, "circuit": "Streets of St. Petersburg", "location": "St. Petersburg", "country": "United States", "latitude": 27.7676, "longitude": -82.6403, "date": "2026-03-01", "name": "Grand Prix of St. Petersburg 2026" },
+      { "round": 2, "circuit": "Long Beach Street Circuit", "location": "Long Beach", "country": "United States", "latitude": 33.7649, "longitude": -118.1890, "date": "2026-04-19", "name": "Grand Prix of Long Beach 2026" },
+      { "round": 3, "circuit": "Indianapolis Motor Speedway", "location": "Indianapolis", "country": "United States", "latitude": 39.7950, "longitude": -86.2350, "date": "2026-05-24", "name": "Indianapolis 500 2026" },
+      { "round": 4, "circuit": "WeatherTech Raceway Laguna Seca", "location": "Monterey", "country": "United States", "latitude": 36.5844, "longitude": -121.7536, "date": "2026-06-14", "name": "Grand Prix of Monterey 2026" }
+    ],
+    "wec": [
+      { "round": 1, "circuit": "Lusail International Circuit", "location": "Lusail", "country": "Qatar", "latitude": 25.4900, "longitude": 51.4542, "date": "2026-02-27", "name": "Qatar 1812 km 2026" },
+      { "round": 2, "circuit": "Imola Circuit", "location": "Imola", "country": "Italy", "latitude": 44.3439, "longitude": 11.7167, "date": "2026-04-19", "name": "6 Hours of Imola 2026" },
+      { "round": 3, "circuit": "Spa-Francorchamps", "location": "Stavelot", "country": "Belgium", "latitude": 50.4372, "longitude": 5.9714, "date": "2026-05-09", "name": "6 Hours of Spa-Francorchamps 2026" },
+      { "round": 4, "circuit": "Circuit de la Sarthe", "location": "Le Mans", "country": "France", "latitude": 47.9560, "longitude": 0.2074, "date": "2026-06-13", "name": "24 Hours of Le Mans 2026" }
+    ]
+  }
+}

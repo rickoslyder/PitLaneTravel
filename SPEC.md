@@ -278,11 +278,23 @@ Each stub becomes real, series-agnostic, and monetisable where applicable.
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| A | Security criticals | in progress |
-| B | Repo hygiene | pending |
-| C | Multi-series foundation | pending |
-| D | Feature completion | pending |
-| E | Data + launch | pending |
+| A | Security criticals | ✅ done (branch `revamp/multi-series`) |
+| B | Repo hygiene | ✅ done |
+| C | Multi-series foundation | ✅ done (schema, providers, naming, series filter, landing pages, de-brand of key SEO) |
+| D | Feature completion | ✅ done (grandstands, budget, transport, packages, planner, hotels, compare) |
+| E | Data + launch | 🔧 in progress — series + sample multi-series seeds authored; migrations not yet run; full de-brand sweep + full calendars + DNS remain |
+
+### Remaining before launch (tracked)
+- Run migrations `0003_multi_series.sql`, `0004_grandstands.sql` and
+  `scripts/seed-series.ts` + `scripts/seed-sample-calendars.ts` against production.
+- Refresh the F1 calendar to the current season (the live homepage still implies 2025).
+- Replace sample multi-series dates with verified official calendars; source per-series
+  ticket inventory (affiliate BD).
+- Finish the branding sweep of the ~130 remaining F1 copy strings in `components/`.
+- Full CRUD dialogs for the admin Championships page (currently read view + actions API).
+- Build the Stripe-charge flight flow (D8) before enabling `FLIGHTS_BOOKING_ENABLED`.
+- Point `www.pitlanetravel.com` DNS at the Vercel deployment (currently not resolving).
+- Backfill grandstand content per circuit (the guide is data-driven and currently empty).
 
 Migrations are authored as Drizzle SQL under `db/migrations/`; they are **not** run here
 (no production `DATABASE_URL` in this environment) — apply with `npm run db:migrate` after
