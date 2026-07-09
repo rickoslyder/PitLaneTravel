@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Large local seed raws (kept out of VCS)
+data/seeds/*.xml

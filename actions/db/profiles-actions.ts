@@ -16,13 +16,14 @@ import { ActionState } from "@/types"
 import { eq } from "drizzle-orm"
 import { clerkClient } from "@clerk/nextjs/server"
 import { requireAdmin, AuthError } from "@/lib/auth"
+import { log } from "@/lib/log"
 
 export async function createProfileAction(
   profile: InsertProfile
 ): Promise<ActionState<SelectProfile>> {
   try {
-    console.log("[Profiles] Creating profile for user:", profile.userId)
-    console.log("[Profiles] Profile data:", profile)
+    log.debug("[Profiles] Creating profile for user:", profile.userId)
+    log.debug("[Profiles] Profile data:", profile)
 
     // First check if profile already exists
     const existingProfile = await db
@@ -32,21 +33,21 @@ export async function createProfileAction(
       .limit(1)
 
     if (existingProfile.length > 0) {
-      console.log("[Profiles] Profile already exists for user:", profile.userId)
+      log.debug("[Profiles] Profile already exists for user:", profile.userId)
       return {
         isSuccess: false,
         message: "Profile already exists"
       }
     }
 
-    console.log("[Profiles] No existing profile found, proceeding with creation")
+    log.debug("[Profiles] No existing profile found, proceeding with creation")
 
     const query = db.insert(profilesTable).values(profile).returning()
-    console.log("[Profiles] Insert query:", query.toSQL())
+    log.debug("[Profiles] Insert query:", query.toSQL())
 
     const [newProfile] = await query
 
-    console.log("[Profiles] Profile created successfully:", newProfile)
+    log.debug("[Profiles] Profile created successfully:", newProfile)
     return {
       isSuccess: true,
       message: "Profile created successfully",
@@ -80,19 +81,19 @@ export async function getProfileByUserIdAction(
   userId: string
 ): Promise<ActionState<SelectProfile>> {
   try {
-    console.log("[Profiles] Getting profile for user:", userId)
+    log.debug("[Profiles] Getting profile for user:", userId)
 
     const query = db.select().from(profilesTable).where(eq(profilesTable.userId, userId))
-    console.log("[Profiles] Select query:", query.toSQL())
+    log.debug("[Profiles] Select query:", query.toSQL())
 
     const [profile] = await query
 
     if (!profile) {
-      console.log("[Profiles] No profile found for user:", userId)
+      log.debug("[Profiles] No profile found for user:", userId)
       return { isSuccess: false, message: "Profile not found" }
     }
 
-    console.log("[Profiles] Profile found successfully:", profile)
+    log.debug("[Profiles] Profile found successfully:", profile)
     return {
       isSuccess: true,
       message: "Profile retrieved successfully",
@@ -124,24 +125,24 @@ export async function updateProfileAction(
   data: Partial<InsertProfile>
 ): Promise<ActionState<SelectProfile>> {
   try {
-    console.log("[Profiles] Updating profile for user:", userId)
-    console.log("[Profiles] Update data:", data)
+    log.debug("[Profiles] Updating profile for user:", userId)
+    log.debug("[Profiles] Update data:", data)
 
     const query = db
       .update(profilesTable)
       .set(data)
       .where(eq(profilesTable.userId, userId))
       .returning()
-    console.log("[Profiles] Update query:", query.toSQL())
+    log.debug("[Profiles] Update query:", query.toSQL())
 
     const [updatedProfile] = await query
 
     if (!updatedProfile) {
-      console.log("[Profiles] No profile found to update for user:", userId)
+      log.debug("[Profiles] No profile found to update for user:", userId)
       return { isSuccess: false, message: "Profile not found" }
     }
 
-    console.log("[Profiles] Profile updated successfully:", updatedProfile)
+    log.debug("[Profiles] Profile updated successfully:", updatedProfile)
     return {
       isSuccess: true,
       message: "Profile updated successfully",
@@ -161,27 +162,27 @@ export async function updateProfileByStripeCustomerIdAction(
   data: Partial<InsertProfile>
 ): Promise<ActionState<SelectProfile>> {
   try {
-    console.log("[Profiles] Updating profile by Stripe customer ID:", stripeCustomerId)
-    console.log("[Profiles] Update data:", data)
+    log.debug("[Profiles] Updating profile by Stripe customer ID:", stripeCustomerId)
+    log.debug("[Profiles] Update data:", data)
 
     const query = db
       .update(profilesTable)
       .set(data)
       .where(eq(profilesTable.stripeCustomerId, stripeCustomerId))
       .returning()
-    console.log("[Profiles] Update query:", query.toSQL())
+    log.debug("[Profiles] Update query:", query.toSQL())
 
     const [updatedProfile] = await query
 
     if (!updatedProfile) {
-      console.log("[Profiles] No profile found with Stripe customer ID:", stripeCustomerId)
+      log.debug("[Profiles] No profile found with Stripe customer ID:", stripeCustomerId)
       return {
         isSuccess: false,
         message: "Profile not found by Stripe customer ID"
       }
     }
 
-    console.log("[Profiles] Profile updated successfully:", updatedProfile)
+    log.debug("[Profiles] Profile updated successfully:", updatedProfile)
     return {
       isSuccess: true,
       message: "Profile updated by Stripe customer ID successfully",
@@ -203,14 +204,14 @@ export async function deleteProfileAction(
   userId: string
 ): Promise<ActionState<void>> {
   try {
-    console.log("[Profiles] Deleting profile for user:", userId)
+    log.debug("[Profiles] Deleting profile for user:", userId)
 
     const query = db.delete(profilesTable).where(eq(profilesTable.userId, userId))
-    console.log("[Profiles] Delete query:", query.toSQL())
+    log.debug("[Profiles] Delete query:", query.toSQL())
 
     await query
 
-    console.log("[Profiles] Profile deleted successfully")
+    log.debug("[Profiles] Profile deleted successfully")
     return {
       isSuccess: true,
       message: "Profile deleted successfully",
@@ -268,27 +269,27 @@ export async function getProfileAction(
   userId: string
 ): Promise<ActionState<{ isAdmin: boolean }>> {
   try {
-    console.log("[ProfilesAction] Getting profile for user:", userId)
+    log.debug("[ProfilesAction] Getting profile for user:", userId)
 
     const query = db
       .select()
       .from(profilesTable)
       .where(eq(profilesTable.userId, userId))
     
-    console.log("[ProfilesAction] Query SQL:", query.toSQL())
+    log.debug("[ProfilesAction] Query SQL:", query.toSQL())
 
     const [profile] = await query
-    console.log("[ProfilesAction] Query result:", profile)
+    log.debug("[ProfilesAction] Query result:", profile)
 
     if (!profile) {
-      console.log("[ProfilesAction] No profile found for user:", userId)
+      log.debug("[ProfilesAction] No profile found for user:", userId)
       return {
         isSuccess: false,
         message: "Profile not found"
       }
     }
 
-    console.log("[ProfilesAction] Profile found with admin status:", profile.isAdmin)
+    log.debug("[ProfilesAction] Profile found with admin status:", profile.isAdmin)
     return {
       isSuccess: true,
       message: "Profile retrieved successfully",

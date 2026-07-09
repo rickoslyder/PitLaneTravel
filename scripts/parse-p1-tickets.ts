@@ -843,7 +843,7 @@ async function processXmlFeed(filePath: string, outputPath?: string): Promise<Pa
     console.log(`Found ${tickets.length} F1 tickets`)
 
     // Load race data for mapping
-    const raceDataPath = path.join(process.cwd(), "race-mapping-data.json")
+    const raceDataPath = path.join(process.cwd(), "data/seeds/race-mapping-data.json")
     const raceData: RaceData[] = JSON.parse(await fs.readFile(raceDataPath, "utf-8"))
 
     // Map tickets to races
