@@ -284,39 +284,42 @@ Each stub becomes real, series-agnostic, and monetisable where applicable.
 | D | Feature completion | ✅ done (grandstands, budget, transport, packages, planner, hotels, compare) |
 | E | Data + launch | 🔧 in progress — series + sample multi-series seeds authored; migrations not yet run; full de-brand sweep + full calendars + DNS remain |
 
-### Remaining before launch (tracked)
+### Applied to production ✅
 
-**BLOCKED — needs production credentials (Vercel CLI token expired; hosted-Supabase
-`DATABASE_URL` not on the dev machine):** run the DB migrations + seeds, in order:
-```
-psql "$DATABASE_URL" -f db/migrations/0003_multi_series.sql
-psql "$DATABASE_URL" -f db/migrations/0004_grandstands.sql
-npx tsx scripts/seed-series.ts            # series + backfill existing races to F1
-npx tsx scripts/refresh-f1-calendar.ts    # 2026 F1 calendar (22 rounds)
-npx tsx scripts/seed-sample-calendars.ts  # sample FE/MotoGP/IndyCar/WEC rounds
-npx tsx scripts/seed-grandstands.ts       # grandstand guide content
-```
-All are idempotent/additive. `vercel env pull .env.local` (after `vercel login`) is the
-easiest way to get the connection string.
+- **DNS FIXED**: added `CNAME www → cname.vercel-dns.com` (DNS-only) in Cloudflare;
+  `https://www.pitlanetravel.com` now returns 200 (was fully down — the canonical domain
+  had no record while the apex redirected to it).
+- **Migrations run** against the production DB: `0003_multi_series.sql` (series table +
+  seed of 5 series + `races.series_id` backfilled to F1 for all 24 existing races +
+  external-id tables) and `0004_grandstands.sql`.
+- **F1 2026 calendar seeded** (22 rounds from jolpica). Circuit dedup via
+  `scripts/_circuits.ts` + `data/seeds/circuit-aliases.json` — only **Madring (Madrid)**
+  was created new; the other 21 reused existing circuits. Result: 25 circuits, races
+  2025:24 + 2026:22.
+- **28 grandstands seeded** across 6 marquee circuits, sourced and corrected from Gbrain's
+  source-cited guides (the earlier hand-authored version had mis-mapped stands and wrong
+  covered flags — discarded).
 
-**BLOCKED — DNS (needs registrar/Cloudflare access):** `www.pitlanetravel.com` — Vercel's
-canonical domain and the apex's 308 redirect target — has **no A/CNAME record** at the
-authoritative Cloudflare nameservers, so the canonical URL is fully down (the apex works).
-Add in Cloudflare DNS: `CNAME www → cname.vercel-dns.com` (DNS-only / grey cloud), or per
-Vercel's domain panel. This is the single highest-impact fix.
+### Remaining before launch
 
-**Done in the post-revamp pass (branch `revamp/multi-series`):**
-- ✅ 2026 F1 calendar authored from jolpica/ergast (`data/seeds/f1-2026-calendar.json`) +
-  `refresh-f1-calendar.ts`.
-- ✅ Branding sweep of user-facing F1-only copy across landing/races/footer/sidebar/
-  assistant components.
-- ✅ Grandstand guide content for six marquee circuits + `seed-grandstands.ts`.
-
-**Still code-side (not blocked, future work):**
-- Replace sample multi-series dates with verified official calendars; source per-series
-  ticket inventory (affiliate BD).
+- **Deploy the branch.** Production still runs the Jan-2025 code; merge PR #1 so the
+  multi-series UI, series landing pages, corrected branding and the grandstand/budget/
+  transport/etc. pages actually ship. (The 2026 races already show on the old site because
+  it reads the same DB.)
+- **F1 2026 calendar is 22/24** — jolpica omitted **Bahrain and Saudi Arabia** (both
+  already run by mid-2026, so not "upcoming", but add for a complete archive). Verify the
+  full official calendar and patch.
+- **Sample multi-series calendars NOT seeded** — `scripts/seed-sample-calendars.ts` carries
+  placeholder dates; do not run against production until replaced with verified official
+  FE/MotoGP/IndyCar/WEC calendars. Gbrain has grandstand guides for those series' circuits
+  to seed alongside.
+- **Confirm Vercel env** has `CRON_SECRET`, `RESEND_API_KEY`, `FLIGHTS_BOOKING_ENABLED`
+  (leave off) — could not enumerate env vars via CLI/MCP.
 - Full CRUD dialogs for the admin Championships page (currently read view + actions API).
 - Build the Stripe-charge flight flow (D8) before enabling `FLIGHTS_BOOKING_ENABLED`.
+- Expand grandstand guides from 6 to all ~24 F1 circuits (+ MotoGP/FE/WEC) — Gbrain has
+  the structured data; regenerate `grandstands.json` via `get_page` per
+  `data/seeds/circuit-gbrain-map.json` rather than by hand.
 
 Migrations are authored as Drizzle SQL under `db/migrations/`; they are **not** run here
 (no production `DATABASE_URL` in this environment) — apply with `npm run db:migrate` after
