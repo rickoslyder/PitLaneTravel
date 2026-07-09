@@ -18,6 +18,28 @@ interface RaceCardProps {
   onClick?: () => void
 }
 
+function SeriesBadge({
+  race,
+  className
+}: {
+  race: RaceWithCircuitAndSeries
+  className?: string
+}) {
+  const series = race.series
+  if (!series) return null
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold text-white shadow-sm",
+        className
+      )}
+      style={{ backgroundColor: series.accent_color || "#e10600" }}
+    >
+      {series.short_name}
+    </span>
+  )
+}
+
 export function RaceCard({
   race,
   variant = "grid",
@@ -53,7 +75,10 @@ export function RaceCard({
           </CardHeader>
           <CardContent className="pb-2 pt-0 sm:py-6">
             <div className="space-y-1.5">
-              <h3 className="font-semibold">{race.name}</h3>
+              <div className="flex items-center gap-2">
+                <SeriesBadge race={race} />
+                <h3 className="font-semibold">{race.name}</h3>
+              </div>
               <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
                 <div className="flex items-center gap-1">
                   <MapPin className="size-3.5" />
@@ -80,6 +105,11 @@ export function RaceCard({
     <Card className={cn("group cursor-pointer", className)} onClick={onClick}>
       <CardHeader className="pb-4">
         <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
+          {race.series && (
+            <div className="absolute left-2 top-2 z-10">
+              <SeriesBadge race={race} />
+            </div>
+          )}
           {race.circuit?.image_url ? (
             <img
               src={race.circuit.image_url}

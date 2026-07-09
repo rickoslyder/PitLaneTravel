@@ -25,6 +25,7 @@ import {
 } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
 import { circuitsTable } from "./circuits-schema"
+import { seriesTable } from "./series-schema"
 
 export const raceStatusEnum = pgEnum("race_status", [
   "in_progress",
@@ -38,6 +39,11 @@ export const racesTable = pgTable("races", {
   circuitId: uuid("circuit_id")
     .references(() => circuitsTable.id, { onDelete: "cascade" })
     .notNull(),
+  // The championship this race belongs to. Nullable during migration; backfilled to the
+  // Formula 1 series and then enforced NOT NULL (see db/migrations).
+  seriesId: uuid("series_id").references(() => seriesTable.id, {
+    onDelete: "restrict"
+  }),
   name: text("name").notNull(),
   date: timestamp("date", { withTimezone: true }).notNull(),
   season: integer("season").notNull(),
@@ -65,6 +71,10 @@ export const racesRelations = relations(racesTable, ({ one }) => ({
   circuit: one(circuitsTable, {
     fields: [racesTable.circuitId],
     references: [circuitsTable.id]
+  }),
+  series: one(seriesTable, {
+    fields: [racesTable.seriesId],
+    references: [seriesTable.id]
   })
 }))
 

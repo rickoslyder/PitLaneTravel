@@ -2,6 +2,7 @@
 
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import { motion } from "framer-motion"
+import { useRouter } from "next/navigation"
 import { RaceCard } from "./RaceCard"
 
 interface RaceGridProps {
@@ -9,11 +10,16 @@ interface RaceGridProps {
   races: RaceWithCircuitAndSeries[]
   /** The current view type */
   viewType: "grid" | "list"
-  /** Callback when a race is clicked */
-  onRaceClick: (race: RaceWithCircuitAndSeries) => void
+  /** Callback when a race is clicked. Defaults to navigating to the race page. */
+  onRaceClick?: (race: RaceWithCircuitAndSeries) => void
 }
 
 export function RaceGrid({ races, viewType, onRaceClick }: RaceGridProps) {
+  const router = useRouter()
+  const handleClick =
+    onRaceClick ??
+    ((race: RaceWithCircuitAndSeries) =>
+      router.push(`/races/${race.slug || race.id}`))
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -41,7 +47,7 @@ export function RaceGrid({ races, viewType, onRaceClick }: RaceGridProps) {
           <motion.div key={race.id} variants={item}>
             <RaceCard
               race={race}
-              onClick={() => onRaceClick(race)}
+              onClick={() => handleClick(race)}
               className="h-full"
             />
           </motion.div>
@@ -61,7 +67,7 @@ export function RaceGrid({ races, viewType, onRaceClick }: RaceGridProps) {
         <motion.div key={race.id} variants={item}>
           <RaceCard
             race={race}
-            onClick={() => onRaceClick(race)}
+            onClick={() => handleClick(race)}
             variant="list"
           />
         </motion.div>

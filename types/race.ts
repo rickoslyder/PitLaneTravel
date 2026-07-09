@@ -32,9 +32,20 @@ export interface CircuitDetails {
   updated_at: string
 }
 
+export interface RaceSeriesInfo {
+  id: string
+  name: string
+  short_name: string
+  slug: string
+  event_noun: string
+  accent_color: string | null
+}
+
 export interface Race {
   id: string
   circuit_id: string
+  series_id?: string | null
+  series?: RaceSeriesInfo | null
   name: string
   date: string
   season: number

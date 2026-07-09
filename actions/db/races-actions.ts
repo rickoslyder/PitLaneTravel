@@ -1,24 +1,33 @@
 "use server"
 
 import { db } from "@/db/db"
-import { circuitLocationsTable, circuitsTable, racesTable, supportingSeriesTable } from "@/db/schema"
+import { circuitLocationsTable, circuitsTable, racesTable, seriesTable, supportingSeriesTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { RaceWithCircuitAndSeries } from "@/types/database"
-import { eq, sql } from "drizzle-orm"
+import { and, eq, sql } from "drizzle-orm"
 import { InsertRace, SelectRace } from "@/db/schema/races-schema"
 
 export async function getRacesAction(filters?: {
   year?: number
   startDate?: string
   endDate?: string
+  /** Series slug, e.g. "f1", "motogp". Omit for all series. */
+  series?: string
 }): Promise<ActionState<RaceWithCircuitAndSeries[]>> {
   try {
-    console.log("[Races] Getting races with filters:", filters)
-
     const races = await db
       .select({
         id: racesTable.id,
         circuit_id: racesTable.circuitId,
+        series_id: racesTable.seriesId,
+        series: {
+          id: seriesTable.id,
+          name: seriesTable.name,
+          short_name: seriesTable.shortName,
+          slug: seriesTable.slug,
+          event_noun: seriesTable.eventNoun,
+          accent_color: seriesTable.accentColor
+        },
         name: racesTable.name,
         date: racesTable.date,
         season: racesTable.season,
@@ -54,7 +63,13 @@ export async function getRacesAction(filters?: {
       })
       .from(racesTable)
       .leftJoin(circuitsTable, eq(racesTable.circuitId, circuitsTable.id))
-      .where(filters?.year ? eq(racesTable.season, filters.year) : undefined)
+      .leftJoin(seriesTable, eq(racesTable.seriesId, seriesTable.id))
+      .where(
+        and(
+          filters?.year ? eq(racesTable.season, filters.year) : undefined,
+          filters?.series ? eq(seriesTable.slug, filters.series) : undefined
+        )
+      )
       .orderBy(racesTable.date)
 
     // Get circuit locations for all circuits

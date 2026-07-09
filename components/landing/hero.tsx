@@ -112,7 +112,7 @@ export const HeroSection = () => {
                 className="mb-6 border-white/20 bg-white/10 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:mb-8 sm:px-4 sm:py-2 sm:text-sm"
               >
                 <FlagIcon className="mr-2 size-3 sm:size-4" />
-                2025 F1 Season Now Available
+                F1 · MotoGP · Formula E · IndyCar · WEC
               </Badge>
             </motion.div>
 
@@ -124,7 +124,7 @@ export const HeroSection = () => {
               className="mb-4 sm:mb-6"
             >
               <h1 className="text-4xl font-bold tracking-tighter text-white drop-shadow-2xl [text-shadow:_0_4px_24px_rgba(0,0,0,0.3)] sm:text-5xl md:text-6xl lg:text-7xl">
-                Experience F1
+                Experience Motorsport
                 <br />
                 <span className="text-red-500 drop-shadow-lg [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
                   Like Never Before
@@ -142,7 +142,7 @@ export const HeroSection = () => {
               <p className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-base leading-relaxed text-white/90 shadow-xl backdrop-blur-md sm:px-6 sm:py-4 sm:text-lg md:text-xl">
                 Turn race weekend planning into pure excitement: insider
                 knowledge, smart logistics, and local secrets for an
-                unforgettable F1 experience.
+                unforgettable weekend at any circuit, in any series.
               </p>
             </motion.div>
 

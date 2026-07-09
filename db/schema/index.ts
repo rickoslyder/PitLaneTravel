@@ -1,5 +1,7 @@
+export * from "./series-schema"
 export * from "./circuits-schema"
 export * from "./races-schema"
+export * from "./external-ids-schema"
 export * from "./circuit-details-schema"
 export * from "./airports-schema"
 export * from "./local-attractions-schema"

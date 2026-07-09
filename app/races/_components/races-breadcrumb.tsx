@@ -56,33 +56,23 @@ export function RacesBreadcrumb() {
     async function fetchRaceName() {
       if (!raceIdentifier) return
 
-      // If identifier ends in 2025, try slug first
-      if (raceIdentifier.endsWith("2025")) {
-        // Try by slug first
-        const raceBySlug = await getRaceBySlugAction(raceIdentifier)
-        if (raceBySlug.isSuccess) {
-          setRaceName(raceBySlug.data.name)
-          return
-        }
+      // UUIDs are primary keys; anything else is a slug (series- and season-agnostic).
+      const isUuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          raceIdentifier
+        )
+      const [primary, fallback] = isUuid
+        ? [getRaceByIdAction, getRaceBySlugAction]
+        : [getRaceBySlugAction, getRaceByIdAction]
 
-        // Fallback to ID if slug fails
-        const raceById = await getRaceByIdAction(raceIdentifier)
-        if (raceById.isSuccess) {
-          setRaceName(raceById.data.name)
-        }
-      } else {
-        // For other cases, try ID first
-        const raceById = await getRaceByIdAction(raceIdentifier)
-        if (raceById.isSuccess) {
-          setRaceName(raceById.data.name)
-          return
-        }
-
-        // Fallback to slug if ID fails
-        const raceBySlug = await getRaceBySlugAction(raceIdentifier)
-        if (raceBySlug.isSuccess) {
-          setRaceName(raceBySlug.data.name)
-        }
+      const first = await primary(raceIdentifier)
+      if (first.isSuccess) {
+        setRaceName(first.data.name)
+        return
+      }
+      const second = await fallback(raceIdentifier)
+      if (second.isSuccess) {
+        setRaceName(second.data.name)
       }
     }
 
@@ -92,11 +82,10 @@ export function RacesBreadcrumb() {
   }, [raceIdentifier])
 
   const formatRaceName = (name: string) => {
-    // For mobile view
+    // For mobile view: compact common event nouns across series
     if (window.innerWidth < 640) {
-      // Replace "Grand Prix 2025" with "GP"
-      name = name.replace(/Grand Prix \d{4}/, "GP")
-      // Replace "Emilia Romagna" with "Imola"
+      name = name.replace(/Grand Prix( \d{4})?/, "GP")
+      name = name.replace(/E-Prix( \d{4})?/, "E-Prix")
       name = name.replace("Emilia Romagna", "Imola")
     }
     return name

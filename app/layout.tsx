@@ -15,6 +15,7 @@ import { Providers } from "@/components/utilities/providers"
 import { TailwindIndicator } from "@/components/utilities/tailwind-indicator"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { cn } from "@/lib/utils"
+import { brand } from "@/config/brand"
 import { ClerkProvider } from "@clerk/nextjs"
 import { auth } from "@clerk/nextjs/server"
 import { GoogleTagManager } from "@next/third-parties/google"
@@ -28,9 +29,8 @@ import Clarity from "@microsoft/clarity"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "PitLane Travel",
-  description:
-    "Your ultimate F1 travel planning platform. Book race tickets, accommodations, and experiences for Formula 1 events worldwide."
+  title: brand.name,
+  description: brand.description
 }
 
 export default async function RootLayout({

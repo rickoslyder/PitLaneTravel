@@ -16,26 +16,25 @@ import dynamic from "next/dynamic"
 import CircuitExplorerSkeleton from "@/components/skeletons/circuit-explorer-skeleton"
 import TestimonialSectionSkeleton from "@/components/skeletons/testimonial-section-skeleton"
 import { Metadata } from "next"
+import { brand } from "@/config/brand"
+
+const homeTitle = `${brand.name} | ${brand.tagline}`
 
 export const metadata: Metadata = {
-  title: "PitLane Travel | Your Ultimate F1 Race Weekend Planning Platform",
-  description:
-    "Plan your perfect Formula 1 race weekend with expert travel packages, exclusive experiences, and seamless booking. Get comprehensive circuit guides, smart flight search tools, and tailored travel recommendations.",
-  keywords:
-    "F1 travel, Formula 1 tickets, race weekend planning, F1 experiences, grand prix packages, circuit guides",
+  title: homeTitle,
+  description: brand.description,
+  keywords: brand.seriesKeywords.join(", "),
   openGraph: {
-    title: "PitLane Travel | Your Ultimate F1 Race Weekend Planning Platform",
-    description:
-      "Plan your perfect Formula 1 race weekend with expert travel packages, exclusive experiences, and seamless booking.",
+    title: homeTitle,
+    description: brand.shortDescription,
     type: "website",
     locale: "en_US",
-    siteName: "PitLane Travel"
+    siteName: brand.name
   },
   twitter: {
     card: "summary_large_image",
-    title: "PitLane Travel | Your Ultimate F1 Race Weekend Planning Platform",
-    description:
-      "Plan your perfect Formula 1 race weekend with expert travel packages, exclusive experiences, and seamless booking."
+    title: homeTitle,
+    description: brand.shortDescription
   }
 }
 

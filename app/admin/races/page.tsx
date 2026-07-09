@@ -20,6 +20,7 @@ export default async function RacesPage() {
       status: racesTable.status,
       isSprintWeekend: racesTable.isSprintWeekend,
       circuitId: racesTable.circuitId,
+      seriesId: racesTable.seriesId,
       openf1MeetingKey: racesTable.openf1MeetingKey,
       openf1SessionKey: racesTable.openf1SessionKey,
       createdAt: racesTable.createdAt,
@@ -49,7 +50,7 @@ export default async function RacesPage() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Races</h2>
         <p className="text-muted-foreground">
-          Manage Formula 1 races and their details
+          Manage races across all series and their details
         </p>
       </div>
 
