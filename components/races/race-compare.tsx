@@ -44,12 +44,22 @@ export function RaceCompare({
       label: "Location",
       render: r => `${r.circuit?.location ?? ""}${r.country ? `, ${r.country}` : ""}`
     },
-    { label: "Round", render: r => `Round ${r.round}` },
+    {
+      label: "Round",
+      render: r => (r.status === "cancelled" ? "—" : `Round ${r.round}`)
+    },
     {
       label: "Sprint weekend",
       render: r => (r.is_sprint_weekend ? "Yes" : "No")
     },
-    { label: "Status", render: r => r.status }
+    {
+      label: "Status",
+      render: r =>
+        r.status
+          .split("_")
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ")
+    }
   ]
 
   return (

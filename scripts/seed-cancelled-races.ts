@@ -15,7 +15,7 @@ import { readFileSync } from "node:fs"
 import { join } from "node:path"
 import { db } from "@/db/db"
 import { racesTable, seriesTable } from "@/db/schema"
-import { and, eq } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import { buildRaceSlug } from "@/lib/series"
 import { findOrCreateCircuit } from "./_circuits"
 
@@ -47,33 +47,43 @@ async function main() {
   let added = 0
   let updated = 0
   for (const r of data.races) {
-    // Resolve to the real venue (must exist for a real cancelled GP).
-    const { id: circuitId } = await findOrCreateCircuit({
+    // The venue of a real cancelled GP must already exist. Fail fast rather than let
+    // findOrCreateCircuit fabricate a placeholder circuit at (0,0).
+    const circuit = await findOrCreateCircuit({
       circuit: r.circuit,
       location: r.country,
       country: r.country,
       latitude: 0,
       longitude: 0
     })
+    if (circuit.created) {
+      throw new Error(
+        `Circuit "${r.circuit}" for cancelled race "${r.name}" does not exist. ` +
+          `Add it (or a circuit-aliases.json entry) before seeding cancelled races.`
+      )
+    }
+    const circuitId = circuit.id
 
     const slug = buildRaceSlug(
       { name: series.name, shortName: series.shortName, slug: series.slug, eventNoun: series.eventNoun },
       { name: r.name, country: r.country, season: data.season }
     )
 
-    // Match an existing cancelled row by its original (prospective) round.
+    // Match any existing race for this event by slug, regardless of status, so we update
+    // in place instead of creating a duplicate that shares the (non-unique) slug.
     const [existing] = await db
-      .select({ id: racesTable.id })
+      .select({ id: racesTable.id, status: racesTable.status })
       .from(racesTable)
-      .where(
-        and(
-          eq(racesTable.seriesId, series.id),
-          eq(racesTable.season, data.season),
-          eq(racesTable.status, "cancelled"),
-          eq(racesTable.plannedRound, r.plannedRound)
-        )
-      )
+      .where(eq(racesTable.slug, slug))
       .limit(1)
+
+    if (existing && existing.status !== "cancelled") {
+      console.warn(
+        `  ! "${r.name}" already exists as a non-cancelled race (slug ${slug}); ` +
+          `skipping to avoid a duplicate. Cancel it via the admin UI instead.`
+      )
+      continue
+    }
 
     const values = {
       circuitId,

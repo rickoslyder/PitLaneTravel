@@ -39,6 +39,17 @@ export async function createTripAction(
   try {
     // Force ownership to the authenticated user; never trust a client-supplied userId.
     const userId = await requireAuth()
+
+    // Don't let users plan a trip to a cancelled race.
+    const [race] = await db
+      .select({ status: racesTable.status })
+      .from(racesTable)
+      .where(eq(racesTable.id, trip.raceId))
+      .limit(1)
+    if (race?.status === "cancelled") {
+      return { isSuccess: false, message: "This race has been cancelled" }
+    }
+
     const [newTrip] = await db
       .insert(tripsTable)
       .values({ ...trip, userId })

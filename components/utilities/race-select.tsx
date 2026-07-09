@@ -22,7 +22,7 @@ export function RaceSelect({ value, onValueChange }: RaceSelectProps) {
 
   useEffect(() => {
     async function fetchRaces() {
-      const result = await getRacesAction()
+      const result = await getRacesAction({ excludeCancelled: true })
       if (result.isSuccess) {
         setRaces(result.data)
       }

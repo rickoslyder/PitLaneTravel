@@ -6,6 +6,19 @@ import { ActionState } from "@/types"
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import { and, eq, gte, lte, ne, sql } from "drizzle-orm"
 import { InsertRace, SelectRace } from "@/db/schema/races-schema"
+import { requireAdmin, AuthError } from "@/lib/auth"
+
+/** Postgres unique-violation error code. */
+const PG_UNIQUE_VIOLATION = "23505"
+
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === PG_UNIQUE_VIOLATION
+  )
+}
 
 export async function getRacesAction(filters?: {
   year?: number
@@ -290,9 +303,11 @@ export async function createRaceAction(
     date: Date
     season: number
     round: number
+    plannedRound?: number | null
     country: string
     circuitId: string
     description?: string | null
+    cancellationReason?: string | null
     weekendStart?: Date | null
     weekendEnd?: Date | null
     status: "in_progress" | "upcoming" | "completed" | "cancelled"
@@ -302,6 +317,7 @@ export async function createRaceAction(
   }
 ): Promise<ActionState<SelectRace>> {
   try {
+    await requireAdmin()
     const [newRace] = await db.insert(racesTable).values(data).returning()
     return {
       isSuccess: true,
@@ -309,6 +325,15 @@ export async function createRaceAction(
       data: newRace
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
+    if (isUniqueViolation(error)) {
+      return {
+        isSuccess: false,
+        message: `Round ${data.round} is already taken by another race in this series and season. Cancelled races keep their slot — give this race a different round.`
+      }
+    }
     console.error("Error creating race:", error)
     return { isSuccess: false, message: "Failed to create race" }
   }
@@ -321,9 +346,11 @@ export async function updateRaceAction(
     date: Date
     season: number
     round: number
+    plannedRound?: number | null
     country: string
     circuitId: string
     description?: string | null
+    cancellationReason?: string | null
     weekendStart?: Date | null
     weekendEnd?: Date | null
     status: "in_progress" | "upcoming" | "completed" | "cancelled"
@@ -333,6 +360,7 @@ export async function updateRaceAction(
   }>
 ): Promise<ActionState<SelectRace>> {
   try {
+    await requireAdmin()
     const [updatedRace] = await db
       .update(racesTable)
       .set(data)
@@ -345,6 +373,16 @@ export async function updateRaceAction(
       data: updatedRace
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
+    if (isUniqueViolation(error)) {
+      return {
+        isSuccess: false,
+        message:
+          "That round is already taken by an active race in this series and season. Un-cancelling a race requires giving it a round that isn't already in use."
+      }
+    }
     console.error("Error updating race:", error)
     return { isSuccess: false, message: "Failed to update race" }
   }

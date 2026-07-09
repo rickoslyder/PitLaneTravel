@@ -224,20 +224,24 @@ export function RaceHero({
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:mt-8 sm:gap-4"
           >
-            <Button
-              size="lg"
-              className="group relative bg-[#E10600] px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-105 hover:bg-[#FF0800] hover:shadow-[0_0_30px_rgba(225,6,0,0.4)] sm:p-6 sm:text-base"
-              onClick={() => onTabChange("tickets")}
-            >
-              <div className="absolute inset-0 rounded-md bg-gradient-to-r from-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              <Ticket className="mr-2 size-4 sm:size-5" />
-              Book Now
-            </Button>
-            <TripPlannerButton
-              race={race}
-              userId={userId}
-              existingTripId={existingTripId}
-            />
+            {race.status !== "cancelled" && (
+              <>
+                <Button
+                  size="lg"
+                  className="group relative bg-[#E10600] px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-105 hover:bg-[#FF0800] hover:shadow-[0_0_30px_rgba(225,6,0,0.4)] sm:p-6 sm:text-base"
+                  onClick={() => onTabChange("tickets")}
+                >
+                  <div className="absolute inset-0 rounded-md bg-gradient-to-r from-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <Ticket className="mr-2 size-4 sm:size-5" />
+                  Book Now
+                </Button>
+                <TripPlannerButton
+                  race={race}
+                  userId={userId}
+                  existingTripId={existingTripId}
+                />
+              </>
+            )}
             <Button
               size="lg"
               variant="outline"

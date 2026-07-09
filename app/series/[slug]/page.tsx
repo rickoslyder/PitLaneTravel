@@ -36,7 +36,10 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
   const { isSuccess, data: series } = await getSeriesBySlugAction(slug)
   if (!isSuccess || !series) return notFound()
 
-  const { data: races } = await getRacesAction({ series: slug })
+  const { data: races } = await getRacesAction({
+    series: slug,
+    excludeCancelled: true
+  })
   const upcoming = (races ?? []).filter(r => r.status !== "completed")
 
   return (

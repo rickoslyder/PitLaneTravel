@@ -9,7 +9,9 @@ export default async function FlightsPage() {
   const { userId } = await auth()
   // if (!userId) redirect("/login")
 
-  const { data: races, isSuccess } = await getRacesAction()
+  const { data: races, isSuccess } = await getRacesAction({
+    excludeCancelled: true
+  })
   if (!isSuccess || !races) {
     throw new Error("Failed to fetch races")
   }

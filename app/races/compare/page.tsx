@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 }
 
 export default async function CompareRacesPage() {
-  const { data: races } = await getRacesAction()
+  const { data: races } = await getRacesAction({ excludeCancelled: true })
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-8">

@@ -46,8 +46,10 @@ const formSchema = z.object({
   date: z.string().min(1, "Date is required"),
   season: z.coerce.number().min(2024, "Season must be 2024 or later"),
   round: z.coerce.number().min(1, "Round must be at least 1"),
+  plannedRound: z.string().optional(),
   country: z.string().min(1, "Country is required"),
   description: z.string().optional(),
+  cancellationReason: z.string().optional(),
   weekendStart: z.string().optional(),
   weekendEnd: z.string().optional(),
   status: z.enum(["in_progress", "upcoming", "completed", "cancelled"]),
@@ -93,8 +95,10 @@ export function EditRaceDialog({
       date: format(new Date(race.date), "yyyy-MM-dd"),
       season: race.season,
       round: race.round,
+      plannedRound: race.plannedRound != null ? String(race.plannedRound) : "",
       country: race.country,
       description: race.description || "",
+      cancellationReason: race.cancellationReason || "",
       weekendStart: race.weekendStart
         ? format(new Date(race.weekendStart), "yyyy-MM-dd")
         : "",
@@ -113,8 +117,10 @@ export function EditRaceDialog({
       date: format(new Date(race.date), "yyyy-MM-dd"),
       season: race.season,
       round: race.round,
+      plannedRound: race.plannedRound != null ? String(race.plannedRound) : "",
       country: race.country,
       description: race.description || "",
+      cancellationReason: race.cancellationReason || "",
       weekendStart: race.weekendStart
         ? format(new Date(race.weekendStart), "yyyy-MM-dd")
         : "",
@@ -133,6 +139,10 @@ export function EditRaceDialog({
     try {
       const result = await updateRaceAction(race.id, {
         ...values,
+        plannedRound: values.plannedRound
+          ? Number(values.plannedRound)
+          : null,
+        cancellationReason: values.cancellationReason || null,
         date: new Date(values.date),
         weekendStart: values.weekendStart
           ? new Date(values.weekendStart)
@@ -251,6 +261,24 @@ export function EditRaceDialog({
 
             <FormField
               control={form.control}
+              name="plannedRound"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Planned round (optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Originally scheduled round, if different"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="country"
               render={({ field }) => (
                 <FormItem>
@@ -337,6 +365,25 @@ export function EditRaceDialog({
                 </FormItem>
               )}
             />
+
+            {form.watch("status") === "cancelled" && (
+              <FormField
+                control={form.control}
+                name="cancellationReason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cancellation reason</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Why is this race cancelled?"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}
