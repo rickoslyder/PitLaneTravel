@@ -40,6 +40,14 @@ function SeriesBadge({
   )
 }
 
+function CancelledBadge() {
+  return (
+    <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-950 dark:text-red-300">
+      Cancelled
+    </span>
+  )
+}
+
 export function RaceCard({
   race,
   variant = "grid",
@@ -47,12 +55,14 @@ export function RaceCard({
   onClick
 }: RaceCardProps) {
   const raceDate = new Date(race.date)
+  const isCancelled = race.status === "cancelled"
 
   if (variant === "list") {
     return (
       <Card
         className={cn(
           "flex flex-col sm:flex-row sm:items-center sm:justify-between",
+          isCancelled && "opacity-70",
           className
         )}
         onClick={onClick}
@@ -75,9 +85,17 @@ export function RaceCard({
           </CardHeader>
           <CardContent className="pb-2 pt-0 sm:py-6">
             <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <SeriesBadge race={race} />
-                <h3 className="font-semibold">{race.name}</h3>
+                {isCancelled && <CancelledBadge />}
+                <h3
+                  className={cn(
+                    "font-semibold",
+                    isCancelled && "line-through decoration-1"
+                  )}
+                >
+                  {race.name}
+                </h3>
               </div>
               <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm">
                 <div className="flex items-center gap-1">
@@ -91,6 +109,11 @@ export function RaceCard({
                   <span>{format(raceDate, "MMM d, yyyy")}</span>
                 </div>
               </div>
+              {isCancelled && race.cancellation_reason && (
+                <p className="text-xs text-red-600 dark:text-red-400">
+                  {race.cancellation_reason}
+                </p>
+              )}
             </div>
           </CardContent>
         </div>
@@ -102,14 +125,20 @@ export function RaceCard({
   }
 
   return (
-    <Card className={cn("group cursor-pointer", className)} onClick={onClick}>
+    <Card
+      className={cn(
+        "group cursor-pointer",
+        isCancelled && "opacity-70",
+        className
+      )}
+      onClick={onClick}
+    >
       <CardHeader className="pb-4">
         <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
-          {race.series && (
-            <div className="absolute left-2 top-2 z-10">
-              <SeriesBadge race={race} />
-            </div>
-          )}
+          <div className="absolute left-2 top-2 z-10 flex gap-1.5">
+            {race.series && <SeriesBadge race={race} />}
+            {isCancelled && <CancelledBadge />}
+          </div>
           {race.circuit?.image_url ? (
             <img
               src={race.circuit.image_url}
@@ -124,7 +153,14 @@ export function RaceCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-2.5">
-        <h3 className="line-clamp-2 font-semibold">{race.name}</h3>
+        <h3
+          className={cn(
+            "line-clamp-2 font-semibold",
+            isCancelled && "line-through decoration-1"
+          )}
+        >
+          {race.name}
+        </h3>
         <div className="text-muted-foreground flex flex-col gap-2 text-sm">
           <div className="flex items-center gap-1">
             <MapPin className="size-3.5" />
@@ -136,10 +172,19 @@ export function RaceCard({
             <CalendarDays className="size-3.5" />
             <span>{format(raceDate, "MMM d, yyyy")}</span>
           </div>
+          {isCancelled && race.cancellation_reason && (
+            <p className="text-xs text-red-600 dark:text-red-400">
+              {race.cancellation_reason}
+            </p>
+          )}
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full" onClick={onClick}>
+        <Button
+          className="w-full"
+          variant={isCancelled ? "outline" : "default"}
+          onClick={onClick}
+        >
           View Details
         </Button>
       </CardFooter>

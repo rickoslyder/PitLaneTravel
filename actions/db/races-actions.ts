@@ -4,7 +4,7 @@ import { db } from "@/db/db"
 import { circuitLocationsTable, circuitsTable, racesTable, seriesTable, supportingSeriesTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { RaceWithCircuitAndSeries } from "@/types/database"
-import { and, eq, sql } from "drizzle-orm"
+import { and, eq, gte, lte, ne, sql } from "drizzle-orm"
 import { InsertRace, SelectRace } from "@/db/schema/races-schema"
 
 export async function getRacesAction(filters?: {
@@ -13,6 +13,8 @@ export async function getRacesAction(filters?: {
   endDate?: string
   /** Series slug, e.g. "f1", "motogp". Omit for all series. */
   series?: string
+  /** Exclude races with status "cancelled" (e.g. for "upcoming" surfaces). */
+  excludeCancelled?: boolean
 }): Promise<ActionState<RaceWithCircuitAndSeries[]>> {
   try {
     const races = await db
@@ -32,8 +34,10 @@ export async function getRacesAction(filters?: {
         date: racesTable.date,
         season: racesTable.season,
         round: racesTable.round,
+        planned_round: racesTable.plannedRound,
         country: racesTable.country,
         description: racesTable.description,
+        cancellation_reason: racesTable.cancellationReason,
         weekend_start: racesTable.weekendStart,
         weekend_end: racesTable.weekendEnd,
         status: racesTable.status,
@@ -67,7 +71,16 @@ export async function getRacesAction(filters?: {
       .where(
         and(
           filters?.year ? eq(racesTable.season, filters.year) : undefined,
-          filters?.series ? eq(seriesTable.slug, filters.series) : undefined
+          filters?.series ? eq(seriesTable.slug, filters.series) : undefined,
+          filters?.startDate
+            ? gte(racesTable.date, new Date(filters.startDate))
+            : undefined,
+          filters?.endDate
+            ? lte(racesTable.date, new Date(filters.endDate))
+            : undefined,
+          filters?.excludeCancelled
+            ? ne(racesTable.status, "cancelled")
+            : undefined
         )
       )
       .orderBy(racesTable.date)
@@ -162,8 +175,10 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
         date: racesTable.date,
         season: racesTable.season,
         round: racesTable.round,
+        planned_round: racesTable.plannedRound,
         country: racesTable.country,
         description: racesTable.description,
+        cancellation_reason: racesTable.cancellationReason,
         weekend_start: racesTable.weekendStart,
         weekend_end: racesTable.weekendEnd,
         status: racesTable.status,
@@ -347,8 +362,10 @@ export async function getRaceBySlugAction(slug: string): Promise<ActionState<Rac
         date: racesTable.date,
         season: racesTable.season,
         round: racesTable.round,
+        planned_round: racesTable.plannedRound,
         country: racesTable.country,
         description: racesTable.description,
+        cancellation_reason: racesTable.cancellationReason,
         weekend_start: racesTable.weekendStart,
         weekend_end: racesTable.weekendEnd,
         status: racesTable.status,

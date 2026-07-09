@@ -1,0 +1,11 @@
+{
+  "_note": "Races that were on the original 2026 calendar but cancelled. Seeded with status='cancelled' and their original (prospective) round in planned_round, so fans searching for them get an explanation. Circuits matched by name (must exist). Consumed by scripts/seed-cancelled-races.ts.",
+  "_source": "https://en.wikipedia.org/wiki/2026_Bahrain_and_Saudi_Arabian_Grands_Prix",
+  "season": 2026,
+  "series": "f1",
+  "cancellationReason": "Cancelled after the outbreak of the 2026 Iran war; F1 and the FIA called off the race on safety grounds (announced 14 March 2026).",
+  "races": [
+    { "name": "Bahrain Grand Prix 2026", "circuit": "Bahrain International Circuit", "country": "Bahrain", "plannedRound": 4, "date": "2026-04-12" },
+    { "name": "Saudi Arabian Grand Prix 2026", "circuit": "Jeddah Corniche Circuit", "country": "Saudi Arabia", "plannedRound": 5, "date": "2026-04-19" }
+  ]
+}

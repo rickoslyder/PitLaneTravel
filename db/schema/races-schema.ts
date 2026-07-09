@@ -47,9 +47,17 @@ export const racesTable = pgTable("races", {
   name: text("name").notNull(),
   date: timestamp("date", { withTimezone: true }).notNull(),
   season: integer("season").notNull(),
+  // Current position in the season's run calendar. Uniqueness is enforced only among
+  // non-cancelled races (partial index), so a cancelled race can keep the slot it was
+  // meant to occupy without blocking the race that actually runs in that position.
   round: integer("round").notNull(),
+  // The originally-published round number, when it differs from `round` (e.g. a race that
+  // was cancelled or shuffled mid-season). Null means the race runs in its original slot.
+  plannedRound: integer("planned_round"),
   country: text("country").notNull(),
   description: text("description"),
+  // Populated when status is "cancelled": why the race is not taking place.
+  cancellationReason: text("cancellation_reason"),
   weekendStart: timestamp("weekend_start", { withTimezone: true }),
   weekendEnd: timestamp("weekend_end", { withTimezone: true }),
   status: raceStatusEnum("status").default("upcoming").notNull(),

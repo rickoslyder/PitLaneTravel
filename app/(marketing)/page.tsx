@@ -40,7 +40,8 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const { data: upcomingRaces } = await getRacesAction({
-    startDate: new Date().toISOString()
+    startDate: new Date().toISOString(),
+    excludeCancelled: true
   })
 
   // Dynamically import components that are not needed for initial render

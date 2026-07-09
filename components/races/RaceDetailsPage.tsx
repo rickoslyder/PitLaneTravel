@@ -300,6 +300,21 @@ export function RaceDetailsPage({
         onTabChange={handleTabChange}
       />
 
+      {race.status === "cancelled" && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+          <div
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200"
+          >
+            <p className="font-semibold">This race has been cancelled.</p>
+            <p className="mt-1">
+              {race.cancellation_reason ??
+                "This event is not taking place. Check the calendar for the rest of the season."}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <Tabs
           value={activeTab}

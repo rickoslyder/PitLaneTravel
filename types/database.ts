@@ -1798,8 +1798,10 @@ export interface RaceWithCircuitAndSeries {
   date: string
   season: number
   round: number
+  planned_round?: number | null
   country: string
   description: string | null
+  cancellation_reason?: string | null
   weekend_start: string | null
   weekend_end: string | null
   status: "in_progress" | "upcoming" | "completed" | "cancelled"
