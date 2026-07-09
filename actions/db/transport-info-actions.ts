@@ -1,10 +1,49 @@
 "use server"
 
 import { db } from "@/db/db"
-import { transportInfoTable } from "@/db/schema"
+import { circuitsTable, transportInfoTable, SelectCircuit } from "@/db/schema"
 import { ActionState } from "@/types"
 import { InsertTransportInfo, SelectTransportInfo } from "@/db/schema"
-import { desc, eq } from "drizzle-orm"
+import { asc, desc, eq } from "drizzle-orm"
+
+export interface CircuitWithTransport extends SelectCircuit {
+  transport: SelectTransportInfo[]
+}
+
+/** Circuits that have transport info documented, for the public transport guide. */
+export async function getCircuitsWithTransportAction(): Promise<
+  ActionState<CircuitWithTransport[]>
+> {
+  try {
+    const rows = await db
+      .select({ circuit: circuitsTable, transport: transportInfoTable })
+      .from(transportInfoTable)
+      .innerJoin(
+        circuitsTable,
+        eq(transportInfoTable.circuitId, circuitsTable.id)
+      )
+      .orderBy(asc(circuitsTable.name))
+
+    const byCircuit = new Map<string, CircuitWithTransport>()
+    for (const { circuit, transport } of rows) {
+      const existing = byCircuit.get(circuit.id)
+      if (existing) existing.transport.push(transport)
+      else byCircuit.set(circuit.id, { ...circuit, transport: [transport] })
+    }
+
+    return {
+      isSuccess: true,
+      message: "Circuits with transport retrieved successfully",
+      data: Array.from(byCircuit.values())
+    }
+  } catch (error) {
+    console.error("Error getting circuits with transport:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to get circuits with transport"
+    }
+  }
+}
 
 export async function getTransportInfoAction(): Promise<ActionState<SelectTransportInfo[]>> {
   try {
