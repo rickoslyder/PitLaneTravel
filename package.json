@@ -28,7 +28,8 @@
     "supasync:include-all": "supabase db dump --schema public --file public_schema.sql && supabase db push --include-all && npm run gen-types",
     "migrate:track-maps": "tsx scripts/migrate-track-maps.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:migrate-sql": "tsx scripts/apply-sql-migrations.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.11",

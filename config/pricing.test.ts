@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest"
-import { toStripeMinorUnits, flightServiceFee, flightChargeTotal } from "./pricing"
+import {
+  toStripeMinorUnits,
+  flightServiceFee,
+  flightChargeTotal,
+  isSupportedCurrency
+} from "./pricing"
 
 describe("toStripeMinorUnits", () => {
   it("converts decimal currencies to cents", () => {
@@ -27,5 +32,25 @@ describe("flightServiceFee", () => {
   it("handles junk input without producing NaN", () => {
     expect(flightServiceFee("not-a-number")).toBe("0.00")
     expect(flightServiceFee(-5)).toBe("0.00")
+  })
+})
+
+describe("three-decimal currencies", () => {
+  it("uses 1/1000 units for BHD/JOD/KWD/OMR/TND", () => {
+    // Multiplying these by 100 would charge one tenth of the intended amount.
+    expect(toStripeMinorUnits("250.000", "KWD")).toBe(250000)
+    expect(toStripeMinorUnits("10.500", "BHD")).toBe(10500)
+    expect(toStripeMinorUnits("1.000", "omr")).toBe(1000)
+  })
+})
+
+describe("isSupportedCurrency", () => {
+  it("accepts currencies we can charge correctly", () => {
+    expect(isSupportedCurrency("GBP")).toBe(true)
+    expect(isSupportedCurrency("jpy")).toBe(true)
+  })
+  it("rejects currencies outside the allowlist rather than guessing the exponent", () => {
+    expect(isSupportedCurrency("KWD")).toBe(false)
+    expect(isSupportedCurrency("XYZ")).toBe(false)
   })
 })

@@ -197,3 +197,52 @@ Still behind `FLIGHTS_BOOKING_ENABLED` (off), so nothing here is live.
 process dies between the Stripe charge and the refund call, reconciliation is manual.
 A durable job queue or Stripe webhook reconciliation would close it properly — worth
 doing before the flag is ever turned on, alongside the client-side Elements step.
+
+---
+
+## Adversarial review of the payment flow — 10 findings, all fixed
+
+**Commit before this change:** `437f703`.
+
+The review workflow largely **failed** (13 of 14 agents hit a session limit), so its
+`count: 0` was an artifact, not a clean bill of health. One reviewer — payments —
+completed and returned 10 findings. Because its verifiers died, I verified each against
+the code myself. All were real. Fixes:
+
+1. **CRITICAL — concurrent double-submit could refund a *successful* booking (free
+   flight).** The single-use check was a read-then-act SELECT with a multi-second Duffel
+   call before the INSERT, so two parallel requests both passed it; the loser's Duffel
+   call failed and my refund block then refunded the payment backing the winner's
+   confirmed order. **Fix:** the PaymentIntent is now *reserved* by inserting a `pending`
+   booking row **before** calling Duffel. The unique index makes that the concurrency
+   guard — the second request loses at the INSERT and never reaches Duffel.
+2. **HIGH — post-charge 402/409 rejections kept the money.** Every payment-mismatch and
+   expiry branch now refunds before returning.
+3. **HIGH — failures *after* a successful order lost the ticket.** `raceId` was unvalidated
+   and could throw on INSERT after the flight was already issued. The row now exists
+   beforehand, and the post-order path never throws: it returns the booking reference with
+   a warning rather than 500-ing away the only record of a paid ticket.
+4. **HIGH — 10× undercharge on three-decimal currencies.** BHD/JOD/KWD/OMR/TND are
+   1/1000 units; ×100 charged a tenth. Added the exponent **and** a currency allowlist, so
+   an unknown currency is refused rather than guessed.
+5. **MEDIUM — my "never loses money" claim was wrong.** At a 0% fee the platform pays
+   Stripe processing (~1.5–2.9% + fixed) and FX on every booking, so it loses money per
+   sale. Corrected here and in SPEC; the fee env vars are now in `.env.example`.
+6. **MEDIUM — the flat minimum fee is currency-blind** (a GBP-tuned floor is ~700× off
+   against JPY). Documented in the code; prefer the percentage.
+7. **MEDIUM — migrations 0003–0006 were not in the drizzle journal**, so `npm run
+   db:migrate` would provision a database *without* the payment-reuse index. Added
+   `scripts/apply-sql-migrations.ts` (`npm run db:migrate-sql`) which applies them in
+   order and records them. **This immediately caught a latent bug:** 0003 created a
+   *non-partial* unique index that a fresh DB can no longer build, because cancelled races
+   legitimately share a round. 0003 now creates the partial index directly.
+8. **LOW** — offer expiry is re-checked before charging through to Duffel.
+9. **LOW** — refunds use an idempotency key and treat "already refunded" as success, so a
+   retry no longer tells a refunded customer that their refund failed.
+10. **LOW** — fee env vars are validated at load and throw a named error instead of
+    turning into `NaN` and 500-ing every payment request.
+
+Still behind `FLIGHTS_BOOKING_ENABLED` (off). **The remaining gap is unchanged and
+important: this is not a distributed transaction.** If the process dies between the Stripe
+charge and the refund, reconciliation is manual. Close that with Stripe webhook
+reconciliation before the flag is ever turned on.

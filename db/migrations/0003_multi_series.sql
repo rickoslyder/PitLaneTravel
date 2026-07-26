@@ -37,7 +37,12 @@ UPDATE "races" SET "series_id" = (SELECT id FROM "series" WHERE slug = 'f1') WHE
 ALTER TABLE "races" ALTER COLUMN "series_id" SET NOT NULL;
 CREATE INDEX IF NOT EXISTS "races_series_id_idx" ON "races" ("series_id");
 -- Round numbers are unique per series-season, not globally.
-CREATE UNIQUE INDEX IF NOT EXISTS "races_series_season_round_idx" ON "races" ("series_id", "season", "round");
+-- Round numbers are unique per series-season among races that actually run. Cancelled
+-- races are excluded so they can keep the slot they were meant to occupy (see 0005);
+-- this is created in its final partial form so a fresh database provisions correctly.
+CREATE UNIQUE INDEX IF NOT EXISTS "races_series_season_round_active_idx"
+  ON "races" ("series_id", "season", "round")
+  WHERE "status" <> 'cancelled';
 
 -- 4. Provider-keyed external ids (replaces provider-specific columns on core tables).
 CREATE TABLE IF NOT EXISTS "race_external_ids" (

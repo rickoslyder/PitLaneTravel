@@ -7,14 +7,29 @@ so the customer must be charged the offer total PLUS this fee before the order i
 */
 
 /** Percentage of the flight offer total taken as a service fee. */
-const FLIGHT_SERVICE_FEE_PERCENT = Number(
-  process.env.FLIGHT_SERVICE_FEE_PERCENT ?? "0"
-)
+function numericEnv(name: string): number {
+  const raw = process.env[name]
+  if (raw === undefined || raw === "") return 0
+  const value = Number(raw)
+  if (!Number.isFinite(value) || value < 0) {
+    // Fail loudly at load: a malformed fee would otherwise become NaN and 500 every
+    // payment request with no hint as to which variable is wrong.
+    throw new Error(
+      `${name} must be a non-negative number, got ${JSON.stringify(raw)}`
+    )
+  }
+  return value
+}
+
+const FLIGHT_SERVICE_FEE_PERCENT = numericEnv("FLIGHT_SERVICE_FEE_PERCENT")
 
 /** Flat minimum service fee, in major currency units (e.g. 4.99). */
-const FLIGHT_SERVICE_FEE_MINIMUM = Number(
-  process.env.FLIGHT_SERVICE_FEE_MINIMUM ?? "0"
-)
+/**
+ * Flat minimum fee. NOTE: this is currency-blind — it is applied as-is whatever the
+ * offer currency is, so a value tuned for GBP is meaningless against JPY. Prefer setting
+ * only FLIGHT_SERVICE_FEE_PERCENT unless you charge in a single currency.
+ */
+const FLIGHT_SERVICE_FEE_MINIMUM = numericEnv("FLIGHT_SERVICE_FEE_MINIMUM")
 
 /**
  * Service fee for a flight offer, in the offer's currency, rounded to 2dp.
@@ -43,10 +58,26 @@ const ZERO_DECIMAL_CURRENCIES = new Set([
   "PYG", "RWF", "UGX", "VND", "VUV", "XAF", "XOF", "XPF"
 ])
 
+/** Stripe expresses these in 1/1000 units, not 1/100. Multiplying by 100 undercharges 10x. */
+const THREE_DECIMAL_CURRENCIES = new Set(["BHD", "JOD", "KWD", "OMR", "TND"])
+
+/**
+ * Currencies we are willing to charge in. Anything outside this list is refused rather
+ * than guessed at, because getting the minor-unit exponent wrong mischarges the customer.
+ */
+export const CHARGEABLE_CURRENCIES = new Set([
+  "USD", "EUR", "GBP", "AUD", "CAD", "CHF", "SEK", "NOK", "DKK",
+  "NZD", "SGD", "HKD", "AED", "JPY"
+])
+
+export function isSupportedCurrency(currency: string): boolean {
+  return CHARGEABLE_CURRENCIES.has(currency.toUpperCase())
+}
+
 export function toStripeMinorUnits(amount: string | number, currency: string): number {
   const value = typeof amount === "string" ? Number(amount) : amount
-  if (ZERO_DECIMAL_CURRENCIES.has(currency.toUpperCase())) {
-    return Math.round(value)
-  }
+  const code = currency.toUpperCase()
+  if (ZERO_DECIMAL_CURRENCIES.has(code)) return Math.round(value)
+  if (THREE_DECIMAL_CURRENCIES.has(code)) return Math.round(value * 1000)
   return Math.round(value * 100)
 }

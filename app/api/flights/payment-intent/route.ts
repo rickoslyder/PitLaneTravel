@@ -8,6 +8,7 @@ import { features } from "@/config/features"
 import {
   flightChargeTotal,
   flightServiceFee,
+  isSupportedCurrency,
   toStripeMinorUnits
 } from "@/config/pricing"
 
@@ -44,6 +45,15 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "This offer has expired. Please search again." },
         { status: 409 }
+      )
+    }
+
+    if (!isSupportedCurrency(offer.total_currency)) {
+      return NextResponse.json(
+        {
+          error: `We can't process payments in ${offer.total_currency} yet. Please search again in a supported currency.`
+        },
+        { status: 400 }
       )
     }
 

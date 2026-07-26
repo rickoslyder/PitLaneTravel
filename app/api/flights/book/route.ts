@@ -3,14 +3,66 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { duffel } from "@/lib/duffel"
-import { createFlightBookingAction } from "@/actions/db/flight-bookings-actions"
+import { updateFlightBookingByIdAction } from "@/actions/db/flight-bookings-actions"
 import { isValidPhoneNumber } from "libphonenumber-js"
 import { features } from "@/config/features"
 import { stripe } from "@/lib/stripe"
-import { flightChargeTotal, flightServiceFee, toStripeMinorUnits } from "@/config/pricing"
+import {
+  flightChargeTotal,
+  flightServiceFee,
+  isSupportedCurrency,
+  toStripeMinorUnits
+} from "@/config/pricing"
 import { db } from "@/db/db"
 import { flightBookingsTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
+
+/** Postgres unique-violation code. */
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "23505"
+  )
+}
+
+/**
+ * Refund a PaymentIntent, tolerating the retry case. Returns true when the customer
+ * ends up refunded (including when they already were), false when manual intervention
+ * is needed. An idempotency key makes a retried request safe.
+ */
+async function refundPaymentIntent(paymentIntentId: string): Promise<boolean> {
+  try {
+    await stripe.refunds.create(
+      { payment_intent: paymentIntentId, reason: "requested_by_customer" },
+      { idempotencyKey: `refund_${paymentIntentId}` }
+    )
+    return true
+  } catch (error) {
+    // Stripe rejects a second full refund; that means the customer already has
+    // their money back, which is the outcome we want.
+    const code = (error as { code?: string })?.code
+    if (code === "charge_already_refunded") return true
+    try {
+      const existing = await stripe.refunds.list({
+        payment_intent: paymentIntentId,
+        limit: 1
+      })
+      if (existing.data.some(r => r.status === "succeeded" || r.status === "pending")) {
+        return true
+      }
+    } catch {
+      // fall through to the failure path below
+    }
+    console.error(
+      "[flights/book] REFUND FAILED — manual intervention required",
+      { paymentIntentId },
+      error
+    )
+    return false
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -86,6 +138,17 @@ export async function POST(request: Request) {
 
     // Get the latest offer data
     const { data: offer } = await duffel.offers.get(offerId)
+    if (!offer) {
+      return NextResponse.json({ error: "Offer not found" }, { status: 404 })
+    }
+    if (!isSupportedCurrency(offer.total_currency)) {
+      return NextResponse.json(
+        {
+          error: `We can't process payments in ${offer.total_currency} yet. Please search again in a supported currency.`
+        },
+        { status: 400 }
+      )
+    }
 
     // Authorise the Duffel order against the customer's payment. Everything here is
     // re-derived server-side: a client that lies about the PaymentIntent, reuses one, or
@@ -116,19 +179,85 @@ export async function POST(request: Request) {
         paymentIntentId,
         offerId
       })
-      return NextResponse.json({ error: paymentProblem }, { status: 402 })
+      // The card is already charged by the time these checks can fail, so give the
+      // money back rather than keeping it for a booking we are refusing to make.
+      const refunded =
+        paymentIntent.status === "succeeded"
+          ? await refundPaymentIntent(paymentIntentId)
+          : true
+      return NextResponse.json(
+        {
+          error: refunded
+            ? `${paymentProblem}. Your payment has been refunded.`
+            : `${paymentProblem}. We could not refund you automatically — please contact support quoting ${paymentIntentId}.`
+        },
+        { status: 402 }
+      )
     }
 
-    // A PaymentIntent may only ever back one booking (also enforced by a unique index).
-    const alreadyUsed = await db
-      .select({ id: flightBookingsTable.id })
-      .from(flightBookingsTable)
-      .where(eq(flightBookingsTable.paymentIntentId, paymentIntentId))
-      .limit(1)
-    if (alreadyUsed.length > 0) {
+    // The offer must still be live: ordering an expired offer fails at Duffel, and by
+    // then the customer has been charged and needs a refund cycle they never needed.
+    if (new Date(offer.expires_at) <= new Date()) {
+      const refunded = await refundPaymentIntent(paymentIntentId)
       return NextResponse.json(
-        { error: "This payment has already been used for a booking" },
+        {
+          error: refunded
+            ? "This fare expired before the booking completed, so your payment has been refunded. Please search again."
+            : `This fare expired and we could not refund you automatically — please contact support quoting ${paymentIntentId}.`
+        },
         { status: 409 }
+      )
+    }
+
+    // Reserve the PaymentIntent by writing a `pending` booking BEFORE calling Duffel.
+    // The unique index on payment_intent_id makes this the concurrency guard: a second
+    // in-flight request for the same payment loses here, so it can never reach Duffel
+    // and can never refund the payment that backs the winner's confirmed order.
+    let bookingId: string
+    try {
+      const [reserved] = await db
+        .insert(flightBookingsTable)
+        .values({
+          userId,
+          raceId,
+          offerId,
+          status: "pending",
+          paymentIntentId,
+          serviceFeeAmount: flightServiceFee(offer.total_amount),
+          amountCharged: expectedCharge,
+          totalAmount: offer.total_amount,
+          totalCurrency: offer.total_currency,
+          departureIata: offer.slices[0].segments[0].origin.iata_code ?? "",
+          arrivalIata: offer.slices[0].segments[0].destination.iata_code ?? "",
+          departureTime: new Date(offer.slices[0].segments[0].departing_at),
+          arrivalTime: new Date(offer.slices[0].segments[0].arriving_at),
+          offerData: offer,
+          passengerData: passengers.map(
+            ({ isPhoneValid, ...passenger }: any) => passenger
+          ),
+          expiresAt: new Date(offer.expires_at)
+        })
+        .returning({ id: flightBookingsTable.id })
+      bookingId = reserved.id
+    } catch (reserveError) {
+      // Unique violation => this payment is already reserved or used by another request.
+      if (isUniqueViolation(reserveError)) {
+        return NextResponse.json(
+          { error: "This payment is already being used for a booking" },
+          { status: 409 }
+        )
+      }
+      // Anything else (e.g. a malformed raceId) fails before any airline order exists,
+      // so the customer can be refunded cleanly.
+      console.error("[flights/book] could not reserve booking:", reserveError)
+      const refunded = await refundPaymentIntent(paymentIntentId)
+      return NextResponse.json(
+        {
+          error: refunded
+            ? "We couldn't start your booking, so your payment has been refunded."
+            : `We couldn't start your booking and the refund failed — please contact support quoting ${paymentIntentId}.`
+        },
+        { status: refunded ? 400 : 500 }
       )
     }
 
@@ -156,21 +285,16 @@ export async function POST(request: Request) {
     } catch (orderError) {
       console.error(
         "[flights/book] Duffel order failed after payment; refunding",
-        { paymentIntentId, offerId },
+        { paymentIntentId, offerId, bookingId },
         orderError
       )
-      try {
-        await stripe.refunds.create({
-          payment_intent: paymentIntentId,
-          reason: "requested_by_customer"
-        })
-      } catch (refundError) {
-        // Surface loudly: the customer is out of pocket and needs a manual refund.
-        console.error(
-          "[flights/book] REFUND FAILED — manual intervention required",
-          { paymentIntentId },
-          refundError
-        )
+      const refunded = await refundPaymentIntent(paymentIntentId)
+      await db
+        .update(flightBookingsTable)
+        .set({ status: "failed" })
+        .where(eq(flightBookingsTable.id, bookingId))
+
+      if (!refunded) {
         return NextResponse.json(
           {
             error:
@@ -189,43 +313,34 @@ export async function POST(request: Request) {
       )
     }
 
-    // Ensure IATA codes are available
-    const departureIata = offer.slices[0].segments[0].origin.iata_code
-    const arrivalIata = offer.slices[0].segments[0].destination.iata_code
-
-    if (!departureIata || !arrivalIata) {
-      throw new Error("Missing required IATA codes")
-    }
-
-    // Store the booking in the database
-    const result = await createFlightBookingAction({
-      userId,
-      raceId,
-      offerId,
+    // From here the airline order EXISTS and the customer has been charged. Never throw:
+    // any failure now must still persist the order reference, or we lose the only record
+    // of a real ticket the customer paid for.
+    const result = await updateFlightBookingByIdAction(bookingId, {
       orderId: order.id,
       bookingReference: order.booking_reference,
       status: "confirmed",
-      offerData: offer,
-      passengerData: passengers.map(
-        ({ isPhoneValid, ...passenger }) => passenger
-      ),
-      departureIata,
-      arrivalIata,
+      departureIata: offer.slices[0].segments[0].origin.iata_code || "UNKNOWN",
+      arrivalIata:
+        offer.slices[0].segments[0].destination.iata_code || "UNKNOWN",
       departureCity: offer.slices[0].segments[0].origin.city_name || null,
       arrivalCity: offer.slices[0].segments[0].destination.city_name || null,
-      departureTime: new Date(offer.slices[0].segments[0].departing_at),
-      arrivalTime: new Date(offer.slices[0].segments[0].arriving_at),
-      totalAmount: offer.total_amount,
-      totalCurrency: offer.total_currency,
-      paymentIntentId,
-      serviceFeeAmount: flightServiceFee(offer.total_amount),
-      amountCharged: expectedCharge,
-      expiresAt: new Date(offer.expires_at),
       completedAt: new Date()
     })
 
-    if (!result.isSuccess || !result.data) {
-      throw new Error("Failed to create booking record")
+    if (!result.isSuccess) {
+      // The ticket is issued; surface the reference so the customer is not stranded.
+      console.error(
+        "[flights/book] ORDER CREATED BUT RECORD UPDATE FAILED — manual reconciliation required",
+        { bookingId, orderId: order.id, bookingReference: order.booking_reference }
+      )
+      return NextResponse.json({
+        success: true,
+        warning:
+          "Your flight is booked, but we had trouble saving it to your account. Please keep your booking reference.",
+        bookingReference: order.booking_reference,
+        orderId: order.id
+      })
     }
 
     return NextResponse.json({

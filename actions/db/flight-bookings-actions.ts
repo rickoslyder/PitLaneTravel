@@ -506,3 +506,31 @@ export async function resyncTripFlightBookingsAction(
     }
   }
 } 
+/**
+ * Update a booking by its primary key. Used to promote the `pending` row that reserved
+ * the PaymentIntent into a `confirmed` booking once the airline order exists.
+ */
+export async function updateFlightBookingByIdAction(
+  id: string,
+  data: Partial<InsertFlightBooking>
+): Promise<ActionState<SelectFlightBooking>> {
+  try {
+    const [updated] = await db
+      .update(flightBookingsTable)
+      .set(data)
+      .where(eq(flightBookingsTable.id, id))
+      .returning()
+
+    if (!updated) {
+      return { isSuccess: false, message: "Booking not found" }
+    }
+    return {
+      isSuccess: true,
+      message: "Booking updated successfully",
+      data: updated
+    }
+  } catch (error) {
+    console.error("Error updating flight booking:", error)
+    return { isSuccess: false, message: "Failed to update booking" }
+  }
+}
