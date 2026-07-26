@@ -266,7 +266,7 @@ export const HeroSection = () => {
                 >
                   <Link href="/races">
                     <FlagIcon className="mr-2 size-4 sm:size-5" />
-                    View 2025 Races
+                    View Race Calendar
                   </Link>
                 </Button>
                 <Button
@@ -305,7 +305,7 @@ export const HeroSection = () => {
         >
           <div className="flex flex-col items-center gap-2">
             <Calendar className="size-8 text-[#E10600]" />
-            <h3 className="text-lg font-semibold">24 Race Weekends</h3>
+            <h3 className="text-lg font-semibold">Race Weekends Worldwide</h3>
             <p className="text-muted-foreground text-center">
               Experience the thrill of racing at iconic circuits worldwide
             </p>
