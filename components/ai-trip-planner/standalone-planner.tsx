@@ -28,7 +28,7 @@ export function StandalonePlanner() {
 
   return (
     <div className="space-y-4">
-      <AiTripPlanner onAddActivity={handleAddActivity} />
+      <AiTripPlanner onAddActivity={handleAddActivity} standalone />
       {added.length > 0 && (
         <div className="rounded-lg border p-4">
           <h3 className="mb-2 text-sm font-semibold">

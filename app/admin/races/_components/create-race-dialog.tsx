@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { createRaceAction } from "@/actions/db/races-actions"
+import { getAllSeriesAction } from "@/actions/db/series-actions"
 import { toast } from "sonner"
 import { useState, useEffect } from "react"
 import { SelectCircuit } from "@/db/schema"
@@ -53,7 +54,8 @@ const formSchema = z.object({
     .enum(["in_progress", "upcoming", "completed", "cancelled"])
     .default("upcoming"),
   isSprintWeekend: z.boolean().default(false),
-  circuitId: z.string().min(1, "Circuit is required")
+  circuitId: z.string().min(1, "Circuit is required"),
+  seriesId: z.string().min(1, "Series is required")
 })
 
 interface CreateRaceDialogProps {
@@ -69,6 +71,7 @@ export function CreateRaceDialog({
 }: CreateRaceDialogProps) {
   const [loading, setLoading] = useState(false)
   const [circuits, setCircuits] = useState<SelectCircuit[]>([])
+  const [series, setSeries] = useState<{ id: string; name: string }[]>([])
 
   useEffect(() => {
     const fetchCircuits = async () => {
@@ -83,6 +86,19 @@ export function CreateRaceDialog({
     }
 
     fetchCircuits()
+
+    const fetchSeries = async () => {
+      const result = await getAllSeriesAction()
+      if (result.isSuccess) {
+        setSeries(result.data.map(x => ({ id: x.id, name: x.name })))
+        // Default to the first (lowest sort_order) series, i.e. Formula 1.
+        const current = form.getValues("seriesId")
+        if (!current && result.data[0]) {
+          form.setValue("seriesId", result.data[0].id)
+        }
+      }
+    }
+    fetchSeries()
   }, [])
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -98,7 +114,8 @@ export function CreateRaceDialog({
       weekendEnd: "",
       status: "upcoming",
       isSprintWeekend: false,
-      circuitId: ""
+      circuitId: "",
+      seriesId: ""
     }
   })
 
@@ -146,6 +163,31 @@ export function CreateRaceDialog({
                   <FormControl>
                     <Input placeholder="Monaco Grand Prix" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="seriesId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Series</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a series" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {series.map(s => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

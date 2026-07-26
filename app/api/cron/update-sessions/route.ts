@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { db } from "@/db/db"
 import { racesTable, seriesTable, supportingSeriesTable } from "@/db/schema"
-import { and, gte, lte, isNotNull, eq } from "drizzle-orm"
+import { and, gte, lte, isNotNull, eq, notInArray, sql } from "drizzle-orm"
 import { SupportingSeriesMapper } from "@/services/openf1/supporting-series-mapper"
 import { getProvider } from "@/services/providers"
 import { verifyCronRequest } from "@/lib/cron"
@@ -27,7 +27,11 @@ async function handleUpdateSessions(req: Request) {
     const windowStart = new Date(now.getTime() - 2 * 60 * 60 * 1000) // 2 hours ago
     const windowEnd = new Date(now.getTime() + 2 * 60 * 60 * 1000) // 2 hours from now
 
-    // Find active races (any series) with their series' data-provider slug.
+    // Select every race that still needs a status transition: one whose weekend has
+    // started (or starts before the next daily run) and that hasn't reached a terminal
+    // state. Selecting on `date` alone would miss the move to "completed", because a
+    // manual race's end is weekendEnd (or date + 24h), not the date instant itself.
+    const startHorizon = new Date(now.getTime() + 48 * 60 * 60 * 1000)
     const activeRaces = await db
       .select({
         race: racesTable,
@@ -36,7 +40,13 @@ async function handleUpdateSessions(req: Request) {
       .from(racesTable)
       .leftJoin(seriesTable, eq(racesTable.seriesId, seriesTable.id))
       .where(
-        and(gte(racesTable.date, windowStart), lte(racesTable.date, windowEnd))
+        and(
+          notInArray(racesTable.status, ["completed", "cancelled"]),
+          lte(
+            sql`coalesce(${racesTable.weekendStart}, ${racesTable.date})`,
+            startHorizon
+          )
+        )
       )
 
     // Find active supporting series

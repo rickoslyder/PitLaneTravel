@@ -306,6 +306,8 @@ export async function createRaceAction(
     plannedRound?: number | null
     country: string
     circuitId: string
+    /** Championship this race belongs to. Defaults to Formula 1 when omitted. */
+    seriesId?: string | null
     description?: string | null
     cancellationReason?: string | null
     weekendStart?: Date | null
@@ -318,7 +320,29 @@ export async function createRaceAction(
 ): Promise<ActionState<SelectRace>> {
   try {
     await requireAdmin()
-    const [newRace] = await db.insert(racesTable).values(data).returning()
+
+    // races.series_id is NOT NULL; fall back to Formula 1 for callers that predate the
+    // multi-series schema rather than failing with a not-null violation.
+    let seriesId = data.seriesId
+    if (!seriesId) {
+      const [f1] = await db
+        .select({ id: seriesTable.id })
+        .from(seriesTable)
+        .where(eq(seriesTable.slug, "f1"))
+        .limit(1)
+      if (!f1) {
+        return {
+          isSuccess: false,
+          message: "No series found — seed the series table before creating races."
+        }
+      }
+      seriesId = f1.id
+    }
+
+    const [newRace] = await db
+      .insert(racesTable)
+      .values({ ...data, seriesId })
+      .returning()
     return {
       isSuccess: true,
       message: "Race created successfully",
