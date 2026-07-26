@@ -3,7 +3,11 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { duffel } from "@/lib/duffel"
-import { updateFlightBookingByIdAction } from "@/actions/db/flight-bookings-actions"
+import {
+  findBookingByPaymentIntent,
+  reclaimStaleReservation,
+  updateFlightBookingById
+} from "@/db/queries/flight-bookings"
 import { isValidPhoneNumber } from "libphonenumber-js"
 import { features } from "@/config/features"
 import { stripe } from "@/lib/stripe"
@@ -42,8 +46,13 @@ async function refundPaymentIntent(paymentIntentId: string): Promise<boolean> {
   } catch (error) {
     // Stripe rejects a second full refund; that means the customer already has
     // their money back, which is the outcome we want.
-    const code = (error as { code?: string })?.code
-    if (code === "charge_already_refunded") return true
+    const err = error as { code?: string; type?: string }
+    if (err?.code === "charge_already_refunded") return true
+    // Two requests refunding the same intent share our idempotency key; the loser gets
+    // an idempotency error even though the refund itself succeeded.
+    if (err?.type === "idempotency_error" || err?.code === "idempotency_key_in_use") {
+      return true
+    }
     try {
       const existing = await stripe.refunds.list({
         payment_intent: paymentIntentId,
@@ -174,22 +183,34 @@ export async function POST(request: Request) {
                 ? "Payment amount does not cover the current offer price"
                 : null
 
+    // NEVER refund a PaymentIntent that is already attached to a booking. Replaying a
+    // used PaymentIntent against a different offer trips the mismatch checks below, and
+    // refunding there would claw back the money for a flight that was actually ticketed.
+    const existingBooking = await findBookingByPaymentIntent(paymentIntentId)
+    const refundIfUnused = async () =>
+      existingBooking ? false : await refundPaymentIntent(paymentIntentId)
+
+    if (existingBooking && existingBooking.status !== "pending") {
+      return NextResponse.json(
+        { error: "This payment has already been used for a booking" },
+        { status: 409 }
+      )
+    }
+
     if (paymentProblem) {
       console.error("[flights/book] payment rejected:", paymentProblem, {
         paymentIntentId,
         offerId
       })
       // The card is already charged by the time these checks can fail, so give the
-      // money back rather than keeping it for a booking we are refusing to make.
+      // money back — unless it is backing an existing booking (guarded above).
       const refunded =
-        paymentIntent.status === "succeeded"
-          ? await refundPaymentIntent(paymentIntentId)
-          : true
+        paymentIntent.status === "succeeded" ? await refundIfUnused() : true
       return NextResponse.json(
         {
           error: refunded
             ? `${paymentProblem}. Your payment has been refunded.`
-            : `${paymentProblem}. We could not refund you automatically — please contact support quoting ${paymentIntentId}.`
+            : `${paymentProblem}. Please contact support quoting ${paymentIntentId}.`
         },
         { status: 402 }
       )
@@ -198,12 +219,12 @@ export async function POST(request: Request) {
     // The offer must still be live: ordering an expired offer fails at Duffel, and by
     // then the customer has been charged and needs a refund cycle they never needed.
     if (new Date(offer.expires_at) <= new Date()) {
-      const refunded = await refundPaymentIntent(paymentIntentId)
+      const refunded = await refundIfUnused()
       return NextResponse.json(
         {
           error: refunded
             ? "This fare expired before the booking completed, so your payment has been refunded. Please search again."
-            : `This fare expired and we could not refund you automatically — please contact support quoting ${paymentIntentId}.`
+            : `This fare expired — please contact support quoting ${paymentIntentId}.`
         },
         { status: 409 }
       )
@@ -242,23 +263,40 @@ export async function POST(request: Request) {
     } catch (reserveError) {
       // Unique violation => this payment is already reserved or used by another request.
       if (isUniqueViolation(reserveError)) {
+        // A request killed between reserving and ordering (function timeout, deploy)
+        // leaves a `pending` row holding the payment. Without this, the customer is
+        // charged and every retry 409s forever. Take over an abandoned reservation.
+        const reclaimed = await reclaimStaleReservation(paymentIntentId)
+        if (reclaimed) {
+          console.warn("[flights/book] reclaimed stale reservation", {
+            paymentIntentId,
+            bookingId: reclaimed
+          })
+          bookingId = reclaimed
+        } else {
+          return NextResponse.json(
+            {
+              error:
+                "This payment is already being used for a booking. If you think this is wrong, wait a moment and try again, or contact support.",
+              paymentIntentId
+            },
+            { status: 409 }
+          )
+        }
+      } else {
+        // Anything else (e.g. a malformed raceId) fails before any airline order exists,
+        // so the customer can be refunded cleanly.
+        console.error("[flights/book] could not reserve booking:", reserveError)
+        const refunded = await refundIfUnused()
         return NextResponse.json(
-          { error: "This payment is already being used for a booking" },
-          { status: 409 }
+          {
+            error: refunded
+              ? "We couldn't start your booking, so your payment has been refunded."
+              : `We couldn't start your booking — please contact support quoting ${paymentIntentId}.`
+          },
+          { status: refunded ? 400 : 500 }
         )
       }
-      // Anything else (e.g. a malformed raceId) fails before any airline order exists,
-      // so the customer can be refunded cleanly.
-      console.error("[flights/book] could not reserve booking:", reserveError)
-      const refunded = await refundPaymentIntent(paymentIntentId)
-      return NextResponse.json(
-        {
-          error: refunded
-            ? "We couldn't start your booking, so your payment has been refunded."
-            : `We couldn't start your booking and the refund failed — please contact support quoting ${paymentIntentId}.`
-        },
-        { status: refunded ? 400 : 500 }
-      )
     }
 
     // Create the order with formatted phone numbers
@@ -316,7 +354,7 @@ export async function POST(request: Request) {
     // From here the airline order EXISTS and the customer has been charged. Never throw:
     // any failure now must still persist the order reference, or we lose the only record
     // of a real ticket the customer paid for.
-    const result = await updateFlightBookingByIdAction(bookingId, {
+    const confirmed = await updateFlightBookingById(bookingId, {
       orderId: order.id,
       bookingReference: order.booking_reference,
       status: "confirmed",
@@ -328,7 +366,7 @@ export async function POST(request: Request) {
       completedAt: new Date()
     })
 
-    if (!result.isSuccess) {
+    if (!confirmed) {
       // The ticket is issued; surface the reference so the customer is not stranded.
       console.error(
         "[flights/book] ORDER CREATED BUT RECORD UPDATE FAILED — manual reconciliation required",
@@ -347,7 +385,7 @@ export async function POST(request: Request) {
       success: true,
       message: "Flight booked successfully",
       data: {
-        bookingId: result.data.id,
+        bookingId: confirmed.id,
         bookingReference: order.booking_reference
       }
     })

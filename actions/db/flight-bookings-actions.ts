@@ -6,7 +6,12 @@ import { InsertFlightBooking, SelectFlightBooking } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq, and, lt, gte, desc } from "drizzle-orm"
 import { SQL } from "drizzle-orm"
-import { requireAuth, assertOwnershipOrAdmin, AuthError } from "@/lib/auth"
+import {
+  requireAuth,
+  requireAdmin,
+  assertOwnershipOrAdmin,
+  AuthError
+} from "@/lib/auth"
 
 // Shared types and utilities
 interface FlightDetails {
@@ -119,6 +124,23 @@ function transformFlightData(booking: SelectFlightBooking): FlightDetails {
 }
 
 // Create a new flight booking
+
+/**
+ * Every export of this "use server" module is a publicly callable endpoint, so each one
+ * must authorise for itself. Bookings hold passenger PII, so reads are owner-scoped too.
+ */
+async function assertOwnsBooking(bookingId: string): Promise<string> {
+  const callerId = await requireAuth()
+  const [row] = await db
+    .select({ userId: flightBookingsTable.userId })
+    .from(flightBookingsTable)
+    .where(eq(flightBookingsTable.id, bookingId))
+    .limit(1)
+  if (!row) throw new AuthError("Booking not found", 403)
+  await assertOwnershipOrAdmin(row.userId)
+  return callerId
+}
+
 export async function createFlightBookingAction(
   booking: InsertFlightBooking
 ): Promise<ActionState<SelectFlightBooking>> {
@@ -154,6 +176,7 @@ export async function getFlightBookingByIdAction(
   id: string
 ): Promise<ActionState<SelectFlightBooking | undefined>> {
   try {
+    await assertOwnsBooking(id)
     const [booking] = await db
       .select()
       .from(flightBookingsTable)
@@ -202,6 +225,7 @@ export async function getRaceFlightBookingsAction(
   raceId: string
 ): Promise<ActionState<SelectFlightBooking[]>> {
   try {
+    await requireAdmin()
     const bookings = await db
       .select()
       .from(flightBookingsTable)
@@ -259,6 +283,7 @@ export async function updateFlightBookingStatusAction(
   errorMessage?: string
 ): Promise<ActionState<SelectFlightBooking>> {
   try {
+    await assertOwnsBooking(id)
     const [updatedBooking] = await db
       .update(flightBookingsTable)
       .set({
@@ -288,6 +313,7 @@ export async function updateFlightBookingOrderAction(
   bookingReference: string
 ): Promise<ActionState<SelectFlightBooking>> {
   try {
+    await assertOwnsBooking(id)
     const [updatedBooking] = await db
       .update(flightBookingsTable)
       .set({
@@ -317,6 +343,7 @@ export async function addFlightBookingToTripAction(
   tripId: string
 ): Promise<ActionState<SelectFlightBooking>> {
   try {
+    await assertOwnsBooking(id)
     // First get the booking to access its data
     const [booking] = await db
       .select()
@@ -378,10 +405,17 @@ export async function getTripFlightBookingsAction(
   tripId: string
 ): Promise<ActionState<SelectFlightBooking[]>> {
   try {
+    const callerId = await requireAuth()
+    // Scope to the caller's own bookings: tripId alone would expose another user's PII.
     const bookings = await db
       .select()
       .from(flightBookingsTable)
-      .where(eq(flightBookingsTable.tripId, tripId))
+      .where(
+        and(
+          eq(flightBookingsTable.tripId, tripId),
+          eq(flightBookingsTable.userId, callerId)
+        )
+      )
       .orderBy(desc(flightBookingsTable.createdAt))
 
     return {
@@ -398,6 +432,7 @@ export async function getTripFlightBookingsAction(
 // Mark expired bookings
 export async function markExpiredBookingsAction(): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     const now = new Date()
     await db
       .update(flightBookingsTable)
@@ -428,6 +463,7 @@ export async function getFlightBookingByReferenceAction(
   bookingReference: string
 ): Promise<ActionState<SelectFlightBooking | undefined>> {
   try {
+    await requireAdmin()
     const [booking] = await db
       .select()
       .from(flightBookingsTable)
@@ -450,11 +486,17 @@ export async function resyncTripFlightBookingsAction(
   tripId: string
 ): Promise<ActionState<{ flights: FlightDetails }>> {
   try {
-    // Get all bookings for this trip
+    const callerId = await requireAuth()
+    // Get this caller's bookings for the trip (tripId alone would leak other users').
     const bookings = await db
       .select()
       .from(flightBookingsTable)
-      .where(eq(flightBookingsTable.tripId, tripId))
+      .where(
+        and(
+          eq(flightBookingsTable.tripId, tripId),
+          eq(flightBookingsTable.userId, callerId)
+        )
+      )
 
     console.log("Found bookings:", bookings.length)
 
@@ -506,31 +548,3 @@ export async function resyncTripFlightBookingsAction(
     }
   }
 } 
-/**
- * Update a booking by its primary key. Used to promote the `pending` row that reserved
- * the PaymentIntent into a `confirmed` booking once the airline order exists.
- */
-export async function updateFlightBookingByIdAction(
-  id: string,
-  data: Partial<InsertFlightBooking>
-): Promise<ActionState<SelectFlightBooking>> {
-  try {
-    const [updated] = await db
-      .update(flightBookingsTable)
-      .set(data)
-      .where(eq(flightBookingsTable.id, id))
-      .returning()
-
-    if (!updated) {
-      return { isSuccess: false, message: "Booking not found" }
-    }
-    return {
-      isSuccess: true,
-      message: "Booking updated successfully",
-      data: updated
-    }
-  } catch (error) {
-    console.error("Error updating flight booking:", error)
-    return { isSuccess: false, message: "Failed to update booking" }
-  }
-}

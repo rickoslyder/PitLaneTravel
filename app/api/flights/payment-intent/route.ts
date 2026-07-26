@@ -11,6 +11,7 @@ import {
   isSupportedCurrency,
   toStripeMinorUnits
 } from "@/config/pricing"
+import { findBookingByOffer } from "@/db/queries/flight-bookings"
 
 /**
  * Creates the Stripe PaymentIntent that must succeed before a Duffel order is placed.
@@ -54,6 +55,22 @@ export async function POST(request: Request) {
           error: `We can't process payments in ${offer.total_currency} yet. Please search again in a supported currency.`
         },
         { status: 400 }
+      )
+    }
+
+    // Don't let a retry mint a second PaymentIntent for an offer that is already booked
+    // (or mid-booking): the customer would be charged twice for one flight.
+    const existing = await findBookingByOffer(offerId, userId)
+    if (existing && existing.status !== "failed") {
+      return NextResponse.json(
+        {
+          error:
+            existing.status === "confirmed"
+              ? "This flight is already booked."
+              : "A booking for this fare is already in progress. Please wait a moment before trying again.",
+          bookingId: existing.id
+        },
+        { status: 409 }
       )
     }
 
