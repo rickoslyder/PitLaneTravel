@@ -246,3 +246,53 @@ Still behind `FLIGHTS_BOOKING_ENABLED` (off). **The remaining gap is unchanged a
 important: this is not a distributed transaction.** If the process dies between the Stripe
 charge and the refund, reconciliation is manual. Close that with Stripe webhook
 reconciliation before the flag is ever turned on.
+
+---
+
+## Round-2 adversarial review — 20 confirmed findings
+
+**Commit before this batch:** `0be5b64`.
+
+The round-2 review (data / web / payments-recheck) raised 21 findings and confirmed 20.
+Everything below was verified against the code before fixing. Highlights:
+
+**Live production bug (fixed):** `getRacesAction` built `IN ()` whenever a filter matched
+zero races. Postgres rejects that outright — I reproduced `syntax error at or near ")"`
+against the live database — so any such filter 500'd the entire page. Both call sites now
+short-circuit on an empty list.
+
+**Security, repo-wide (fixed):** auditing one file revealed the same gap everywhere —
+**122 exported Server Actions with no authorization**, including `deleteRaceAction`.
+This corrects my earlier Phase A claim: I fixed the client-supplied-`userId` IDOR pattern
+but never verified that each action authorises itself. Guarded the 64 mutating/paid-API
+actions; left 52 genuinely public reads open; excluded 8 called by crons/scripts where a
+guard would break production jobs.
+
+**Four guards were wrong and had to be corrected** — guarding blindly would have broken
+the product:
+- `generateMaskedUrlAction` must stay **public**: `TicketCard` calls it for anonymous
+  visitors, so a guard would have killed every affiliate ticket link — the main revenue path.
+- local-attractions actions → `requireAuth`, not admin (they render in the trip planner).
+- `getFlightBookingByReferenceAction` → `requireAuth` + owner-scoped, not admin (it backs
+  a customer's own confirmation page).
+
+**Seed data integrity (fixed):** the F1/multi-series upsert matched on
+`(series, season, round)` with no status filter, so a re-run could overwrite the
+**cancelled** Bahrain/Saudi rows — destroying the cancellation records and leaving Miami
+rendering as "cancelled due to the 2026 Iran war". `seed-cancelled-races` also created the
+very `(0,0)` placeholder circuit it claimed to refuse, because it checked `created` *after*
+the insert committed. And the multi-series seed used a private normaliser that ignored
+`circuit-aliases.json` — the original cause of the Interlagos/Imola duplicates.
+
+**SEO (fixed):** the five `/series/<slug>` hubs had **zero inbound internal links** (built
+for SEO, reachable only via the sitemap) — added a site-wide Championships footer column.
+A deactivated championship still served its public page. The series page returned 404 when
+the *database call failed*, which deindexes pages during an outage. The sitemap advertised
+a history URL for every race when only 23 exist (267 → 179 URLs, all resolving). The
+sitemap was also a build-time snapshot; it now revalidates daily.
+
+**Still open, deliberately:** the payment flow remains behind `FLIGHTS_BOOKING_ENABLED`
+(off) and still needs Stripe webhook reconciliation for the process-death case. Two
+findings about the *fresh-database* provisioning path (enum values and seed ordering) are
+untested here because production was migrated incrementally — worth a dry run on a scratch
+DB before anyone provisions a new environment.

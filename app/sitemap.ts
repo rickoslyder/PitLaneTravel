@@ -12,6 +12,10 @@ import { slugify } from "@/lib/series"
 
 const BASE_URL = "https://www.pitlanetravel.com"
 
+// Regenerate daily. Without this the sitemap is frozen at build time, so races and
+// championships added through the admin never appear until someone redeploys.
+export const revalidate = 86400
+
 /**
  * Sitemap generated from the database at build time, so new races and championships
  * appear without anyone remembering to re-run a script. Auth-gated routes (trips,

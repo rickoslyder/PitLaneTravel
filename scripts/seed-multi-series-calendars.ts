@@ -116,7 +116,7 @@ async function main() {
       }
 
       const [existing] = await db
-        .select({ id: racesTable.id })
+        .select({ id: racesTable.id, status: racesTable.status })
         .from(racesTable)
         .where(
           and(
@@ -144,7 +144,14 @@ async function main() {
       }
 
       if (existing) {
-        await db.update(racesTable).set(values).where(eq(racesTable.id, existing.id))
+        // Never downgrade a status the session cron has moved to in_progress: the seed
+        // only knows the race date, the cron knows the live session state.
+        const { status: derived, ...rest } = values
+        const preserveLiveStatus = existing.status === "in_progress"
+        await db
+          .update(racesTable)
+          .set(preserveLiveStatus ? rest : values)
+          .where(eq(racesTable.id, existing.id))
         updated++
       } else {
         await db.insert(racesTable).values(values)
