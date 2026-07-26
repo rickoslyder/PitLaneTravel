@@ -326,3 +326,49 @@ automatic refund. On Pro this should run every 15 minutes. A Stripe webhook on
 because webhooks can be missed.
 
 All of this remains behind `FLIGHTS_BOOKING_ENABLED` (off).
+
+---
+
+## Round-3 payment audit — NO-GO, and my own reconciliation cron was the worst finding
+
+**Commit before this batch:** `3c84b0a`.
+
+Four independent attacker lenses. The headline result: **all four independently found that
+the reconciliation cron I shipped hours earlier would hand out free flights.**
+
+The cron refunded any reservation that was `pending` with no `orderId`. But the exact crash
+it was built for — dying between `duffel.orders.create()` (line ~322) and writing `orderId`
+(line ~357) — leaves a **real, paid-for ticket with no orderId recorded**. So the sweep
+would refund the customer while the platform had already paid Duffel for a ticket the
+customer keeps. My fix for the process-death gap created a free-flight path in precisely
+the scenario it existed to handle. **That is three rounds, three self-inflicted money bugs.**
+
+Fixed:
+1. **Refunds now require POSITIVE confirmation from Duffel** that no order exists. If a
+   ticket is found the row is *repaired* into a confirmed booking instead. If Duffel cannot
+   be reached, it refunds **nothing** and flags for manual review — never act on incomplete
+   information when the action is irreversible.
+2. **A fully refunded PaymentIntent still reports `status: "succeeded"` in Stripe**, so the
+   booking route would accept an already-refunded payment and issue a flight for free. Now
+   expands `latest_charge` and rejects refunded payments.
+3. **`reclaimStaleReservation` was not an atomic claim** — its predicate tested `createdAt`
+   while the update only touched `updatedAt`, so two concurrent retries both won; the loser
+   would re-order the offer and refund the winner's ticket. Now a genuine compare-and-swap
+   on `updatedAt`.
+
+### Verdict: do NOT enable FLIGHTS_BOOKING_ENABLED
+
+Known-outstanding, deliberately not fixed here:
+- **The client never creates or sends a PaymentIntent.** `FlightBookingForm` has no Stripe
+  Elements step, so flipping the flag today would 402 every booking. The flow is not
+  finished — this alone is disqualifying.
+- **A charge with no booking row is invisible to reconciliation.** If a customer confirms
+  payment and closes the tab before submitting, no row is ever written and nothing refunds
+  them. The sweep is DB-row-driven; it needs a Stripe-driven pass over succeeded
+  PaymentIntents carrying our metadata.
+- Hobby caps crons at daily, so worst-case refund latency is ~24h.
+
+The recurring lesson is not any individual bug: it is that **every round of fixes to this
+flow has introduced a new money-losing bug**, including the fix written specifically to
+close the previous round's gap. This code should not move real money until an independent
+review round comes back clean without my having fixed anything in response.

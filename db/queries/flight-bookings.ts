@@ -55,6 +55,10 @@ export async function reclaimStaleReservation(
   paymentIntentId: string
 ): Promise<string | null> {
   const cutoff = new Date(Date.now() - STALE_RESERVATION_MINUTES * 60 * 1000)
+  // Atomic compare-and-swap: the predicate tests `updatedAt` and the update moves it
+  // forward, so a second concurrent retry no longer matches and claims nothing.
+  // Testing only `createdAt` would let BOTH retries win, and the loser would go on to
+  // re-order the offer and refund a payment backing the winner's ticket.
   const [row] = await db
     .update(flightBookingsTable)
     .set({ updatedAt: new Date() })
@@ -62,7 +66,8 @@ export async function reclaimStaleReservation(
       and(
         eq(flightBookingsTable.paymentIntentId, paymentIntentId),
         eq(flightBookingsTable.status, "pending"),
-        lt(flightBookingsTable.createdAt, cutoff)
+        lt(flightBookingsTable.createdAt, cutoff),
+        lt(flightBookingsTable.updatedAt, cutoff)
       )
     )
     .returning({ id: flightBookingsTable.id })

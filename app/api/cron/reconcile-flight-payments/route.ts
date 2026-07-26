@@ -1,10 +1,37 @@
 import { NextResponse } from "next/server"
 import { stripe } from "@/lib/stripe"
+import { duffel } from "@/lib/duffel"
 import { verifyCronRequest } from "@/lib/cron"
 import {
   findAbandonedReservations,
   updateFlightBookingById
 } from "@/db/queries/flight-bookings"
+
+
+/**
+ * Ask Duffel whether an order already exists for this offer.
+ *
+ * Returns the order when one exists, `null` when Duffel positively reports none, and
+ * "unknown" when we could not determine it. The caller MUST NOT refund on "unknown":
+ * refunding a ticket that actually exists gives away a flight the platform has paid for.
+ */
+async function findDuffelOrderForOffer(
+  offerId: string
+): Promise<{ id: string; booking_reference?: string | null } | null | "unknown"> {
+  try {
+    const { data: orders } = await duffel.orders.list({ limit: 200 })
+    const match = (orders ?? []).find((o: any) =>
+      (o.offer_id && o.offer_id === offerId) ||
+      (Array.isArray(o.selected_offers) && o.selected_offers.includes(offerId))
+    )
+    return match
+      ? { id: match.id, booking_reference: (match as any).booking_reference ?? null }
+      : null
+  } catch (error) {
+    console.error("[reconcile-flight-payments] Duffel order lookup failed", error)
+    return "unknown"
+  }
+}
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -18,16 +45,27 @@ export const maxDuration = 60
  * path recovers it. This sweep is that recovery.
  *
  * Safety properties:
- * - Only touches `pending` rows with NO orderId, so a real airline order is never refunded.
+ * - A refund requires POSITIVE confirmation from Duffel that no order exists. Our own
+ *   row is not evidence: the very crash this sweep handles (dying between
+ *   duffel.orders.create() and writing orderId) leaves a real ticket with no orderId.
+ * - If Duffel cannot be reached, it refunds NOTHING and flags for manual review.
+ * - A ticket found at Duffel is repaired into a confirmed booking, never refunded.
  * - Re-reads Stripe as the source of truth rather than trusting our own row.
- * - Uses an idempotency key, and treats an already-refunded charge as success, so
- *   repeated runs cannot double-refund.
+ * - Idempotency key + "already refunded" treated as success, so repeated runs cannot
+ *   double-refund.
  */
 export async function GET(req: Request) {
   const denied = verifyCronRequest(req)
   if (denied) return denied
 
-  const results = { checked: 0, refunded: 0, alreadySettled: 0, failed: 0 }
+  const results = {
+    checked: 0,
+    refunded: 0,
+    repaired: 0,
+    alreadySettled: 0,
+    needsReview: 0,
+    failed: 0
+  }
 
   try {
     const abandoned = await findAbandonedReservations()
@@ -45,6 +83,38 @@ export async function GET(req: Request) {
         if (intent.status !== "succeeded") {
           await updateFlightBookingById(booking.id, { status: "expired" })
           results.alreadySettled++
+          continue
+        }
+
+        // CRITICAL: a missing orderId in our row does NOT mean no ticket exists. The
+        // exact crash this sweep exists for — dying between duffel.orders.create() and
+        // writing orderId — leaves a real, paid-for ticket with no orderId recorded.
+        // Refunding on our own row alone would hand out free flights. Ask Duffel.
+        const existingOrder = await findDuffelOrderForOffer(booking.offerId)
+
+        if (existingOrder === "unknown") {
+          // Could not confirm either way: never refund on incomplete information.
+          results.needsReview++
+          console.error(
+            "[reconcile-flight-payments] cannot confirm Duffel order state — SKIPPING refund, needs manual review",
+            { bookingId: booking.id, paymentIntentId, offerId: booking.offerId }
+          )
+          continue
+        }
+
+        if (existingOrder) {
+          // The ticket is real: repair the record instead of refunding it.
+          await updateFlightBookingById(booking.id, {
+            status: "confirmed",
+            orderId: existingOrder.id,
+            bookingReference: existingOrder.booking_reference ?? null,
+            completedAt: new Date()
+          })
+          results.repaired++
+          console.warn(
+            "[reconcile-flight-payments] recovered a ticketed order whose record was never written",
+            { bookingId: booking.id, orderId: existingOrder.id }
+          )
           continue
         }
 

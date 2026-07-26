@@ -162,7 +162,16 @@ export async function POST(request: Request) {
     // Authorise the Duffel order against the customer's payment. Everything here is
     // re-derived server-side: a client that lies about the PaymentIntent, reuses one, or
     // swaps in a cheaper offer must not be able to place an order.
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId, {
+      expand: ["latest_charge"]
+    })
+    // A fully refunded PaymentIntent KEEPS status "succeeded" in Stripe, so status alone
+    // would let an already-refunded payment buy a flight.
+    const latestCharge = paymentIntent.latest_charge as
+      | { refunded?: boolean; amount_refunded?: number }
+      | null
+    const isRefunded =
+      Boolean(latestCharge?.refunded) || (latestCharge?.amount_refunded ?? 0) > 0
     const expectedCharge = flightChargeTotal(offer.total_amount)
     const expectedMinorUnits = toStripeMinorUnits(
       expectedCharge,
@@ -172,6 +181,8 @@ export async function POST(request: Request) {
     const paymentProblem =
       paymentIntent.status !== "succeeded"
         ? "Payment has not completed"
+        : isRefunded
+          ? "This payment has already been refunded"
         : paymentIntent.metadata?.userId !== userId
           ? "Payment does not belong to this user"
           : paymentIntent.metadata?.offerId !== offerId
