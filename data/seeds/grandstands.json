@@ -1,46 +1,3388 @@
 {
-  "_note": "Grandstand guide content sourced from Gbrain grandstand-guides/* (source-cited, verified 2026-06-15). Corner mappings and covered flags corrected against Gbrain. viewRating is Gbrain's 1-10 Overall scaled to 1-5. Keyed by DB circuit name. Consumed by scripts/seed-grandstands.ts.",
+  "_note": "Grandstand guide content sourced from Gbrain grandstand-guides/* (source-cited, verified 2026-06-15). Corner mappings and covered flags taken from those guides. viewRating is Gbrain's 1-10 Overall scaled to 1-5. Keyed by DB circuit name. Consumed by scripts/seed-grandstands.ts.",
   "_source": "gbrain grandstand-guides",
   "circuits": {
     "Silverstone Circuit": [
-      { "name": "Club Corner (B/C)", "viewRating": 5, "covered": true, "hasBigScreen": true, "priceTier": "premium", "bestFor": "Best overall — final-corner overtaking, pit lane, podium & start/finish", "viewsOf": ["Club corner", "Pit lane", "Start/finish"], "pros": ["Covered (a big plus in British weather)", "Overtaking plus podium in one seat"], "cons": ["Premium pricing", "Sells out early"], "description": "The most complete seat at Silverstone — final-corner passing with the pit lane, podium and start/finish all in view, and it's roofed." },
-      { "name": "Landostand (Stowe)", "viewRating": 5, "covered": false, "hasBigScreen": true, "priceTier": "premium", "bestFor": "Best action — heavy braking into Stowe", "viewsOf": ["Stowe", "Vale"], "pros": ["New 16,000-seat wrap-around stand", "Big braking and overtaking"], "cons": ["Sold out for 2026", "Uncovered"], "description": "The old Stowe stands were demolished and replaced by a single 16,000-seat wrap-around grandstand overlooking the Stowe braking zone." },
-      { "name": "Becketts", "viewRating": 4, "covered": false, "hasBigScreen": false, "priceTier": "mid", "bestFor": "Best value — the fast esses", "viewsOf": ["Maggotts", "Becketts", "Chapel"], "pros": ["The single most spectacular sequence in F1", "Good value"], "cons": ["Away from overtaking spots"], "description": "Overlooks the Maggotts–Becketts–Chapel complex, the most spectacular high-speed sequence on the calendar." },
-      { "name": "Abbey (A/B)", "viewRating": 4, "covered": false, "hasBigScreen": true, "priceTier": "mid", "bestFor": "Best for first-timers — Turn 1 & lap starts", "viewsOf": ["Abbey", "Farm Curve"], "pros": ["First-corner action", "Good big-screen coverage"], "cons": ["Uncovered"], "description": "Overlooks the opening Abbey corner where lap-1 action unfolds." },
-      { "name": "Copse (A/B/C)", "viewRating": 4, "covered": true, "hasBigScreen": true, "priceTier": "mid", "bestFor": "High-speed cornering", "viewsOf": ["Copse", "Turn 9"], "pros": ["Iconic fast corner", "Covered options available"], "cons": ["Away from the main braking zones"], "description": "Overlooks the legendary Copse corner taken at over 180mph; A/B/C all have covered options." }
+      {
+        "name": "Club Corner (B/C)",
+        "viewRating": 5,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall — final-corner overtaking, pit lane, podium & start/finish",
+        "viewsOf": [
+          "Club corner",
+          "Pit lane",
+          "Start/finish"
+        ],
+        "pros": [
+          "Covered (a big plus in British weather)",
+          "Overtaking plus podium in one seat"
+        ],
+        "cons": [
+          "Premium pricing",
+          "Sells out early"
+        ],
+        "description": "The most complete seat at Silverstone — final-corner passing with the pit lane, podium and start/finish all in view, and it's roofed."
+      },
+      {
+        "name": "Landostand (Stowe)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best action — heavy braking into Stowe",
+        "viewsOf": [
+          "Stowe",
+          "Vale"
+        ],
+        "pros": [
+          "New 16,000-seat wrap-around stand",
+          "Big braking and overtaking"
+        ],
+        "cons": [
+          "Sold out for 2026",
+          "Uncovered"
+        ],
+        "description": "The old Stowe stands were demolished and replaced by a single 16,000-seat wrap-around grandstand overlooking the Stowe braking zone."
+      },
+      {
+        "name": "Becketts",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Best value — the fast esses",
+        "viewsOf": [
+          "Maggotts",
+          "Becketts",
+          "Chapel"
+        ],
+        "pros": [
+          "The single most spectacular sequence in F1",
+          "Good value"
+        ],
+        "cons": [
+          "Away from overtaking spots"
+        ],
+        "description": "Overlooks the Maggotts–Becketts–Chapel complex, the most spectacular high-speed sequence on the calendar."
+      },
+      {
+        "name": "Abbey (A/B)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best for first-timers — Turn 1 & lap starts",
+        "viewsOf": [
+          "Abbey",
+          "Farm Curve"
+        ],
+        "pros": [
+          "First-corner action",
+          "Good big-screen coverage"
+        ],
+        "cons": [
+          "Uncovered"
+        ],
+        "description": "Overlooks the opening Abbey corner where lap-1 action unfolds."
+      },
+      {
+        "name": "Copse (A/B/C)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "High-speed cornering",
+        "viewsOf": [
+          "Copse",
+          "Turn 9"
+        ],
+        "pros": [
+          "Iconic fast corner",
+          "Covered options available"
+        ],
+        "cons": [
+          "Away from the main braking zones"
+        ],
+        "description": "Overlooks the legendary Copse corner taken at over 180mph; A/B/C all have covered options."
+      }
     ],
     "Circuit de Monaco": [
-      { "name": "Grandstand A (Sainte-Dévote / Pit straight)", "viewRating": 4, "covered": false, "hasBigScreen": true, "priceTier": "premium", "bestFor": "Best action — lap-1 launches & main overtaking point", "viewsOf": ["Sainte-Dévote", "Pit straight", "Turn 1"], "pros": ["The circuit's main overtaking/incident point", "Start-line launches"], "cons": ["Premium price", "Uncovered"], "description": "Overlooks the Sainte-Dévote first corner and pit straight — the best lap-1 launch and overtaking view in Monaco." },
-      { "name": "Grandstand K (Tabac / Port Hercule)", "viewRating": 4, "covered": false, "hasBigScreen": true, "priceTier": "premium", "bestFor": "Best overall — the harbour front", "viewsOf": ["Sainte-Dévote", "Tabac", "Port Hercule"], "pros": ["The widest sweep of track from any stand", "Iconic harbour backdrop"], "cons": ["Premium price"], "description": "Runs along the harbour front from Sainte-Dévote toward Tabac, giving the widest sweep of track of any Monaco stand." },
-      { "name": "Grandstand T (Pool exit / Rascasse)", "viewRating": 4, "covered": true, "hasBigScreen": true, "priceTier": "premium", "bestFor": "Pit lane & pit-stop action", "viewsOf": ["Swimming Pool exit", "Rascasse", "Pit lane"], "pros": ["Best pit-lane/garage/pit-stop view in Monaco", "Top rows (X/Y/Z/ZA) are covered"], "cons": ["Away from the fastest sections"], "description": "Overlooks the Pool exit down to Rascasse and the pit lane; two screens sit on the barriers opposite and the top rows are the only properly roofed mainstream seats at Monaco." },
-      { "name": "Grandstand L (Nouvelle Chicane)", "viewRating": 3, "covered": false, "hasBigScreen": true, "priceTier": "premium", "bestFor": "Overtaking & braking into the chicane", "viewsOf": ["Nouvelle Chicane", "Tunnel exit", "Pit lane"], "pros": ["The best overtaking spot on the circuit", "Cars braking hard from the tunnel"], "cons": ["Very expensive", "Sells out early"], "description": "Overlooks the Nouvelle Chicane at the tunnel exit — the only real passing place on the Monaco street circuit." },
-      { "name": "Grandstand B (Casino Square)", "viewRating": 3, "covered": true, "hasBigScreen": true, "priceTier": "premium", "bestFor": "Photography & comfort — the classic Casino backdrop", "viewsOf": ["Casino Square", "Massenet"], "pros": ["Casino de Monte-Carlo and Hotel de Paris in frame", "Classic Monaco backdrop"], "cons": ["No big screen", "Cars pass quickly"], "description": "Sits opposite the Casino de Monte-Carlo with the Hotel de Paris in frame — the most scenic stand on the circuit." }
+      {
+        "name": "Grandstand A (Sainte-Dévote / Pit straight)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best action — lap-1 launches & main overtaking point",
+        "viewsOf": [
+          "Sainte-Dévote",
+          "Pit straight",
+          "Turn 1"
+        ],
+        "pros": [
+          "The circuit's main overtaking/incident point",
+          "Start-line launches"
+        ],
+        "cons": [
+          "Premium price",
+          "Uncovered"
+        ],
+        "description": "Overlooks the Sainte-Dévote first corner and pit straight — the best lap-1 launch and overtaking view in Monaco."
+      },
+      {
+        "name": "Grandstand K (Tabac / Port Hercule)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall — the harbour front",
+        "viewsOf": [
+          "Sainte-Dévote",
+          "Tabac",
+          "Port Hercule"
+        ],
+        "pros": [
+          "The widest sweep of track from any stand",
+          "Iconic harbour backdrop"
+        ],
+        "cons": [
+          "Premium price"
+        ],
+        "description": "Runs along the harbour front from Sainte-Dévote toward Tabac, giving the widest sweep of track of any Monaco stand."
+      },
+      {
+        "name": "Grandstand T (Pool exit / Rascasse)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Pit lane & pit-stop action",
+        "viewsOf": [
+          "Swimming Pool exit",
+          "Rascasse",
+          "Pit lane"
+        ],
+        "pros": [
+          "Best pit-lane/garage/pit-stop view in Monaco",
+          "Top rows (X/Y/Z/ZA) are covered"
+        ],
+        "cons": [
+          "Away from the fastest sections"
+        ],
+        "description": "Overlooks the Pool exit down to Rascasse and the pit lane; two screens sit on the barriers opposite and the top rows are the only properly roofed mainstream seats at Monaco."
+      },
+      {
+        "name": "Grandstand L (Nouvelle Chicane)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Overtaking & braking into the chicane",
+        "viewsOf": [
+          "Nouvelle Chicane",
+          "Tunnel exit",
+          "Pit lane"
+        ],
+        "pros": [
+          "The best overtaking spot on the circuit",
+          "Cars braking hard from the tunnel"
+        ],
+        "cons": [
+          "Very expensive",
+          "Sells out early"
+        ],
+        "description": "Overlooks the Nouvelle Chicane at the tunnel exit — the only real passing place on the Monaco street circuit."
+      },
+      {
+        "name": "Grandstand B (Casino Square)",
+        "viewRating": 3,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Photography & comfort — the classic Casino backdrop",
+        "viewsOf": [
+          "Casino Square",
+          "Massenet"
+        ],
+        "pros": [
+          "Casino de Monte-Carlo and Hotel de Paris in frame",
+          "Classic Monaco backdrop"
+        ],
+        "cons": [
+          "No big screen",
+          "Cars pass quickly"
+        ],
+        "description": "Sits opposite the Casino de Monte-Carlo with the Hotel de Paris in frame — the most scenic stand on the circuit."
+      }
     ],
     "Circuit de Spa-Francorchamps": [
-      { "name": "Gold 3 (Eau Rouge / Raidillon)", "viewRating": 5, "covered": true, "hasBigScreen": true, "priceTier": "premium", "bestFor": "Best overall — the most famous corner in F1", "viewsOf": ["Eau Rouge", "Raidillon"], "pros": ["Overlooks the legendary uphill esses", "High on the hill and roofed"], "cons": ["Premium price"], "description": "Overlooks the Eau Rouge–Raidillon complex; it sits high on the hill and is roofed after the recent works." },
-      { "name": "Gold 8 (La Source / Turn 1)", "viewRating": 4, "covered": false, "hasBigScreen": true, "priceTier": "mid", "bestFor": "Best action — first-corner overtaking", "viewsOf": ["La Source hairpin", "Start straight"], "pros": ["The best first-corner view at Spa", "Frequent lap-1 overtakes"], "cons": ["Slow-speed corner"], "description": "Overlooks the La Source hairpin right after the start — the best first-corner view at Spa." },
-      { "name": "Gold 1 (Pit straight)", "viewRating": 4, "covered": true, "hasBigScreen": true, "priceTier": "premium", "bestFor": "Start/finish, pit stops & podium", "viewsOf": ["Pit straight", "Start/finish"], "pros": ["Start/finish line, pit lane and pit stops", "Covered"], "cons": ["Away from the fastest corners"], "description": "Opposite the pits on the start/finish straight with a view of the pit stops and podium; it is covered." },
-      { "name": "Combes (1-4)", "viewRating": 4, "covered": false, "hasBigScreen": true, "priceTier": "budget", "bestFor": "Best value — where the real overtaking happens", "viewsOf": ["Les Combes", "Kemmel Straight"], "pros": ["The cheapest proper seat", "Real overtaking into Les Combes"], "cons": ["Uncovered", "Further from the pit complex"], "description": "The cheapest proper seat at Spa, overlooking Les Combes at the end of the Kemmel Straight where much of the overtaking happens." },
-      { "name": "Silver 3 (Pouhon)", "viewRating": 4, "covered": true, "hasBigScreen": false, "priceTier": "mid", "bestFor": "Fast sweeping corner", "viewsOf": ["Pouhon"], "pros": ["The daunting Pouhon double-left", "Covered from 2026"], "cons": ["No big screen"], "description": "Overlooks the fast Pouhon double-left; covered from 2026 onward." }
+      {
+        "name": "Gold 3 (Eau Rouge / Raidillon)",
+        "viewRating": 5,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall — the most famous corner in F1",
+        "viewsOf": [
+          "Eau Rouge",
+          "Raidillon"
+        ],
+        "pros": [
+          "Overlooks the legendary uphill esses",
+          "High on the hill and roofed"
+        ],
+        "cons": [
+          "Premium price"
+        ],
+        "description": "Overlooks the Eau Rouge–Raidillon complex; it sits high on the hill and is roofed after the recent works."
+      },
+      {
+        "name": "Gold 8 (La Source / Turn 1)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best action — first-corner overtaking",
+        "viewsOf": [
+          "La Source hairpin",
+          "Start straight"
+        ],
+        "pros": [
+          "The best first-corner view at Spa",
+          "Frequent lap-1 overtakes"
+        ],
+        "cons": [
+          "Slow-speed corner"
+        ],
+        "description": "Overlooks the La Source hairpin right after the start — the best first-corner view at Spa."
+      },
+      {
+        "name": "Gold 1 (Pit straight)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Start/finish, pit stops & podium",
+        "viewsOf": [
+          "Pit straight",
+          "Start/finish"
+        ],
+        "pros": [
+          "Start/finish line, pit lane and pit stops",
+          "Covered"
+        ],
+        "cons": [
+          "Away from the fastest corners"
+        ],
+        "description": "Opposite the pits on the start/finish straight with a view of the pit stops and podium; it is covered."
+      },
+      {
+        "name": "Combes (1-4)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best value — where the real overtaking happens",
+        "viewsOf": [
+          "Les Combes",
+          "Kemmel Straight"
+        ],
+        "pros": [
+          "The cheapest proper seat",
+          "Real overtaking into Les Combes"
+        ],
+        "cons": [
+          "Uncovered",
+          "Further from the pit complex"
+        ],
+        "description": "The cheapest proper seat at Spa, overlooking Les Combes at the end of the Kemmel Straight where much of the overtaking happens."
+      },
+      {
+        "name": "Silver 3 (Pouhon)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Fast sweeping corner",
+        "viewsOf": [
+          "Pouhon"
+        ],
+        "pros": [
+          "The daunting Pouhon double-left",
+          "Covered from 2026"
+        ],
+        "cons": [
+          "No big screen"
+        ],
+        "description": "Overlooks the fast Pouhon double-left; covered from 2026 onward."
+      }
     ],
     "Autodromo Nazionale Monza": [
-      { "name": "Grandstand 26 (Laterale Destra)", "viewRating": 5, "covered": false, "hasBigScreen": true, "priceTier": "mid", "bestFor": "Best overall — start/finish, pits & podium", "viewsOf": ["Start/finish", "Pit lane", "Podium"], "pros": ["The grid, full pit lane and stops, podium and finish line", "The most complete single view at Monza"], "cons": ["Away from the braking zones"], "description": "Opposite the pits on the start/finish straight — the grid, the full pit lane and stops, the podium and the finish line, the most complete single view at Monza." },
-      { "name": "Grandstand 8 (Prima Variante)", "viewRating": 5, "covered": false, "hasBigScreen": true, "priceTier": "mid", "bestFor": "Best action — heavy braking & lap-1 chaos", "viewsOf": ["Prima Variante", "Start straight"], "pros": ["Biggest braking zone on the calendar", "Best braking/photo and lap-1 chaos"], "cons": ["Uncovered"], "description": "Outside the first chicane at the end of the main straight — the biggest braking zone on the calendar and lap-1 chaos." },
-      { "name": "Grandstand 6 (Alta Velocità)", "viewRating": 4, "covered": false, "hasBigScreen": true, "priceTier": "mid", "bestFor": "Inside the first chicane", "viewsOf": ["Prima Variante", "Start straight"], "pros": ["Inside line into Turn 1", "Frequent overtakes"], "cons": ["Uncovered"], "description": "On the inside of the Prima Variante with a view of the cars turning in and the main straight." },
-      { "name": "Grandstands 18-20 (Uscita Ascari)", "viewRating": 4, "covered": true, "hasBigScreen": false, "priceTier": "budget", "bestFor": "Best value — real overtaking on the back straight", "viewsOf": ["Ascari exit", "Back straight"], "pros": ["Cheap with real overtaking", "Grandstand 18 is covered"], "cons": ["Further from the pit complex"], "description": "Cheap seats at the exit of Ascari onto the back straight where real overtaking happens; Grandstand 18 is covered." },
-      { "name": "Grandstand 22 (Parabolica)", "viewRating": 4, "covered": true, "hasBigScreen": false, "priceTier": "mid", "bestFor": "The final sweeping corner", "viewsOf": ["Parabolica", "Start straight"], "pros": ["Classic final corner onto the main straight", "Full roof"], "cons": ["Away from first-corner action"], "description": "Overlooks the long Parabolica leading onto the start/finish straight and has a full roof." }
+      {
+        "name": "Grandstand 26 (Laterale Destra)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best overall — start/finish, pits & podium",
+        "viewsOf": [
+          "Start/finish",
+          "Pit lane",
+          "Podium"
+        ],
+        "pros": [
+          "The grid, full pit lane and stops, podium and finish line",
+          "The most complete single view at Monza"
+        ],
+        "cons": [
+          "Away from the braking zones"
+        ],
+        "description": "Opposite the pits on the start/finish straight — the grid, the full pit lane and stops, the podium and the finish line, the most complete single view at Monza."
+      },
+      {
+        "name": "Grandstand 8 (Prima Variante)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best action — heavy braking & lap-1 chaos",
+        "viewsOf": [
+          "Prima Variante",
+          "Start straight"
+        ],
+        "pros": [
+          "Biggest braking zone on the calendar",
+          "Best braking/photo and lap-1 chaos"
+        ],
+        "cons": [
+          "Uncovered"
+        ],
+        "description": "Outside the first chicane at the end of the main straight — the biggest braking zone on the calendar and lap-1 chaos."
+      },
+      {
+        "name": "Grandstand 6 (Alta Velocità)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Inside the first chicane",
+        "viewsOf": [
+          "Prima Variante",
+          "Start straight"
+        ],
+        "pros": [
+          "Inside line into Turn 1",
+          "Frequent overtakes"
+        ],
+        "cons": [
+          "Uncovered"
+        ],
+        "description": "On the inside of the Prima Variante with a view of the cars turning in and the main straight."
+      },
+      {
+        "name": "Grandstands 18-20 (Uscita Ascari)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": false,
+        "priceTier": "budget",
+        "bestFor": "Best value — real overtaking on the back straight",
+        "viewsOf": [
+          "Ascari exit",
+          "Back straight"
+        ],
+        "pros": [
+          "Cheap with real overtaking",
+          "Grandstand 18 is covered"
+        ],
+        "cons": [
+          "Further from the pit complex"
+        ],
+        "description": "Cheap seats at the exit of Ascari onto the back straight where real overtaking happens; Grandstand 18 is covered."
+      },
+      {
+        "name": "Grandstand 22 (Parabolica)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "The final sweeping corner",
+        "viewsOf": [
+          "Parabolica",
+          "Start straight"
+        ],
+        "pros": [
+          "Classic final corner onto the main straight",
+          "Full roof"
+        ],
+        "cons": [
+          "Away from first-corner action"
+        ],
+        "description": "Overlooks the long Parabolica leading onto the start/finish straight and has a full roof."
+      }
     ],
     "Circuit of The Americas": [
-      { "name": "Turn 15 Grandstand", "viewRating": 5, "covered": false, "hasBigScreen": true, "priceTier": "mid", "bestFor": "Best overall — multi-corner with the sun behind you", "viewsOf": ["Turn 12", "Turns 13-15", "Back straight"], "sunExposure": "shaded", "pros": ["Multi-corner view plus passing", "Sun behind you and the best amenities"], "cons": ["Away from Turn 1"], "description": "Overlooks the Turn 12-15 complex with passing action, the sun behind you and the best amenities on site." },
-      { "name": "Turn 12 Grandstand", "viewRating": 5, "covered": false, "hasBigScreen": true, "priceTier": "mid", "bestFor": "Best value/action — best overtaking with an 11-corner panorama", "viewsOf": ["Turn 12", "Back straight", "Turns 13-19"], "pros": ["Best overtaking spot", "An 11-corner panorama for the price"], "cons": ["Uncovered"], "description": "The heavy braking zone at the end of the back straight — the best overtaking with an 11-corner panorama for the price." },
-      { "name": "Turn 1 Grandstand", "viewRating": 4, "covered": false, "hasBigScreen": true, "priceTier": "mid", "bestFor": "Best for first-timers — the uphill Turn 1", "viewsOf": ["Turn 1", "Start straight"], "sunExposure": "morning", "pros": ["Dramatic uphill first corner", "Sees over the fence"], "cons": ["Steep walk up", "Uncovered"], "description": "The steep uphill run to Turn 1 funnels the field into a spectacular braking zone, and the stand sees over the fence." },
-      { "name": "Turn 19 Grandstand", "viewRating": 3, "covered": true, "hasBigScreen": false, "priceTier": "budget", "bestFor": "Final corner with a covered option", "viewsOf": ["Turn 19", "Start/finish"], "pros": ["Upper rows (15-21) are covered", "Near the start/finish"], "cons": ["Lower rows uncovered"], "description": "Overlooks the final corner onto the start/finish straight; the upper rows (15-21) are one of only two roofed options at COTA." }
+      {
+        "name": "Turn 15 Grandstand",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best overall — multi-corner with the sun behind you",
+        "viewsOf": [
+          "Turn 12",
+          "Turns 13-15",
+          "Back straight"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Multi-corner view plus passing",
+          "Sun behind you and the best amenities"
+        ],
+        "cons": [
+          "Away from Turn 1"
+        ],
+        "description": "Overlooks the Turn 12-15 complex with passing action, the sun behind you and the best amenities on site."
+      },
+      {
+        "name": "Turn 12 Grandstand",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best value/action — best overtaking with an 11-corner panorama",
+        "viewsOf": [
+          "Turn 12",
+          "Back straight",
+          "Turns 13-19"
+        ],
+        "pros": [
+          "Best overtaking spot",
+          "An 11-corner panorama for the price"
+        ],
+        "cons": [
+          "Uncovered"
+        ],
+        "description": "The heavy braking zone at the end of the back straight — the best overtaking with an 11-corner panorama for the price."
+      },
+      {
+        "name": "Turn 1 Grandstand",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best for first-timers — the uphill Turn 1",
+        "viewsOf": [
+          "Turn 1",
+          "Start straight"
+        ],
+        "sunExposure": "morning",
+        "pros": [
+          "Dramatic uphill first corner",
+          "Sees over the fence"
+        ],
+        "cons": [
+          "Steep walk up",
+          "Uncovered"
+        ],
+        "description": "The steep uphill run to Turn 1 funnels the field into a spectacular braking zone, and the stand sees over the fence."
+      },
+      {
+        "name": "Turn 19 Grandstand",
+        "viewRating": 3,
+        "covered": true,
+        "hasBigScreen": false,
+        "priceTier": "budget",
+        "bestFor": "Final corner with a covered option",
+        "viewsOf": [
+          "Turn 19",
+          "Start/finish"
+        ],
+        "pros": [
+          "Upper rows (15-21) are covered",
+          "Near the start/finish"
+        ],
+        "cons": [
+          "Lower rows uncovered"
+        ],
+        "description": "Overlooks the final corner onto the start/finish straight; the upper rows (15-21) are one of only two roofed options at COTA."
+      }
     ],
     "Suzuka International Racing Course": [
-      { "name": "Grandstand Q2 (Casio Triangle)", "viewRating": 5, "covered": false, "hasBigScreen": true, "priceTier": "premium", "bestFor": "Best overall — the final chicane, sees 130R", "viewsOf": ["Casio Triangle", "Final corner", "130R", "Pit entry"], "pros": ["Overtaking at the Casio Triangle chicane", "High stand that also sees 130R"], "cons": ["Premium price"], "description": "A high stand over the Casio Triangle chicane and final corner that also sees 130R and the pit entry — Suzuka's best overtaking view." },
-      { "name": "Grandstand D (The Esses)", "viewRating": 4, "covered": false, "hasBigScreen": false, "priceTier": "mid", "bestFor": "Best value — car balance through the S-curves", "viewsOf": ["S Curves", "Turns 3-6"], "pros": ["The best display of car and driver on the limit on the calendar", "Great value"], "cons": ["No big screen (lower blocks)"], "description": "Overlooks the flowing S-curves (the Esses) where the best drivers make the difference — the best display of car/driver on the limit on the calendar." },
-      { "name": "Grandstand B (First Curve)", "viewRating": 4, "covered": false, "hasBigScreen": true, "priceTier": "mid", "bestFor": "Best action — lap-1 incidents at Turn 1/2", "viewsOf": ["First Curve", "Turn 1", "Turn 2"], "pros": ["Best lap-1 incident seat", "Big screen (infield)"], "cons": ["Action passes quickly"], "description": "Overlooks the First Curve (Turns 1/2) with an infield big screen — the best lap-1 incident seat." },
-      { "name": "Grandstand V2 (Main straight)", "viewRating": 4, "covered": true, "hasBigScreen": true, "priceTier": "premium", "bestFor": "Best for first-timers — start/finish & pit", "viewsOf": ["Main straight", "Start/finish", "Pit lane"], "pros": ["Start/finish and pit view", "Upper rows partly covered"], "cons": ["Away from the fast corners"], "description": "Overlooks the main straight, start/finish and pit lane; the upper rows are partly covered, among the only roofed seating at Suzuka." }
+      {
+        "name": "Grandstand Q2 (Casio Triangle)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall — the final chicane, sees 130R",
+        "viewsOf": [
+          "Casio Triangle",
+          "Final corner",
+          "130R",
+          "Pit entry"
+        ],
+        "pros": [
+          "Overtaking at the Casio Triangle chicane",
+          "High stand that also sees 130R"
+        ],
+        "cons": [
+          "Premium price"
+        ],
+        "description": "A high stand over the Casio Triangle chicane and final corner that also sees 130R and the pit entry — Suzuka's best overtaking view."
+      },
+      {
+        "name": "Grandstand D (The Esses)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Best value — car balance through the S-curves",
+        "viewsOf": [
+          "S Curves",
+          "Turns 3-6"
+        ],
+        "pros": [
+          "The best display of car and driver on the limit on the calendar",
+          "Great value"
+        ],
+        "cons": [
+          "No big screen (lower blocks)"
+        ],
+        "description": "Overlooks the flowing S-curves (the Esses) where the best drivers make the difference — the best display of car/driver on the limit on the calendar."
+      },
+      {
+        "name": "Grandstand B (First Curve)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best action — lap-1 incidents at Turn 1/2",
+        "viewsOf": [
+          "First Curve",
+          "Turn 1",
+          "Turn 2"
+        ],
+        "pros": [
+          "Best lap-1 incident seat",
+          "Big screen (infield)"
+        ],
+        "cons": [
+          "Action passes quickly"
+        ],
+        "description": "Overlooks the First Curve (Turns 1/2) with an infield big screen — the best lap-1 incident seat."
+      },
+      {
+        "name": "Grandstand V2 (Main straight)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best for first-timers — start/finish & pit",
+        "viewsOf": [
+          "Main straight",
+          "Start/finish",
+          "Pit lane"
+        ],
+        "pros": [
+          "Start/finish and pit view",
+          "Upper rows partly covered"
+        ],
+        "cons": [
+          "Away from the fast corners"
+        ],
+        "description": "Overlooks the main straight, start/finish and pit lane; the upper rows are partly covered, among the only roofed seating at Suzuka."
+      }
+    ],
+    "Bahrain International Circuit": [
+      {
+        "name": "Turn 1 Grandstand",
+        "viewRating": 5,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall & best action — overtaking purists who want the marquee braking-zone pass",
+        "viewsOf": [
+          "Turn 1 braking zone",
+          "Main straight (looking back up)",
+          "Pit exit",
+          "Turn 1-2-3-4 sequence from high rows in sections P, R, S"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Best overtaking at the track",
+          "Multi-corner view down to Turn 4 from high rows",
+          "Better value than Main"
+        ],
+        "cons": [
+          "Big screens are distant — bring binoculars",
+          "Grid-end blocks push the Turn 1 apex away"
+        ],
+        "description": "Outside the circuit at the end of the main straight, wrapping Turn 1: you get the heavy DRS braking zone and the best overtaking move of the lap, plus a view back up the main straight and the pit exit."
+      },
+      {
+        "name": "Beyon Grandstand (formerly Batelco / Oasis)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best value — photographers and fans who want to see the most of the lap",
+        "viewsOf": [
+          "Turns 6 through 12 (technical Sector 2 infield)",
+          "Third DRS zone and the Turn 11 braking zone",
+          "Distant glimpses of Turns 3-4 and Turns 13-14"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Unmatched track coverage at mid price",
+          "Open and panoramic — the photographer's pick",
+          "Fewest reported fence obstructions"
+        ],
+        "cons": [
+          "Only one big screen, and it is distant",
+          "Loses the cars after Turn 10; no finish-line view"
+        ],
+        "description": "Inside the circuit behind the pit building on the inner straight through the Turn 9-10-11 area, it offers the most panoramic view at Bahrain — a sweeping vista of roughly Turns 6 to 12 including the third DRS zone."
+      },
+      {
+        "name": "Main Grandstand",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best for first-timers — grid walk, start, pit stops and podium; also the family pick",
+        "viewsOf": [
+          "Start/finish line",
+          "Pit lane and pit stops over the wall",
+          "Main straight / DRS run toward Turn 1",
+          "Grid walk and podium"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Ceremony: grid walk, start, podium",
+          "Three large screens directly opposite",
+          "Best facilities and easiest exits, next to the Fan Zone"
+        ],
+        "cons": [
+          "Weakest stand for actual racing",
+          "The priciest tickets at the circuit"
+        ],
+        "description": "Along the inside of the main straight opposite the pit lane and start/finish line, it delivers the start, pit stops, finish and podium, but little mid-lap action once the cars have gone."
+      },
+      {
+        "name": "University Grandstand (1, 2, 3)",
+        "viewRating": 3,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Budget-conscious fans wanting comprehensive viewing — University 2, sections C or D, high rows",
+        "viewsOf": [
+          "Turn 1 overtaking from an outside angle",
+          "Turns 2-3 area",
+          "Infield around Turns 9-10 (from the right sub-section)",
+          "Acceleration out of Turn 1 toward Turn 4 / DRS Zone 2"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Budget price with TV screens directly opposite University 2",
+          "Dual Turn 1 and infield view from University 2"
+        ],
+        "cons": [
+          "University 1 can partially block University 2 at apex level",
+          "10-15 minute walk across open ground to the main food vendors"
+        ],
+        "description": "On the rising ground outside the circuit by the Turns 2-3 area, it gives Turn 1 overtaking from a different angle plus, from the right sub-section, the infield around Turns 9-10."
+      },
+      {
+        "name": "Victory Grandstand 2",
+        "viewRating": 3,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Strict budget with a real final-corner view",
+        "viewsOf": [
+          "Final corner(s) (Turn 14/15)",
+          "A slice of start/finish"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Cheapest tickets at the circuit",
+          "Sees the final corner, where late-lap moves happen",
+          "Good for low-speed final-corner car photos"
+        ],
+        "cons": [
+          "Furthest from the main precinct, with thinner facilities",
+          "Quiet atmosphere, a long way from the Fan Zone"
+        ],
+        "description": "Outside the circuit toward the final corners at the end of the back straight, Victory 2 sees the final corner(s) and a slice of start/finish, with overtaking possible at the apex."
+      },
+      {
+        "name": "Victory Grandstand 1",
+        "viewRating": 2,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Avoid — the page's designated worst pick at this circuit",
+        "viewsOf": [
+          "A distant Turn 11"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Cheapest tickets at the circuit"
+        ],
+        "cons": [
+          "The weakest sightline at the track",
+          "Isolated and quiet, far from the Fan Zone"
+        ],
+        "description": "The guide's explicit 'avoid' pick: Victory 1's view is limited to essentially a distant Turn 11, with little action, isolation from the main precinct and a quiet atmosphere."
+      }
+    ],
+    "Baku City Circuit": [
+      {
+        "name": "Absheron (Main) Grandstand — Section E",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall (and joint best action) — overtaking seekers who also want the start, pit stops and podium",
+        "viewsOf": [
+          "Start/finish straight",
+          "Pit lane and pit boxes",
+          "Podium",
+          "Turn 1 braking zone"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Banks start, pits, podium and the Turn 1 braking lunge",
+          "Big screen clearly visible; best amenities and fan zone behind",
+          "High rows see over pit equipment and across to Turn 1"
+        ],
+        "cons": [
+          "Priciest stand on the circuit",
+          "Sections D/E are open — no cover, unlike Sections A-C"
+        ],
+        "description": "High rows of Section E sit at the Turn 1 end of the main grandstand, adding the lap's biggest braking-and-overtaking zone to the start, pit-lane action and podium in front of you."
+      },
+      {
+        "name": "Absheron (Main) Grandstand — Sections A-C",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best for first-timers — families and comfort seekers wanting grid, podium and the circuit's only roofed seats",
+        "viewsOf": [
+          "Start/finish line",
+          "Grid",
+          "Pit lane and pit boxes",
+          "Podium"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Sections A-C are partially covered — the only roofed seats on the circuit",
+          "Grid, pit stops and podium ceremony directly in front",
+          "Screens, food, toilets and the Purple Zone fan zone immediately behind"
+        ],
+        "cons": [
+          "Priciest stand; Section B sells out first",
+          "Straights-and-pits focus means less cornering action than Section E"
+        ],
+        "description": "The central sections of the main grandstand are the ceremony end — grid, pit stops and podium — and the only partially covered seating at Baku, making them the comfort play for a 15:00 start."
+      },
+      {
+        "name": "Azneft Grandstand",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Overtaking and incident seekers, and photographers who can't afford Absheron Section E",
+        "viewsOf": [
+          "Turn 16 braking zone and exit",
+          "Azneft Square waterfront"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Sits at a real overtaking corner — the lap's second genuine passing point",
+          "Strong photography: cars yawing under braking in waterfront light",
+          "Higher rows see entry, apex and exit"
+        ],
+        "cons": [
+          "No cover",
+          "Afternoon sun exposure"
+        ],
+        "description": "Beside Azneft Square on the waterfront, this stand looks onto the 90-degree Turn 16 braking and exit — heavy braking, lock-ups and lunges at the lap's second-best overtaking corner."
+      },
+      {
+        "name": "Filarmoniya Grandstand",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Joint best for action — close-up braking drama and photography at Turn 16",
+        "viewsOf": [
+          "Turn 16 entry and braking point"
+        ],
+        "pros": [
+          "Closest look at cars shedding speed — lock-ups, late braking, divebombs",
+          "Best braking close-up after Absheron Section E",
+          "Higher rows give the full braking arc"
+        ],
+        "cons": [
+          "No cover",
+          "Reported sold out for 2026 via the promoter"
+        ],
+        "description": "Sitting inside Turn 16 at the heavy braking point, Filarmoniya gives the circuit's closest view of cars shedding speed into the lap's second overtaking corner."
+      },
+      {
+        "name": "Khazar Grandstand",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best value — budget buyers, families and first-timers who want a screen plus raw speed",
+        "viewsOf": [
+          "Main straight (infield)",
+          "Approach to the finish line",
+          "A second straight section on some setups"
+        ],
+        "pros": [
+          "Cheapest credible grandstand at Baku — the clear value pick",
+          "Simple, fast, unobstructed straight-on view of top speed",
+          "Big screen and close to the fan zones"
+        ],
+        "cons": [
+          "No braking zone — you watch cars pass rather than fight",
+          "No cover"
+        ],
+        "description": "An infield stand on the main straight where cars flash past at 340+ km/h in DRS trains and slipstream battles — the cheapest credible seat with a screen at the circuit."
+      },
+      {
+        "name": "Bulvar Grandstand",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Atmosphere plus a bit of action on a budget-to-mid ticket",
+        "viewsOf": [
+          "Turn 20 (final corner)",
+          "Exit onto the main straight",
+          "DRS zone 2 launch point"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Corner-plus-straight combo: you see the run that decides a Turn 1 overtake",
+          "Strong atmosphere with fan zones and the boulevard nearby",
+          "Good food and toilet proximity, walkable"
+        ],
+        "cons": [
+          "No cover",
+          "Not the prime braking zone"
+        ],
+        "description": "On the seafront boulevard at the final corner, Bulvar shows cars braking, rotating and firing onto the main straight at the second DRS activation point."
+      }
+    ],
+    "Circuit de Barcelona-Catalunya": [
+      {
+        "name": "Main Grandstand (Tribuna Principal)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall — grid, pits, podium and start/finish under a roof",
+        "viewsOf": [
+          "Pit straight",
+          "Start/finish line and grid",
+          "Pit lane and pit stops",
+          "Podium",
+          "Turn 1 approach (upper zones)",
+          "Turn 14 exit (right-side lower zones)"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Only ticket with pits, podium, covered roof and sun behind you",
+          "Standing start, every pit stop and the podium ceremony",
+          "Upper Zones 24-28 add Turn 1 visibility plus the left screen"
+        ],
+        "cons": [
+          "Hard fixed plastic seats and priciest tier",
+          "Screens only readable from the ends; no braking/overtaking corner head-on"
+        ],
+        "description": "On the pit straight opposite the pit lane, this is the only stand that combines start, pit stops, podium and a high covered roof, and its roughly northwest orientation puts the sun behind you for the 15:00 start."
+      },
+      {
+        "name": "Grandstand G (stadium, Turns 12-13)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best value and best for first-timers — most track per euro, big crowd energy",
+        "viewsOf": [
+          "Turn 12",
+          "Turn 13",
+          "Technical stadium loop / final sector",
+          "Pit entry"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Most track-for-money on the circuit; sees almost the entire final sector",
+          "Big, loud, family-friendly party atmosphere",
+          "Easy to follow the race, cheapest seated option"
+        ],
+        "cons": [
+          "No shade at all - faces between east and south, afternoon sun on the stand",
+          "Two infield screens near Turn 10 that 'feel far'; slow corners, not pure overtaking"
+        ],
+        "description": "The largest stand, curving around Turn 12 toward Turn 13 in the technical stadium loop, it shows almost the whole final sector from the back rows (recommended zones ~10-20, highest rows) for the lowest price."
+      },
+      {
+        "name": "Grandstand E / F / K (Turn 1 cluster)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Best for action — the no.1 overtaking spot and lap-one carnage",
+        "viewsOf": [
+          "Turn 1 (Elf) braking zone",
+          "Main straight / DRS-zone arrivals",
+          "Turns 1-3 complex (F)",
+          "Glimpse toward Turn 6 (F)"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Maximum passes and incidents - the single best overtaking spot on the track",
+          "Excellent late-braking and side-by-side photography from high rows"
+        ],
+        "cons": [
+          "Open/uncovered - full sun for a 15:00 race",
+          "You see the entry but lose the back half of the lap; heavy screen reliance"
+        ],
+        "description": "The trio of stands around the Turn 1 (Elf) braking zone - E on the straight into Turn 1, F across Turns 1-3 and K on the braking point - watching cars arrive at 300+ km/h and dive down the inside."
+      },
+      {
+        "name": "Grandstand H (Turn 14, final corner)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Comfort plus final-corner and restart drama (Zones 1-5, high rows only)",
+        "viewsOf": [
+          "Turn 14 (final corner)",
+          "Pit-lane entrance",
+          "Turn 10 braking zone (Zones 1-5, highest rows only)"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Only covered stand that sees the final corners",
+          "From the right seats, two corners including an overtaking zone",
+          "One screen visible from all seats"
+        ],
+        "cons": [
+          "Zones 6-11 are blocked by trees and the TV screen",
+          "Most expensive stand; southwest-facing so front rows catch afternoon sun"
+        ],
+        "description": "Outside the fast Turn 14 opposite the pit-lane entrance, it is covered and adds the Turn 10 braking-zone overtakes - but only from Zones 1-5 in the highest rows, since Zones 6-11 are blocked by trees and the TV screen."
+      },
+      {
+        "name": "Grandstand A (Turns 1-3)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Overtaking plus shade in one ticket",
+        "viewsOf": [
+          "Turn 1 braking on entry",
+          "Turns 1-2-3 complex",
+          "Pit exit"
+        ],
+        "pros": [
+          "Covered AND on the main passing corner - a rare combination",
+          "First-corner complex face-on with first-lap S-section drama"
+        ],
+        "cons": [
+          "Pricier than the open stands",
+          "Less documented screen sightline and atmosphere than the stadium stands"
+        ],
+        "description": "On the outside of the Turn 1-2-3 complex, it is one of only three roofed stands and the rare option that puts you on the circuit's main overtaking corner while still giving you shade."
+      },
+      {
+        "name": "Grandstand T10 (La Caixa, Turn 10)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Value overtaking — second-best passing stand, cheaper than Turn 1",
+        "viewsOf": [
+          "Turn 10 (La Caixa) braking zone",
+          "End of the back straight / second DRS zone"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Second-best overtaking stand on the circuit",
+          "Comes alive in the second half of the race",
+          "Cheaper than Turn 1 for similar passing"
+        ],
+        "cons": [
+          "Uncovered, no shade"
+        ],
+        "description": "Sits directly at the Turn 10 (La Caixa) braking zone, the heaviest braking on the lap and the second genuine passing chance - the pick if you want overtakes without paying Turn 1 prices."
+      },
+      {
+        "name": "Grandstand N (Turns 8-9, Campsa)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Best for action (with the Turn 1 cluster) — fast Campsa and the run to Turn 10",
+        "viewsOf": [
+          "Turn 8",
+          "Turn 9 (Campsa)",
+          "Back straight / second DRS zone toward Turn 10"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Fast, spectacular high-speed commitment through Campsa",
+          "Lively - popular with Alonso fan clubs"
+        ],
+        "cons": [
+          "You see the set-up, not the actual Turn 10 pass",
+          "Uncovered, no shade"
+        ],
+        "description": "Outside the fast Turn 9 (Campsa) right-hander that feeds the back straight, watching cars commit through the corner and accelerate into the second DRS zone toward the Turn 10 overtake."
+      }
+    ],
+    "Hungaroring": [
+      {
+        "name": "Apex 1 (formerly Silver 3)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best overall — elevated action view over the final-corner complex",
+        "viewsOf": [
+          "Turn 12",
+          "Turn 13 (chicane)",
+          "Turn 14 (final corner)",
+          "Pit entry",
+          "Pit straight / start-finish"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Best all-round action view",
+          "Elevation over multiple corners plus the straight",
+          "Near the GA banking and fanzone"
+        ],
+        "cons": [
+          "No shade",
+          "Mid-price rather than cheap"
+        ],
+        "description": "Elevated on the natural hill above Turn 14, it takes in Turns 12-13-14, the pit entry and the pit straight — the exit battles here set up the passes at Turn 1, making it the highest-density action view at the circuit."
+      },
+      {
+        "name": "T1 Grandstand (formerly Gold 4)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best for action — the circuit's only true overtaking spot",
+        "viewsOf": [
+          "Turn 1 braking zone",
+          "Run toward Turns 2-3",
+          "End of the pit straight / DRS zone"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "The best overtaking spot at the circuit",
+          "Sees the start funnel past you",
+          "Much better sightlines than the old Gold 3 stand it superseded"
+        ],
+        "cons": [
+          "No shade, full afternoon exposure",
+          "Catch fence hampers the low rows"
+        ],
+        "description": "On the outside of Turn 1 at the end of the straight, this stand overlooks the downhill hard-braking zone where the late lunges, lock-ups, first-lap chaos and safety-car restarts happen."
+      },
+      {
+        "name": "Hungaroring Grandstand (formerly Super Gold)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best for first-timers — shade, start, podium, pits and screens",
+        "viewsOf": [
+          "Main straight / start-finish line",
+          "Pit lane and garages",
+          "Podium"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "The only covered stand at the circuit",
+          "Start, podium, pit activity and four TV screens opposite",
+          "Central, shortest walk to facilities"
+        ],
+        "cons": [
+          "Premium price (~EUR 660 for 3 days)",
+          "No on-track overtaking — passing happens at Turn 1, out of view"
+        ],
+        "description": "The rebuilt centrepiece stand on the main straight opposite the pit garages, with a roof over the upper rows and four TV screens spaced along the pit building — the comfort pick for a 15:00 start."
+      },
+      {
+        "name": "Grand Prix 2 (formerly Silver 4 hill)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best fallback if Apex 1 is sold out; panoramic final-corner photography",
+        "viewsOf": [
+          "Turn 12",
+          "Turn 13",
+          "Turn 14",
+          "Pit straight"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Excellent panoramic view from the hill",
+          "Final-corner battles and exit runs",
+          "High rows great for sweeping photo pans"
+        ],
+        "cons": [
+          "No shade, full exposure"
+        ],
+        "description": "Set on the hill behind the final-corner complex, its elevation gives panoramic views over Turns 12-14 and the pit straight, covering the exit runs that set up the DRS move into Turn 1."
+      },
+      {
+        "name": "Chicane 3 (formerly Super Bronze)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Photographers — the widest multi-corner view in the infield",
+        "viewsOf": [
+          "Turn 4",
+          "Turn 5",
+          "Turn 6",
+          "Turn 7",
+          "Turn 8"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Panoramic view over Turns 4 to 8",
+          "Numbered seats with a large screen in front",
+          "Best infield panorama for sweep shots"
+        ],
+        "cons": [
+          "No shade and far from start/finish",
+          "Little overtaking in this sector"
+        ],
+        "description": "The elevated vantage point in Sector 2, giving the widest single-stand multi-corner view in the infield across Turns 4, 5, 6, 7 and 8."
+      },
+      {
+        "name": "Chicane 1 (formerly Bronze 1)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best value — ~EUR 330 reserved seat over the technical sector",
+        "viewsOf": [
+          "Turn 5",
+          "Mid-lap esses (Sector 2 technical section)"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "~EUR 330 reserved seat — exceptional value",
+          "Relaxed and photo-friendly",
+          "Good close-up of the technical sweep, screen in front"
+        ],
+        "cons": [
+          "Long walk to the main action and fanzone",
+          "Minimal overtaking"
+        ],
+        "description": "A Sector 2 stand around Turn 5 looking over the fast direction changes of the mid-lap esses — a watch-the-car-dance section rather than a watch-the-fight one, at the cheapest reserved-seat price on the calendar."
+      },
+      {
+        "name": "Chicane 2 (formerly Bronze 2)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best value — ~EUR 330 reserved seat, slightly better angle than Chicane 1",
+        "viewsOf": [
+          "Turn 6",
+          "Turn 7",
+          "Mid-lap esses (Sector 2 technical section)"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Slightly better angle than Chicane 1",
+          "Near Gate 3 for the shuttle buses",
+          "~EUR 330 reserved seat — exceptional value"
+        ],
+        "cons": [
+          "Long walk to the main action and fanzone",
+          "Minimal overtaking"
+        ],
+        "description": "The Sector 2 stand around Turns 6-7, with the better viewing angle of the two Bronze chicane stands and handy access to the shuttle buses at Gate 3."
+      }
+    ],
+    "Autódromo José Carlos Pace": [
+      {
+        "name": "Grandstand M (Turn 1 / Senna S entry, opposite the pits)",
+        "viewRating": 5,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall and best action — Turn 1 dive-bomb, pits opposite, covered numbered seat",
+        "viewsOf": [
+          "Turn 1 braking zone",
+          "Entry to the Senna S",
+          "End of the main straight",
+          "Pit lane (across the track)"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Best overtaking view at the circuit",
+          "Covered and numbered/reserved seating",
+          "In-stand toilets, food and merch"
+        ],
+        "cons": [
+          "Priciest lettered seat and sells out fast"
+        ],
+        "description": "Sited opposite the pits at the end of the main straight and outside Turn 1, M looks straight into the braking zone and the dive into the Senna S — the circuit's best overtaking spot, plus pit-lane activity across the track."
+      },
+      {
+        "name": "Grandstand A (final corner / start-finish complex)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best value and best for first-timers — cheap panoramic amphitheatre view with the best crowd on the circuit",
+        "viewsOf": [
+          "Outside of the final corner",
+          "Run onto the main straight",
+          "Start/finish complex",
+          "Panoramic infield view of much of the lap"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Cheap with a huge panoramic view",
+          "Electric atmosphere — flags, airhorns, samba",
+          "Natural tree shade in parts, unique among the cheap stands"
+        ],
+        "cons": [
+          "Uncovered and storm-exposed",
+          "Unreserved concrete bleacher that gets very full"
+        ],
+        "description": "The circuit's largest stand, wrapping the run out of the final corner onto the main straight with an amphitheatre panorama of much of the lap, and the emotional centre of the Brazilian crowd."
+      },
+      {
+        "name": "Grandstand D (Senna S)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Hardcore fans and photographers who want the Senna S",
+        "viewsOf": [
+          "Senna S (Turns 1-2-3)"
+        ],
+        "pros": [
+          "Iconic corner and covered",
+          "Superb photography of cars changing direction through the esses"
+        ],
+        "cons": [
+          "Premium price",
+          "Further from the podium and start"
+        ],
+        "description": "Sits at the Senna S itself — the left-right-left esses that are the technical heart of the lap, where lap-1 incidents, lock-ups and late dives from the Turn 1 zone get completed."
+      },
+      {
+        "name": "Grandstand H (Senna S exit / Curva do Sol)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Action and overtaking purists, photographers",
+        "viewsOf": [
+          "Exit of the Senna S",
+          "Curva do Sol",
+          "Climb to the back straight"
+        ],
+        "pros": [
+          "Rated among the best action stands",
+          "Covered, with plenty of passing to watch"
+        ],
+        "cons": [
+          "Premium price",
+          "Far from start/finish and the podium"
+        ],
+        "description": "Between the Senna S and Curva do Sol, looking at the exit of the esses and the climb to the back straight — one of the best places to watch the S section, with overtakes completed out of it."
+      },
+      {
+        "name": "Grandstand B (start/finish line, grid and podium)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Start, pits and podium ceremony under a roof — families and comfort-seekers",
+        "viewsOf": [
+          "Start of the main straight at the start/finish line",
+          "The grid",
+          "Pit entry and several garages",
+          "The podium"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Podium, race start and pit drama in one seat",
+          "Covered with numbered/reserved seats",
+          "Best rain and sun protection at the circuit"
+        ],
+        "cons": [
+          "Premium price",
+          "Limited overtaking to watch live"
+        ],
+        "description": "One of only two stands with both numbered seats and a roof, B sits at the start of the main straight on the start/finish line with the grid, pit entry, several garages and the podium in view."
+      },
+      {
+        "name": "Grandstand R (Turn 3 / Curva do Sol)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Photographers and action fans who hate catch fencing",
+        "viewsOf": [
+          "Turn 3 / Curva do Sol",
+          "Opening corners",
+          "Glimpses of pit exit and the Senna S"
+        ],
+        "pros": [
+          "Elevated with views unobstructed by catch fencing",
+          "Covered, overlooking the multi-corner opening sequence"
+        ],
+        "cons": [
+          "Premium or package-only on some sellers",
+          "Further from the podium"
+        ],
+        "description": "A raised, covered stand outside Turn 3 / Curva do Sol whose selling point is an elevated, fence-free sightline over the opening corners, with position battles and pit-stop rejoins in view."
+      },
+      {
+        "name": "Grandstand G (back straight / Descida do Lago braking zone)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Budget die-hards and speed fans — cheapest seats at the circuit",
+        "viewsOf": [
+          "Back straight (Reta Oposta)",
+          "Approach to Turn 4 (Descida do Lago)",
+          "Second DRS zone"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Cheapest tickets at the circuit",
+          "Top-speed and DRS-zone action with late-braking passes",
+          "Loud, raucous, fun atmosphere"
+        ],
+        "cons": [
+          "No cover, unreserved bleacher, fully weather-exposed",
+          "Far from the podium and start; sees less of the lap than A"
+        ],
+        "description": "An uncovered bleacher along the back straight past Turn 3 toward Descida do Lago, the max-speed zone where cars brake from around 330 to 160 km/h and late-braking passes happen."
+      }
+    ],
+    "Jeddah Corniche Circuit": [
+      {
+        "name": "Main Grandstand B (Start/Finish — Turn 1)",
+        "viewRating": 5,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best overall and best for action — Turn 1 braking zone plus the start and podium",
+        "viewsOf": [
+          "Start line / start-finish straight",
+          "Turn 1-2 braking and overtaking zone",
+          "Podium (podium-side)",
+          "Distant view of grid and pits"
+        ],
+        "pros": [
+          "Best mix of action and ceremony",
+          "Covered with a big screen, cheaper than Main A",
+          "Better podium view than Main A"
+        ],
+        "cons": [
+          "Grid and pits are more distant than from Main A"
+        ],
+        "description": "Built in 2022 between the start line and Turn 1, it sees the start, the circuit's prime braking and overtaking zone, and podium-side celebrations, making it the pick of the stands."
+      },
+      {
+        "name": "Main Grandstand A (Start/Finish — opposite the pits)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best for first-timers — pits, grid, start/finish, ceremonies and podium",
+        "viewsOf": [
+          "Pit lane and garages",
+          "Grid and race start",
+          "Start/finish line",
+          "Podium",
+          "Turn 1-2 entry"
+        ],
+        "pros": [
+          "Everything ceremonial: grid, pits, start, podium",
+          "Covered with a big screen",
+          "Easiest logistics, shortest walk from the main entrance"
+        ],
+        "cons": [
+          "Least actual overtaking — cars are flat past you",
+          "Priciest of the main stands"
+        ],
+        "description": "Sits directly opposite the pit complex on the start/finish straight, with a premium wide view of the grid, pit lane, start, finish and podium ceremonies."
+      },
+      {
+        "name": "Central Grandstand A (Turns 5-8 technical loop)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best value — cheapest covered seated ticket with genuine technical action",
+        "viewsOf": [
+          "Turns 5-8 fast technical loop",
+          "Turn 20-ish doubled-back section (reported)"
+        ],
+        "pros": [
+          "Cheapest seated tickets and covered",
+          "Genuine high-speed technical action",
+          "Front-facing, among the cleaner photo angles"
+        ],
+        "cons": [
+          "Few passes",
+          "Far from the podium and pits"
+        ],
+        "description": "A circuit-exterior stand at the fast technical Turns 5-8, where cars run millimetres from the wall — incident-prone precision corners rather than overtaking."
+      },
+      {
+        "name": "Central Grandstand C (Turn 8 exit / Turns 17-18 / final DRS zone)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best value — covered, sees a DRS run, clean photo angles",
+        "viewsOf": [
+          "Turn 8 exit",
+          "Turns 17-18",
+          "Final DRS zone run"
+        ],
+        "pros": [
+          "Covered and cheap",
+          "Sees a DRS zone — the setup for the Turn 1 pass",
+          "Good front-facing photography angles"
+        ],
+        "cons": [
+          "Far from the ceremony",
+          "Passes complete elsewhere on the lap"
+        ],
+        "description": "An opening-sector exterior stand sighting the Turn 8 exit, Turns 17-18 and the final DRS run — arguably the most raw speed of the Central set."
+      },
+      {
+        "name": "Central Grandstand B (Turns 5-8 / Turns 19-20 dual view)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Action-density fans on a budget",
+        "viewsOf": [
+          "Turns 5-8",
+          "Turns 19-20 doubled-back section"
+        ],
+        "pros": [
+          "Most cars-per-lap of any Central stand",
+          "Big screen at a low price"
+        ],
+        "cons": [
+          "Uncovered and distant doubled-back view",
+          "No overtakes"
+        ],
+        "description": "A dual-perspective spot that catches cars twice per lap across two separate stretches, though both are fast walled sections rather than wheel-to-wheel racing."
+      },
+      {
+        "name": "Central Grandstand D (Coastal — Turns 8-10 / 16-18)",
+        "viewRating": 2,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "budget",
+        "bestFor": "Scenery-first casual fans — the page's AVOID pick",
+        "viewsOf": [
+          "Turns 8-10",
+          "Turns 16-18",
+          "Red Sea backdrop"
+        ],
+        "pros": [
+          "Unique coastal view framed by the Red Sea",
+          "Cheap"
+        ],
+        "cons": [
+          "No big screen, so you lose the race narrative",
+          "Uncovered and distant"
+        ],
+        "description": "A coastal position with the prettiest backdrop but the weakest racing utility — doubled-back, far from the action and with no big screen."
+      }
+    ],
+    "Las Vegas Strip Circuit": [
+      {
+        "name": "T-Mobile Zone at Sphere (Turns 5-9, SG1-SG8 sectors)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall and best for first-timers — the only sustained corner sequence on the lap, with the Sphere backdrop and the best atmosphere",
+        "viewsOf": [
+          "Turn 5 (hard right)",
+          "Turn 6 sweep",
+          "Turns 7/8 chicane",
+          "Turn 9",
+          "Sphere backdrop"
+        ],
+        "pros": [
+          "Best multi-corner view on the circuit",
+          "Best photography — cars plus Sphere and neon",
+          "Best atmosphere, with live concerts"
+        ],
+        "cons": [
+          "Around $2,000 for 3 days",
+          "Higher rows risk stage/screen obstruction"
+        ],
+        "description": "Mid-circuit in the shadow of the Sphere, wrapping the T5-T9 complex — the hard right at T5, the fast T6 sweep, the T7/8 chicane and T9 launching cars back toward the Strip — the only sustained corner sequence on the lap."
+      },
+      {
+        "name": "Heineken Silver Main Grandstand — East Harmon Zone (Start/Finish, Pits, Turn 1)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best for action — the Turn 1 braking zone (200 to ~65 mph) is the prime overtaking spot, plus pits and start/finish",
+        "viewsOf": [
+          "Start/finish line",
+          "Starting grid",
+          "Pit lane",
+          "Turn 1 braking zone",
+          "Podium"
+        ],
+        "pros": [
+          "Overtaking, pits, start/finish and podium in one seat",
+          "Most amenities and the biggest fan zone",
+          "Most sheltered footprint (permanent Pit Building behind)"
+        ],
+        "cons": [
+          "Priciest grandstand (from ~$2,051 incl. fees, 3-day)",
+          "Some blocks obstructed by skybox structures"
+        ],
+        "description": "Faces the pit lane and starting grid from the permanent Pit Building and runs down toward Turn 1, the heaviest braking point on the lap and the number one passing spot."
+      },
+      {
+        "name": "Turn 3 Grandstand — East Harmon Zone (Turns 3-4, Koval Straight)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Value hunters who want to roam — 2026 ticket includes access to West Harmon, Koval and East Harmon zones",
+        "viewsOf": [
+          "Turn 3",
+          "Turn 4",
+          "Start of the Koval Straight"
+        ],
+        "pros": [
+          "Mid-price (from ~$1,329 incl. fees)",
+          "Widest roaming access of any single grandstand ticket for 2026",
+          "Close to the big East Harmon fan zone"
+        ],
+        "cons": [
+          "Limited overtaking — cars are near flat-out and single-file",
+          "Brief car-exposure window"
+        ],
+        "description": "Relocated for 2026 to the west side of Turn 3, looking at drivers attacking Turns 3-4 before they launch down the Koval Straightaway."
+      },
+      {
+        "name": "Heineken Grandstands — Koval Zone (Turn 4 exit)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best value — cheapest 3-day grandstand with complimentary Heineken for 21+",
+        "viewsOf": [
+          "Turn 4 exit",
+          "Koval Straight"
+        ],
+        "pros": [
+          "Cheapest 3-day grandstand (from ~$925 incl. fees)",
+          "Complimentary Heineken for 21+",
+          "Relaxed, newer and less crowded"
+        ],
+        "cons": [
+          "Least on-track variety",
+          "Bench (assigned bleacher) seating and a lower sightline"
+        ],
+        "description": "Runs along the left-hand straight immediately after the Turn 4 exit, where cars are hard on the power building top speed down the Koval Straight."
+      },
+      {
+        "name": "West Harmon Grandstand — West Harmon Zone (Turns 14/17 area, Harmon Straight)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Budget speed-chasers who will use the new 2026 roaming access to East Harmon and Koval",
+        "viewsOf": [
+          "Final-corner sequence (Turns 14/17 area)",
+          "Harmon Straight",
+          "Pit-lane entry"
+        ],
+        "pros": [
+          "Cheap (from ~$1,012 incl. fees)",
+          "Visceral top-speed sensation",
+          "2026 connection to East Harmon and Koval adds value"
+        ],
+        "cons": [
+          "Minimal racing and overtaking — cars are flat-out here",
+          "Historically the weakest standalone view"
+        ],
+        "description": "Sits inside the track near the final-corner sequence and pit-lane entry, looking down the Harmon Straight at cars going by at near-max speed."
+      }
+    ],
+    "Lusail International Circuit": [
+      {
+        "name": "Main Grandstand (Zones A–F, main straight)",
+        "viewRating": 5,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall — and best for first-timers: reserved seat, roof, grid/pits/podium and screens",
+        "viewsOf": [
+          "Start/finish line",
+          "The full grid",
+          "Pit lane and garages",
+          "Podium"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Only stand with assigned/numbered reserved seating",
+          "The only (partially) roofed stand",
+          "Best big-screen coverage plus ceremonies and shortest walk from the main entrance"
+        ],
+        "cons": [
+          "Priciest, and sells out earliest (gone Jan 2026 for the 2026 race)",
+          "You don't see a single proper overtaking corner up close"
+        ],
+        "description": "Sitting on the main straight directly opposite the pit garages, it is the best-engineered bank on the circuit — a proper grandstand bowl giving the start, the full grid, pit stops and the podium, with Zones C/D central and mid-to-upper rows the sweet spot."
+      },
+      {
+        "name": "North Grandstand (Grandstand Nord — Turn 1)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best for action — the Turn 1 launch, and the best fallback if Main is sold out",
+        "viewsOf": [
+          "End of the main straight",
+          "Turn 1",
+          "Pit lane and garages",
+          "Glimpse of the podium"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Best 'see the start AND see overtaking' balance",
+          "Open seating, so you can sit early and pick your row",
+          "Strong photography — Turn 1 braking and the grid launch in one frame"
+        ],
+        "cons": [
+          "No roof",
+          "Unreserved — arrive early for the good upper-row Turn 1 seats"
+        ],
+        "description": "Immediately left of the Main Grandstand between the main straight and Turn 1, it is the action-vs-ceremony compromise: you still see the start and the pits, but you also get the braking and passing at Turn 1 that the Main does not."
+      },
+      {
+        "name": "T16 Grandstand (Turn 16)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best value — real overtaking and braking action at a value price, plus the top night-photography corner",
+        "viewsOf": [
+          "Turn 16 (the final corner)",
+          "The final heavy braking zone",
+          "Exit onto the 1km main straight"
+        ],
+        "pros": [
+          "Genuine overtaking/braking corner for far less than Main",
+          "Arguably the best night light-streak photography spot",
+          "The late-race drama corner — DRS set-up moves and the last push to the flag"
+        ],
+        "cons": [
+          "Uncovered and unreserved",
+          "You miss the start, grid and podium"
+        ],
+        "description": "At the final corner before the main straight, it shows the heavy braking as cars decelerate from high speed into Turn 16 and then fire onto the 1km straight — the second-best action corner after Turn 1."
+      },
+      {
+        "name": "T2 Grandstand (Turn 2)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Corner action at a mid price with a wider view than a single apex",
+        "viewsOf": [
+          "Turn 2",
+          "Cars coming from Turn 1",
+          "Cars heading to Turn 3"
+        ],
+        "pros": [
+          "Multi-corner views — you catch more than one corner unlike T3",
+          "Near the Turn 1 action without main-straight pricing"
+        ],
+        "cons": [
+          "Uncovered and unreserved",
+          "Further from the start and the ceremonies"
+        ],
+        "description": "Added in 2023 on the inside of Turn 2, it gives a decent multi-corner perspective on early-lap jostling, with higher rows catching the Turn 1 to Turn 3 sweep."
+      },
+      {
+        "name": "Lusail Hill (General Admission — Turn 1)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "budget",
+        "bestFor": "Best for action on a budget — the elevated Turn 1 GA, and the only GA worth planning around",
+        "viewsOf": [
+          "Turn 1 braking and overtaking complex"
+        ],
+        "pros": [
+          "Cheapest way in, and elevated over the main overtaking corner",
+          "The loosest, most party-ish crowd on site"
+        ],
+        "cons": [
+          "Standing only, personal chairs prohibited, no shade",
+          "No guaranteed view — arrive early (2+ hours before the 19:00 start)"
+        ],
+        "description": "An elevated public area near Turn 1 and the one GA spot that earns its keep because it is raised — most other general admission at Lusail is flat and fence-blocked."
+      },
+      {
+        "name": "T3 Grandstand (Turn 3)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "The page's explicit AVOID — budget fans who specifically want the early esses and don't mind the hike",
+        "viewsOf": [
+          "Turn 3",
+          "Turn 2"
+        ],
+        "pros": [
+          "Dual-corner perspective",
+          "Quieter, and usually cheaper"
+        ],
+        "cons": [
+          "Furthest grandstand from the entrance — the longest walk on the circuit",
+          "Least overtaking; Turn 3 is a positioning corner, not a passing one"
+        ],
+        "description": "Added in 2023 near Turn 3 with a superb view back to Turn 2, it offers a fine dual-corner angle, but the corners themselves don't generate passes and it is the longest walk on the circuit."
+      }
+    ],
+    "Madring": [
+      {
+        "name": "Gold 1 & Gold 2 — Main Straight (Recta Principal)",
+        "viewRating": 5,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall — grid, pit lane, podium and Turn 1 from the only roofed main-straight seats",
+        "viewsOf": [
+          "Start/finish straight",
+          "Grid",
+          "Pit lane",
+          "Turn 1 chicane",
+          "Turn 2",
+          "Podium"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Roofed (except front rows)",
+          "Everything ceremonial: grid, podium, pit stops",
+          "Turn 1 first-lap chaos and braking"
+        ],
+        "cons": [
+          "Priciest tier on the circuit",
+          "Straight-line cars are less photogenic than a corner"
+        ],
+        "description": "The best view on the circuit per official and vendor framing — the only place you see grid, pits and podium together, with a roof over all but the front rows and direct Metro access at the main entry complex."
+      },
+      {
+        "name": "Silver Plus 11 & 13 — La Monumental Exit / Turn 13",
+        "viewRating": 5,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best value and best for first-timers — covered seats on the signature banked bowl",
+        "viewsOf": [
+          "La Monumental banked section exit",
+          "Turn 13 (~90-degree turn)"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Covered — the only roofed seats outside Gold",
+          "Cars at full lean through the 24% banking, an angle unique on the calendar",
+          "Bullring-amphitheatre atmosphere, loudest and most partisan crowd"
+        ],
+        "cons": [
+          "You miss the start and podium",
+          "Banking exit is fast, so a pass is not guaranteed"
+        ],
+        "description": "The headline spectacle of the Madring: cars at full lean out of the banked Monumental section into a braking/turn-in passing chance at Turn 13, under cover and for well under Gold money."
+      },
+      {
+        "name": "Silver 4 & 5 — Turns 4 & 5 (fast section + big brake)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best for action — the heaviest braking zone and cleanest overtaking spot now DRS is gone",
+        "viewsOf": [
+          "Turn 4 (approach at ~340 km/h)",
+          "Turn 5 braking zone"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Best racing-per-euro on the circuit",
+          "Prime overtaking spot with lock-up and incident risk",
+          "Visceral speed differential, higher rows see approach and apex"
+        ],
+        "cons": [
+          "No shade or roof — full sun",
+          "Less ceremony than the main straight"
+        ],
+        "description": "Sits at the end of the ~340 km/h run into the hardest braking zone on the lap, the main overtaking and incident area where late lunges into Turn 5 put wheels together."
+      },
+      {
+        "name": "La Monumental 9, 10 & 12 — Banked Bowl (support stands)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Atmosphere on a budget — the banked-bowl spectacle for less than Silver Plus",
+        "viewsOf": [
+          "La Monumental banking",
+          "Secondary angles on Turns 11 and 13"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "The Monumental spectacle for less than Silver Plus",
+          "Loudest, most theatrical part of the track (45,000-seat banked amphitheatre)"
+        ],
+        "cons": [
+          "No roof — full sun",
+          "Some angles are secondary to Stands 11/13"
+        ],
+        "description": "Secondary stands around the banked Monumental bowl modelled on Madrid's Las Ventas bullring — the same banked sweep as Silver Plus but with less of the exit pass and no cover."
+      },
+      {
+        "name": "Bronze/Silver 14, 15 & 16 — Curvas Enlazadas / Valdebebas (Turns 14–17)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best fallback if Gold and Silver Plus sell out — flowing corners plus a real pass spot at Turn 17",
+        "viewsOf": [
+          "Curvas Enlazadas (Turns 14–16)",
+          "Turn 17 overtaking point",
+          "Valdebebas run home"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Decent action for mid money",
+          "Turn 17 is a genuine passing spot",
+          "Vendor guides flag 15 and 16 for good overall experience"
+        ],
+        "cons": [
+          "No shade",
+          "Away from the ceremony of the main straight"
+        ],
+        "description": "Linked corners on the run home plus Turn 17, one of the circuit's four designed overtaking areas, giving value seekers more than a single-corner view."
+      },
+      {
+        "name": "Silver 6, 7 & 8 — Bunker / Technical (Turns 6–11)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Repeat fans who want corner craft over constant overtaking",
+        "viewsOf": [
+          "Turns 6–11 technical complex",
+          "8% climb off Turn 6",
+          "Downhill drop between Turns 7 and 9"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Technical interest and gradient drama",
+          "Often cheaper than the headline stands",
+          "Higher rows catch multiple corners"
+        ],
+        "cons": [
+          "Sparse overtaking",
+          "Lower rows see one apex and a wall"
+        ],
+        "description": "The uphill/downhill 'Bunker' complex with an 8% climb and a sharp drop between Turns 7 and 9 — driver-skill corners with big sightline variety but few passes."
+      }
+    ],
+    "Albert Park Circuit": [
+      {
+        "name": "Brabham Grandstand (inside Turns 1-2-3)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall - hardcore fans and action-seekers who want the start plus the Turn 1-3 braking complex",
+        "viewsOf": [
+          "Start/finish getaway",
+          "Turn 1",
+          "Turn 2",
+          "Turn 3"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Best action plus the start on the circuit",
+          "Multi-corner view - watch cars brake, turn and re-accelerate",
+          "Highest concentration of overtakes and first-lap incidents"
+        ],
+        "cons": [
+          "Open to sun and rain, minimal shade",
+          "Popular, so books out"
+        ],
+        "description": "Sited on the inside of the opening braking complex, Brabham sees the start, Turn 1 entry, the Turn 2 flick and Turn 3, with higher rows tracking cars across all three corners."
+      },
+      {
+        "name": "Jones Grandstand (outfield of Turn 1, near Gate 1)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best action - overtakes, lock-ups and photography at the Turn 1 braking zone",
+        "viewsOf": [
+          "Turn 1",
+          "Main straight heavy-braking zone"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Best single braking-zone view - lunges happen right in front of you",
+          "Excellent braking and lock-up photography from height",
+          "Gate 1 access with all-zone GA included"
+        ],
+        "cons": [
+          "Outside line sees less of the Turn 2-3 flow than Brabham",
+          "No shade at all (open-air)"
+        ],
+        "description": "Jones sits outside Turn 1 over the heavy-braking zone at the end of the main straight, the prime passing and lock-up spot, with 2026 adult 4-day tickets around A$825."
+      },
+      {
+        "name": "Fangio Grandstand (Main Straight, on the grid / pit area)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best first-timer - grid, pit lane and podium access in one ticket",
+        "viewsOf": [
+          "Main straight",
+          "Start/finish grid",
+          "Pit lane entry and exit"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Start, podium and pits in one stand",
+          "Ticket-holders can enter the track for the podium and champagne",
+          "Superscreens covering the straight"
+        ],
+        "cons": [
+          "Straight-line only between starts",
+          "Premium pricing"
+        ],
+        "description": "The biggest stand on track, Fangio overlooks the grid and pit entry/exit on the start/finish straight and is the ceremonial heart of the weekend."
+      },
+      {
+        "name": "Schumacher Grandstand (opposite pit-lane entry / final two corners)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best value - families, accessibility and the only undercover seats on track",
+        "viewsOf": [
+          "Final two corners",
+          "Pit lane entry"
+        ],
+        "pros": [
+          "Best value, with the only undercover (premium) seats on track",
+          "Superscreens plus pit-entry drama in view",
+          "Wheelchair-accessible platform and food precinct behind"
+        ],
+        "cons": [
+          "\"Undercover\" is partial - not full weather protection, premium seats only",
+          "Final-corner action is lower-intensity than Turns 1-3"
+        ],
+        "description": "Opposite the pit-lane entry, Schumacher overlooks Albert Park's final two corners where drivers fight for the last position before the line, from about A$690 adult 4-day (premium ~A$825)."
+      },
+      {
+        "name": "Piastri Grandstand (Main Straight, new for 2026)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "premium",
+        "bestFor": "Atmosphere and the home-hero occasion on the main straight",
+        "viewsOf": [
+          "Main straight",
+          "Start/finish line",
+          "Pit lane (opposite)"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Partisan home-crowd atmosphere, named for Oscar Piastri",
+          "Prime main-straight position for start and finish",
+          "Pit-lane theatre directly opposite"
+        ],
+        "cons": [
+          "Priciest stand, reported from ~A$1,045 for 4 days",
+          "You pay for the occasion, not extra overtaking"
+        ],
+        "description": "New for 2026, Piastri sits on the main straight opposite the pit lane, offering start, full-throttle and finish views with a partisan home crowd at the highest grandstand price on the circuit."
+      },
+      {
+        "name": "Waite Grandstand (east side of the lake, Turns 11-12)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Photographers and high-speed cornering fans",
+        "viewsOf": [
+          "Turn 11",
+          "Turn 12",
+          "Albert Lake"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "One of the best photo stands on the circuit",
+          "Long, open sightlines across the water reduce fence intrusion",
+          "Spectacle and value away from the crowds"
+        ],
+        "cons": [
+          "Away from start and pits, quieter atmosphere and a longer walk",
+          "Few passes - spectacle rather than combat"
+        ],
+        "description": "East of Albert Lake by Turn 12, Waite overlooks the high-speed Turns 11 and 12 with long open sightlines and lots of sky, making it the pick for photographers."
+      },
+      {
+        "name": "Hill Grandstand (Turn 3)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "budget",
+        "bestFor": "Action on a budget",
+        "viewsOf": [
+          "Turn 3"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Real action without Turn 1 prices",
+          "Good braking-zone view of Turn 3",
+          "Secondary overtaking spot after Turn 1"
+        ],
+        "cons": [
+          "Single corner only",
+          "Open, with no cover"
+        ],
+        "description": "Hill overlooks the Turn 3 braking and overtaking zone at the end of the early sequence, the circuit's secondary passing spot after Turn 1."
+      }
+    ],
+    "Autódromo Hermanos Rodríguez": [
+      {
+        "name": "Foro Sol Sur / Grandstand 14 (Grey Zone / Zona Gris) — Stadium Section",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best overall (the experience) and best for first-timers — atmosphere, podium and shade by race time",
+        "viewsOf": [
+          "Turns 13-15 (slowest stadium corners)",
+          "The podium",
+          "Foro Sol / Estadio GNP Seguros stadium loop"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Loudest section in F1, with a packed bowl and post-race DJ sets",
+          "Podium is right there, opposite the stadium stands",
+          "Partial roof added in 2024 and north-facing, so mostly shaded by the 14:00 start"
+        ],
+        "cons": [
+          "Concrete steps with no individual seats — bring a cushion",
+          "Hours-long food lines and very little overtaking (cars run single-file)"
+        ],
+        "description": "The southern half of the Foro Sol (Estadio GNP Seguros) over the slowest corners, Turns 13-15, with the podium opposite — an ears-and-atmosphere seat that gained a partial roof in the 2024 renovation."
+      },
+      {
+        "name": "Grandstand 5 (Blue Zone / Zona Azul)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best for action and best for first-timers — the Turn 1 chicane, the circuit's #1 passing spot",
+        "viewsOf": [
+          "Turn 1",
+          "Turn 1-2-3 chicane (Curva Moisés Solana)",
+          "Main straight looking back up the start/finish"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "The action seat: braking, the dive into Turn 1 and passes completing",
+          "Gate 9 next to Puebla metro, with the Blue Zone F1 Fan Zone alongside",
+          "Section 101, Rows 20+ give maximum visibility up the straight"
+        ],
+        "cons": [
+          "No cover — full sun all day",
+          "Advertising boards trim the start-line view and the T2 screen is distant from high rows"
+        ],
+        "description": "Sits outside Turn 1 facing back up the main straight over the whole chicane, so you watch the braking, the lunge into Turn 1 and the pass complete."
+      },
+      {
+        "name": "Grandstand 8 (Pink Zone / Zona Rosa)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best value — Turn 4 braking-zone overtaking plus two-zone access",
+        "viewsOf": [
+          "Turn 4 braking zone",
+          "Turn 3 to Turn 4 straight (second DRS run)",
+          "Turns 5-6"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Genuine overtaking into Turn 4 plus slow, close action at T5/T6",
+          "A Pink ticket also grants Blue Zone access",
+          "Cheap for the racing on offer (~10,500 MXN / ~$578 for 3 days)"
+        ],
+        "cons": [
+          "No cover and bench seating",
+          "From most sections GS7 blocks the Turn 5 view and trees obscure Turn 3"
+        ],
+        "description": "Sits inside the Turn 3-Turn 4 straight by the Turn 4 braking zone, where cars linger in view through the following slow corners; Section 101, Rows 15+ are the seats to take."
+      },
+      {
+        "name": "Grandstand 6 / 6A (Blue Zone / Zona Azul)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best budget fallback — cheapest grandstand that still sees the Turn 3 to Turn 4 fight",
+        "viewsOf": [
+          "Turn 3 exit",
+          "Second straight",
+          "Turn 3 to Turn 4 DRS run"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Full view of cars battling for position on the T3-T4 DRS run",
+          "6A is among the cheapest grandstands (~7,000 MXN / ~$385) and still sees action"
+        ],
+        "cons": [
+          "Uncovered, with no shade",
+          "Screens can feel distant from the high rows"
+        ],
+        "description": "Faces the second straight and the Turn 3 exit onto the T3-T4 DRS run, giving a full view of cars battling for position at one of the lowest grandstand prices on the circuit."
+      },
+      {
+        "name": "Foro Sol Norte / Grandstand 15 (Brown Zone / Zona Café) — Stadium Section",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Atmosphere and podium proximity, with noticeably more sun than GS14",
+        "viewsOf": [
+          "Turns 13-15 (slowest stadium corners)",
+          "The podium",
+          "Foro Sol / Estadio GNP Seguros stadium loop"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Same electric atmosphere and podium proximity as GS14",
+          "Same partial roof added in the 2024 stadium renovation"
+        ],
+        "cons": [
+          "Faces south, so noticeably less shade through the afternoon",
+          "Concrete steps with no individual seats, and little actual racing"
+        ],
+        "description": "The northern half of the Foro Sol stadium section — identical magic to GS14 but south-facing, so pick GS14 over GS15 purely for shade unless price or availability dictates otherwise."
+      },
+      {
+        "name": "Main Grandstand 1 & 2 (Green Zone / Zona Verde)",
+        "viewRating": 3,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Pit stops, the grid and ceremony — for pit/strategy fans and premium comfort",
+        "viewsOf": [
+          "Pit lane and garages",
+          "Start/finish straight and start lights",
+          "Grid",
+          "Final corner exit"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Pit lane, pit stops, the grid forming and the start lights",
+          "Partial roof over the upper rows (Rows 15+ for shade, Sky Box rows 21-23 near-guaranteed)",
+          "Well-sighted TVs on the pit-building roofs"
+        ],
+        "cons": [
+          "Dearest standard ticket (~30,500 MXN / ~$1,678) for minimal overtaking",
+          "South-facing, so lower rows bake most of the day"
+        ],
+        "description": "Sits left of the start/finish straight opposite the pits between the final corner exit and the start line — premium for ceremony and pit drama, weak for wheel-to-wheel racing."
+      },
+      {
+        "name": "Grandstands 9, 10, 11 (Yellow Zone / Zona Amarilla — the Esses)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Photography — slow Esses corners for photographers and repeat visitors",
+        "viewsOf": [
+          "The Esses (Turns 4-6)",
+          "Turn 6 exit (GS11)",
+          "Distant view up the straight to Turn 4 (from GS11)"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Best photography on the circuit — cars at low speed in single file",
+          "Smaller stands, often cheaper, with the Yellow Fan Zone nearby"
+        ],
+        "cons": [
+          "Little overtaking and sparse facilities",
+          "No cover — bring sun protection"
+        ],
+        "description": "Small stands around the twisty Turn 4-6 complex, with GS11 on the Turn 6 exit, where the low speeds make for the cleanest panning shots on the circuit."
+      }
+    ],
+    "Miami International Autodrome": [
+      {
+        "name": "Turn 1 North Grandstand",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall & best for first-timers — action, screens, amenities and comfort in one place",
+        "viewsOf": [
+          "Turn 1",
+          "End of the start/finish straight DRS zone",
+          "Pit exit"
+        ],
+        "pros": [
+          "One of the two best overtaking stands, with pit-exit merges in view",
+          "Unobstructed big-screen sightline reported from all rows",
+          "Individual numbered seats plus concessions and toilets near a main gate"
+        ],
+        "cons": [
+          "Premium price",
+          "Lower rows are fenced and sun-exposed"
+        ],
+        "description": "Sitting outside Turn 1 at the end of the start/finish straight DRS zone, this is the circuit's best all-rounder: you watch cars decelerate hard and fight for the corner from individual numbered seats, with covered upper rows (approx. S-BB) and a clean big-screen view."
+      },
+      {
+        "name": "South Beach Grandstand",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best action — hardcore racing fans and overtaking/incident hunters, rows U+",
+        "viewsOf": [
+          "Back straight DRS zone",
+          "Turn 11 braking zone",
+          "Turn 12 (cars vanish behind the Beach Club structure after T12)"
+        ],
+        "pros": [
+          "Premier overtaking spot: heavy-braking passes and lock-ups right in front of you",
+          "Best braking-zone photography on the circuit from above row U",
+          "Top ~15 rows are covered"
+        ],
+        "cons": [
+          "Below row U you watch through the catch fence",
+          "Backless bench seating; a tree blocks the screen in sections S1-S2"
+        ],
+        "description": "The stand at the end of the back-straight DRS zone into Turn 11 (~205+ mph down to corner speed), rated the single best overtaking view at Miami — but only from rows U+ in sections S2-S5, since lower rows watch through the catch fence."
+      },
+      {
+        "name": "Turn 18 Grandstand",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Fans who will research the section map; circuit-overview lovers (sections 5-12)",
+        "viewsOf": [
+          "Turn 17/18 braking zone",
+          "Pit entrance (some sections)",
+          "End of the start/finish straight"
+        ],
+        "pros": [
+          "Panoramic, multi-corner view with real late-braking overtakes",
+          "Sections 5-12 give a great straight-plus-screen combination",
+          "Good photography of the fast approach from upper-mid rows"
+        ],
+        "cons": [
+          "Highly section-dependent: ends 1-4 and 13-17 are uncovered with poor screen access",
+          "Lower rows A-G are a poor vantage point"
+        ],
+        "description": "A West Campus stand overlooking the fast run into the Turn 17/18 braking zone and, from some sections, the pit entrance and the end of the start/finish straight — one of the most diverse single views on the lap, provided you buy sections 5-12 in the upper rows."
+      },
+      {
+        "name": "North Beach Grandstand",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Younger, party-minded fans who still want overtakes",
+        "viewsOf": [
+          "Turn 11 apex (sections N1-N8)",
+          "Turn 12 second half / Turn 13 (N9+)",
+          "Turn 14 sliver (N16)"
+        ],
+        "pros": [
+          "Almost all overtakes and offs happen in the Turns 11-14 complex it overlooks",
+          "The loudest, most festival-like stand, with videoboards and performances",
+          "Close to East Campus and food"
+        ],
+        "cons": [
+          "Backless benches and full sun below about row 18",
+          "Poles and gates obstruct the screens in spots"
+        ],
+        "description": "The largest, busiest 'party' stand, covering the Turns 11-14 stadium complex where almost all the overtakes and offs happen — best from sections N5-N7 and the top ~12 covered rows."
+      },
+      {
+        "name": "Start/Finish (Main) Grandstand",
+        "viewRating": 3,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Pit and strategy fans, comfort seekers who accept the ceremony on screen",
+        "viewsOf": [
+          "Start/finish straight",
+          "Pit lane",
+          "The grid"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Individual numbered seats rather than benches",
+          "Race start launch, pit stops and post-quali interviews out front"
+        ],
+        "cons": [
+          "Podium ceremony is not visible from here — screens only",
+          "Little on-track overtaking and a pricey ticket"
+        ],
+        "description": "North Campus stand on the start/finish straight overlooking the pit lane and grid, strong for pit theatre and the race start but with no braking battle and no live podium view."
+      },
+      {
+        "name": "Marina Grandstands (North / Centre / South)",
+        "viewRating": 3,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Shade and comfort seekers, groups, and atmosphere/aesthetics fans",
+        "viewsOf": [
+          "Turns 6-9 technical complex",
+          "MSC Yacht Club opposite (across the bridge)"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Best shade odds on the circuit — upper rows covered and most rows shaded by ~3pm",
+          "Great amenities near fan zones and entertainment, Gate 5 access",
+          "Photogenic slow-cornering shots with the yacht backdrop"
+        ],
+        "cons": [
+          "Worst overtaking — the Turns 6-9 section is slow and processional",
+          "Poles can obstruct the big screen, and seats are set back from the track"
+        ],
+        "description": "Three stands around the twisty Turns 6-9 complex opposite the new MSC Yacht Club, offering the circuit's best shade and a luxury/lifestyle atmosphere but almost no overtaking."
+      },
+      {
+        "name": "Family Grandstand",
+        "viewRating": 3,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best value — families and budget buyers who want a reserved seat over GA",
+        "viewsOf": [
+          "Turns 4-5 high-speed sweep (sources vary; some cite T10/T11)"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Cheapest reserved seat with a genuine corner view",
+          "Calmer, family-oriented atmosphere",
+          "Solid fast-cornering sightlines for a budget stand"
+        ],
+        "cons": [
+          "Shade only in the top rows; most rows are exposed",
+          "Bench seating and not an overtaking spot"
+        ],
+        "description": "An East Campus budget stand looking toward the fast sweep around Turns 4-5, the cheapest reserved seat at Miami that still shows real cornering, with shade confined to the top rows."
+      }
+    ],
+    "Circuit Gilles Villeneuve": [
+      {
+        "name": "Grandstand 34 (hairpin — panoramic)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best overall & best action — hardcore fans and photographers who want overtakes completing in front of them",
+        "viewsOf": [
+          "L13 hairpin (L'Epingle) — entry, apex and exit",
+          "Launch onto the back straight"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Most action-dense seat on the track, sees overtakes complete",
+          "Best photography at the circuit — wide panning angles, Biosphere backdrop",
+          "Cars visible on both sides of the hairpin"
+        ],
+        "cons": [
+          "No shade",
+          "Busy zone"
+        ],
+        "description": "The broadest angle of any hairpin stand, giving panoramic views of the hairpin with cars on both sides — entry, apex, exit and the launch onto the back straight."
+      },
+      {
+        "name": "Grandstand 24 — \"Lance Stroll Grandstand\" (hairpin exit)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Action and photography — the intimate, photogenic hairpin exit",
+        "viewsOf": [
+          "Hairpin exit (L13)",
+          "Hairpin approach visible nearly back to Turn 9"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Intimate hairpin action — you sit almost on the cars",
+          "Upper rows give unobstructed track views and the Biosphere backdrop",
+          "Long approach view"
+        ],
+        "cons": [
+          "Lower rows fight the catch fence",
+          "Full sun"
+        ],
+        "description": "Sits at the exit of the hairpin with the approach visible nearly back to Turn 9; upper rows give unobstructed views and the best photography after Grandstand 34."
+      },
+      {
+        "name": "Platine (Senna S, T1–2)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best first-timer — comfort-seekers who want a guaranteed dry seat plus the start action",
+        "viewsOf": [
+          "Senna S (Turns 1–2)",
+          "The start-finish launch off the line",
+          "Cars rejoining from the pit exit"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "The only roofed grandstand on the circuit — sun and rain protection",
+          "Plastic moulded seats with backs rather than bare metal bleacher",
+          "Start action plus a big-screen sightline"
+        ],
+        "cons": [
+          "Priciest non-hospitality option",
+          "You watch the back half of the lap on screen"
+        ],
+        "description": "Sits opposite the start-finish over the entry to the Senna S esses, and is the only roofed grandstand on the circuit, with real seats and a clear view of the launch off the line."
+      },
+      {
+        "name": "Grandstand 1 (Start-finish straight)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Start, pits, podium and ceremony — first-timers who value the ceremonial heart",
+        "viewsOf": [
+          "Start-finish straight",
+          "Pit lane and grid",
+          "Run to Turn 1",
+          "Finish line and podium"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Grid, standing start, pit stops, finish line and podium ceremony",
+          "A giant screen sits opposite",
+          "Easy access to the main entrances and facilities"
+        ],
+        "cons": [
+          "You see one straight live — cornering action is on the screen",
+          "Lots of low catch-fencing obscures the corners at either end"
+        ],
+        "description": "The main-straight stand over the pit lane, grid and podium — the ceremonial heart of the weekend, though most of the cornering action is watched on the big screen."
+      },
+      {
+        "name": "Grandstand 11 (Senna S, T1–2)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Atmosphere and the start — sections 1–3 are the picks",
+        "viewsOf": [
+          "Senna Curve (Turns 1–2)",
+          "The start and opening corners"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Elevated views of the start and opening corners from the higher seats",
+          "Strong lap-1 atmosphere — one of the most popular stands",
+          "Big-screen sightline"
+        ],
+        "cons": [
+          "Lower seats can be obstructed by the catch-fence band",
+          "Roughly 3+ km walk from the metro to this end, and no shade"
+        ],
+        "description": "An elevated Senna Curve stand covering the start and opening corners, best from the higher seats where the view clears the fencing."
+      },
+      {
+        "name": "Grandstand 12 (Senna S / climb to T3)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best value — value-conscious fans who still want the start zone",
+        "viewsOf": [
+          "Senna S (Turns 1–2), at a squarer angle",
+          "The ascent toward Turn 3",
+          "Pit-lane activity"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Strong value — often the better-priced Senna S option (~CAD $915 3-day)",
+          "Senna S plus pit-exit action",
+          "Some seats catch the city skyline backdrop"
+        ],
+        "cons": [
+          "No shade",
+          "Long walk to this end of the island"
+        ],
+        "description": "A Senna S stand with a squarer angle on the opening two corners and the climb toward Turn 3, rated the value pick of the start-zone seats with a skyline backdrop."
+      },
+      {
+        "name": "Family Grandstand (T6–7 chicane)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Families with kids and spectators needing accessibility",
+        "viewsOf": [
+          "Turns 6–7 chicane",
+          "Droit du Casino corner area"
+        ],
+        "pros": [
+          "Family-friendly and accessible with a relaxed, green park setting",
+          "Adjacent to the calmer Droit du Casino GA area"
+        ],
+        "cons": [
+          "Low-speed corner with less raw action",
+          "Big-screen sightline needs checking"
+        ],
+        "description": "Overlooks the Turns 6–7 chicane near the former Expo 67 Canada pavilion, with a park-and-trees atmosphere, good accessibility and family facilities."
+      }
+    ],
+    "Red Bull Ring": [
+      {
+        "name": "Red Bull Grandstand (sectors A–B)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall — biggest stand, Turn 1 braking and the uphill run, festival heart of the circuit",
+        "viewsOf": [
+          "Turn 1 (Niki Lauda Kurve) braking",
+          "uphill DRS run to Turn 3 (Remus hairpin)",
+          "infield Turns 6/7",
+          "start/finish glimpses from rows 25+"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Largest stand on the circuit; excellent panoramic multi-corner view from mid rows up",
+          "Loudest, most party-driven atmosphere and closest to the Turn 1 Fan Zone",
+          "Three TV screens serve the stand (opposite sectors A, I/J, O/P)"
+        ],
+        "cons": [
+          "No cover — fully open to sun and storms",
+          "Front rows obstructed by long infield grass; A–B are premium-priced"
+        ],
+        "description": "The circuit's largest stand, inside the track just past Turn 1 and running up the hill toward Turn 3, taking in Turn 1 braking, the climb to the Remus hairpin and infield Turns 6/7."
+      },
+      {
+        "name": "T3 Grandstand",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best for action — head-on at the Remus hairpin (Turn 3), the #1 overtaking corner",
+        "viewsOf": [
+          "Turn 3 (Remus hairpin) braking zone",
+          "the long DRS straight feeding Turn 3",
+          "sightlines across Turns 3–7"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "#1 for overtaking and incidents — lock-ups, dive-bombs and contact",
+          "Elevated and direct on the braking zone; top-tier for photography",
+          "Big screen visible"
+        ],
+        "cons": [
+          "No cover, and an uphill walk from the Turn 1 Fan Zone",
+          "You trade start/finish and the pits for action"
+        ],
+        "description": "At the top of the circuit's steepest climb, head-on into the Remus hairpin with the long DRS straight feeding it — the best seat in the house for passes, lock-ups and contact."
+      },
+      {
+        "name": "Steiermark Grandstand (a.k.a. Süd-West)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "premium",
+        "bestFor": "Best for first-timers — elevated, sees the start, Turn 1 chaos and the run to Turn 2/3 in one frame",
+        "viewsOf": [
+          "main straight and the start",
+          "Turn 1 braking",
+          "the climb toward Turns 2/3"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Sees the start and first-corner braking — pole drama and lap-1 chaos",
+          "One of the most elevated stands, with a commanding sweep of the opening sequence",
+          "Strong photography: elevation plus the long straight for head-on and panning shots"
+        ],
+        "cons": [
+          "Uncovered",
+          "Sells out fast, and less raw overtaking than T3"
+        ],
+        "description": "Elevated outside the run into Turn 1, giving a commanding view of the main straight, the start, Turn 1 and the climb toward Turn 2/3."
+      },
+      {
+        "name": "General Admission — Green Sector (Turns 3–4 hillside)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "budget",
+        "bestFor": "Best value — ~€160 weekend on elevated hillside sitting over the prime overtaking zone",
+        "viewsOf": [
+          "Turn 3 (Remus hairpin) braking zone",
+          "the run to Turn 4",
+          "the DRS straights"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Best value on the circuit — ~€160 weekend / ~€85 race day",
+          "Elevated grass bank lifts you above much of the catch-fencing",
+          "Sits right over the prime overtaking complex"
+        ],
+        "cons": [
+          "Minimal shade — open hillside, exposed to sun and storms",
+          "The prime crest fills fast on race day; facilities are busier and more spread out"
+        ],
+        "description": "Elevated grass hillside between Turns 3 and 4, right over the prime overtaking complex, and the best value on the circuit at roughly €160 for the weekend."
+      },
+      {
+        "name": "Start-Ziel Grandstand (Start-Finish / Main)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": false,
+        "priceTier": "premium",
+        "bestFor": "Pit, podium and ceremony fans, plus comfort and accessibility needs",
+        "viewsOf": [
+          "start/finish straight",
+          "the pits and the grid",
+          "the start launch and finish-line crossings",
+          "the podium ceremony"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Covered — one of only two roofed stands",
+          "Pit stops, grid build-up, the start and the podium ceremony",
+          "Central location with the best-developed accessible facilities"
+        ],
+        "cons": [
+          "Less overtaking than the top of the track",
+          "Premium price for the prime A-row blocks; fencing limits low rows"
+        ],
+        "description": "On the start/finish straight opposite the pits and grid — the ceremonial seat, covered, with grid build-up, pit theatre, the finish and the podium."
+      },
+      {
+        "name": "North / Nord Grandstand",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Comfort and shade seekers, and families wanting cover at the top of the track",
+        "viewsOf": [
+          "Turn 4 (the Rauch area)",
+          "the second DRS straight run"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Covered — the standout weather-protected option at the top of the track",
+          "Commanding, elevated view of Turn 4 passing resolution",
+          "Calmer crowd than Red Bull or the GA banks"
+        ],
+        "cons": [
+          "About a 30–40 min walk from the main Turn 1 Fan Zone",
+          "Has sometimes been sold via restricted Dutch/Verstappen channels"
+        ],
+        "description": "Covered and elevated at Turn 4 at the top of the circuit, watching passes resolve and the second DRS run."
+      },
+      {
+        "name": "Schönberg Grandstand",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Overtaking fans who want T3-style action from a different angle",
+        "viewsOf": [
+          "the DRS zone beyond Turn 3",
+          "Turn 3 exit",
+          "Turn 4 entry"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Prime DRS-zone passing and Turn 3 exit / Turn 4 entry battles",
+          "Elevated with a broad view across the upper sector",
+          "A slightly quieter alternative to T3"
+        ],
+        "cons": [
+          "Uncovered",
+          "Some distance to far-side action — binoculars help"
+        ],
+        "description": "Beyond Turn 3 on the downhill, looking over the DRS zone and the run to Turn 4, catching the passes that start at the hairpin."
+      }
+    ],
+    "Shanghai International Circuit": [
+      {
+        "name": "Grandstand A Upper (Gold) — Main straight / start-finish, pits, podium",
+        "viewRating": 5,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall & best first-timer — the complete show (ceremony, pit theatre, screen, shade) in one seat",
+        "viewsOf": [
+          "Start/finish straight and the grid",
+          "Pit lane, pit entry and pit exit",
+          "Turn 16 onto the main straight",
+          "Approach to Turn 1",
+          "Sector 2 over the pit/paddock roof (~80% of the lap)"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Best all-round view at the circuit — sees ~80% of the lap over the pit roof",
+          "Fully roofed, with a large big screen and English/Mandarin audio",
+          "Closest to main entrances, toilets, food and the fan zone"
+        ],
+        "cons": [
+          "Priciest ticket at the circuit",
+          "Far from the back-straight overtaking; can catch a cold wind"
+        ],
+        "description": "The elevated, fully covered Gold deck of the huge main grandstand opposite the pits, giving grid, pit stops and podium plus a view over the pit roof into Sector 2 — roughly 80% of the circuit."
+      },
+      {
+        "name": "Grandstand A Platinum — Main straight (covered lounge seating)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Money-no-object comfort — climate-controlled lounge and catering with the fullest front-of-house view",
+        "viewsOf": [
+          "Start/finish straight and the grid",
+          "Pit lane and pit stops",
+          "Podium ceremony",
+          "Turn 16 onto the main straight"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Covered, indoor temperature-controlled lounge with food and drink",
+          "Top pick for grid, pit and podium photography"
+        ],
+        "cons": [
+          "View gain over Gold is marginal — you are buying comfort, not sightline",
+          "Poor value for pure racing"
+        ],
+        "description": "The premium covered section of Grandstand A with an indoor climate-controlled lounge and catering, rated the most comfortable seat at the circuit though its view is only marginally better than Gold."
+      },
+      {
+        "name": "Grandstand B — End of main straight into Turns 1–3",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Weather-tolerant first-lap and braking-zone fans",
+        "viewsOf": [
+          "Turn 1 braking zone",
+          "The snail through Turns 1–2–3",
+          "Turns 4–6 from the upper rows",
+          "DRS-1 arrival point"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Crystal-clear sightlines into the opening corners and first-lap drama",
+          "Large screen faces the stand; 2–5 min walk to fan zone and facilities"
+        ],
+        "cons": [
+          "Completely uncovered — no shade and fully exposed to Shanghai's wet March",
+          "Lower than Grandstand A, so the far side of the track and pit complex are hidden"
+        ],
+        "description": "Sited past the start/finish line at the Turn 1 braking point looking into the tightening T1–T3 snail, it delivers sharp first-corner action but has no roof and cannot see the rest of the lap."
+      },
+      {
+        "name": "Grandstand H — End of the back straight / Turn 14 hairpin",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best value & best action — the overtaking corner, covered and cheaper than Grandstand A",
+        "viewsOf": [
+          "The 1.1km back straight and slipstreaming approach",
+          "Turn 14 hairpin braking zone and apex",
+          "DRS-2 zone",
+          "Final corners from the upper rows"
+        ],
+        "pros": [
+          "The most overtaking on the lap — divebombs, lock-ups and side-by-side exits",
+          "Partially covered with multiple screens and audio",
+          "Best action stand for photography (head-on braking and lock-up shots)"
+        ],
+        "cons": [
+          "About a 10 minute walk to the main amenities and fan zone",
+          "Irregular roof means cover and sightline vary seat to seat"
+        ],
+        "description": "Positioned at the business end of the 1.1km back straight where cars brake hard for the Turn 14 hairpin, this is the prime overtaking theatre and the page's smartest spend for a racing fan."
+      },
+      {
+        "name": "Grandstand K — Turn 14 hairpin exit (opposite H)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best action (with amenities closer) — hairpin passes completed, ~5 min from food and merch",
+        "viewsOf": [
+          "Second half of Turn 14 and the hairpin exit",
+          "Run toward the final corners",
+          "Back-straight arrivals"
+        ],
+        "pros": [
+          "Hairpin action with a shorter amenity walk than H — closest hairpin stand to main facilities",
+          "Partially covered, with multiple screens and audio",
+          "Historically carries the accessible seating platforms"
+        ],
+        "cons": [
+          "Tighter sightlines than H and can feel cramped near the apex",
+          "Not the full braking-zone view — H is better for that"
+        ],
+        "description": "Across the hairpin from H, it looks at the second half of Turn 14 and the exit, showing who completed the move and who ran wide, with facilities closer than at H."
+      },
+      {
+        "name": "Grass Zone L (General Admission) — Main straight, beside Grandstand A",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "budget",
+        "bestFor": "Best budget fallback — main-straight spectacle at GA prices, right next to the amenities",
+        "viewsOf": [
+          "The grid",
+          "Pit lane",
+          "Start/finish straight",
+          "Turn 16"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Main-straight views at general-admission prices",
+          "Direct access to food, toilets and the fan zone; rarely overcrowded"
+        ],
+        "cons": [
+          "No seat, no shade and no big screen in-zone",
+          "GA ticket-holders are confined to their assigned zone — no roaming"
+        ],
+        "description": "General-admission grass on the main straight next to the Main Grandstand, giving the start/finish spectacle and amenity access for budget first-timers, though there is no seat, shade or screen."
+      }
+    ],
+    "Marina Bay Street Circuit": [
+      {
+        "name": "Turn 2 Grandstand (Zone 1, all-zone)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall — best all-round F1 viewer wanting the start plus first-corner action",
+        "viewsOf": [
+          "Full start/finish straight",
+          "Turn 1",
+          "Turn 2",
+          "Turn 3 braking battle",
+          "Run-off and pit lane"
+        ],
+        "pros": [
+          "Sees the grid launch down the full start/finish straight",
+          "Best single-frame combination on the lap (T1-T2-T3)",
+          "All-zone (1-4) roaming access"
+        ],
+        "cons": [
+          "Uncovered",
+          "Premium price (~S$1,798 3-day)"
+        ],
+        "description": "Sits perpendicular to Turn 1 looking back up the full start/finish straight and across the run-off and pit lane, and is widely rated the best seat at Marina Bay because it catches both the grid launch and the Turn 1-2-3 braking battle."
+      },
+      {
+        "name": "Pit Grandstand (Zone 1, all-zone)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best for first-timers — atmosphere, pit-stop fans, the \"everything happens here\" seat",
+        "viewsOf": [
+          "Start/finish straight",
+          "Grid",
+          "Pit lane",
+          "Final corner onto the straight",
+          "DRS run to Turn 1"
+        ],
+        "pros": [
+          "Grid launch, every pit stop, podium and fireworks in view",
+          "Big screens directly opposite",
+          "All-zone (1-4) roaming access"
+        ],
+        "cons": [
+          "Dense catch-fencing on the front straight",
+          "Premium price (~S$1,798 3-day)"
+        ],
+        "description": "One of the longest grandstands in F1, running the length of the start/finish straight opposite the pit building, so it sees the grid launch, the final corner onto the straight and the whole pit lane, and it is where the podium and post-race concert fireworks happen."
+      },
+      {
+        "name": "Turn 1 Grandstand (Zone 1, all-zone)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best for action — action seekers and photographers of braking moments",
+        "viewsOf": [
+          "Turn 1 braking complex",
+          "Pit exit",
+          "Across to Turn 2 and Turn 3"
+        ],
+        "pros": [
+          "Highest incident probability on the lap; first-lap chaos and late-braking lunges",
+          "DRS passes arriving off the front straight",
+          "Wheelchair-accessible platform (book by phone)"
+        ],
+        "cons": [
+          "Uncovered",
+          "You watch the rest of the lap on screens"
+        ],
+        "description": "Sits beyond the Pit stand at the first braking complex and pit exit, giving the best odds on the circuit for first-lap chaos, late-braking lunges and DRS passes off the start/finish straight."
+      },
+      {
+        "name": "Marina Bay Grandstand (Zone 1, all-zone)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Photography plus race-day experience — skyline backdrop and finish-line drama",
+        "viewsOf": [
+          "Turn 18",
+          "Turn 19",
+          "Final-corner exit onto the pit straight",
+          "Marina Bay skyline"
+        ],
+        "pros": [
+          "Final-corner exit and pit straight with the Marina Bay skyline behind",
+          "Superb night photography",
+          "Two big screens high on the opposite side"
+        ],
+        "cons": [
+          "Unreserved seating with no seat numbers — arrive early",
+          "Fencing on the straight"
+        ],
+        "description": "A newer waterfront stand at the final corners (T18/19) onto the pit straight, offering the final-corner exit and the pit straight framed by the Marina Bay skyline, though seating is unreserved."
+      },
+      {
+        "name": "Republic Grandstand (mixed zone, all-zone access)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best value — value hunters who want a reserved seat plus all-zone flexibility",
+        "viewsOf": [
+          "Turn 4",
+          "Turn 5/6 kink",
+          "Waterfront and city skyline"
+        ],
+        "pros": [
+          "Only sub-S$1,000 seat with full Zone 1-4 access (~S$988 3-day)",
+          "Reserved seating",
+          "Unusual corner-entry angle with city/skyline backdrop"
+        ],
+        "cons": [
+          "Not the heaviest overtaking spot"
+        ],
+        "description": "Reserved seats at the Turn 4-5/6 kink near the waterfront with a skyline backdrop, and uniquely for a mid-price stand it grants Zones 1-4 access so you can still roam to the pit end and the concerts."
+      },
+      {
+        "name": "Super Pit Grandstand (Zone 1, all-zone)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Premium spectacle without paddock cost — grid, pits and podium from height",
+        "viewsOf": [
+          "Start/finish straight",
+          "Grid",
+          "Pit lane",
+          "Finish line"
+        ],
+        "pros": [
+          "Same grid/pit/finish views as the Pit stand from a higher, better vantage",
+          "Usually includes reserved food and drink benefits",
+          "All-zone (1-4) roaming access"
+        ],
+        "cons": [
+          "Most expensive grandstand (~S$2,498 3-day)",
+          "Often sold out"
+        ],
+        "description": "Sits above the Pit Grandstand with the same grid, pit lane and finish views from a higher vantage point, usually with reserved food and drink benefits; some vendor notes claim partial upper-deck cover but the page rates that low confidence and assumes uncovered."
+      },
+      {
+        "name": "Padang A / Padang B Grandstands (Zone 4)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Budget families and concert-goers",
+        "viewsOf": [
+          "Turn 9",
+          "Turn 10",
+          "The near-full-throttle burst between Turns 9 and 10"
+        ],
+        "pros": [
+          "Cheapest seated tier (~S$738 3-day, single days from ~S$258)",
+          "Right by the Padang main concert stage",
+          "Numbered seats with backs and several big screens nearby"
+        ],
+        "cons": [
+          "Zone 4 only — cannot roam to the pit/start end",
+          "Not a prime overtaking corner"
+        ],
+        "description": "These stands flank the short burst between Turns 9 and 10 where cars are near full throttle through a narrow section, and are picked mainly for being the cheapest seated tier and sitting right by the Padang main concert stage."
+      }
+    ],
+    "Yas Marina Circuit": [
+      {
+        "name": "West Grandstand (Turn 6)",
+        "viewRating": 5,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall & best for action — anyone who came to watch racing",
+        "viewsOf": [
+          "Turn 6 braking zone",
+          "The 1.15 km back straight (DRS zone 1)",
+          "Turns 15-16 across the infield",
+          "Start/finish straight action from Sections 6-8"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Widest track coverage of any stand at the circuit",
+          "DRS plus heavy braking makes it the top overtaking and incident spot",
+          "Cars brake straight toward you — excellent photography"
+        ],
+        "cons": [
+          "Pricier than North",
+          "No podium view and a walk/shuttle to the concert"
+        ],
+        "description": "Sits outside Turn 6 at the end of the long back straight and wraps round so you see the braking zone, the approach straight and across the infield to Turns 15-16 — one seat, most of the lap."
+      },
+      {
+        "name": "North Grandstand (Turn 5 hairpin)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Best value & best for first-timers — action, crowd and the concert walk",
+        "viewsOf": [
+          "Turn 5 hairpin entry, apex and exit",
+          "The approach where cars arrive at speed",
+          "Start of DRS zone 1"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Cheapest reserved seat (~AED 1,720) at a real overtaking corner",
+          "Biggest, rowdiest crowd and ~5-minute walk to the Etihad Park concert",
+          "One of the best single-corner views at the track"
+        ],
+        "cons": [
+          "Large runoff leaves cars a little distant",
+          "Some entry-facing seats catch late sun"
+        ],
+        "description": "Outside the Turn 5 hairpin — sees entry, apex and exit plus the panorama back up the approach, and was the site of the 2021 title-decider."
+      },
+      {
+        "name": "South Grandstand (Turn 9)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Families, comfort seekers and cornering purists",
+        "viewsOf": [
+          "The straight into Turn 9",
+          "The fast banked Turn 9 sweep",
+          "Turns 10-11 from upper seats"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "High-speed cornering with visible sparks",
+          "Full roof and north-east facing, so no glare in an evening race",
+          "Sections 5-8 Level 4 give the best sightlines and screen view"
+        ],
+        "cons": [
+          "Fewer overtakes since the 2021 softening of the corner",
+          "Far from the concert — shuttle needed to Etihad Park"
+        ],
+        "description": "Watches cars stream down the straight into Turn 9 and through that fast, slightly banked sweep, with upper seats also catching Turns 10-11."
+      },
+      {
+        "name": "Marina Grandstand (Turns 8-9 / marina section)",
+        "viewRating": 4,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Budget, scenery and families",
+        "viewsOf": [
+          "The straight in front, between Turns 8 and 9",
+          "The marina section, Turns 10-13",
+          "The marina and yachts"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "Cheap, comfortable and the prettiest backdrop for postcard photos",
+          "Full roof, north-east facing so the sun is behind you all session"
+        ],
+        "cons": [
+          "Quietest stand for passing after the 2021 remodel",
+          "Section 1 rows A-D are blocked by the bridge; front blocks lose T13"
+        ],
+        "description": "Built atop the support-pit building between Turns 8 and 9, it trades live racing action for a scenic view across the technical marina infield — sit Sections 4-5, row J and up."
+      },
+      {
+        "name": "Main Grandstand (start/finish, pits & podium)",
+        "viewRating": 3,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Bucket-listers who want the start, pit stops and podium ceremony",
+        "viewsOf": [
+          "Start/finish straight",
+          "Pit lane",
+          "Podium",
+          "Turn 1",
+          "Turn 16"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "The only stand with the start, pit lane and podium",
+          "Three big screens, opposite Sections 3, 6 and 8",
+          "Biggest stand with big-event buzz and the Main Oasis fan zone adjacent"
+        ],
+        "cons": [
+          "Most limited racing view — you watch the rest on screens",
+          "South-facing and the most sun-exposed; premium price"
+        ],
+        "description": "Opposite the pits on the start/finish straight, it delivers lights-out, pit stops and the podium but the most limited on-track racing view at the circuit."
+      },
+      {
+        "name": "Abu Dhabi Hill (General Admission)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "budget",
+        "bestFor": "Cheapest way in — budget and festival atmosphere over live sightlines",
+        "viewsOf": [
+          "Big screens",
+          "Limited track glimpses from the raised mound"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Cheapest ticket (~AED 995-1,250 for 3 days) with the concert included",
+          "Festival-style flexible viewing with big screens and adjacent Oasis fan zones"
+        ],
+        "cons": [
+          "Weak live sightlines — fencing and distance mean you watch mostly on screens",
+          "Limited shade"
+        ],
+        "description": "The circuit's only general admission area: a raised, festival-style zone where you are buying the event and the atmosphere more than a live view of the racing."
+      }
+    ],
+    "Circuit Zandvoort": [
+      {
+        "name": "Main Grandstand",
+        "viewRating": 5,
+        "covered": true,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best overall — cover plus grid, podium, pits and start/finish",
+        "viewsOf": [
+          "Starting grid",
+          "Start/finish line",
+          "Podium",
+          "Pit access end",
+          "Run into Tarzan (Turn 1)"
+        ],
+        "sunExposure": "shaded",
+        "pros": [
+          "The only covered grandstand at Zandvoort",
+          "Grid, start/finish, podium ceremony and pit access",
+          "Big screen and the most accessible hard-surface facilities"
+        ],
+        "cons": [
+          "Most expensive (Main Straight tier)",
+          "Limited cornering action"
+        ],
+        "description": "The biggest stand at the track and the only roofed one, giving a broad main-straight view of the grid, start/finish, podium and the DRS launch into Tarzan — the full ceremony package, weatherproofed on a coast prone to sudden rain and strong sun."
+      },
+      {
+        "name": "Tarzan-In Grandstand 1 & 2 (Turn 1 / Tarzanbocht)",
+        "viewRating": 5,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Best action and best value — the circuit's only real overtaking corner",
+        "viewsOf": [
+          "Turn 1 (Tarzanbocht) braking zone and apex",
+          "Main straight under DRS"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Highest overtaking chance on the lap, plus lap-1 chaos",
+          "Big screen and one of the best non-premium photo spots",
+          "Sensibly priced for the action — Gold-ish action for less"
+        ],
+        "cons": [
+          "Uncovered and fully open to the weather",
+          "Tarzan-In 3 is a trap — seated too low and loses the corner"
+        ],
+        "description": "Sited on the outside of the wide, off-camber Turn 1 hairpin at the end of the main straight, sections 1 and 2 give an excellent view of the braking zone and apex of Zandvoort's premier overtaking corner — shoot and sit from high rows to clear the catch-fence."
+      },
+      {
+        "name": "Arena Grandstands 1 & 2 (Gold, Turns 11-12)",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Best for first-timers — orange-wall atmosphere, DJ and Jumbotron",
+        "viewsOf": [
+          "Turn 11 entry",
+          "Turn 12 chicane/hairpin braking complex",
+          "Turn 13"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "The best atmosphere at the circuit, with a DJ between sessions",
+          "Large triangular Jumbotron at the Turn 12 apex, visible from all Arena seats",
+          "Food, bars and merch behind the stands; Gate 2 is closest to the train"
+        ],
+        "cons": [
+          "Uncovered and umbrellas are banned in the stands — bring a poncho",
+          "Lower rows fight the safety fence; Arena 3 (Silver II) sightline is blocked"
+        ],
+        "description": "A stadium bowl on the inside of Turns 11-12 with stands facing each other across the track, showing the second-best passing area — the slow chicane/hairpin braking complex — against a wall of orange, best from rows 20+ of Arena 1 (entrances 1217-1218) or Arena 2 (entrances 1209-1210)."
+      },
+      {
+        "name": "Arena-In Grandstand",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Action seekers who want the Arena vibe a touch cheaper",
+        "viewsOf": [
+          "Turn 11 braking zone"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Hard braking into Turn 11 — overtaking-relevant",
+          "Arena atmosphere spillover",
+          "Big screen"
+        ],
+        "cons": [
+          "Uncovered and open to the weather"
+        ],
+        "description": "An extension of the Arena at the Turn 11 braking zone, where late lunges and lock-ups happen, with the Arena's atmosphere spilling over."
+      },
+      {
+        "name": "Arena-Out Grandstand (Arie Luyendyk, Turn 14)",
+        "viewRating": 3,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "mid",
+        "bestFor": "Photographers chasing the signature banked-corner shot",
+        "viewsOf": [
+          "Final two turns",
+          "Banked Turn 14 (Arie Luyendyk)"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Signature banked final-corner view",
+          "Big screen"
+        ],
+        "cons": [
+          "Little overtaking here",
+          "Uncovered and exposed"
+        ],
+        "description": "The last stand before the final two turns, showing cars committing to the banked Arie Luyendyk before the DRS run to Turn 1 — spectacular speed and lean rather than passing."
+      },
+      {
+        "name": "Pit Grandstand",
+        "viewRating": 4,
+        "covered": false,
+        "hasBigScreen": true,
+        "priceTier": "premium",
+        "bestFor": "Strategy fans and pit-stop watchers",
+        "viewsOf": [
+          "Pit lane and garages",
+          "Start/finish line",
+          "Main straight run to Turn 1"
+        ],
+        "sunExposure": "afternoon",
+        "pros": [
+          "Pit theatre and pit-stop sequences",
+          "Start/finish line",
+          "Big screen"
+        ],
+        "cons": [
+          "No cornering action of its own",
+          "Pricey (Main Straight tier)"
+        ],
+        "description": "Sits on the main straight directly opposite the pit boxes, so you get pit-lane action, garages, the start and the launch into Tarzan — you watch cars accelerate away rather than wrestle a corner."
+      },
+      {
+        "name": "Ben Pon Grandstand",
+        "viewRating": 2,
+        "covered": false,
+        "hasBigScreen": false,
+        "priceTier": "mid",
+        "bestFor": "Photographers fixed on the banked final corner (flagged as an avoid)",
+        "viewsOf": [
+          "Banked final corner (Arie Luyendyk) exit",
+          "Main straight"
+        ],
+        "sunExposure": "full",
+        "pros": [
+          "Dramatic banked final-corner exit view"
+        ],
+        "cons": [
+          "No big screen — you lose the live race story over a 70-lap GP",
+          "No atmosphere hub nearby"
+        ],
+        "description": "At the opposite end of the main straight from Tarzan, with a decent angle on cars firing out of the banked final corner onto the straight, but it is the one stand at Zandvoort with no big screen."
+      }
     ]
   }
 }

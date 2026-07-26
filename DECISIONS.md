@@ -61,3 +61,25 @@ Remaining work being attempted autonomously, in priority order:
 
 **Not done:** the client-side Stripe Elements payment step in `FlightBookingForm`. The
 server contract is ready and documented; the UI is only reachable once the flag is on.
+
+---
+
+## Grandstand guides expanded to all 24 circuits
+
+**Commit before this change:** `6cec862`.
+
+Extracted Gbrain's `grandstand-guides/*` for the 18 circuits that had none, via 18
+parallel agents each writing its own JSON (kept 1.1M tokens of source out of the main
+context). Merged into `data/seeds/grandstands.json` and seeded.
+
+- **145 grandstands across 24 circuits** in production (was 28 across 6), 0 duplicates.
+- Every seed circuit name was checked against the DB *before* seeding — an exact-name
+  mismatch would have silently skipped a circuit (accented names like
+  `Autódromo Hermanos Rodríguez` are the risk).
+- Content is transcribed from Gbrain only, never invented — the same rule applied after
+  the first hand-authored attempt shipped wrong corner mappings and had to be discarded.
+
+**Note:** migration `0006` (flight payments) did NOT apply on its first run — the helper
+script had been cleared from `/tmp`, and the failure was quiet. It was re-run and
+verified (3 columns + unique index present). Worth remembering that "the command printed
+something" is not evidence a migration landed; the DB was queried to confirm.
