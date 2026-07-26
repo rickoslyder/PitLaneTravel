@@ -57,7 +57,7 @@ const data = {
       isActive: true,
       isPremium: true,
       items: [
-        { title: "2025 Season", url: "/races", isPrimary: true },
+        { title: "Race Calendar", url: "/races", isPrimary: true },
         { title: "Interactive Map", url: "/races/map", icon: Map },
         { title: "Compare Events", url: "/races/compare" }
         // { title: "2024 Archive", url: "/races/archive", icon: Archive }

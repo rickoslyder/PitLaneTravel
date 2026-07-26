@@ -96,7 +96,7 @@ export function RacesBreadcrumb() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/races">F1 Calendar</BreadcrumbLink>
+            <BreadcrumbLink href="/races">Race Calendar</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
