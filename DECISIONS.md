@@ -173,3 +173,27 @@ revealed two venues sitting 0 km from an unrelated circuit:
 Both corrected from Wikipedia. Also merged 2 duplicate circuits the seed created
 (Interlagos, Imola) and added aliases so a re-run cannot recreate them. Re-running the
 seed is now a no-op (0 added, 65 updated).
+
+---
+
+## Refund path when the airline order fails after charging
+
+**Commit before this change:** `41ea1cf`.
+
+Reviewing my own payment flow surfaced a gap: the customer is charged *before*
+`duffel.orders.create()`, so any failure there (offer expired between payment and
+booking, airline rejects the passenger data, Duffel outage) left them paid-up with no
+flight and no refund.
+
+Now the order creation is wrapped:
+- Duffel failure → refund the PaymentIntent, return **502** with a message saying the
+  payment was refunded.
+- Refund *also* fails → log loudly for manual intervention and return **500** telling the
+  customer support has been alerted, quoting their payment reference.
+
+Still behind `FLIGHTS_BOOKING_ENABLED` (off), so nothing here is live.
+
+**Known remaining gap (deliberate):** this is not a distributed transaction. If the
+process dies between the Stripe charge and the refund call, reconciliation is manual.
+A durable job queue or Stripe webhook reconciliation would close it properly — worth
+doing before the flag is ever turned on, alongside the client-side Elements step.
