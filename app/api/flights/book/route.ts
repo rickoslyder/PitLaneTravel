@@ -133,21 +133,61 @@ export async function POST(request: Request) {
     }
 
     // Create the order with formatted phone numbers
-    const { data: order } = await duffel.orders.create({
-      type: "instant",
-      selected_offers: [offerId],
-      passengers: passengers.map(({ isPhoneValid, ...passenger }) => ({
-        ...passenger,
-        phone_number: passenger.phone_number
-      })),
-      payments: [
+    // The customer has already been charged. If the airline order fails from here on,
+    // refund them rather than leaving money taken for a flight that was never booked.
+    let order
+    try {
+      const created = await duffel.orders.create({
+        type: "instant",
+        selected_offers: [offerId],
+        passengers: passengers.map(({ isPhoneValid, ...passenger }) => ({
+          ...passenger,
+          phone_number: passenger.phone_number
+        })),
+        payments: [
+          {
+            type: "balance",
+            amount: offer.total_amount,
+            currency: offer.total_currency
+          }
+        ]
+      })
+      order = created.data
+    } catch (orderError) {
+      console.error(
+        "[flights/book] Duffel order failed after payment; refunding",
+        { paymentIntentId, offerId },
+        orderError
+      )
+      try {
+        await stripe.refunds.create({
+          payment_intent: paymentIntentId,
+          reason: "requested_by_customer"
+        })
+      } catch (refundError) {
+        // Surface loudly: the customer is out of pocket and needs a manual refund.
+        console.error(
+          "[flights/book] REFUND FAILED — manual intervention required",
+          { paymentIntentId },
+          refundError
+        )
+        return NextResponse.json(
+          {
+            error:
+              "We couldn't complete your booking and the automatic refund failed. Our team has been alerted and will refund you — please contact support quoting your payment reference.",
+            paymentIntentId
+          },
+          { status: 500 }
+        )
+      }
+      return NextResponse.json(
         {
-          type: "balance",
-          amount: offer.total_amount,
-          currency: offer.total_currency
-        }
-      ]
-    })
+          error:
+            "We couldn't complete your booking with the airline, so your payment has been refunded. Please try again."
+        },
+        { status: 502 }
+      )
+    }
 
     // Ensure IATA codes are available
     const departureIata = offer.slices[0].segments[0].origin.iata_code
