@@ -36,6 +36,13 @@ export const flightBookingsTable = pgTable("flight_bookings", {
   totalAmount: text("total_amount").notNull(), // Store as string to maintain precision
   totalCurrency: text("total_currency").notNull(),
 
+  // Customer payment (Stripe). The Duffel order is paid from the platform's balance, so
+  // a succeeded PaymentIntent covering offer total + service fee is required before the
+  // order is created. Unique: one PaymentIntent may only ever back one booking.
+  paymentIntentId: text("payment_intent_id").unique(),
+  serviceFeeAmount: text("service_fee_amount"),
+  amountCharged: text("amount_charged"),
+
   // Flight details
   departureIata: text("departure_iata").notNull(),
   arrivalIata: text("arrival_iata").notNull(),

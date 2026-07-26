@@ -6,6 +6,11 @@ import { duffel } from "@/lib/duffel"
 import { createFlightBookingAction } from "@/actions/db/flight-bookings-actions"
 import { isValidPhoneNumber } from "libphonenumber-js"
 import { features } from "@/config/features"
+import { stripe } from "@/lib/stripe"
+import { flightChargeTotal, flightServiceFee, toStripeMinorUnits } from "@/config/pricing"
+import { db } from "@/db/db"
+import { flightBookingsTable } from "@/db/schema"
+import { eq } from "drizzle-orm"
 
 export async function POST(request: Request) {
   try {
@@ -29,13 +34,20 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { offerId, passengers, raceId } = body
+    const { offerId, passengers, raceId, paymentIntentId } = body
 
     // Validate request body
     if (!offerId || !passengers || !Array.isArray(passengers) || !raceId) {
       return NextResponse.json(
         { error: "Invalid request body" },
         { status: 400 }
+      )
+    }
+
+    if (!paymentIntentId || typeof paymentIntentId !== "string") {
+      return NextResponse.json(
+        { error: "Payment is required before booking" },
+        { status: 402 }
       )
     }
 
@@ -74,6 +86,51 @@ export async function POST(request: Request) {
 
     // Get the latest offer data
     const { data: offer } = await duffel.offers.get(offerId)
+
+    // Authorise the Duffel order against the customer's payment. Everything here is
+    // re-derived server-side: a client that lies about the PaymentIntent, reuses one, or
+    // swaps in a cheaper offer must not be able to place an order.
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+    const expectedCharge = flightChargeTotal(offer.total_amount)
+    const expectedMinorUnits = toStripeMinorUnits(
+      expectedCharge,
+      offer.total_currency
+    )
+
+    const paymentProblem =
+      paymentIntent.status !== "succeeded"
+        ? "Payment has not completed"
+        : paymentIntent.metadata?.userId !== userId
+          ? "Payment does not belong to this user"
+          : paymentIntent.metadata?.offerId !== offerId
+            ? "Payment does not match this offer"
+            : paymentIntent.currency?.toUpperCase() !==
+                offer.total_currency.toUpperCase()
+              ? "Payment currency does not match the offer"
+              : paymentIntent.amount_received < expectedMinorUnits
+                ? "Payment amount does not cover the current offer price"
+                : null
+
+    if (paymentProblem) {
+      console.error("[flights/book] payment rejected:", paymentProblem, {
+        paymentIntentId,
+        offerId
+      })
+      return NextResponse.json({ error: paymentProblem }, { status: 402 })
+    }
+
+    // A PaymentIntent may only ever back one booking (also enforced by a unique index).
+    const alreadyUsed = await db
+      .select({ id: flightBookingsTable.id })
+      .from(flightBookingsTable)
+      .where(eq(flightBookingsTable.paymentIntentId, paymentIntentId))
+      .limit(1)
+    if (alreadyUsed.length > 0) {
+      return NextResponse.json(
+        { error: "This payment has already been used for a booking" },
+        { status: 409 }
+      )
+    }
 
     // Create the order with formatted phone numbers
     const { data: order } = await duffel.orders.create({
@@ -120,6 +177,9 @@ export async function POST(request: Request) {
       arrivalTime: new Date(offer.slices[0].segments[0].arriving_at),
       totalAmount: offer.total_amount,
       totalCurrency: offer.total_currency,
+      paymentIntentId,
+      serviceFeeAmount: flightServiceFee(offer.total_amount),
+      amountCharged: expectedCharge,
       expiresAt: new Date(offer.expires_at),
       completedAt: new Date()
     })
