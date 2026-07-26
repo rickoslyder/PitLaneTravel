@@ -5,12 +5,13 @@ import { meetupsTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { InsertMeetup, SelectMeetup } from "@/db/schema"
 import { and, eq, desc } from "drizzle-orm"
-import { assertOwnershipOrAdmin } from "@/lib/auth"
+import { AuthError, assertOwnershipOrAdmin, requireAuth } from "@/lib/auth"
 
 export async function createMeetupAction(
   meetup: InsertMeetup
 ): Promise<ActionState<SelectMeetup>> {
   try {
+    await requireAuth()
     const [newMeetup] = await db.insert(meetupsTable).values(meetup).returning()
     return {
       isSuccess: true,

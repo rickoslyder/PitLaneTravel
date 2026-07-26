@@ -5,6 +5,7 @@ import { localAttractionsTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq } from "drizzle-orm"
 import { searchNearbyPlaces, getPlaceDetails } from "@/lib/google-places"
+import { AuthError, requireAdmin, requireAuth } from "@/lib/auth"
 
 export async function getLocalAttractionsAction(
   circuitId: string
@@ -33,6 +34,7 @@ export async function searchNearbyPlacesAction(
   type?: string
 ) {
   try {
+    await requireAuth()
     const places = await searchNearbyPlaces(latitude, longitude, radius, type)
     return {
       isSuccess: true,
@@ -47,6 +49,7 @@ export async function searchNearbyPlacesAction(
 
 export async function getPlaceDetailsAction(placeId: string) {
   try {
+    await requireAuth()
     const place = await getPlaceDetails(placeId)
     return {
       isSuccess: true,
@@ -63,6 +66,7 @@ export async function createLocalAttractionAction(
   attraction: typeof localAttractionsTable.$inferInsert
 ): Promise<ActionState<typeof localAttractionsTable.$inferSelect>> {
   try {
+    await requireAuth()
     const [newAttraction] = await db
       .insert(localAttractionsTable)
       .values(attraction)
@@ -84,6 +88,7 @@ export async function updateLocalAttractionAction(
   data: Partial<typeof localAttractionsTable.$inferInsert>
 ): Promise<ActionState<typeof localAttractionsTable.$inferSelect>> {
   try {
+    await requireAdmin()
     const [updatedAttraction] = await db
       .update(localAttractionsTable)
       .set(data)
@@ -105,6 +110,7 @@ export async function deleteLocalAttractionAction(
   id: string
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     await db.delete(localAttractionsTable).where(eq(localAttractionsTable.id, id))
     return {
       isSuccess: true,

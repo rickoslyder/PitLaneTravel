@@ -5,6 +5,7 @@ import { circuitsTable, transportInfoTable, SelectCircuit } from "@/db/schema"
 import { ActionState } from "@/types"
 import { InsertTransportInfo, SelectTransportInfo } from "@/db/schema"
 import { asc, desc, eq } from "drizzle-orm"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 export interface CircuitWithTransport extends SelectCircuit {
   transport: SelectTransportInfo[]
@@ -87,6 +88,7 @@ export async function createTransportInfoAction(
   data: InsertTransportInfo
 ): Promise<ActionState<SelectTransportInfo>> {
   try {
+    await requireAdmin()
     const [newTransportInfo] = await db
       .insert(transportInfoTable)
       .values(data)
@@ -108,6 +110,7 @@ export async function updateTransportInfoAction(
   data: Partial<Omit<SelectTransportInfo, "id" | "created_at" | "updated_at">>
 ): Promise<ActionState<SelectTransportInfo>> {
   try {
+    await requireAdmin()
     const [updatedTransportInfo] = await db
       .update(transportInfoTable)
       .set(data)
@@ -129,6 +132,7 @@ export async function deleteTransportInfoAction(
   id: string
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     await db.delete(transportInfoTable).where(eq(transportInfoTable.id, id))
 
     return {

@@ -6,12 +6,15 @@ import { ticketRedirectsTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { ActionState } from "@/types"
 import { headers } from "next/headers"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 export async function generateMaskedUrlAction(
   ticketId: number,
   destinationUrl: string
 ): Promise<ActionState<string>> {
   try {
+    // Intentionally public: TicketCard calls this for anonymous visitors to build the
+    // affiliate link. Guarding it would break ticket links for every logged-out user.
     const headersList = await headers()
     const host = headersList.get("host") || ""
     const protocol = process.env.NODE_ENV === "development" ? "http" : "https"

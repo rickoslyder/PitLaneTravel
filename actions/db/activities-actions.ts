@@ -8,12 +8,14 @@ import {
 } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq, and, or, SQL } from "drizzle-orm"
+import { requireAuth, AuthError } from "@/lib/auth"
 
 // Create a new activity
 export async function createActivityAction(
   data: InsertActivity
 ): Promise<ActionState<SelectActivity>> {
   try {
+    await requireAuth()
     const [newActivity] = await db
       .insert(activitiesTable)
       .values(data)
@@ -83,6 +85,7 @@ export async function updateActivityAction(
   data: Partial<InsertActivity>
 ): Promise<ActionState<SelectActivity>> {
   try {
+    await requireAuth()
     const [updatedActivity] = await db
       .update(activitiesTable)
       .set(data)
@@ -109,6 +112,7 @@ export async function deleteActivityAction(
   id: string
 ): Promise<ActionState<void>> {
   try {
+    await requireAuth()
     await db.delete(activitiesTable).where(eq(activitiesTable.id, id))
 
     return {
@@ -127,6 +131,7 @@ export async function bulkCreateActivitiesAction(
   activities: InsertActivity[]
 ): Promise<ActionState<SelectActivity[]>> {
   try {
+    await requireAuth()
     const newActivities = await db
       .insert(activitiesTable)
       .values(activities)
@@ -148,6 +153,7 @@ export async function bulkUpdateActivitiesAction(
   activities: { id: string; data: Partial<InsertActivity> }[]
 ): Promise<ActionState<SelectActivity[]>> {
   try {
+    await requireAuth()
     const updatedActivities = []
 
     for (const { id, data } of activities) {
@@ -178,6 +184,7 @@ export async function bulkDeleteActivitiesAction(
   ids: string[]
 ): Promise<ActionState<void>> {
   try {
+    await requireAuth()
     if (ids.length === 0) {
       return {
         isSuccess: true,

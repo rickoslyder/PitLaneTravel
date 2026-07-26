@@ -4,11 +4,13 @@ import { db } from "@/db/db"
 import { InsertSupportingSeries, SelectSupportingSeries, supportingSeriesTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq } from "drizzle-orm"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 export async function createSupportingSeriesAction(
   data: InsertSupportingSeries
 ): Promise<ActionState<SelectSupportingSeries>> {
   try {
+    await requireAdmin()
     const [newSeries] = await db
       .insert(supportingSeriesTable)
       .values(data)
@@ -58,6 +60,7 @@ export async function updateSupportingSeriesAction(
   data: Partial<InsertSupportingSeries>
 ): Promise<ActionState<SelectSupportingSeries>> {
   try {
+    await requireAdmin()
     const [updatedSeries] = await db
       .update(supportingSeriesTable)
       .set(data)
@@ -79,6 +82,7 @@ export async function deleteSupportingSeriesAction(
   id: string
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     await db
       .delete(supportingSeriesTable)
       .where(eq(supportingSeriesTable.id, id))

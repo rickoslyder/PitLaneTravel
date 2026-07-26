@@ -22,12 +22,14 @@ import {
 import { ActionState } from "@/types"
 import { eq, and, desc } from "drizzle-orm"
 import { getCircuitLocationsAction } from "./circuit-locations-actions"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 // Circuit Actions
 export async function createCircuitAction(
   data: InsertCircuit
 ): Promise<ActionState<SelectCircuit>> {
   try {
+    await requireAdmin()
     const [newCircuit] = await db.insert(circuitsTable).values(data).returning()
     return {
       isSuccess: true,
@@ -87,6 +89,7 @@ export async function updateCircuitAction(
   data: Partial<InsertCircuit>
 ): Promise<ActionState<SelectCircuit>> {
   try {
+    await requireAdmin()
     const [updatedCircuit] = await db
       .update(circuitsTable)
       .set(data)
@@ -113,6 +116,7 @@ export async function createCircuitDetailsAction(
   data: InsertCircuitDetails
 ): Promise<ActionState<SelectCircuitDetails>> {
   try {
+    await requireAdmin()
     const [newDetails] = await db
       .insert(circuitDetailsTable)
       .values(data)
@@ -161,6 +165,7 @@ export async function createCircuitAirportAction(
   data: InsertAirport
 ): Promise<ActionState<SelectAirport>> {
   try {
+    await requireAdmin()
     const [newAirport] = await db.insert(airportsTable).values(data).returning()
     return {
       isSuccess: true,
@@ -203,6 +208,7 @@ export async function createCircuitAttractionAction(
   data: InsertLocalAttraction
 ): Promise<ActionState<SelectLocalAttraction>> {
   try {
+    await requireAdmin()
     const [newAttraction] = await db
       .insert(localAttractionsTable)
       .values(data)
@@ -314,6 +320,7 @@ export async function updateCircuitCoordinatesAction(
   longitude: number
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     await db
       .update(circuitsTable)
       .set({
@@ -373,6 +380,7 @@ export async function updateCircuitTimezoneAction(
   timestamp: Date
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     // Get circuit details
     const [circuit] = await db
       .select({
@@ -433,6 +441,7 @@ export async function updateCircuitTimezoneAction(
 
 export async function updateAllCircuitTimezonesAction(): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     // Get all circuits with their races
     const circuits = await db
       .select({

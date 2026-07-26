@@ -6,6 +6,7 @@ import { ActionState } from "@/types"
 import { findAirportCoordinates, findNearbyAirports } from "@/lib/google-places"
 import { eq, and, or, isNull } from "drizzle-orm"
 import { Duffel } from "@duffel/api"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 const duffel = new Duffel({
   token: process.env.DUFFEL_ACCESS_TOKEN || ""
@@ -13,6 +14,7 @@ const duffel = new Duffel({
 
 export async function syncAirportCoordinatesAction(): Promise<ActionState<number>> {
   try {
+    await requireAdmin()
     // Get all airport locations with missing coordinates
     const airportsToUpdate = await db
       .select()

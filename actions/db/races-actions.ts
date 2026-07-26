@@ -6,7 +6,7 @@ import { ActionState } from "@/types"
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import { and, eq, gte, lte, ne, sql } from "drizzle-orm"
 import { InsertRace, SelectRace } from "@/db/schema/races-schema"
-import { requireAdmin, AuthError } from "@/lib/auth"
+import { AuthError, requireAdmin } from "@/lib/auth"
 
 /** Postgres unique-violation error code. */
 const PG_UNIQUE_VIOLATION = "23505"
@@ -282,6 +282,7 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
 
 export async function deleteRaceAction(id: string): Promise<ActionState<void>> {
     try {
+    await requireAdmin()
         await db.delete(racesTable).where(eq(racesTable.id, id))
         return {
             isSuccess: true,

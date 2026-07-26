@@ -10,6 +10,7 @@ import { ActionState } from "@/types"
 import { eq, and, isNull, desc } from "drizzle-orm"
 import { resend } from "@/lib/resend"
 import { WaitlistNotificationEmail } from "@/components/emails/waitlist-notification"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 export async function createNotificationAction(
   data: InsertNotification
@@ -61,6 +62,7 @@ export async function markNotificationAsSentAction(
   id: string
 ): Promise<ActionState<SelectNotification>> {
   try {
+    await requireAdmin()
     const [updatedNotification] = await db
       .update(notificationsTable)
       .set({
@@ -86,6 +88,7 @@ export async function markNotificationAsFailedAction(
   error: string
 ): Promise<ActionState<SelectNotification>> {
   try {
+    await requireAdmin()
     const [updatedNotification] = await db
       .update(notificationsTable)
       .set({
@@ -110,6 +113,7 @@ export async function sendNotificationAction(
   notification: SelectNotification
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     // For now, we only support email notifications
     const { data: emailResult } = await resend.emails.send({
       from: "Pit Lane Travel <noreply@notifications.pitlanetravel.com>",

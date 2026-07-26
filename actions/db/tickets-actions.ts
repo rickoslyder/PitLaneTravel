@@ -16,6 +16,7 @@ import {
 } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq, and, isNull, desc } from "drizzle-orm"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 // Ticket Actions
 export async function createTicketAction(
@@ -170,6 +171,7 @@ export async function createTicketFeatureAction(
   data: InsertTicketFeature
 ): Promise<ActionState<SelectTicketFeature>> {
   try {
+    await requireAdmin()
     const [newFeature] = await db
       .insert(ticketFeaturesTable)
       .values(data)
@@ -214,6 +216,7 @@ export async function createTicketPricingAction(
   data: InsertTicketPricing
 ): Promise<ActionState<SelectTicketPricing>> {
   try {
+    await requireAdmin()
     const [newPricing] = await db
       .insert(ticketPricingTable)
       .values(data)
@@ -314,6 +317,7 @@ export async function updateTicketAction(
   data: Partial<InsertTicket>
 ): Promise<ActionState<SelectTicket>> {
   try {
+    await requireAdmin()
     const [updatedTicket] = await db
       .update(ticketsTable)
       .set(data)
@@ -335,6 +339,7 @@ export async function deleteTicketAction(
   id: number
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     await db.delete(ticketsTable).where(eq(ticketsTable.id, id))
 
     return {
@@ -358,6 +363,7 @@ export async function updateTicketPricingAction(
   }
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     return await db.transaction(async (tx) => {
       // Set end date for current price
       await tx
@@ -396,6 +402,7 @@ export async function updateTicketFeaturesAction(
   featureIds: number[]
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     return await db.transaction(async (tx) => {
       // Remove existing features
       await tx

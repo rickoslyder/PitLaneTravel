@@ -4,12 +4,13 @@ import { db } from "@/db/db"
 import { InsertWaitlist, SelectWaitlist, waitlistTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { and, eq } from "drizzle-orm"
-import { assertOwnershipOrAdmin } from "@/lib/auth"
+import { AuthError, assertOwnershipOrAdmin, requireAuth } from "@/lib/auth"
 
 export async function createWaitlistEntryAction(
     waitlist: InsertWaitlist
 ): Promise<ActionState<SelectWaitlist>> {
     try {
+    await requireAuth()
         const [newEntry] = await db
             .insert(waitlistTable)
             .values(waitlist)

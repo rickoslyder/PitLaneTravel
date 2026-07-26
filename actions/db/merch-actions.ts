@@ -4,11 +4,13 @@ import { db } from "@/db/db"
 import { InsertMerch, SelectMerch, merchTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq } from "drizzle-orm"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 export async function createMerchAction(
   merch: InsertMerch
 ): Promise<ActionState<SelectMerch>> {
   try {
+    await requireAdmin()
     const [newMerch] = await db.insert(merchTable).values(merch).returning()
     return {
       isSuccess: true,
@@ -70,6 +72,7 @@ export async function updateMerchAction(
   data: Partial<InsertMerch>
 ): Promise<ActionState<SelectMerch>> {
   try {
+    await requireAdmin()
     const [updatedMerch] = await db
       .update(merchTable)
       .set(data)
@@ -89,6 +92,7 @@ export async function updateMerchAction(
 
 export async function deleteMerchAction(id: string): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     await db.delete(merchTable).where(eq(merchTable.id, id))
     return {
       isSuccess: true,

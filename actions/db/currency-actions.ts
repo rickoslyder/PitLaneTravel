@@ -4,6 +4,7 @@ import { db } from "@/db/db"
 import { currencyRatesTable, SelectCurrencyRate } from "@/db/schema/currency-rates-schema"
 import { ActionState } from "@/types"
 import { eq, and, desc } from "drizzle-orm"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 export async function getExchangeRateAction(
   fromCurrency: string,
@@ -124,6 +125,7 @@ export async function getAllExchangeRatesAction(): Promise<ActionState<SelectCur
 
 export async function manuallyUpdateExchangeRatesAction(): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     const response = await fetch("/api/cron/update-exchange-rates")
     const result = await response.json()
 

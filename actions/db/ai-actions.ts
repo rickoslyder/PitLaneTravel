@@ -2,6 +2,7 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { ActionState } from "@/types"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
@@ -11,6 +12,7 @@ export async function generateTicketDescriptionAction(
   existingDescription: string
 ): Promise<ActionState<string>> {
   try {
+    await requireAdmin()
     const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash-exp",
       generationConfig: {

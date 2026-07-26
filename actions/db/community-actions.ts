@@ -5,13 +5,14 @@ import { reviewsTable, tipsTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { InsertReview, SelectReview, InsertTip, SelectTip } from "@/db/schema"
 import { and, eq, desc } from "drizzle-orm"
-import { assertOwnershipOrAdmin } from "@/lib/auth"
+import { AuthError, assertOwnershipOrAdmin, requireAuth } from "@/lib/auth"
 
 // Reviews
 export async function createReviewAction(
   review: InsertReview
 ): Promise<ActionState<SelectReview>> {
   try {
+    await requireAuth()
     const [newReview] = await db.insert(reviewsTable).values(review).returning()
     return {
       isSuccess: true,
@@ -115,6 +116,7 @@ export async function createTipAction(
   tip: InsertTip
 ): Promise<ActionState<SelectTip>> {
   try {
+    await requireAuth()
     const [newTip] = await db.insert(tipsTable).values(tip).returning()
     return {
       isSuccess: true,

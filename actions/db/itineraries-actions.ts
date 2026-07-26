@@ -10,7 +10,7 @@ import {
 } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq, and } from "drizzle-orm"
-import { assertOwnershipOrAdmin } from "@/lib/auth"
+import { AuthError, assertOwnershipOrAdmin, requireAuth } from "@/lib/auth"
 
 interface ItineraryData {
   raceId: string
@@ -33,6 +33,7 @@ export async function createItineraryAction(
   data: ItineraryData
 ): Promise<ActionState<SelectSavedItinerary>> {
   try {
+    await requireAuth()
     const [newItinerary] = await db
       .insert(savedItinerariesTable)
       .values({

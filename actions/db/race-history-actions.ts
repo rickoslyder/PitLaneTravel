@@ -5,6 +5,7 @@ import { raceHistoryTable } from "@/db/schema/race-history-schema"
 import { ActionState } from "@/types"
 import { eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 export async function getRaceHistoryAction(
   raceId: string
@@ -38,6 +39,7 @@ export async function createRaceHistoryAction(
   data: typeof raceHistoryTable.$inferInsert
 ): Promise<ActionState<typeof raceHistoryTable.$inferSelect>> {
   try {
+    await requireAdmin()
     const [history] = await db.insert(raceHistoryTable).values(data).returning()
 
     revalidatePath(`/races/${data.raceId}`)
@@ -59,6 +61,7 @@ export async function updateRaceHistoryAction(
   data: Partial<typeof raceHistoryTable.$inferInsert>
 ): Promise<ActionState<typeof raceHistoryTable.$inferSelect>> {
   try {
+    await requireAdmin()
     const [history] = await db
       .update(raceHistoryTable)
       .set({ ...data, updatedAt: new Date() })
@@ -90,6 +93,7 @@ export async function deleteRaceHistoryAction(
   raceId: string
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     await db
       .delete(raceHistoryTable)
       .where(eq(raceHistoryTable.raceId, raceId))

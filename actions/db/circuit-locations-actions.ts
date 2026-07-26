@@ -4,11 +4,13 @@ import { db } from "@/db/db"
 import { circuitLocationsTable, InsertCircuitLocation, SelectCircuitLocation } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq, and } from "drizzle-orm"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 export async function createCircuitLocationAction(
   location: InsertCircuitLocation
 ): Promise<ActionState<SelectCircuitLocation>> {
   try {
+    await requireAdmin()
     const [newLocation] = await db
       .insert(circuitLocationsTable)
       .values(location)
@@ -75,6 +77,7 @@ export async function updateCircuitLocationAction(
   data: Partial<InsertCircuitLocation>
 ): Promise<ActionState<SelectCircuitLocation>> {
   try {
+    await requireAdmin()
     const [updatedLocation] = await db
       .update(circuitLocationsTable)
       .set(data)
@@ -96,6 +99,7 @@ export async function deleteCircuitLocationAction(
   id: string
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     await db
       .delete(circuitLocationsTable)
       .where(eq(circuitLocationsTable.id, id))

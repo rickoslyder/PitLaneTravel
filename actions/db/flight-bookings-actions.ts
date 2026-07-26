@@ -463,11 +463,17 @@ export async function getFlightBookingByReferenceAction(
   bookingReference: string
 ): Promise<ActionState<SelectFlightBooking | undefined>> {
   try {
-    await requireAdmin()
+    // A customer viewing their own confirmation, not an admin tool.
+    const callerId = await requireAuth()
     const [booking] = await db
       .select()
       .from(flightBookingsTable)
-      .where(eq(flightBookingsTable.bookingReference, bookingReference))
+      .where(
+        and(
+          eq(flightBookingsTable.bookingReference, bookingReference),
+          eq(flightBookingsTable.userId, callerId)
+        )
+      )
       .limit(1)
 
     return {

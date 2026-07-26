@@ -14,6 +14,7 @@ import {
 } from "@/db/schema"
 import { ActionState } from "@/types"
 import { and, eq, desc, isNull } from "drizzle-orm"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 interface PackageTicket extends SelectTicket {
   currentPrice?: SelectTicketPricing
@@ -203,6 +204,7 @@ export async function updateTicketPackageAction(
   data: Partial<InsertTicketPackage>
 ): Promise<ActionState<SelectTicketPackage>> {
   try {
+    await requireAdmin()
     const [updatedPackage] = await db
       .update(ticketPackagesTable)
       .set(data)
@@ -225,6 +227,7 @@ export async function updatePackageTicketsAction(
   tickets: { ticketId: number; quantity: number; discountPercentage?: string }[]
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     return await db.transaction(async (tx) => {
       // Remove existing tickets
       await tx
@@ -259,6 +262,7 @@ export async function deleteTicketPackageAction(
   id: number
 ): Promise<ActionState<void>> {
   try {
+    await requireAdmin()
     await db.delete(ticketPackagesTable).where(eq(ticketPackagesTable.id, id))
 
     return {
@@ -277,6 +281,7 @@ export async function togglePackageFeaturedAction(
   isFeatured: boolean
 ): Promise<ActionState<SelectTicketPackage>> {
   try {
+    await requireAdmin()
     const [updatedPackage] = await db
       .update(ticketPackagesTable)
       .set({ isFeatured })

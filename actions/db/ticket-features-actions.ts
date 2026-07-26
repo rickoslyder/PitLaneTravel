@@ -6,6 +6,7 @@ import { ActionState } from "@/types"
 import { SelectTicketFeature, InsertTicketFeature } from "@/db/schema"
 import { and, eq } from "drizzle-orm"
 import { desc } from "drizzle-orm"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 export async function getAllTicketFeaturesAction(): Promise<ActionState<SelectTicketFeature[]>> {
     try {
@@ -70,6 +71,7 @@ export async function removeFeatureFromTicketAction(
     featureId: number
 ): Promise<ActionState<void>> {
     try {
+    await requireAdmin()
         await db
             .delete(ticketFeatureMappingsTable)
             .where(
@@ -94,6 +96,7 @@ export async function toggleTicketFeatureAction(
     isActive: boolean
 ): Promise<ActionState<void>> {
     try {
+    await requireAdmin()
         await db
             .update(ticketFeaturesTable)
             .set({ isActive })
@@ -115,6 +118,7 @@ export async function updateTicketFeatureAction(
     data: Partial<InsertTicketFeature>
 ): Promise<ActionState<SelectTicketFeature>> {
     try {
+    await requireAdmin()
         const [updatedFeature] = await db
             .update(ticketFeaturesTable)
             .set(data)
@@ -136,6 +140,7 @@ export async function deleteTicketFeatureAction(
     id: number
 ): Promise<ActionState<void>> {
     try {
+    await requireAdmin()
         await db.delete(ticketFeaturesTable).where(eq(ticketFeaturesTable.id, id))
 
         return {

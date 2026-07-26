@@ -4,11 +4,13 @@ import { db } from "@/db/db"
 import { adminActivitiesTable, InsertAdminActivity, SelectAdminActivity } from "@/db/schema"
 import { ActionState } from "@/types"
 import { desc } from "drizzle-orm"
+import { requireAdmin, AuthError } from "@/lib/auth"
 
 export async function createAdminActivityAction(
     activity: InsertAdminActivity
 ): Promise<ActionState<SelectAdminActivity>> {
     try {
+    await requireAdmin()
         const [newActivity] = await db
             .insert(adminActivitiesTable)
             .values(activity)
