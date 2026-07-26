@@ -129,3 +129,47 @@ search — "best grandstand at X" — instead of one page competing for all 24.
 Circuits have no `slug` column, so routes resolve by slugifying the stored name
 (24 rows, matched in memory). If circuits ever get a real slug column, switch to it.
 All 24 guide pages are in the sitemap (now 137 URLs).
+
+---
+
+## Real 2026 calendars for Formula E, MotoGP, IndyCar and WEC
+
+**Commit before this change:** `c0c7416`.
+
+Replaced the placeholder multi-series seed with **65 researched, independently
+fact-checked races**. Each calendar was researched by one agent and then verified by a
+separate skeptical agent against official series sites (schema.org JSON-LD) and Wikipedia.
+
+| Series | Rounds | Confidence |
+|---|---|---|
+| Formula E | 17 | high |
+| MotoGP | 22 | high |
+| IndyCar | 18 | high |
+| WEC | 8 | medium — rounds 7/8 (Qatar, Bahrain) reported at risk of relocation; the note is stored on the race |
+
+**Decisions and why**
+
+1. **Race `status` is derived from the date at seed time, never stored in the seed file.**
+   The verifier caught that my context's "today" (9 July 2026) was wrong — the real date is
+   26 July 2026 — which would have shipped a stale status for the Tokyo E-Prix. Deriving
+   from the date makes the seed self-correcting and immune to that class of bug.
+2. **Statuses backfilled for ALL races** using the same rule as `ManualProvider`. F1's 2025
+   and 2026 races were all still `upcoming` — the site would have shown finished races,
+   including the whole 2025 season, as upcoming until the daily cron caught up.
+   Now: 75 completed, 2 in progress, 34 upcoming, 2 cancelled.
+3. **Formula E is seeded under `season = 2026`** even though Season 12 starts in Dec 2025.
+   FE seasons straddle calendar years; the season is labelled by the year it ends, which is
+   what a traveller browsing "2026" expects. Season 13's Dec 2026 rounds are deliberately
+   excluded to avoid round-number collisions — revisit if you want a rolling calendar.
+4. **Coordinates come from the Wikipedia coordinates API, not a placeholder.** 44 new
+   venues were geocoded (Nominatim managed only 4/44 and was abandoned).
+
+**Two geocoding errors caught before they shipped** — worth knowing the check that found
+them. A country bounding-box check passed all 44, but a *distance* check between circuits
+revealed two venues sitting 0 km from an unrelated circuit:
+- **Phillip Island** had been given Albert Park's coordinates (140 km out, still in Australia
+  so the country check missed it).
+- **Streets of Arlington** resolved to Arlington *Virginia* instead of Arlington *Texas*.
+Both corrected from Wikipedia. Also merged 2 duplicate circuits the seed created
+(Interlagos, Imola) and added aliases so a re-run cannot recreate them. Re-running the
+seed is now a no-op (0 added, 65 updated).

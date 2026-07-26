@@ -1,0 +1,652 @@
+{
+  "_note": "Verified 2026 calendars for the non-F1 series. Researched from official series sites + Wikipedia and independently fact-checked (see DECISIONS.md). Circuit coordinates from the Wikipedia coordinates API, each validated to fall inside its stated country. Race `status` is DERIVED FROM THE DATE at seed time, not stored here, so it cannot go stale.",
+  "season": 2026,
+  "series": {
+    "formula-e": {
+      "seasonLabel": "Season 12 - 2025-26 ABB FIA Formula E World Championship (round 1 falls in Dec 2025; rounds 2-17 fall in calendar year 2026)",
+      "confidence": "high",
+      "notes": "NO ROUNDS DROPPED: every one of the 17 rounds below has its date and venue verified against two independent primary sources - the official fiaformulae.com/en/calendar schema.org SportsEvent JSON-LD (exactly 17 events) and the English Wikipedia '2025-26 Formula E World Championship' calendar table - which agree on every round number, venue and date with zero deviation. Rounds 1-15 are additionally corroborated by the individual ePrix articles' infobox race dates. Rounds 16-17 (London, 15-16 Aug) rest on the two calendar sources only because the race has not been run and no standalone article ex",
+      "rounds": [
+        {
+          "round": 1,
+          "name": "São Paulo E-Prix 2025",
+          "circuit": "São Paulo Street Circuit",
+          "location": "São Paulo",
+          "country": "Brazil",
+          "date": "2025-12-06",
+          "latitude": -23.51638889,
+          "longitude": -46.64722222
+        },
+        {
+          "round": 2,
+          "name": "Mexico City E-Prix 2026",
+          "circuit": "Autódromo Hermanos Rodríguez",
+          "location": "Mexico City",
+          "country": "Mexico",
+          "date": "2026-01-10"
+        },
+        {
+          "round": 3,
+          "name": "Miami E-Prix 2026",
+          "circuit": "Miami International Autodrome",
+          "location": "Miami Gardens, Florida",
+          "country": "United States",
+          "date": "2026-01-31"
+        },
+        {
+          "round": 4,
+          "name": "Jeddah E-Prix 2026 (Race 1)",
+          "circuit": "Jeddah Corniche Circuit",
+          "location": "Jeddah",
+          "country": "Saudi Arabia",
+          "date": "2026-02-13"
+        },
+        {
+          "round": 5,
+          "name": "Jeddah E-Prix 2026 (Race 2)",
+          "circuit": "Jeddah Corniche Circuit",
+          "location": "Jeddah",
+          "country": "Saudi Arabia",
+          "date": "2026-02-14"
+        },
+        {
+          "round": 6,
+          "name": "Madrid E-Prix 2026",
+          "circuit": "Circuito del Jarama",
+          "location": "San Sebastián de los Reyes (Madrid)",
+          "country": "Spain",
+          "date": "2026-03-21",
+          "latitude": 40.61722222,
+          "longitude": -3.58555556
+        },
+        {
+          "round": 7,
+          "name": "Berlin E-Prix 2026 (Race 1)",
+          "circuit": "Tempelhof Airport Street Circuit",
+          "location": "Berlin",
+          "country": "Germany",
+          "date": "2026-05-02",
+          "latitude": 52.47361111,
+          "longitude": 13.40166667
+        },
+        {
+          "round": 8,
+          "name": "Berlin E-Prix 2026 (Race 2)",
+          "circuit": "Tempelhof Airport Street Circuit",
+          "location": "Berlin",
+          "country": "Germany",
+          "date": "2026-05-03",
+          "latitude": 52.47361111,
+          "longitude": 13.40166667
+        },
+        {
+          "round": 9,
+          "name": "Monaco E-Prix 2026 (Race 1)",
+          "circuit": "Circuit de Monaco",
+          "location": "Monte Carlo",
+          "country": "Monaco",
+          "date": "2026-05-16"
+        },
+        {
+          "round": 10,
+          "name": "Monaco E-Prix 2026 (Race 2)",
+          "circuit": "Circuit de Monaco",
+          "location": "Monte Carlo",
+          "country": "Monaco",
+          "date": "2026-05-17"
+        },
+        {
+          "round": 11,
+          "name": "Sanya E-Prix 2026",
+          "circuit": "Sanya Street Circuit (Haitang Bay Circuit)",
+          "location": "Sanya, Hainan",
+          "country": "China",
+          "date": "2026-06-20",
+          "latitude": 18.355,
+          "longitude": 109.73694444
+        },
+        {
+          "round": 12,
+          "name": "Shanghai E-Prix 2026 (Race 1)",
+          "circuit": "Shanghai International Circuit",
+          "location": "Shanghai",
+          "country": "China",
+          "date": "2026-07-04"
+        },
+        {
+          "round": 13,
+          "name": "Shanghai E-Prix 2026 (Race 2)",
+          "circuit": "Shanghai International Circuit",
+          "location": "Shanghai",
+          "country": "China",
+          "date": "2026-07-05"
+        },
+        {
+          "round": 14,
+          "name": "Tokyo E-Prix 2026 (Race 1)",
+          "circuit": "Tokyo Street Circuit",
+          "location": "Tokyo",
+          "country": "Japan",
+          "date": "2026-07-25",
+          "latitude": 35.63333333,
+          "longitude": 139.80055556
+        },
+        {
+          "round": 15,
+          "name": "Tokyo E-Prix 2026 (Race 2)",
+          "circuit": "Tokyo Street Circuit",
+          "location": "Tokyo",
+          "country": "Japan",
+          "date": "2026-07-26",
+          "latitude": 35.63333333,
+          "longitude": 139.80055556
+        },
+        {
+          "round": 16,
+          "name": "London E-Prix 2026 (Race 1)",
+          "circuit": "ExCeL London Circuit",
+          "location": "London",
+          "country": "United Kingdom",
+          "date": "2026-08-15",
+          "latitude": 51.5081,
+          "longitude": 0.0289
+        },
+        {
+          "round": 17,
+          "name": "London E-Prix 2026 (Race 2)",
+          "circuit": "ExCeL London Circuit",
+          "location": "London",
+          "country": "United Kingdom",
+          "date": "2026-08-16",
+          "latitude": 51.5081,
+          "longitude": 0.0289
+        }
+      ]
+    },
+    "motogp": {
+      "seasonLabel": "2026 FIM MotoGP World Championship",
+      "confidence": "high",
+      "notes": "NO ROUNDS DROPPED: all 22 rounds, dates and venue pairings are verified against four sources that agree exactly - the Wikipedia '2026 MotoGP World Championship' calendar table, the official Dorna API (api.motogp.pulselive.com/motogp/v1/events?seasonYear=2026, which returns exactly 22 non-test Grands Prix with sequence 1-22 and whose date_end equals every Sunday race date below), motogp.com's own calendar announcement ('22 Grands Prix, five continents and the return of Brazil'), and the independent crash.net 2026 calendar. Every date is a published race date; none is inferred. IRAN WAR IMPACT -",
+      "rounds": [
+        {
+          "round": 1,
+          "name": "Grand Prix of Thailand 2026",
+          "circuit": "Chang International Circuit",
+          "location": "Buriram",
+          "country": "Thailand",
+          "date": "2026-03-01",
+          "latitude": 14.96284444,
+          "longitude": 103.08499722
+        },
+        {
+          "round": 2,
+          "name": "Grand Prix of Brazil 2026",
+          "circuit": "Autódromo Internacional Ayrton Senna",
+          "location": "Goiânia",
+          "country": "Brazil",
+          "date": "2026-03-22",
+          "latitude": -16.71805556,
+          "longitude": -49.19222222
+        },
+        {
+          "round": 3,
+          "name": "Grand Prix of the United States 2026",
+          "circuit": "Circuit of the Americas",
+          "location": "Austin, Texas",
+          "country": "United States",
+          "date": "2026-03-29"
+        },
+        {
+          "round": 4,
+          "name": "Grand Prix of Spain 2026",
+          "circuit": "Circuito de Jerez - Ángel Nieto",
+          "location": "Jerez de la Frontera",
+          "country": "Spain",
+          "date": "2026-04-26",
+          "latitude": 36.70833333,
+          "longitude": -6.03416667
+        },
+        {
+          "round": 5,
+          "name": "Grand Prix of France 2026",
+          "circuit": "Bugatti Circuit",
+          "location": "Le Mans",
+          "country": "France",
+          "date": "2026-05-10",
+          "latitude": 47.93333333,
+          "longitude": 0.23333333
+        },
+        {
+          "round": 6,
+          "name": "Grand Prix of Catalunya 2026",
+          "circuit": "Circuit de Barcelona-Catalunya",
+          "location": "Montmeló",
+          "country": "Spain",
+          "date": "2026-05-17"
+        },
+        {
+          "round": 7,
+          "name": "Grand Prix of Italy 2026",
+          "circuit": "Autodromo Internazionale del Mugello",
+          "location": "Scarperia e San Piero",
+          "country": "Italy",
+          "date": "2026-05-31",
+          "latitude": 43.9975,
+          "longitude": 11.37194444
+        },
+        {
+          "round": 8,
+          "name": "Grand Prix of Hungary 2026",
+          "circuit": "Balaton Park Circuit",
+          "location": "Balatonfőkajár",
+          "country": "Hungary",
+          "date": "2026-06-07",
+          "latitude": 47.00805556,
+          "longitude": 18.19888889
+        },
+        {
+          "round": 9,
+          "name": "Grand Prix of Czechia 2026",
+          "circuit": "Automotodrom Brno",
+          "location": "Brno",
+          "country": "Czechia",
+          "date": "2026-06-21",
+          "latitude": 49.20472222,
+          "longitude": 16.45055556
+        },
+        {
+          "round": 10,
+          "name": "Grand Prix of the Netherlands 2026 (Dutch TT)",
+          "circuit": "TT Circuit Assen",
+          "location": "Assen",
+          "country": "Netherlands",
+          "date": "2026-06-28",
+          "latitude": 52.96166667,
+          "longitude": 6.52333333
+        },
+        {
+          "round": 11,
+          "name": "Grand Prix of Germany 2026",
+          "circuit": "Sachsenring",
+          "location": "Hohenstein-Ernstthal",
+          "country": "Germany",
+          "date": "2026-07-12",
+          "latitude": 50.79166667,
+          "longitude": 12.68888889
+        },
+        {
+          "round": 12,
+          "name": "Grand Prix of Great Britain 2026",
+          "circuit": "Silverstone Circuit",
+          "location": "Silverstone",
+          "country": "United Kingdom",
+          "date": "2026-08-09"
+        },
+        {
+          "round": 13,
+          "name": "Grand Prix of Aragón 2026",
+          "circuit": "MotorLand Aragón",
+          "location": "Alcañiz",
+          "country": "Spain",
+          "date": "2026-08-30",
+          "latitude": 41.07833333,
+          "longitude": -0.2075
+        },
+        {
+          "round": 14,
+          "name": "Grand Prix of San Marino and the Rimini Riviera 2026",
+          "circuit": "Misano World Circuit Marco Simoncelli",
+          "location": "Misano Adriatico",
+          "country": "Italy",
+          "date": "2026-09-13",
+          "latitude": 43.96138889,
+          "longitude": 12.68333333
+        },
+        {
+          "round": 15,
+          "name": "Grand Prix of Austria 2026",
+          "circuit": "Red Bull Ring",
+          "location": "Spielberg",
+          "country": "Austria",
+          "date": "2026-09-20"
+        },
+        {
+          "round": 16,
+          "name": "Grand Prix of Japan 2026",
+          "circuit": "Mobility Resort Motegi",
+          "location": "Motegi",
+          "country": "Japan",
+          "date": "2026-10-04",
+          "latitude": 36.53333333,
+          "longitude": 140.22833333
+        },
+        {
+          "round": 17,
+          "name": "Grand Prix of Indonesia 2026",
+          "circuit": "Pertamina Mandalika International Circuit",
+          "location": "Mandalika, Lombok",
+          "country": "Indonesia",
+          "date": "2026-10-11",
+          "latitude": -8.89527778,
+          "longitude": 116.30583333
+        },
+        {
+          "round": 18,
+          "name": "Grand Prix of Australia 2026",
+          "circuit": "Phillip Island Grand Prix Circuit",
+          "location": "Ventnor, Phillip Island",
+          "country": "Australia",
+          "date": "2026-10-25",
+          "latitude": -38.5032,
+          "longitude": 145.2336
+        },
+        {
+          "round": 19,
+          "name": "Grand Prix of Malaysia 2026",
+          "circuit": "Petronas Sepang International Circuit",
+          "location": "Sepang",
+          "country": "Malaysia",
+          "date": "2026-11-01",
+          "latitude": 2.76055556,
+          "longitude": 101.7375
+        },
+        {
+          "round": 20,
+          "name": "Grand Prix of Qatar 2026",
+          "circuit": "Lusail International Circuit",
+          "location": "Lusail",
+          "country": "Qatar",
+          "date": "2026-11-08"
+        },
+        {
+          "round": 21,
+          "name": "Grand Prix of Portugal 2026",
+          "circuit": "Autódromo Internacional do Algarve",
+          "location": "Portimão",
+          "country": "Portugal",
+          "date": "2026-11-22",
+          "latitude": 37.23194444,
+          "longitude": -8.63194444
+        },
+        {
+          "round": 22,
+          "name": "Grand Prix of Valencia 2026",
+          "circuit": "Circuit Ricardo Tormo",
+          "location": "Cheste (Valencia)",
+          "country": "Spain",
+          "date": "2026-11-29",
+          "latitude": 39.48583333,
+          "longitude": -0.62805556
+        }
+      ]
+    },
+    "indycar": {
+      "seasonLabel": "2026 NTT IndyCar Series",
+      "confidence": "high",
+      "notes": "NO ROUNDS DROPPED: all 18 points-paying rounds over 17 race weekends have their date and venue confirmed by both the official indycar.com/Schedule 2026 view and the Wikipedia '2026 IndyCar Series' schedule table, whose driver-standings table independently contains exactly 18 race columns. Round 7 was additionally spot-checked against the '2026 Indianapolis 500' article and round 15 against the 'Freedom 250 Grand Prix' article. Milwaukee on 29-30 August is a double-header, correctly counted as rounds 16 and 17. Season shape: a 17-race schedule was announced 16 September 2025 and the Freedom 250",
+      "rounds": [
+        {
+          "round": 1,
+          "name": "Firestone Grand Prix of St. Petersburg 2026",
+          "circuit": "Streets of St. Petersburg",
+          "location": "St. Petersburg, Florida",
+          "country": "United States",
+          "date": "2026-03-01",
+          "latitude": 27.76638889,
+          "longitude": -82.62916667
+        },
+        {
+          "round": 2,
+          "name": "Good Ranchers 250 2026 (IndyCar at Phoenix)",
+          "circuit": "Phoenix Raceway",
+          "location": "Avondale, Arizona",
+          "country": "United States",
+          "date": "2026-03-07",
+          "latitude": 33.37475,
+          "longitude": -112.31115
+        },
+        {
+          "round": 3,
+          "name": "Java House Grand Prix of Arlington 2026",
+          "circuit": "Streets of Arlington",
+          "location": "Arlington, Texas",
+          "country": "United States",
+          "date": "2026-03-15",
+          "latitude": 32.705,
+          "longitude": -97.1228
+        },
+        {
+          "round": 4,
+          "name": "Children's of Alabama Indy Grand Prix 2026",
+          "circuit": "Barber Motorsports Park",
+          "location": "Birmingham, Alabama",
+          "country": "United States",
+          "date": "2026-03-29",
+          "latitude": 33.5325,
+          "longitude": -86.618889
+        },
+        {
+          "round": 5,
+          "name": "Acura Grand Prix of Long Beach 2026",
+          "circuit": "Streets of Long Beach",
+          "location": "Long Beach, California",
+          "country": "United States",
+          "date": "2026-04-19",
+          "latitude": 33.766389,
+          "longitude": -118.192778
+        },
+        {
+          "round": 6,
+          "name": "Sonsio Grand Prix 2026 (Grand Prix of Indianapolis)",
+          "circuit": "Indianapolis Motor Speedway Road Course",
+          "location": "Indianapolis, Indiana",
+          "country": "United States",
+          "date": "2026-05-09",
+          "latitude": 39.79833333,
+          "longitude": -86.23277778
+        },
+        {
+          "round": 7,
+          "name": "110th Running of the Indianapolis 500 (2026)",
+          "circuit": "Indianapolis Motor Speedway",
+          "location": "Indianapolis, Indiana",
+          "country": "United States",
+          "date": "2026-05-24",
+          "latitude": 39.79833333,
+          "longitude": -86.23277778
+        },
+        {
+          "round": 8,
+          "name": "Chevrolet Detroit Grand Prix 2026",
+          "circuit": "Streets of Detroit",
+          "location": "Detroit, Michigan",
+          "country": "United States",
+          "date": "2026-05-31",
+          "latitude": 42.32975,
+          "longitude": -83.04011111
+        },
+        {
+          "round": 9,
+          "name": "Bommarito Automotive Group 500 2026",
+          "circuit": "World Wide Technology Raceway (Gateway)",
+          "location": "Madison, Illinois",
+          "country": "United States",
+          "date": "2026-06-07",
+          "latitude": 38.6508,
+          "longitude": -90.13536944
+        },
+        {
+          "round": 10,
+          "name": "XPEL Grand Prix at Road America 2026",
+          "circuit": "Road America",
+          "location": "Elkhart Lake, Wisconsin",
+          "country": "United States",
+          "date": "2026-06-21",
+          "latitude": 43.7975,
+          "longitude": -87.99388889
+        },
+        {
+          "round": 11,
+          "name": "Honda Indy 200 at Mid-Ohio 2026",
+          "circuit": "Mid-Ohio Sports Car Course",
+          "location": "Lexington, Ohio",
+          "country": "United States",
+          "date": "2026-07-05",
+          "latitude": 40.69,
+          "longitude": -82.636
+        },
+        {
+          "round": 12,
+          "name": "Borchetta Bourbon Music City Grand Prix 2026",
+          "circuit": "Nashville Superspeedway",
+          "location": "Lebanon, Tennessee",
+          "country": "United States",
+          "date": "2026-07-20",
+          "latitude": 36.04441944,
+          "longitude": -86.41261944
+        },
+        {
+          "round": 13,
+          "name": "OnlyBulls Grand Prix of Portland 2026",
+          "circuit": "Portland International Raceway",
+          "location": "Portland, Oregon",
+          "country": "United States",
+          "date": "2026-08-09",
+          "latitude": 45.59694444,
+          "longitude": -122.69583333
+        },
+        {
+          "round": 14,
+          "name": "Ontario Honda Dealers Indy at Markham 2026",
+          "circuit": "Streets of Markham",
+          "location": "Markham, Ontario",
+          "country": "Canada",
+          "date": "2026-08-16",
+          "latitude": 43.63722222,
+          "longitude": -79.41555556
+        },
+        {
+          "round": 15,
+          "name": "Freedom 250 Grand Prix of Washington, D.C. 2026",
+          "circuit": "Streets of Washington (temporary circuit around the National Mall)",
+          "location": "Washington, D.C.",
+          "country": "United States",
+          "date": "2026-08-23",
+          "latitude": 38.89,
+          "longitude": -77.02361111
+        },
+        {
+          "round": 16,
+          "name": "Snap-on Makers and Fixers 250 2026 (Milwaukee Race 1)",
+          "circuit": "Milwaukee Mile",
+          "location": "West Allis, Wisconsin",
+          "country": "United States",
+          "date": "2026-08-29",
+          "latitude": 43.02,
+          "longitude": -88.01
+        },
+        {
+          "round": 17,
+          "name": "Snap-on Milwaukee Mile 250 2026 (Milwaukee Race 2)",
+          "circuit": "Milwaukee Mile",
+          "location": "West Allis, Wisconsin",
+          "country": "United States",
+          "date": "2026-08-30",
+          "latitude": 43.02,
+          "longitude": -88.01
+        },
+        {
+          "round": 18,
+          "name": "IndyCar Grand Prix of Monterey 2026",
+          "circuit": "WeatherTech Raceway Laguna Seca",
+          "location": "Monterey, California",
+          "country": "United States",
+          "date": "2026-09-06",
+          "latitude": 36.58416667,
+          "longitude": -121.75361111
+        }
+      ]
+    },
+    "wec": {
+      "seasonLabel": "2026 FIA World Endurance Championship (14th season)",
+      "confidence": "medium",
+      "notes": "CONFIDENCE DOWNGRADED TO MEDIUM because rounds 7 and 8 are at serious risk of relocation - see below. The eight rounds themselves are fully verified and none was dropped: every venue/date pair matches both the schema.org JSON-LD race-session startDate on the official fiawec.com race pages (Imola 19 Apr 13:00 CEST, Spa 9 May 14:00, Le Mans 13 Jun 16:00, Sao Paulo 12 Jul 11:30, COTA 6 Sep, Fuji 27 Sep, Qatar 24 Oct, Bahrain 7 Nov) and the Wikipedia season-article calendar table. Round count of 8 and the numbering (Qatar R7 penultimate, Bahrain R8 finale) are confirmed, as is '14th season'. AT-RI",
+      "rounds": [
+        {
+          "round": 1,
+          "name": "6 Hours of Imola 2026",
+          "circuit": "Autodromo Enzo e Dino Ferrari",
+          "location": "Imola",
+          "country": "Italy",
+          "date": "2026-04-19",
+          "latitude": 44.34111111,
+          "longitude": 11.71333333
+        },
+        {
+          "round": 2,
+          "name": "TotalEnergies 6 Hours of Spa-Francorchamps 2026",
+          "circuit": "Circuit de Spa-Francorchamps",
+          "location": "Stavelot (Francorchamps)",
+          "country": "Belgium",
+          "date": "2026-05-09"
+        },
+        {
+          "round": 3,
+          "name": "24 Hours of Le Mans 2026",
+          "circuit": "Circuit de la Sarthe",
+          "location": "Le Mans",
+          "country": "France",
+          "date": "2026-06-13",
+          "latitude": 47.93333333,
+          "longitude": 0.23333333
+        },
+        {
+          "round": 4,
+          "name": "Rolex 6 Hours of São Paulo 2026",
+          "circuit": "Autódromo José Carlos Pace",
+          "location": "São Paulo",
+          "country": "Brazil",
+          "date": "2026-07-12",
+          "latitude": -23.70111111,
+          "longitude": -46.69722222
+        },
+        {
+          "round": 5,
+          "name": "Lone Star Le Mans 2026",
+          "circuit": "Circuit of the Americas",
+          "location": "Austin, Texas",
+          "country": "United States",
+          "date": "2026-09-06"
+        },
+        {
+          "round": 6,
+          "name": "6 Hours of Fuji 2026",
+          "circuit": "Fuji Speedway",
+          "location": "Oyama, Shizuoka",
+          "country": "Japan",
+          "date": "2026-09-27",
+          "latitude": 35.37166667,
+          "longitude": 138.92666667
+        },
+        {
+          "round": 7,
+          "name": "Qatar 1812km 2026",
+          "circuit": "Lusail International Circuit",
+          "location": "Lusail",
+          "country": "Qatar",
+          "date": "2026-10-24",
+          "note": "PROVISIONAL - relocation to Barcelona reported, not yet official"
+        },
+        {
+          "round": 8,
+          "name": "Bapco Energies 8 Hours of Bahrain 2026",
+          "circuit": "Bahrain International Circuit",
+          "location": "Sakhir",
+          "country": "Bahrain",
+          "date": "2026-11-07",
+          "note": "PROVISIONAL - relocation to Monza reported, not yet official"
+        }
+      ]
+    }
+  }
+}
