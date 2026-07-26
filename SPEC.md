@@ -284,53 +284,45 @@ Each stub becomes real, series-agnostic, and monetisable where applicable.
 | D | Feature completion | ✅ done (grandstands, budget, transport, packages, planner, hotels, compare) |
 | E | Data + launch | 🔧 in progress — series + sample multi-series seeds authored; migrations not yet run; full de-brand sweep + full calendars + DNS remain |
 
-### Applied to production ✅
+### Applied to production ✅ (as of 2026-07-26)
 
-- **DNS FIXED**: added `CNAME www → cname.vercel-dns.com` (DNS-only) in Cloudflare;
-  `https://www.pitlanetravel.com` now returns 200 (was fully down — the canonical domain
-  had no record while the apex redirected to it).
-- **Migrations run** against the production DB: `0003_multi_series.sql` (series table +
-  seed of 5 series + `races.series_id` backfilled to F1 for all 24 existing races +
-  external-id tables) and `0004_grandstands.sql`.
-- **F1 2026 calendar seeded** (22 rounds from jolpica). Circuit dedup via
-  `scripts/_circuits.ts` + `data/seeds/circuit-aliases.json` — only **Madring (Madrid)**
-  was created new; the other 21 reused existing circuits. Result: 25 circuits, races
-  2025:24 + 2026:22.
-- **28 grandstands seeded** across 6 marquee circuits, sourced and corrected from Gbrain's
-  source-cited guides (the earlier hand-authored version had mis-mapped stands and wrong
-  covered flags — discarded).
+**Live and verified** at `https://www.pitlanetravel.com` — every route below returns 200.
 
-### Remaining before launch
+- **DNS fixed**: `www` CNAME added in Cloudflare; the canonical domain was fully down.
+- **Security**: authz/IDOR guards, cron auth (verified live 401 without / 200 with secret),
+  AI proxy auth + rate limiting, `CRON_SECRET` set. Next.js 15.1.2 → **15.5.22** and Clerk
+  → **6.39.6**, clearing a CVSS 10.0 RCE and two middleware authorization-bypass advisories.
+- **Migrations 0003–0006** applied (series, grandstands, cancelled races, flight payments).
+- **Calendars**: F1 2026 (22 rounds — Bahrain + Saudi correctly cancelled) plus **65
+  researched, fact-checked races** across Formula E (17), MotoGP (22), IndyCar (18) and
+  WEC (8). **113 races, 67 circuits.** Statuses derived from dates, so nothing goes stale.
+- **Grandstand guides**: **145 stands across all 24 circuits**, split into per-circuit pages
+  (index went 5.1 MB → 153 KB) with per-circuit SEO titles.
+- **Sitemap**: dynamic, **267 canonical URLs** (was a stale 57-URL static file on the
+  redirecting apex).
+- **Cancelled-race support**: planned-vs-actual round model, partial unique index, UI
+  treatment, and cancelled races excluded from every bookable/upcoming surface.
+- **Admin**: Championships CRUD, series selector on race creation.
+- **Flight payments (D8)**: Stripe PaymentIntent flow built and verified —
+  **`FLIGHTS_BOOKING_ENABLED` deliberately left OFF** (see DECISIONS.md).
 
-- **Deploy the branch.** Production still runs the Jan-2025 code; merge PR #1 so the
-  multi-series UI, series landing pages, corrected branding and the grandstand/budget/
-  transport/etc. pages actually ship. (The 2026 races already show on the old site because
-  it reads the same DB.)
-- **F1 2026 calendar = 22 rounds, which is CORRECT** — verified via a multi-source
-  research + adversarial-verification pass (all 3 refutation attempts upheld it, high
-  confidence). The calendar was originally 24 (published 10 Jun 2025); F1 **cancelled** the
-  Bahrain GP (was R4, 12 Apr, Sakhir) and Saudi Arabian GP (was R5, 19 Apr, Jeddah) on
-  14 Mar 2026 on FIA safety grounds after the outbreak of the 2026 Iran war (Iran struck
-  US bases across the Gulf host nations). Cancelled, not rescheduled — the DB's 22 seeded
-  rounds are the real season. Residual: F1's Domenicali floated a possible later-2026
-  Gulf return, so treat 22 as current-but-provisional; re-check before the back half of
-  the season. OPTIONAL enhancement: surface Bahrain/Saudi 2026 as cancelled so fans
-  searching for them get an explanation — but the real 22-race season renumbered the
-  rounds (Miami is now R4), so their original R4/R5 slots are taken; adding them needs a
-  non-colliding round value (or relax the `(series_id, season, round)` unique index) plus
-  a small "cancelled race" UI treatment. Design decision, not a blind seed.
-- **Sample multi-series calendars NOT seeded** — `scripts/seed-sample-calendars.ts` carries
-  placeholder dates; do not run against production until replaced with verified official
-  FE/MotoGP/IndyCar/WEC calendars. Gbrain has grandstand guides for those series' circuits
-  to seed alongside.
-- **Confirm Vercel env** has `CRON_SECRET`, `RESEND_API_KEY`, `FLIGHTS_BOOKING_ENABLED`
-  (leave off) — could not enumerate env vars via CLI/MCP.
-- Full CRUD dialogs for the admin Championships page (currently read view + actions API).
-- Build the Stripe-charge flight flow (D8) before enabling `FLIGHTS_BOOKING_ENABLED`.
-- Expand grandstand guides from 6 to all ~24 F1 circuits (+ MotoGP/FE/WEC) — Gbrain has
-  the structured data; regenerate `grandstands.json` via `get_page` per
-  `data/seeds/circuit-gbrain-map.json` rather than by hand.
+### Remaining — owner decisions and business development
 
-Migrations are authored as Drizzle SQL under `db/migrations/`; they are **not** run here
-(no production `DATABASE_URL` in this environment) — apply with `npm run db:migrate` after
-review. All code changes are validated with `tsc --noEmit` and `next build`.
+1. **Turn on flight booking** *(owner call — moves real money)*. The server flow is done.
+   Before flipping `FLIGHTS_BOOKING_ENABLED`: run a Stripe test-mode booking end-to-end,
+   set `FLIGHT_SERVICE_FEE_PERCENT` / `_MINIMUM` (defaults to 0% — you earn nothing until
+   set), and build the client-side Stripe Elements step in `FlightBookingForm`.
+2. **Ticket inventory for the four new series** *(business development)*. The P1 Travel
+   affiliate deal is F1-only, so MotoGP/FE/IndyCar/WEC races currently show no tickets —
+   the single biggest gap between "multi-series site" and "multi-series revenue".
+3. **Vercel Hobby limits crons to once daily.** Race status therefore refreshes once a day;
+   Pro would restore the intended 15-minute cadence during race weekends.
+4. **WEC rounds 7–8 (Qatar, Bahrain) are provisional** — relocation was reported but not
+   confirmed. The note is stored on the race; re-check before promoting them.
+5. **Formula E Season 13** (from Dec 2026) is not seeded; decide season-based vs
+   calendar-year before adding it.
+6. Rotate `TOGETHER_API_KEY` — it is stored in Vercel as a plaintext (unencrypted) value.
+
+Migrations are idempotent SQL under `db/migrations/`; seeds under `scripts/` are
+re-runnable. All code changes are validated with `tsc --noEmit`, `vitest` (23 tests) and
+`next build`.
