@@ -83,3 +83,25 @@ context). Merged into `data/seeds/grandstands.json` and seeded.
 script had been cleared from `/tmp`, and the failure was quiet. It was re-run and
 verified (3 columns + unique index present). Worth remembering that "the command printed
 something" is not evidence a migration landed; the DB was queried to confirm.
+
+---
+
+## Sitemap: static file → Next dynamic route
+
+**Commit before this change:** `8f7543e`.
+
+`public/sitemap.xml` was a committed static file (57 URLs) produced by a script somebody
+had to remember to run — it predated every new page, so series hubs, grandstands,
+compare, packages, transport and hotels were all invisible to search engines. Worse,
+**every URL in it pointed at the apex**, which 308-redirects to `www`, so each entry
+cost a redirect hop.
+
+Replaced with `app/sitemap.ts` (Next's native dynamic sitemap), which reads the DB at
+build time: **113 URLs, all canonical `www`**, including the 5 series landing pages.
+Cancelled races and auth-gated routes (trips/bookings/budget) are excluded.
+
+- Deleted `public/sitemap.xml` (it would shadow the route) and `scripts/generate-sitemap.ts`
+  plus its `npm run sitemap` script, so there's one source of truth.
+- `robots.txt` now points at the `www` sitemap and allows the new sections.
+- The DB query is wrapped in try/catch: a database blip degrades to the static routes
+  rather than failing the production build.

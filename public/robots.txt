@@ -9,6 +9,11 @@ Allow: /races
 Allow: /races/map
 Allow: /races/*
 Allow: /flights
+Allow: /series/*
+Allow: /circuits/*
+Allow: /packages
+Allow: /transport
+Allow: /hotels
 
 # Prevent access to admin and authenticated routes
 Disallow: /admin/
@@ -19,4 +24,4 @@ Disallow: /bookings/
 Disallow: /api/
 
 # Sitemap
-Sitemap: https://pitlanetravel.com/sitemap.xml 
+Sitemap: https://www.pitlanetravel.com/sitemap.xml 
