@@ -17,7 +17,7 @@ import {
   InsertFlightBooking,
   SelectFlightBooking
 } from "@/db/schema/flight-bookings-schema"
-import { and, eq, lt } from "drizzle-orm"
+import { and, eq, isNotNull, isNull, lt } from "drizzle-orm"
 
 /** A reservation older than this with no airline order is treated as abandoned. */
 export const STALE_RESERVATION_MINUTES = 15
@@ -85,4 +85,27 @@ export async function findBookingByOffer(
     )
     .limit(1)
   return row ?? null
+}
+
+/**
+ * Reservations that were charged but never completed: still `pending`, no airline order,
+ * and older than the stale window. These represent money taken with nothing delivered —
+ * the process-death case the booking route cannot recover from on its own.
+ */
+export async function findAbandonedReservations(
+  limit = 100
+): Promise<SelectFlightBooking[]> {
+  const cutoff = new Date(Date.now() - STALE_RESERVATION_MINUTES * 60 * 1000)
+  return db
+    .select()
+    .from(flightBookingsTable)
+    .where(
+      and(
+        eq(flightBookingsTable.status, "pending"),
+        isNull(flightBookingsTable.orderId),
+        isNotNull(flightBookingsTable.paymentIntentId),
+        lt(flightBookingsTable.createdAt, cutoff)
+      )
+    )
+    .limit(limit)
 }

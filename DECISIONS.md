@@ -296,3 +296,33 @@ sitemap was also a build-time snapshot; it now revalidates daily.
 findings about the *fresh-database* provisioning path (enum values and seed ordering) are
 untested here because production was migrated incrementally — worth a dry run on a scratch
 DB before anyone provisions a new environment.
+
+---
+
+## Flight-payment reconciliation sweep
+
+**Commit before this change:** `b1b408d`.
+
+Closes the gap I had flagged twice and left open: the Stripe charge and the Duffel order
+are not one transaction, so if the function dies between reserving the PaymentIntent and
+creating the airline order, the booking route's own refund path never runs. The customer
+is charged with nothing delivered and no code path recovers it.
+
+`/api/cron/reconcile-flight-payments` (daily, 05:00) sweeps reservations that are still
+`pending`, have **no** orderId, and are older than the 15-minute stale window:
+- Charged → refund and mark `failed`.
+- Never charged (abandoned checkout) → mark `expired` so it stops holding the PaymentIntent.
+
+Safety properties, since this moves money unattended:
+- It can only ever touch rows with **no airline order**, so a real ticket is never refunded.
+- Stripe is re-read as the source of truth rather than trusting our own row.
+- Idempotency key + "already refunded" treated as success, so repeated runs cannot
+  double-refund.
+- Refund failures are logged loudly and counted rather than swallowed.
+
+**Limitation:** Hobby caps crons at once daily, so worst-case a customer waits ~24h for an
+automatic refund. On Pro this should run every 15 minutes. A Stripe webhook on
+`payment_intent.succeeded` would tighten it further; the cron is the durable backstop
+because webhooks can be missed.
+
+All of this remains behind `FLIGHTS_BOOKING_ENABLED` (off).
