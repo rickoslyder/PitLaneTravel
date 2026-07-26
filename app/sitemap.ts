@@ -1,7 +1,13 @@
 import type { MetadataRoute } from "next"
 import { db } from "@/db/db"
-import { racesTable, seriesTable } from "@/db/schema"
+import {
+  circuitsTable,
+  grandstandsTable,
+  racesTable,
+  seriesTable
+} from "@/db/schema"
 import { eq, isNotNull, and, ne } from "drizzle-orm"
+import { slugify } from "@/lib/series"
 
 const BASE_URL = "https://www.pitlanetravel.com"
 
@@ -31,7 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   try {
-    const [series, races] = await Promise.all([
+    const [series, races, guidedCircuits] = await Promise.all([
       db
         .select({ slug: seriesTable.slug })
         .from(seriesTable)
@@ -41,6 +47,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .from(racesTable)
         .where(
           and(isNotNull(racesTable.slug), ne(racesTable.status, "cancelled"))
+        ),
+      // Only circuits that actually have a guide get a page worth indexing.
+      db
+        .selectDistinct({ name: circuitsTable.name })
+        .from(circuitsTable)
+        .innerJoin(
+          grandstandsTable,
+          eq(grandstandsTable.circuitId, circuitsTable.id)
         )
     ])
 
@@ -50,6 +64,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${BASE_URL}/series/${s.slug}`,
         changeFrequency: "weekly" as const,
         priority: 0.9
+      })),
+      ...guidedCircuits.map(c => ({
+        url: `${BASE_URL}/circuits/${slugify(c.name)}/grandstands`,
+        changeFrequency: "monthly" as const,
+        priority: 0.8
       })),
       ...races.flatMap(r => [
         {

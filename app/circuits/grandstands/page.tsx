@@ -1,7 +1,8 @@
-import { Binoculars } from "lucide-react"
+import { Binoculars, Star } from "lucide-react"
 import { Metadata } from "next"
+import Link from "next/link"
 import { getCircuitsWithGrandstandsAction } from "@/actions/db/grandstands-actions"
-import { GrandstandCard } from "@/components/grandstands/grandstand-card"
+import { slugify } from "@/lib/series"
 
 export const metadata: Metadata = {
   title: "Grandstand Guides | Best Seats at Every Circuit | PitLane Travel",
@@ -26,22 +27,39 @@ export default async function GrandstandsPage() {
       </header>
 
       {hasContent ? (
-        <div className="space-y-12">
-          {circuits!.map(circuit => (
-            <section key={circuit.id} className="space-y-4">
-              <div className="flex items-baseline justify-between border-b pb-2">
-                <h2 className="text-2xl font-bold">{circuit.name}</h2>
-                <span className="text-sm text-muted-foreground">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {circuits!.map(circuit => {
+            // The stand the guide rates highest, surfaced as the card's teaser.
+            const top = [...circuit.grandstands].sort(
+              (a, b) => (b.viewRating ?? 0) - (a.viewRating ?? 0)
+            )[0]
+            return (
+              <Link
+                key={circuit.id}
+                href={`/circuits/${slugify(circuit.name)}/grandstands`}
+                className="group rounded-lg border p-5 transition-colors hover:border-primary hover:bg-muted/40"
+              >
+                <h2 className="font-semibold group-hover:text-primary">
+                  {circuit.name}
+                </h2>
+                <p className="text-sm text-muted-foreground">
                   {circuit.location}, {circuit.country}
-                </span>
-              </div>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {circuit.grandstands.map(g => (
-                  <GrandstandCard key={g.id} grandstand={g} />
-                ))}
-              </div>
-            </section>
-          ))}
+                </p>
+                <p className="mt-3 text-sm">
+                  <span className="font-medium">
+                    {circuit.grandstands.length}
+                  </span>{" "}
+                  grandstands compared
+                </p>
+                {top && (
+                  <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                    <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                    Top pick: {top.name}
+                  </p>
+                )}
+              </Link>
+            )
+          })}
         </div>
       ) : (
         <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">

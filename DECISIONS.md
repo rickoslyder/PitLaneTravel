@@ -105,3 +105,27 @@ Cancelled races and auth-gated routes (trips/bookings/budget) are excluded.
 - `robots.txt` now points at the `www` sitemap and allows the new sections.
 - The DB query is wrapped in try/catch: a database blip degrades to the static routes
   rather than failing the production build.
+
+---
+
+## Grandstand guides split into per-circuit pages
+
+**Commit before this change:** `3d68f44`.
+
+Expanding to 145 stands made `/circuits/grandstands` render every stand at every circuit
+on one page. In production that measured **2.5 MB and ~4 s** — bad for Core Web Vitals on
+the page that is supposed to be the site's strongest SEO asset, and worst on the mobile
+connections race fans actually use.
+
+Split into:
+- `/circuits/grandstands` — light index of 24 circuit cards (stand count + top pick).
+  **153 KB, down from 5.1 MB (~33× smaller).**
+- `/circuits/[slug]/grandstands` — full guide per circuit, ~205 KB.
+
+This is also the better SEO shape: each circuit gets its own page and title
+("Best Grandstands at Silverstone Circuit"), targeting the query people actually
+search — "best grandstand at X" — instead of one page competing for all 24.
+
+Circuits have no `slug` column, so routes resolve by slugifying the stored name
+(24 rows, matched in memory). If circuits ever get a real slug column, switch to it.
+All 24 guide pages are in the sitemap (now 137 URLs).
