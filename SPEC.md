@@ -310,8 +310,11 @@ Each stub becomes real, series-agnostic, and monetisable where applicable.
 
 1. **Turn on flight booking** *(owner call — moves real money)*. The server flow is done.
    Before flipping `FLIGHTS_BOOKING_ENABLED`: run a Stripe test-mode booking end-to-end,
-   set `FLIGHT_SERVICE_FEE_PERCENT` / `_MINIMUM` (defaults to 0% — you earn nothing until
-   set), and build the client-side Stripe Elements step in `FlightBookingForm`.
+   **set `FLIGHT_SERVICE_FEE_PERCENT`** — at the 0% default you *lose* money on every
+   booking (Stripe processing + FX come out of a charge equal to the offer total), and
+   build the client-side Stripe Elements step in `FlightBookingForm`. Also close the
+   reconciliation gap: the charge and the Duffel order are not one transaction, so add
+   Stripe webhook reconciliation for the process-death case.
 2. **Ticket inventory for the four new series** *(business development)*. The P1 Travel
    affiliate deal is F1-only, so MotoGP/FE/IndyCar/WEC races currently show no tickets —
    the single biggest gap between "multi-series site" and "multi-series revenue".
