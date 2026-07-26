@@ -16,10 +16,10 @@ export function HeroSection() {
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              Formula 1 Race Calendar
+              Motorsport Race Calendar
             </h1>
             <p className="text-muted-foreground mt-6 text-lg leading-8">
-              Find and book your next Formula 1 race experience. Browse through
+              Find and book your next race experience. Browse through
               our selection of races, filter by date and location, and get all
               the information you need to plan your trip.
             </p>

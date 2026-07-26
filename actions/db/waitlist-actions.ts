@@ -4,6 +4,7 @@ import { db } from "@/db/db"
 import { InsertWaitlist, SelectWaitlist, waitlistTable } from "@/db/schema"
 import { ActionState } from "@/types"
 import { and, eq } from "drizzle-orm"
+import { assertOwnershipOrAdmin } from "@/lib/auth"
 
 export async function createWaitlistEntryAction(
     waitlist: InsertWaitlist
@@ -30,6 +31,7 @@ export async function getWaitlistEntriesAction(
     raceId: string
 ): Promise<ActionState<SelectWaitlist[]>> {
     try {
+    await assertOwnershipOrAdmin(userId)
         const entries = await db
             .select()
             .from(waitlistTable)
@@ -57,6 +59,7 @@ export async function updateWaitlistEntryAction(
     data: Partial<InsertWaitlist>
 ): Promise<ActionState<SelectWaitlist>> {
     try {
+    await assertOwnershipOrAdmin(userId)
         const [updatedEntry] = await db
             .update(waitlistTable)
             .set(data)
@@ -88,6 +91,7 @@ export async function deleteWaitlistEntryAction(
     userId: string
 ): Promise<ActionState<void>> {
     try {
+    await assertOwnershipOrAdmin(userId)
         await db
             .delete(waitlistTable)
             .where(

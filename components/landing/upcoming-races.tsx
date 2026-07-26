@@ -57,7 +57,7 @@ export function UpcomingRaces({ races }: UpcomingRacesProps) {
         >
           <h2 className="mb-4 text-4xl font-bold">Upcoming Races</h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-lg">
-            Secure your spot at the next Formula 1 Grand Prix
+            Secure your spot at the next race weekend
           </p>
         </motion.div>
 

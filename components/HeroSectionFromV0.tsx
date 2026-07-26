@@ -52,7 +52,7 @@ export default function HeroSectionFromV0() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          Experience Formula 1 Like Never Before
+          Experience Motorsport Like Never Before
         </motion.h1>
         <motion.p
           className="mb-8 max-w-2xl text-center text-xl md:text-2xl"
@@ -60,7 +60,7 @@ export default function HeroSectionFromV0() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          Plan your perfect F1 race weekend with ease and confidence using
+          Plan your perfect race weekend with ease and confidence using
           PitLane Travel's expert guidance and tools
         </motion.p>
         <motion.div
@@ -91,7 +91,7 @@ export default function HeroSectionFromV0() {
           transition={{ duration: 0.5, delay: 0.6 }}
         >
           <Button size="lg" className="px-8 py-6 text-lg">
-            Start Your F1 Adventure
+            Start Your Race Adventure
           </Button>
         </motion.div>
       </div>

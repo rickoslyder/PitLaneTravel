@@ -108,11 +108,18 @@ interface Trip {
 interface AiTripPlannerProps {
   tripDetails?: Trip
   onAddActivity: (activity: string) => void
+  /**
+   * Render without a saved trip (the /trips/planner entry point). Only the chat tab is
+   * shown, since the other tabs are trip-specific. Without this, a missing `tripDetails`
+   * is treated as "still loading".
+   */
+  standalone?: boolean
 }
 
 export function AiTripPlanner({
   tripDetails,
-  onAddActivity
+  onAddActivity,
+  standalone = false
 }: AiTripPlannerProps) {
   const [activeTab, setActiveTab] = useState("chat")
   const [isTyping, setIsTyping] = useState(false)
@@ -125,7 +132,7 @@ export function AiTripPlanner({
             {
               id: "init",
               role: "system",
-              content: `Welcome to your F1 trip planning assistant! I'm here to help you plan your trip to the ${tripDetails.race.name} at ${tripDetails.race.circuit?.name || "the circuit"}.
+              content: `Welcome to your race trip planning assistant! I'm here to help you plan your trip to the ${tripDetails.race.name} at ${tripDetails.race.circuit?.name || "the circuit"}.
 
 What would you like to know about:
 - Race weekend schedule and events
@@ -138,7 +145,23 @@ What would you like to know about:
 Just ask me anything about your trip!`
             }
           ]
-        : [],
+        : standalone
+          ? [
+              {
+                id: "init",
+                role: "system" as const,
+                content: `Welcome to the race trip planning assistant! Tell me which race weekend you're thinking about — any series, any circuit — and I can help with:
+
+- Which grandstand or ticket type suits you
+- Flights, accommodation and getting to the circuit
+- What else to do in the area
+- Weather and what to pack
+- Rough budget for the weekend
+
+Where would you like to go?`
+              }
+            ]
+          : [],
       onResponse: () => {
         setIsTyping(false)
       },
@@ -183,7 +206,7 @@ Just ask me anything about your trip!`
     ))
   }
 
-  if (!tripDetails) {
+  if (!tripDetails && !standalone) {
     return (
       <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
@@ -206,29 +229,37 @@ Just ask me anything about your trip!`
           <div>
             <CardTitle>AI Trip Planner</CardTitle>
             <CardDescription>
-              Get personalized suggestions for your F1 trip
+              Get personalized suggestions for your race trip
             </CardDescription>
           </div>
-          <Badge variant="secondary" className="text-sm">
-            {tripDetails.race.name}
-          </Badge>
+          {tripDetails && (
+            <Badge variant="secondary" className="text-sm">
+              {tripDetails.race.name}
+            </Badge>
+          )}
         </div>
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList
+            className={`grid w-full ${tripDetails ? "grid-cols-3" : "grid-cols-1"}`}
+          >
             <TabsTrigger value="chat" className="gap-2">
               <MessageSquare className="size-4" />
               Chat Assistant
             </TabsTrigger>
-            <TabsTrigger value="planner" className="gap-2">
-              <Calendar className="size-4" />
-              Trip Planner
-            </TabsTrigger>
-            <TabsTrigger value="info" className="gap-2">
-              <Info className="size-4" />
-              Race Info
-            </TabsTrigger>
+            {tripDetails && (
+              <>
+                <TabsTrigger value="planner" className="gap-2">
+                  <Calendar className="size-4" />
+                  Trip Planner
+                </TabsTrigger>
+                <TabsTrigger value="info" className="gap-2">
+                  <Info className="size-4" />
+                  Race Info
+                </TabsTrigger>
+              </>
+            )}
           </TabsList>
 
           <TabsContent value="chat" className="mt-4 space-y-4">
@@ -400,36 +431,40 @@ Just ask me anything about your trip!`
                   </div>
                 </div>
 
-                <div className="bg-card rounded-lg border p-4">
-                  <h3 className="mb-2 font-medium">Trip Summary</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="text-muted-foreground size-4" />
-                      <span>
-                        {new Date(tripDetails.race.date).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="text-muted-foreground size-4" />
-                      <span>
-                        {tripDetails.race.circuit?.name},{" "}
-                        {tripDetails.race.country}
-                      </span>
-                    </div>
-                    <Separator className="my-2" />
-                    <div className="flex items-center gap-2">
-                      <Clock className="text-muted-foreground size-4" />
-                      <span>
-                        {tripDetails.itinerary?.activities.length || 0}{" "}
-                        Activities Planned
-                      </span>
+                {tripDetails && (
+                  <div className="bg-card rounded-lg border p-4">
+                    <h3 className="mb-2 font-medium">Trip Summary</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="text-muted-foreground size-4" />
+                        <span>
+                          {new Date(tripDetails.race.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="text-muted-foreground size-4" />
+                        <span>
+                          {tripDetails.race.circuit?.name},{" "}
+                          {tripDetails.race.country}
+                        </span>
+                      </div>
+                      <Separator className="my-2" />
+                      <div className="flex items-center gap-2">
+                        <Clock className="text-muted-foreground size-4" />
+                        <span>
+                          {tripDetails.itinerary?.activities.length || 0}{" "}
+                          Activities Planned
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </TabsContent>
 
+          {tripDetails && (
+            <>
           <TabsContent value="planner" className="mt-4">
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
@@ -531,6 +566,8 @@ Just ask me anything about your trip!`
               )}
             </div>
           </TabsContent>
+            </>
+          )}
         </Tabs>
       </CardContent>
     </Card>

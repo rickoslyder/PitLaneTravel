@@ -2,11 +2,15 @@ import { db } from "@/db/db"
 import { waitlistTable, ticketsTable } from "@/db/schema"
 import { eq, and, lt, isNull, or } from "drizzle-orm"
 import { createNotificationAction } from "@/actions/db/notifications-actions"
+import { verifyCronRequest } from "@/lib/cron"
 
 const MAX_NOTIFICATIONS = 3 // Maximum number of notifications per ticket
 const NOTIFICATION_COOLDOWN_HOURS = 24 // Hours between notifications
 
-export async function GET() {
+export async function GET(req: Request) {
+  const denied = verifyCronRequest(req)
+  if (denied) return denied
+
   try {
     const cooldownDate = new Date()
     cooldownDate.setHours(cooldownDate.getHours() - NOTIFICATION_COOLDOWN_HOURS)

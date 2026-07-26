@@ -4,13 +4,28 @@ import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { duffel } from "@/lib/duffel"
 import { createFlightBookingAction } from "@/actions/db/flight-bookings-actions"
-import { parsePhoneNumber, isValidPhoneNumber } from "libphonenumber-js"
+import { isValidPhoneNumber } from "libphonenumber-js"
+import { features } from "@/config/features"
 
 export async function POST(request: Request) {
   try {
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Guard: the Duffel order below is paid from the platform's own balance, so
+    // creating it without collecting customer payment is a direct financial loss.
+    // Keep disabled until the Stripe charge flow lands (SPEC.md Phase D8).
+    if (!features.flightsBookingEnabled) {
+      return NextResponse.json(
+        {
+          error: "Flight booking is not yet available",
+          message:
+            "Online flight booking is coming soon. Please search flights and book with the airline directly for now."
+        },
+        { status: 503 }
+      )
     }
 
     const body = await request.json()
@@ -147,20 +162,5 @@ export async function POST(request: Request) {
       },
       { status: 500 }
     )
-  }
-}
-
-function formatPhoneNumber(phoneNumber: string): string {
-  try {
-    // Parse and format the phone number to E.164 format
-    const parsedNumber = parsePhoneNumber(phoneNumber)
-    if (!parsedNumber) {
-      throw new Error("Invalid phone number")
-    }
-    return parsedNumber.format("E.164") // Returns format like +14155552671
-  } catch (error) {
-    console.error("Error formatting phone number:", error)
-    // If parsing fails, return the original number (it will be caught by validation)
-    return phoneNumber
   }
 }

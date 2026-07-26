@@ -7,8 +7,8 @@ async function main() {
     // Parse the XML feed
     console.log("Parsing XML feed...")
     const tickets = await processXmlFeed(
-      path.join(process.cwd(), "36e68b7b500770cf7b8b7379ce094fca.xml"),
-      path.join(process.cwd(), "parsed_tickets_2025-01-07.json")
+      path.join(process.cwd(), "data/seeds/p1-tickets-raw.xml"),
+      path.join(process.cwd(), "data/seeds/parsed_tickets_2025-01-07.json")
     )
 
     // Insert the parsed data

@@ -26,8 +26,31 @@ export function RacesPage({ initialRaces }: RacesPageProps) {
     month: [] as string[],
     country: [] as string[]
   })
+  const [seriesFilter, setSeriesFilter] = useState<string | null>(null)
+
+  // Distinct series present in the loaded races, in sort order. Races without a
+  // series row (legacy data) are treated as F1.
+  const availableSeries = Array.from(
+    new Map(
+      races.map(r => {
+        const s = r.series ?? {
+          id: "f1",
+          name: "Formula 1",
+          short_name: "F1",
+          slug: "f1",
+          event_noun: "Grand Prix",
+          accent_color: "#e10600"
+        }
+        return [s.slug, s]
+      })
+    ).values()
+  )
 
   const filteredRaces = races.filter(race => {
+    const raceSeriesSlug = race.series?.slug ?? "f1"
+    const matchesSeries = !seriesFilter || raceSeriesSlug === seriesFilter
+    if (!matchesSeries) return false
+
     const searchTerms = [
       race.name,
       race.circuit?.name,
@@ -106,9 +129,42 @@ export function RacesPage({ initialRaces }: RacesPageProps) {
       </div>
 
       <div className="bg-card mx-auto max-w-7xl rounded-lg p-6 shadow">
-        <h1 className="mb-6 text-center text-2xl font-bold">
-          F1 Race Calendar
-        </h1>
+        <h1 className="mb-6 text-center text-2xl font-bold">Race Calendar</h1>
+
+        {availableSeries.length > 1 && (
+          <div className="mb-6 flex flex-wrap justify-center gap-2">
+            <button
+              onClick={() => setSeriesFilter(null)}
+              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                seriesFilter === null
+                  ? "bg-primary text-primary-foreground border-transparent"
+                  : "bg-background hover:bg-muted"
+              }`}
+            >
+              All Series
+            </button>
+            {availableSeries.map(s => (
+              <button
+                key={s.slug}
+                onClick={() =>
+                  setSeriesFilter(prev => (prev === s.slug ? null : s.slug))
+                }
+                className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                  seriesFilter === s.slug
+                    ? "text-white"
+                    : "bg-background hover:bg-muted"
+                }`}
+                style={
+                  seriesFilter === s.slug && s.accent_color
+                    ? { backgroundColor: s.accent_color, borderColor: s.accent_color }
+                    : undefined
+                }
+              >
+                {s.short_name}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="space-y-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

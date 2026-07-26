@@ -26,22 +26,15 @@
     "gen-types": "npx supabase gen types typescript --project-id \"vsszkzazjhvlecyryzon\" --schema public > types/database.ts && tsx scripts/append-types.ts",
     "supasync": "supabase db dump --schema public --file public_schema.sql && supabase db push && npm run gen-types",
     "supasync:include-all": "supabase db dump --schema public --file public_schema.sql && supabase db push --include-all && npm run gen-types",
-    "ionic:build": "npm run build",
-    "ionic:serve": "npm run start",
     "migrate:track-maps": "tsx scripts/migrate-track-maps.ts",
-    "sitemap": "tsx scripts/generate-sitemap.ts"
+    "sitemap": "tsx scripts/generate-sitemap.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.11",
-    "@capacitor/android": "6.2.0",
-    "@capacitor/app": "6.0.2",
-    "@capacitor/cli": "6.2.0",
-    "@capacitor/core": "6.2.0",
-    "@capacitor/haptics": "6.0.2",
-    "@capacitor/keyboard": "6.0.3",
-    "@capacitor/status-bar": "6.0.2",
     "@clerk/backend": "^1.20.1",
-    "@clerk/nextjs": "^6.9.6",
+    "@clerk/nextjs": "^6.39.6",
     "@clerk/themes": "^2.1.53",
     "@duffel/api": "^4.0.0",
     "@google/generative-ai": "^0.21.0",
@@ -103,7 +96,7 @@
     "lucide-react": "^0.436.0",
     "mapbox-gl": "^3.9.1",
     "nanoid": "^5.0.9",
-    "next": "^15.0.3",
+    "next": "^15.5.22",
     "next-themes": "^0.3.0",
     "openai": "^4.77.0",
     "postgres": "^3.4.4",
@@ -145,7 +138,7 @@
     "dotenv": "^16.4.7",
     "drizzle-kit": "^0.24.2",
     "eslint": "^8",
-    "eslint-config-next": "14.2.7",
+    "eslint-config-next": "^15.5.22",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-tailwindcss": "^3.17.5",
     "husky": "^9.1.6",
@@ -155,6 +148,7 @@
     "supabase": "^2.1.1",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.9"
   }
 }

@@ -9,7 +9,7 @@ async function main() {
     const races = await db.select().from(racesTable)
     
     // Save to JSON
-    const jsonPath = path.join(process.cwd(), "race-mapping-data.json")
+    const jsonPath = path.join(process.cwd(), "data/seeds/race-mapping-data.json")
     await fs.writeFile(
       jsonPath,
       JSON.stringify(races, null, 2),

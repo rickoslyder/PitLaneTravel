@@ -6,9 +6,9 @@ import { ChevronDown } from "lucide-react"
 
 const faqs = [
   {
-    question: "How does PitLane Travel simplify F1 trip planning?",
+    question: "How does PitLane Travel simplify race trip planning?",
     answer:
-      "PitLane Travel provides comprehensive circuit guides, smart flight search tools, and tailored travel recommendations, all in one place. This saves you time and reduces the stress of coordinating various aspects of your F1 trip."
+      "PitLane Travel provides comprehensive circuit guides, smart flight search tools, and tailored travel recommendations, all in one place. This saves you time and reduces the stress of coordinating various aspects of your race trip."
   },
   {
     question:
@@ -17,14 +17,14 @@ const faqs = [
       "We offer detailed information about grandstands and viewing areas for each circuit, including photos, pros and cons, and user reviews to help you make the best choice for your viewing experience."
   },
   {
-    question: "Does PitLane Travel offer package deals for F1 races?",
+    question: "Does PitLane Travel offer package deals for races?",
     answer:
-      "While we don't directly sell package deals, we provide recommendations and links to trusted partners who offer various F1 packages. Our platform helps you compare options and find the best deal for your budget and preferences."
+      "While we don't directly sell package deals, we provide recommendations and links to trusted partners who offer various race travel packages. Our platform helps you compare options and find the best deal for your budget and preferences."
   },
   {
     question: "How up-to-date is the information on PitLane Travel?",
     answer:
-      "We constantly update our information to ensure accuracy. Our team of F1 enthusiasts and travel experts regularly review and refresh our content, especially as race weekends approach."
+      "We constantly update our information to ensure accuracy. Our team of motorsport enthusiasts and travel experts regularly review and refresh our content, especially as race weekends approach."
   }
 ]
 
@@ -57,7 +57,7 @@ export default function FaqSection() {
             Frequently Asked Questions
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            Find answers to common questions about planning your F1 race
+            Find answers to common questions about planning your race
             weekend.
           </p>
           <div className="mx-auto max-w-4xl space-y-4">

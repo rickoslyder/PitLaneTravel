@@ -1,44 +1,67 @@
-"use server"
+import { Metadata } from "next"
+import { Building2, ExternalLink, MapPin } from "lucide-react"
+import { getCircuitsAction } from "@/actions/db/circuits-actions"
+import { buildHotelSearchUrl } from "@/lib/affiliate"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
-import { Hotel, CalendarClock, Building2 } from "lucide-react"
+export const metadata: Metadata = {
+  title: "Where to Stay | Hotels Near Every Circuit | PitLane Travel",
+  description:
+    "Find accommodation near motorsport circuits worldwide. Search hotels close to the track for your F1, MotoGP, Formula E, IndyCar or WEC race weekend."
+}
 
 export default async function HotelsPage() {
+  const { data: circuits } = await getCircuitsAction()
+  const sorted = (circuits ?? [])
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+
   return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center space-y-8 px-4 text-center">
-      <div className="relative">
-        <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-[#B17A50] to-[#c19573] opacity-50 blur"></div>
-        <div className="relative rounded-lg bg-white p-6 dark:bg-[#131211]">
-          <Building2 className="mx-auto size-16 text-[#B17A50] dark:text-[#c19573]" />
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight text-[#2e2c29] dark:text-white">
-          F1 Hotel Finder
-        </h1>
-        <p className="mx-auto max-w-2xl text-lg text-[#494641] dark:text-[#c19573]">
-          Find and book the perfect accommodation for your F1 race weekend.
-          We're curating a selection of hotels, apartments, and unique stays
-          near every circuit on the calendar.
+    <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-8">
+      <header className="space-y-2 text-center">
+        <Building2 className="mx-auto size-12 text-primary" />
+        <h1 className="text-4xl font-bold tracking-tight">Where to Stay</h1>
+        <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+          Book accommodation close to the action. Search verified stays near
+          each circuit — hotels sell out fast on race weekends, so book early.
         </p>
-      </div>
+      </header>
 
-      <div className="flex items-center space-x-2 text-[#494641] dark:text-[#c19573]">
-        <CalendarClock className="size-5" />
-        <span>Expected Launch: Early 2025</span>
-      </div>
-
-      <div className="mt-8 space-y-4 text-sm text-[#494641] dark:text-[#c19573]">
-        <p>Features coming to F1 Hotel Finder:</p>
-        <ul className="list-inside list-disc space-y-2">
-          <li>Circuit proximity scoring</li>
-          <li>Race weekend availability alerts</li>
-          <li>Group booking coordination</li>
-          <li>Local area insights</li>
-          <li>Price tracking and alerts</li>
-          <li>Verified F1 fan reviews</li>
-        </ul>
-      </div>
+      {sorted.length > 0 ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {sorted.map(circuit => (
+            <Card key={circuit.id} className="flex flex-col">
+              <CardHeader className="pb-2">
+                <h3 className="font-semibold">{circuit.name}</h3>
+                <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <MapPin className="size-3.5" />
+                  {circuit.location}, {circuit.country}
+                </p>
+              </CardHeader>
+              <CardContent className="mt-auto">
+                <Button asChild variant="outline" className="w-full">
+                  <a
+                    href={buildHotelSearchUrl({
+                      location: circuit.location,
+                      country: circuit.country
+                    })}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                  >
+                    Search stays
+                    <ExternalLink className="ml-2 size-4" />
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
+          Circuit list is loading. Check back shortly.
+        </div>
+      )}
     </div>
   )
 }

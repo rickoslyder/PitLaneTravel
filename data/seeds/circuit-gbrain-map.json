@@ -1,0 +1,29 @@
+{
+  "_note": "Maps DB circuit name -> Gbrain grandstand-guides/<slug>. Used to regenerate grandstands from authoritative Gbrain content.",
+  "map": {
+    "Silverstone Circuit": "silverstone",
+    "Circuit de Monaco": "monaco",
+    "Circuit de Spa-Francorchamps": "spa-francorchamps",
+    "Autodromo Nazionale Monza": "monza",
+    "Circuit of The Americas": "cota-austin",
+    "Suzuka International Racing Course": "suzuka",
+    "Bahrain International Circuit": "bahrain-sakhir",
+    "Jeddah Corniche Circuit": "jeddah",
+    "Albert Park Circuit": "melbourne-albert-park",
+    "Shanghai International Circuit": "shanghai",
+    "Miami International Autodrome": "miami",
+    "Circuit Gilles Villeneuve": "montreal-gilles-villeneuve",
+    "Circuit de Barcelona-Catalunya": "barcelona-catalunya",
+    "Red Bull Ring": "red-bull-ring",
+    "Hungaroring": "hungaroring",
+    "Circuit Zandvoort": "zandvoort",
+    "Baku City Circuit": "baku",
+    "Marina Bay Street Circuit": "singapore-marina-bay",
+    "Autódromo Hermanos Rodríguez": "mexico-city",
+    "Autódromo José Carlos Pace": "interlagos",
+    "Las Vegas Strip Circuit": "las-vegas",
+    "Lusail International Circuit": "lusail-qatar",
+    "Yas Marina Circuit": "yas-marina",
+    "Madring": "madrid-madring"
+  }
+}

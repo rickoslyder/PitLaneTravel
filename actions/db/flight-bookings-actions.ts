@@ -6,6 +6,7 @@ import { InsertFlightBooking, SelectFlightBooking } from "@/db/schema"
 import { ActionState } from "@/types"
 import { eq, and, lt, gte, desc } from "drizzle-orm"
 import { SQL } from "drizzle-orm"
+import { requireAuth, assertOwnershipOrAdmin, AuthError } from "@/lib/auth"
 
 // Shared types and utilities
 interface FlightDetails {
@@ -122,14 +123,16 @@ export async function createFlightBookingAction(
   booking: InsertFlightBooking
 ): Promise<ActionState<SelectFlightBooking>> {
   try {
-    // Validate required fields
-    if (!booking.userId || !booking.raceId || !booking.offerId) {
+    // Force ownership to the authenticated caller; never trust a client userId.
+    const userId = await requireAuth()
+
+    if (!booking.raceId || !booking.offerId) {
       throw new Error("Missing required fields")
     }
 
     const [newBooking] = await db
       .insert(flightBookingsTable)
-      .values(booking)
+      .values({ ...booking, userId })
       .returning()
 
     return {
@@ -138,6 +141,9 @@ export async function createFlightBookingAction(
       data: newBooking
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error creating flight booking:", error)
     return { isSuccess: false, message: "Failed to create flight booking" }
   }
@@ -170,6 +176,7 @@ export async function getUserFlightBookingsAction(
   userId: string
 ): Promise<ActionState<SelectFlightBooking[]>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const bookings = await db
       .select()
       .from(flightBookingsTable)
@@ -182,6 +189,9 @@ export async function getUserFlightBookingsAction(
       data: bookings
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error getting user flight bookings:", error)
     return { isSuccess: false, message: "Failed to get user flight bookings" }
   }
@@ -214,6 +224,7 @@ export async function getPendingFlightBookingsAction(
   userId: string
 ): Promise<ActionState<SelectFlightBooking[]>> {
   try {
+    await assertOwnershipOrAdmin(userId)
     const now = new Date()
     const bookings = await db
       .select()
@@ -233,6 +244,9 @@ export async function getPendingFlightBookingsAction(
       data: bookings
     }
   } catch (error) {
+    if (error instanceof AuthError) {
+      return { isSuccess: false, message: error.message }
+    }
     console.error("Error getting pending flight bookings:", error)
     return { isSuccess: false, message: "Failed to get pending flight bookings" }
   }

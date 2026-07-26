@@ -20,20 +20,22 @@ interface RacePageProps {
   }>
 }
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 // Helper function to reduce code duplication
 async function getRaceData(id: string) {
-  // If identifier ends in 2025, try slug first
+  // UUIDs are primary keys; anything else is a slug (series- and season-agnostic).
   let raceResult
-  if (id.endsWith("2025")) {
-    raceResult = await getRaceBySlugAction(id)
-    if (!raceResult.isSuccess) {
-      raceResult = await getRaceByIdAction(id)
-    }
-  } else {
-    // For other cases, try ID first
+  if (UUID_RE.test(id)) {
     raceResult = await getRaceByIdAction(id)
     if (!raceResult.isSuccess) {
       raceResult = await getRaceBySlugAction(id)
+    }
+  } else {
+    raceResult = await getRaceBySlugAction(id)
+    if (!raceResult.isSuccess) {
+      raceResult = await getRaceByIdAction(id)
     }
   }
 
@@ -82,18 +84,17 @@ export default async function RacePage({ params }: RacePageProps) {
   const resolvedParams = await params
   const { userId } = await auth()
 
-  // If identifier ends in 2025, try slug first
+  // UUIDs are primary keys; anything else is a slug (series- and season-agnostic).
   let raceResult
-  if (resolvedParams.id.endsWith("2025")) {
-    raceResult = await getRaceBySlugAction(resolvedParams.id)
-    if (!raceResult.isSuccess) {
-      raceResult = await getRaceByIdAction(resolvedParams.id)
-    }
-  } else {
-    // For other cases, try ID first
+  if (UUID_RE.test(resolvedParams.id)) {
     raceResult = await getRaceByIdAction(resolvedParams.id)
     if (!raceResult.isSuccess) {
       raceResult = await getRaceBySlugAction(resolvedParams.id)
+    }
+  } else {
+    raceResult = await getRaceBySlugAction(resolvedParams.id)
+    if (!raceResult.isSuccess) {
+      raceResult = await getRaceByIdAction(resolvedParams.id)
     }
   }
 

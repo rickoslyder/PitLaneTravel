@@ -1,35 +1,51 @@
 import { NextResponse } from "next/server"
 import { db } from "@/db/db"
-import { racesTable, supportingSeriesTable } from "@/db/schema"
-import { and, gte, lte, isNotNull } from "drizzle-orm"
-import { RaceMapper } from "@/services/openf1/race-mapper"
+import { racesTable, seriesTable, supportingSeriesTable } from "@/db/schema"
+import { and, gte, lte, isNotNull, eq, notInArray, sql } from "drizzle-orm"
 import { SupportingSeriesMapper } from "@/services/openf1/supporting-series-mapper"
+import { getProvider } from "@/services/providers"
+import { verifyCronRequest } from "@/lib/cron"
 
-// Only allow POST requests from Vercel Cron
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
-export async function POST(req: Request) {
-  try {
-    // Verify the request is from Vercel Cron
-    const authHeader = req.headers.get("authorization")
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return new NextResponse("Unauthorized", { status: 401 })
-    }
+// Vercel Cron invokes routes with GET; keep POST for manual/authenticated triggers.
+export async function GET(req: Request) {
+  return handleUpdateSessions(req)
+}
 
+export async function POST(req: Request) {
+  return handleUpdateSessions(req)
+}
+
+async function handleUpdateSessions(req: Request) {
+  const denied = verifyCronRequest(req)
+  if (denied) return denied
+
+  try {
     const now = new Date()
     const windowStart = new Date(now.getTime() - 2 * 60 * 60 * 1000) // 2 hours ago
     const windowEnd = new Date(now.getTime() + 2 * 60 * 60 * 1000) // 2 hours from now
 
-    // Find active races
+    // Select every race that still needs a status transition: one whose weekend has
+    // started (or starts before the next daily run) and that hasn't reached a terminal
+    // state. Selecting on `date` alone would miss the move to "completed", because a
+    // manual race's end is weekendEnd (or date + 24h), not the date instant itself.
+    const startHorizon = new Date(now.getTime() + 48 * 60 * 60 * 1000)
     const activeRaces = await db
-      .select()
+      .select({
+        race: racesTable,
+        dataProvider: seriesTable.dataProvider
+      })
       .from(racesTable)
+      .leftJoin(seriesTable, eq(racesTable.seriesId, seriesTable.id))
       .where(
         and(
-          gte(racesTable.date, windowStart),
-          lte(racesTable.date, windowEnd),
-          isNotNull(racesTable.openf1SessionKey)
+          notInArray(racesTable.status, ["completed", "cancelled"]),
+          lte(
+            sql`coalesce(${racesTable.weekendStart}, ${racesTable.date})`,
+            startHorizon
+          )
         )
       )
 
@@ -45,13 +61,15 @@ export async function POST(req: Request) {
         )
       )
 
-    const raceMapper = new RaceMapper()
     const supportingSeriesMapper = new SupportingSeriesMapper()
 
-    // Update races
-    for (const race of activeRaces) {
+    // Update races via each series' data provider. Races without a series (legacy
+    // rows pre-backfill) fall back to openf1 when they carry an OpenF1 key, else manual.
+    for (const { race, dataProvider } of activeRaces) {
       try {
-        await raceMapper.updateRaceStatus(race)
+        const slug =
+          dataProvider ?? (race.openf1SessionKey ? "openf1" : "manual")
+        await getProvider(slug).updateRaceStatus(race)
       } catch (error) {
         console.error(`Failed to update race ${race.id}:`, error)
       }

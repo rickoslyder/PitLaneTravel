@@ -346,7 +346,7 @@ export function FlightSearch({
                 </p>
               )}
               <p>
-                • Many F1 fans arrive Thursday and leave Monday to enjoy the
+                • Many race fans arrive Thursday and leave Monday to enjoy the
                 full race weekend
               </p>
             </div>

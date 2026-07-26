@@ -2,6 +2,7 @@ import { db } from "@/db/db"
 import { currencyRatesTable } from "@/db/schema/currency-rates-schema"
 import { NextResponse } from "next/server"
 import { SUPPORTED_CURRENCIES } from "@/config/currencies"
+import { verifyCronRequest } from "@/lib/cron"
 
 const PRIMARY_API_URL =
   "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1"
@@ -33,7 +34,10 @@ async function fetchWithFallback(currency: string) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const denied = verifyCronRequest(req)
+  if (denied) return denied
+
   try {
     // Create all possible currency pairs
     const pairs = SUPPORTED_CURRENCIES.flatMap(fromCurrency =>

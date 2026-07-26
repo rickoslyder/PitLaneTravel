@@ -21,7 +21,7 @@ export default function CtaSection() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <h2 className="mb-4 text-center text-4xl font-bold">
-            Ready to Plan Your Ultimate F1 Experience?
+            Ready to Plan Your Ultimate Race Weekend?
           </h2>
           <p className="mx-auto mb-12 max-w-2xl text-center text-lg text-white/90">
             Join PitLane Travel today and make your race weekend unforgettable

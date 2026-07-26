@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-4">
         <div>
           <h3 className="mb-4 text-lg font-semibold">PitLane Travel</h3>
-          <p>Your ultimate F1 travel companion</p>
+          <p>Your ultimate motorsport travel companion</p>
         </div>
         <div>
           <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>

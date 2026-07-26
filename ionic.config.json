@@ -1,7 +1,0 @@
-{
-  "name": "pit-lane-travel",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "custom"
-}

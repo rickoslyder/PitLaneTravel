@@ -1785,12 +1785,23 @@ export type RaceWithCircuit = Database["public"]["Tables"]["races"]["Row"] & {
 export interface RaceWithCircuitAndSeries {
   id: string
   circuit_id: string
+  series_id?: string | null
+  series?: {
+    id: string
+    name: string
+    short_name: string
+    slug: string
+    event_noun: string
+    accent_color: string | null
+  } | null
   name: string
   date: string
   season: number
   round: number
+  planned_round?: number | null
   country: string
   description: string | null
+  cancellation_reason?: string | null
   weekend_start: string | null
   weekend_end: string | null
   status: "in_progress" | "upcoming" | "completed" | "cancelled"

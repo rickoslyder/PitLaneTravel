@@ -115,6 +115,21 @@ function TabContent({
   )
 }
 
+function CancelledTabNotice({
+  what,
+  reason
+}: {
+  what: string
+  reason?: string | null
+}) {
+  return (
+    <div className="rounded-lg border border-dashed p-10 text-center text-muted-foreground">
+      <p className="font-medium">{what} — this race has been cancelled.</p>
+      {reason && <p className="mt-2 text-sm">{reason}</p>}
+    </div>
+  )
+}
+
 export function RaceDetailsPage({
   race,
   existingTripId,
@@ -300,6 +315,21 @@ export function RaceDetailsPage({
         onTabChange={handleTabChange}
       />
 
+      {race.status === "cancelled" && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+          <div
+            role="status"
+            className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200"
+          >
+            <p className="font-semibold">This race has been cancelled.</p>
+            <p className="mt-1">
+              {race.cancellation_reason ??
+                "This event is not taking place. Check the calendar for the rest of the season."}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <Tabs
           value={activeTab}
@@ -389,7 +419,14 @@ export function RaceDetailsPage({
             <ErrorBoundary>
               <TabContent isActive={activeTab === "tickets"}>
                 <TabsContent value="tickets" className="mt-4">
-                  <TicketSection race={race} />
+                  {race.status === "cancelled" ? (
+                    <CancelledTabNotice
+                      what="Tickets are not on sale"
+                      reason={race.cancellation_reason}
+                    />
+                  ) : (
+                    <TicketSection race={race} />
+                  )}
                 </TabsContent>
               </TabContent>
             </ErrorBoundary>
@@ -397,7 +434,14 @@ export function RaceDetailsPage({
             <ErrorBoundary>
               <TabContent isActive={activeTab === "travel"}>
                 <TabsContent value="travel" className="mt-4">
-                  <TravelTab race={race} />
+                  {race.status === "cancelled" ? (
+                    <CancelledTabNotice
+                      what="Travel booking is unavailable"
+                      reason={race.cancellation_reason}
+                    />
+                  ) : (
+                    <TravelTab race={race} />
+                  )}
                 </TabsContent>
               </TabContent>
             </ErrorBoundary>

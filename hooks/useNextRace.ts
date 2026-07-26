@@ -17,7 +17,9 @@ export function useNextRace() {
         }
 
         const now = new Date()
-        const upcomingRaces = result.data.filter(race => new Date(race.date) > now)
+        const upcomingRaces = result.data.filter(
+          race => race.status !== 'cancelled' && new Date(race.date) > now
+        )
         const nextUpcomingRace = upcomingRaces[0] // First race is the next one since they're ordered by date
 
         if (nextUpcomingRace) {
@@ -48,7 +50,9 @@ export function useNextRace() {
           const result = await getRacesAction()
           if (result.isSuccess) {
             const now = new Date()
-            const upcomingRaces = result.data.filter(race => new Date(race.date) > now)
+            const upcomingRaces = result.data.filter(
+          race => race.status !== 'cancelled' && new Date(race.date) > now
+        )
             const nextUpcomingRace = upcomingRaces[0]
             if (nextUpcomingRace) {
               setNextRace(nextUpcomingRace)
