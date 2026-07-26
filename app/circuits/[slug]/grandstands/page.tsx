@@ -1,3 +1,4 @@
+import { cache } from "react"
 import { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -10,11 +11,16 @@ interface PageProps {
   params: Promise<{ slug: string }>
 }
 
-/** Circuits have no slug column, so resolve by slugifying the stored name. */
-async function findCircuit(slug: string) {
+/**
+ * Circuits have no slug column, so resolve by slugifying the stored name.
+ *
+ * Wrapped in React `cache` because both `generateMetadata` and the page body need the
+ * circuit: without it each request loads every circuit and all ~145 grandstands twice.
+ */
+const findCircuit = cache(async (slug: string) => {
   const { data: circuits } = await getCircuitsWithGrandstandsAction()
   return (circuits ?? []).find(c => slugify(c.name) === slug) ?? null
-}
+})
 
 export async function generateMetadata({
   params
