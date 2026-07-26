@@ -17,7 +17,7 @@ import { db } from "@/db/db"
 import { racesTable, seriesTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { buildRaceSlug } from "@/lib/series"
-import { findOrCreateCircuit } from "./_circuits"
+import { findExistingCircuitId } from "./_circuits"
 
 interface CancelledRace {
   name: string
@@ -47,22 +47,16 @@ async function main() {
   let added = 0
   let updated = 0
   for (const r of data.races) {
-    // The venue of a real cancelled GP must already exist. Fail fast rather than let
-    // findOrCreateCircuit fabricate a placeholder circuit at (0,0).
-    const circuit = await findOrCreateCircuit({
-      circuit: r.circuit,
-      location: r.country,
-      country: r.country,
-      latitude: 0,
-      longitude: 0
-    })
-    if (circuit.created) {
+    // The venue of a real cancelled GP must already exist. Look it up WITHOUT the
+    // create path: findOrCreateCircuit commits the (0,0) placeholder before returning
+    // `created`, so checking that flag afterwards leaves the junk row behind.
+    const circuitId = await findExistingCircuitId(r.circuit)
+    if (!circuitId) {
       throw new Error(
         `Circuit "${r.circuit}" for cancelled race "${r.name}" does not exist. ` +
           `Add it (or a circuit-aliases.json entry) before seeding cancelled races.`
       )
     }
-    const circuitId = circuit.id
 
     const slug = buildRaceSlug(
       { name: series.name, shortName: series.shortName, slug: series.slug, eventNoun: series.eventNoun },

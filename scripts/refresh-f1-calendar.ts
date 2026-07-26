@@ -14,7 +14,7 @@ import { readFileSync } from "node:fs"
 import { join } from "node:path"
 import { db } from "@/db/db"
 import { racesTable, seriesTable } from "@/db/schema"
-import { and, eq } from "drizzle-orm"
+import { and, eq, ne } from "drizzle-orm"
 import { buildRaceSlug } from "@/lib/series"
 import { findOrCreateCircuit } from "./_circuits"
 
@@ -57,7 +57,10 @@ async function main() {
         and(
           eq(racesTable.seriesId, f1.id),
           eq(racesTable.season, season),
-          eq(racesTable.round, r.round)
+          eq(racesTable.round, r.round),
+          // Cancelled races legitimately share a round with the race that replaced them
+          // (partial unique index); without this the lookup can clobber the cancellation.
+          ne(racesTable.status, "cancelled")
         )
       )
       .limit(1)

@@ -58,3 +58,30 @@ export async function findOrCreateCircuit(
     .returning({ id: circuitsTable.id, name: circuitsTable.name })
   return { id: created.id, created: true, name: created.name }
 }
+
+/**
+ * Resolve a circuit name to an existing row WITHOUT ever creating one.
+ *
+ * Use this when a missing circuit should be an error: findOrCreateCircuit commits its
+ * placeholder before returning `created`, so checking that flag afterwards still leaves
+ * a junk row behind. Applies the same alias + case-insensitive matching.
+ */
+export async function findExistingCircuitId(
+  circuitName: string
+): Promise<string | null> {
+  const canonical = aliases[circuitName] ?? circuitName
+
+  const [exact] = await db
+    .select({ id: circuitsTable.id })
+    .from(circuitsTable)
+    .where(eq(circuitsTable.name, canonical))
+    .limit(1)
+  if (exact) return exact.id
+
+  const [ci] = await db
+    .select({ id: circuitsTable.id })
+    .from(circuitsTable)
+    .where(sql`lower(btrim(${circuitsTable.name})) = lower(btrim(${canonical}))`)
+    .limit(1)
+  return ci?.id ?? null
+}

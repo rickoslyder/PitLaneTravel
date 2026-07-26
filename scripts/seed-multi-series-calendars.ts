@@ -19,9 +19,10 @@ config({ path: ".env.local" })
 import { readFileSync } from "node:fs"
 import { join } from "node:path"
 import { db } from "@/db/db"
-import { circuitsTable, racesTable, seriesTable } from "@/db/schema"
-import { and, eq } from "drizzle-orm"
+import { racesTable, seriesTable } from "@/db/schema"
+import { and, eq, ne } from "drizzle-orm"
 import { buildRaceSlug } from "@/lib/series"
+import { findExistingCircuitId, findOrCreateCircuit } from "./_circuits"
 
 interface SeedRound {
   round: number
@@ -35,20 +36,20 @@ interface SeedRound {
   longitude?: number
 }
 
-const normalise = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "")
-
 /** Status implied by the race date; a race weekend is treated as done the day after. */
 function deriveStatus(date: Date, now: Date): "upcoming" | "completed" {
   const dayAfter = new Date(date.getTime() + 24 * 60 * 60 * 1000)
   return now > dayAfter ? "completed" : "upcoming"
 }
 
+/**
+ * Resolve the venue, reusing the shared resolver so circuit-aliases.json applies — a
+ * private normaliser here is what let "Autódromo José Carlos Pace (Interlagos)" become a
+ * duplicate of the existing Interlagos row.
+ */
 async function resolveCircuit(r: SeedRound): Promise<string> {
-  const existing = await db
-    .select({ id: circuitsTable.id, name: circuitsTable.name })
-    .from(circuitsTable)
-  const hit = existing.find(c => normalise(c.name) === normalise(r.circuit))
-  if (hit) return hit.id
+  const existingId = await findExistingCircuitId(r.circuit)
+  if (existingId) return existingId
 
   if (r.latitude === undefined || r.longitude === undefined) {
     throw new Error(
@@ -56,18 +57,15 @@ async function resolveCircuit(r: SeedRound): Promise<string> {
     )
   }
 
-  const [created] = await db
-    .insert(circuitsTable)
-    .values({
-      name: r.circuit,
-      location: r.location,
-      country: r.country,
-      latitude: String(r.latitude),
-      longitude: String(r.longitude)
-    })
-    .returning({ id: circuitsTable.id })
-  console.log(`    + circuit created: ${r.circuit}`)
-  return created.id
+  const { id, created } = await findOrCreateCircuit({
+    circuit: r.circuit,
+    location: r.location,
+    country: r.country,
+    latitude: r.latitude,
+    longitude: r.longitude
+  })
+  if (created) console.log(`    + circuit created: ${r.circuit}`)
+  return id
 }
 
 async function main() {
@@ -124,7 +122,10 @@ async function main() {
           and(
             eq(racesTable.seriesId, series.id),
             eq(racesTable.season, data.season),
-            eq(racesTable.round, r.round)
+            eq(racesTable.round, r.round),
+            // Cancelled races legitimately share a round with the race that replaced
+            // them; without this the lookup can clobber the cancellation record.
+            ne(racesTable.status, "cancelled")
           )
         )
         .limit(1)
