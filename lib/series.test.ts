@@ -3,7 +3,8 @@ import {
   formatEventName,
   slugify,
   buildRaceSlug,
-  extractSeasonFromSlug
+  extractSeasonFromSlug,
+  pluralizeEventNoun
 } from "./series"
 
 const f1 = { name: "Formula 1", shortName: "F1", slug: "f1", eventNoun: "Grand Prix" }
@@ -50,5 +51,18 @@ describe("extractSeasonFromSlug", () => {
   })
   it("returns null when no year present", () => {
     expect(extractSeasonFromSlug("monaco-grand-prix")).toBeNull()
+  })
+})
+
+describe("pluralizeEventNoun", () => {
+  it("pluralises Grand Prix correctly", () => {
+    expect(pluralizeEventNoun("Grand Prix")).toBe("Grands Prix")
+  })
+  it("leaves E-Prix invariant", () => {
+    expect(pluralizeEventNoun("E-Prix")).toBe("E-Prix")
+  })
+  it("handles ordinary nouns", () => {
+    expect(pluralizeEventNoun("Round")).toBe("Rounds")
+    expect(pluralizeEventNoun("Race")).toBe("Races")
   })
 })

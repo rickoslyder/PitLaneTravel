@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Metadata } from "next"
 import { getSeriesBySlugAction } from "@/actions/db/series-actions"
+import { pluralizeEventNoun } from "@/lib/series"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { RaceGrid } from "@/components/races/RaceGrid"
 
@@ -63,7 +64,9 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Upcoming {series.eventNoun}s</h2>
+          <h2 className="text-2xl font-bold">
+            Upcoming {pluralizeEventNoun(series.eventNoun)}
+          </h2>
           <Link href="/races" className="text-sm text-primary hover:underline">
             View full calendar →
           </Link>

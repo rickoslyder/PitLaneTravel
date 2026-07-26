@@ -77,3 +77,17 @@ export function toSeriesLike(series: SelectSeries): SeriesLike {
     eventNoun: series.eventNoun
   }
 }
+
+/**
+ * Plural of a series' event noun. Motorsport nouns don't take a naive "+s":
+ * the plural of "Grand Prix" is "Grands Prix", and "E-Prix" is invariant.
+ */
+export function pluralizeEventNoun(eventNoun: string): string {
+  const noun = eventNoun.trim()
+  const lower = noun.toLowerCase()
+  if (lower === "grand prix") return "Grands Prix"
+  // "E-Prix", "Prix" and similar French-derived nouns are unchanged in the plural.
+  if (lower.endsWith("prix")) return noun
+  if (/(s|x|z|ch|sh)$/i.test(noun)) return `${noun}es`
+  return `${noun}s`
+}
