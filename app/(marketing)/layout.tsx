@@ -8,6 +8,7 @@ This server layout provides a shared header and basic structure for (marketing) 
 
 import Header from "@/components/header"
 import { Separator } from "@/components/ui/separator"
+import Link from "next/link"
 
 export default async function MarketingLayout({
   children
@@ -27,7 +28,7 @@ export default async function MarketingLayout({
               <h3 className="text-lg font-semibold">About PitLane Travel</h3>
               <p className="text-muted-foreground mt-4 text-sm">
                 Your trusted platform for Formula 1 travel planning. We help
-                make attending F1 races seamless and unforgettable.
+                make attending races seamless and unforgettable.
               </p>
             </div>
 
@@ -35,28 +36,28 @@ export default async function MarketingLayout({
               <h3 className="text-lg font-semibold">Quick Links</h3>
               <ul className="mt-4 space-y-2 text-sm">
                 <li>
-                  <a
+                  <Link
                     href="/races"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Race Calendar
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/packages"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Travel Packages
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/about"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     About Us
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -65,28 +66,28 @@ export default async function MarketingLayout({
               <h3 className="text-lg font-semibold">Support</h3>
               <ul className="mt-4 space-y-2 text-sm">
                 <li>
-                  <a
+                  <Link
                     href="/faq"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     FAQs
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/contact"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Contact Us
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/help"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Help Center
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -95,28 +96,28 @@ export default async function MarketingLayout({
               <h3 className="text-lg font-semibold">Legal</h3>
               <ul className="mt-4 space-y-2 text-sm">
                 <li>
-                  <a
+                  <Link
                     href="/privacy"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/terms"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Terms of Service
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
+                  <Link
                     href="/cancellation"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Cancellation Policy
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
