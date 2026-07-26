@@ -9,6 +9,7 @@ This server layout provides a shared header and basic structure for (marketing) 
 import Header from "@/components/header"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
+import { SERIES } from "@/config/series"
 
 export default async function MarketingLayout({
   children
@@ -23,13 +24,29 @@ export default async function MarketingLayout({
 
       <footer className="border-t">
         <div className="mx-auto max-w-screen-2xl space-y-8 px-4 py-16">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
             <div>
               <h3 className="text-lg font-semibold">About PitLane Travel</h3>
               <p className="text-muted-foreground mt-4 text-sm">
-                Your trusted platform for Formula 1 travel planning. We help
+                Your trusted platform for motorsport travel planning. We help
                 make attending races seamless and unforgettable.
               </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold">Championships</h3>
+              <ul className="mt-4 space-y-2 text-sm">
+                {SERIES.map(s => (
+                  <li key={s.slug}>
+                    <Link
+                      href={`/series/${s.slug}`}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      {s.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <div>

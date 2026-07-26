@@ -98,16 +98,19 @@ export async function getRacesAction(filters?: {
       )
       .orderBy(racesTable.date)
 
-    // Get circuit locations for all circuits
-    const locations = await db
-      .select()
-      .from(circuitLocationsTable)
-      .where(
-        sql`${circuitLocationsTable.circuitId} IN (${sql.join(
-          races.filter(r => r.circuit).map(r => r.circuit!.id),
-          sql`, `
-        )})`
-      )
+    // Get circuit locations for all circuits.
+    // The empty case must short-circuit: `IN ()` is a Postgres syntax error, so any
+    // filter matching zero races would otherwise 500 the entire page.
+    const circuitIds = races.filter(r => r.circuit).map(r => r.circuit!.id)
+    const locations =
+      circuitIds.length === 0
+        ? []
+        : await db
+            .select()
+            .from(circuitLocationsTable)
+            .where(
+              sql`${circuitLocationsTable.circuitId} IN (${sql.join(circuitIds, sql`, `)})`
+            )
 
     // Group locations by circuit ID
     const locationsByCircuitId = locations.reduce((acc, location) => {
@@ -118,16 +121,17 @@ export async function getRacesAction(filters?: {
       return acc
     }, {} as Record<string, typeof locations>)
 
-    // Get supporting series for all races
-    const supportingSeries = await db
-      .select()
-      .from(supportingSeriesTable)
-      .where(
-        sql`${supportingSeriesTable.raceId} IN (${sql.join(
-          races.map(r => r.id),
-          sql`, `
-        )})`
-      )
+    // Get supporting series for all races (same empty-IN guard as above).
+    const raceIds = races.map(r => r.id)
+    const supportingSeries =
+      raceIds.length === 0
+        ? []
+        : await db
+            .select()
+            .from(supportingSeriesTable)
+            .where(
+              sql`${supportingSeriesTable.raceId} IN (${sql.join(raceIds, sql`, `)})`
+            )
 
     // Group supporting series by race ID
     const seriesByRaceId = supportingSeries.reduce((acc, series) => {

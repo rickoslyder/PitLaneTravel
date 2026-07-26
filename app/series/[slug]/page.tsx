@@ -34,8 +34,15 @@ export async function generateMetadata({
 
 export default async function SeriesPage({ params }: SeriesPageProps) {
   const { slug } = await params
-  const { isSuccess, data: series } = await getSeriesBySlugAction(slug)
-  if (!isSuccess || !series) return notFound()
+  const { isSuccess, data: series, message } = await getSeriesBySlugAction(slug)
+
+  // Distinguish "no such series" from "the database is down": returning 404 during an
+  // outage tells search engines the page is gone and gets it deindexed.
+  if (!isSuccess && message !== "Series not found") {
+    throw new Error(`Failed to load series "${slug}": ${message}`)
+  }
+  // A deactivated championship must not keep serving a public page.
+  if (!series || !series.isActive) return notFound()
 
   const { data: races } = await getRacesAction({
     series: slug,
