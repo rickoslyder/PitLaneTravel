@@ -372,3 +372,39 @@ The recurring lesson is not any individual bug: it is that **every round of fixe
 flow has introduced a new money-losing bug**, including the fix written specifically to
 close the previous round's gap. This code should not move real money until an independent
 review round comes back clean without my having fixed anything in response.
+
+---
+
+## Round-3 full verdict: my "fix" for the reconciliation bug was itself broken
+
+**Commit before this batch:** `dd2ef5e`.
+
+The round-3 verifier caught that the fix I had *just committed* did not work:
+`duffel.orders.list` cannot filter by offer (`ListParamsOrders` supports only
+`awaiting_payment`, `passenger_name[]`, `booking_reference`), and the `Order` object has
+**no `offer_id` field at all**. My matcher `o.offer_id === offerId` could therefore never
+match — the lookup always returned "no order found", and the cron went on refunding real
+tickets exactly as before. The fix added false confidence and changed nothing.
+
+**That is four consecutive money-losing bugs, each introduced by the fix for the previous
+one.** The pattern, not any individual bug, is the finding.
+
+What is in place now:
+1. **A real linkage.** `duffel.orders.create` is called with
+   `metadata: { payment_intent_id, booking_id }`, and `Order.metadata` comes back on the
+   list endpoint — so an order can actually be traced to a payment. This is the linkage
+   that never existed.
+2. **Automatic refunds are OPT-IN** (`RECONCILE_AUTO_REFUND`, default **off**). By default
+   the sweep only reports and never moves money. Given the track record above, unattended
+   refunds should not be the default until the flow is validated end-to-end in Stripe test
+   mode.
+3. **Honest limits documented in the code**: a `null` lookup means "not found in the last
+   200 orders", not proof of absence. That residual uncertainty is precisely why refunding
+   is not automatic.
+
+### Standing recommendation
+
+`FLIGHTS_BOOKING_ENABLED` stays **off**, and `RECONCILE_AUTO_REFUND` stays **off**. Before
+either flips, this flow needs a review round that comes back clean *without* me fixing
+anything in response — that has not happened once in three rounds. The client-side Stripe
+Elements step is also still missing, so booking would 402 regardless.

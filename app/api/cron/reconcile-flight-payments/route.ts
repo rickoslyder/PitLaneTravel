@@ -9,29 +9,44 @@ import {
 
 
 /**
- * Ask Duffel whether an order already exists for this offer.
+ * Ask Duffel whether an order already exists for this payment.
  *
- * Returns the order when one exists, `null` when Duffel positively reports none, and
- * "unknown" when we could not determine it. The caller MUST NOT refund on "unknown":
- * refunding a ticket that actually exists gives away a flight the platform has paid for.
+ * Returns the order when one is found, `null` when none was found in the recent window,
+ * and "unknown" when Duffel could not be reached. The caller MUST NOT refund on
+ * "unknown" — refunding a ticket that exists gives away a flight the platform paid for.
+ *
+ * CAVEAT: `null` means "not found in the last 200 orders", not a proof of absence. An
+ * order older than that window would be missed. This is why automatic refunding is
+ * opt-in below rather than the default.
  */
-async function findDuffelOrderForOffer(
-  offerId: string
+async function findDuffelOrderForPayment(
+  paymentIntentId: string
 ): Promise<{ id: string; booking_reference?: string | null } | null | "unknown"> {
   try {
+    // Duffel's list API cannot filter by offer or metadata (ListParamsOrders supports
+    // only awaiting_payment / passenger_name / booking_reference), so page recent orders
+    // and match the metadata we stamped on at create time.
     const { data: orders } = await duffel.orders.list({ limit: 200 })
-    const match = (orders ?? []).find((o: any) =>
-      (o.offer_id && o.offer_id === offerId) ||
-      (Array.isArray(o.selected_offers) && o.selected_offers.includes(offerId))
+    const match = (orders ?? []).find(
+      o => o.metadata?.payment_intent_id === paymentIntentId
     )
     return match
-      ? { id: match.id, booking_reference: (match as any).booking_reference ?? null }
+      ? { id: match.id, booking_reference: match.booking_reference ?? null }
       : null
   } catch (error) {
     console.error("[reconcile-flight-payments] Duffel order lookup failed", error)
     return "unknown"
   }
 }
+
+/**
+ * Automatic refunds are OPT-IN. Reconciliation moves money with no human in the loop, and
+ * every previous iteration of this logic shipped a bug that refunded real tickets. Until
+ * the flow has been validated end-to-end in Stripe test mode, the sweep only REPORTS.
+ */
+const autoRefundEnabled =
+  process.env.RECONCILE_AUTO_REFUND === "1" ||
+  process.env.RECONCILE_AUTO_REFUND?.toLowerCase() === "true"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
@@ -90,7 +105,7 @@ export async function GET(req: Request) {
         // exact crash this sweep exists for — dying between duffel.orders.create() and
         // writing orderId — leaves a real, paid-for ticket with no orderId recorded.
         // Refunding on our own row alone would hand out free flights. Ask Duffel.
-        const existingOrder = await findDuffelOrderForOffer(booking.offerId)
+        const existingOrder = await findDuffelOrderForPayment(paymentIntentId)
 
         if (existingOrder === "unknown") {
           // Could not confirm either way: never refund on incomplete information.
@@ -114,6 +129,15 @@ export async function GET(req: Request) {
           console.warn(
             "[reconcile-flight-payments] recovered a ticketed order whose record was never written",
             { bookingId: booking.id, orderId: existingOrder.id }
+          )
+          continue
+        }
+
+        if (!autoRefundEnabled) {
+          results.needsReview++
+          console.warn(
+            "[reconcile-flight-payments] refund needed but auto-refund is disabled — review manually",
+            { bookingId: booking.id, paymentIntentId }
           )
           continue
         }

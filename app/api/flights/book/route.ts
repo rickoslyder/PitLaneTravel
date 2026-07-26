@@ -328,7 +328,15 @@ export async function POST(request: Request) {
             amount: offer.total_amount,
             currency: offer.total_currency
           }
-        ]
+        ],
+        // Stamp our identifiers onto the airline order so reconciliation can prove an
+        // order exists for a given payment. Without this the sweep cannot distinguish
+        // "order never created" from "order created, we never recorded it" — and would
+        // refund a real ticket. Duffel exposes metadata on the Order it returns.
+        metadata: {
+          payment_intent_id: paymentIntentId,
+          booking_id: bookingId
+        }
       })
       order = created.data
     } catch (orderError) {
