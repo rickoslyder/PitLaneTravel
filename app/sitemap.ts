@@ -3,6 +3,7 @@ import { db } from "@/db/db"
 import {
   circuitsTable,
   grandstandsTable,
+  raceHistoryTable,
   racesTable,
   seriesTable
 } from "@/db/schema"
@@ -37,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   try {
-    const [series, races, guidedCircuits] = await Promise.all([
+    const [series, races, racesWithHistory, guidedCircuits] = await Promise.all([
       db
         .select({ slug: seriesTable.slug })
         .from(seriesTable)
@@ -48,6 +49,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .where(
           and(isNotNull(racesTable.slug), ne(racesTable.status, "cancelled"))
         ),
+      // Only races with a history record: /races/<slug>/history 404s without one.
+      db
+        .selectDistinct({ slug: racesTable.slug })
+        .from(raceHistoryTable)
+        .innerJoin(racesTable, eq(raceHistoryTable.raceId, racesTable.id)),
       // Only circuits that actually have a guide get a page worth indexing.
       db
         .selectDistinct({ name: circuitsTable.name })
@@ -70,19 +76,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: "monthly" as const,
         priority: 0.8
       })),
-      ...races.flatMap(r => [
-        {
-          url: `${BASE_URL}/races/${r.slug}`,
-          lastModified: r.updatedAt,
-          changeFrequency: "weekly" as const,
-          priority: 0.9
-        },
-        {
+      ...races.map(r => ({
+        url: `${BASE_URL}/races/${r.slug}`,
+        lastModified: r.updatedAt,
+        changeFrequency: "weekly" as const,
+        priority: 0.9
+      })),
+      // Only races that actually have a history record — the page 404s otherwise, and a
+      // sitemap full of 404s damages crawl trust.
+      ...racesWithHistory
+        .filter(r => r.slug)
+        .map(r => ({
           url: `${BASE_URL}/races/${r.slug}/history`,
           changeFrequency: "monthly" as const,
           priority: 0.6
-        }
-      ])
+        }))
     ]
   } catch (error) {
     // A DB outage must not fail the build; serve the static routes at minimum.
