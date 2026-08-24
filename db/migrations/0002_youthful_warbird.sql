@@ -295,14 +295,14 @@ ALTER TABLE "circuits" ALTER COLUMN "updated_at" SET DATA TYPE timestamp with ti
 ALTER TABLE "races" ALTER COLUMN "date" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "races" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "races" ALTER COLUMN "updated_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
-ALTER TABLE "package_tickets" ALTER COLUMN "package_id" SET DATA TYPE serial;--> statement-breakpoint
-ALTER TABLE "package_tickets" ALTER COLUMN "ticket_id" SET DATA TYPE serial;--> statement-breakpoint
-ALTER TABLE "ticket_feature_mappings" ALTER COLUMN "ticket_id" SET DATA TYPE serial;--> statement-breakpoint
-ALTER TABLE "ticket_feature_mappings" ALTER COLUMN "feature_id" SET DATA TYPE serial;--> statement-breakpoint
+ALTER TABLE "package_tickets" ALTER COLUMN "package_id" SET DATA TYPE integer;--> statement-breakpoint
+ALTER TABLE "package_tickets" ALTER COLUMN "ticket_id" SET DATA TYPE integer;--> statement-breakpoint
+ALTER TABLE "ticket_feature_mappings" ALTER COLUMN "ticket_id" SET DATA TYPE integer;--> statement-breakpoint
+ALTER TABLE "ticket_feature_mappings" ALTER COLUMN "feature_id" SET DATA TYPE integer;--> statement-breakpoint
 ALTER TABLE "ticket_packages" ALTER COLUMN "description" SET NOT NULL;--> statement-breakpoint
 ALTER TABLE "ticket_packages" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "ticket_packages" ALTER COLUMN "created_at" SET NOT NULL;--> statement-breakpoint
-ALTER TABLE "ticket_pricing" ALTER COLUMN "ticket_id" SET DATA TYPE serial;--> statement-breakpoint
+ALTER TABLE "ticket_pricing" ALTER COLUMN "ticket_id" SET DATA TYPE integer;--> statement-breakpoint
 ALTER TABLE "ticket_pricing" ALTER COLUMN "valid_from" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "ticket_pricing" ALTER COLUMN "valid_to" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "ticket_pricing" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint

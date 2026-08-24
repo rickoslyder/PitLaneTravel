@@ -53,14 +53,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # Runner-mapped disposable Postgres. Job uses 127.0.0.1, not a remote host.
+    # Local trust auth only — no password and no secret context. Suitable solely
+    # for this disposable runner-mapped container (POSTGRES_HOST_AUTH_METHOD=trust).
     # https://docs.github.com/en/actions/use-cases-and-examples/using-containerized-services/creating-postgresql-service-containers
     services:
       postgres:
         image: postgres:16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: pitlane_ci
+          POSTGRES_HOST_AUTH_METHOD: trust
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -69,7 +71,7 @@ jobs:
         ports:
           - 5432:5432
     env:
-      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/pitlane_ci
+      DATABASE_URL: postgresql://postgres@127.0.0.1:5432/pitlane_ci
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2kuaW52YWxpZCQ=
       CLERK_SECRET_KEY: sk_test_Y2kuaW52YWxpZCQ=
       CLERK_WEBHOOK_SECRET: whsec_ci_invalid
@@ -127,7 +129,7 @@ jobs:
             exit 1
           }
 
-          if [ "${DATABASE_URL-}" = "postgresql://postgres:postgres@127.0.0.1:5432/pitlane_ci" ]; then
+          if [ "${DATABASE_URL-}" = "postgresql://postgres@127.0.0.1:5432/pitlane_ci" ]; then
             ok DATABASE_URL
           else
             fail DATABASE_URL
