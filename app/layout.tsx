@@ -30,7 +30,10 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: brand.name,
-  description: brand.description
+  description: brand.description,
+  applicationName: brand.name,
+  creator: brand.name,
+  publisher: brand.name
 }
 
 export default async function RootLayout({
