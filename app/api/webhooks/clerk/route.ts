@@ -5,11 +5,12 @@ import { db } from "@/db/db"
 import { profilesTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { Webhook } from "svix"
+import { requiredServerEnv, MissingServerEnvError } from "@/config/server-env"
 
-// You can find this in your Clerk Dashboard -> Webhooks -> choose your webhook -> Signing Secret
-const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET as string
-if (!WEBHOOK_SECRET) {
-  throw new Error("Missing CLERK_WEBHOOK_SECRET environment variable")
+// Signing secret is validated at POST time so importing this route
+// does not fail a source build when the runtime-only value is absent.
+function webhookSecret(): string {
+  return requiredServerEnv("CLERK_WEBHOOK_SECRET")
 }
 
 async function validateRequest(request: Request) {
@@ -24,13 +25,25 @@ async function validateRequest(request: Request) {
     })
   }
 
+  let secret: string
+  try {
+    secret = webhookSecret()
+  } catch (error) {
+    if (error instanceof MissingServerEnvError) {
+      return new Response(`Server misconfiguration: ${error.message}`, {
+        status: 500
+      })
+    }
+    throw error
+  }
+
   // Get the body
   const payload = await request.json()
   const body = JSON.stringify(payload)
 
   try {
     // Create a new Svix instance with your secret
-    const wh = new Webhook(WEBHOOK_SECRET)
+    const wh = new Webhook(secret)
     const evt = wh.verify(body, {
       "svix-id": svix_id,
       "svix-timestamp": svix_timestamp,

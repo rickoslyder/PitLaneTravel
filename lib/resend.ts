@@ -1,20 +1,19 @@
 import { Resend } from "resend"
+import { requiredServerEnv } from "@/config/server-env"
 
-// Verify API key exists
-const resendApiKey = process.env.RESEND_API_KEY
-if (!resendApiKey) {
-  throw new Error("Missing RESEND_API_KEY environment variable")
+let client: Resend | undefined
+
+function getClient(): Resend {
+  if (!client) {
+    client = new Resend(requiredServerEnv("RESEND_API_KEY"))
+  }
+  return client
 }
 
-// Initialize with error handling
-let resend: Resend
-try {
-  console.log("Initializing Resend with API key...")
-  resend = new Resend(resendApiKey)
-  console.log("Resend initialized successfully")
-} catch (error) {
-  console.error("Failed to initialize Resend:", error)
-  throw error
-}
-
-export { resend }
+export const resend: Resend = new Proxy({} as Resend, {
+  get(_target, prop) {
+    const real = getClient()
+    const value = Reflect.get(real as object, prop, real)
+    return typeof value === "function" ? value.bind(real) : value
+  }
+})
