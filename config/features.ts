@@ -19,5 +19,10 @@ export const features = {
    */
   flightsBookingEnabled: flag("FLIGHTS_BOOKING_ENABLED", false),
   /** Gate heavier AI planner usage behind Pro membership. */
-  aiPlannerProGate: flag("AI_PLANNER_PRO_GATE", false)
+  aiPlannerProGate: flag("AI_PLANNER_PRO_GATE", false),
+  /**
+   * Recurring subscriptions stay off until a genuinely gated repeated-use
+   * product exists (Day-70). Literal false — not env-toggleable.
+   */
+  subscriptionsEnabled: false
 } as const
