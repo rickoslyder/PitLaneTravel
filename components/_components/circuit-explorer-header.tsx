@@ -10,8 +10,8 @@ export function CircuitExplorerHeader() {
         Explore Iconic Circuits
       </h2>
       <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-        Discover the world's most legendary circuits and plan your
-        perfect race weekend.
+        Open a featured circuit page where coverage exists, then continue
+        into race and planning tools.
       </p>
     </>
   )

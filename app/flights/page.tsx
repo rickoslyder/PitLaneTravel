@@ -23,7 +23,9 @@ export default async function FlightsPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">Flight Search</h1>
         <p className="text-muted-foreground">
-          Search and book flights for your F1 race weekend
+          Search flight options for a race weekend. PitLane does not book, sell,
+          or issue flights. Results are a planning affordance with an external
+          provider handoff.
         </p>
       </div>
 

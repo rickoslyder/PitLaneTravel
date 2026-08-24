@@ -8,33 +8,33 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
-import { Info, Clock, ThumbsUp } from "lucide-react"
+import { Calendar, GitCompare, MapPin } from "lucide-react"
 import { motion } from "framer-motion"
 
 const features = [
   {
-    title: "Reliable Information",
+    title: "Five-series calendar",
     description:
-      "Access trustworthy, up-to-date advice on grandstand views, transportation, and local logistics.",
-    icon: Info,
+      "Browse Formula 1, Formula E, MotoGP, IndyCar and WEC events on the public race calendar.",
+    icon: Calendar,
     details:
-      "Our team of motorsport experts constantly updates our database with the latest information about each circuit, ensuring you have access to the most accurate and reliable data for your trip planning."
+      "The catalogue stays those five series. Depth varies by event: some races have circuit pages, others are calendar-only."
   },
   {
-    title: "Time-Saving Planning",
+    title: "Circuit and race pages",
     description:
-      "Coordinate flights, accommodations, and circuit details all in one place, saving you time and effort.",
-    icon: Clock,
+      "Open race and circuit pages where coverage exists, including grandstand notes when they are published.",
+    icon: MapPin,
     details:
-      "Our smart planning tools allow you to seamlessly integrate flight bookings, accommodation options, and circuit-specific information, cutting down your planning time from days to hours."
+      "Coverage is labelled by what is on the page. Missing logistics or viewing notes stay unknown instead of being filled in."
   },
   {
-    title: "Confident Decision-Making",
+    title: "Compare and planning tools",
     description:
-      "Make informed choices about travel routes, budget options, and potential costs with our expert guidance.",
-    icon: ThumbsUp,
+      "Compare events and use planning tools, then follow labelled external search handoffs for flights and stays.",
+    icon: GitCompare,
     details:
-      "With our comprehensive cost breakdowns, user reviews, and expert recommendations, you can make decisions with confidence, knowing you're getting the best value for your race experience."
+      "Flight search is a planning affordance with an external provider handoff. Hotel links open a generic Booking.com city search. PitLane does not book flights or sell packages."
   }
 ]
 
@@ -50,16 +50,16 @@ export default function WhyChooseFeaturesSection() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <h2 className="mb-4 text-center text-4xl font-bold">
-            Why Choose PitLane Travel?
+            Why use PitLane Travel?
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            Experience motorsport travel planning done right, with expert
-            guidance every step of the way.
+            Inspectable tools for choosing a race and planning the trip
+            yourself.
           </p>
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-3">
             {features.map((feature, index) => (
               <motion.div
-                key={index}
+                key={feature.title}
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.5, delay: index * 0.2 }}

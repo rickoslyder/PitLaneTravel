@@ -15,13 +15,14 @@ import {
 import { motion } from "framer-motion"
 import {
   Calendar,
+  CircleOff,
   Flag,
+  GitCompare,
   Info,
   LucideIcon,
   MapPin,
-  Route,
-  Search,
-  Users
+  Plane,
+  Search
 } from "lucide-react"
 
 interface FeatureProps {
@@ -32,50 +33,52 @@ interface FeatureProps {
 
 const features: FeatureProps[] = [
   {
-    title: "Race Discovery",
+    title: "Race calendar",
     description:
-      "Find and compare races across every series worldwide with our comprehensive search tools",
+      "Browse the public catalogue for Formula 1, Formula E, MotoGP, IndyCar and WEC",
     icon: Search
   },
   {
-    title: "Travel Planning",
+    title: "Compare races",
     description:
-      "Get detailed travel information and transportation options for each circuit",
-    icon: Route
+      "Compare events on travel-decision dimensions, with missing values left unknown",
+    icon: GitCompare
   },
   {
-    title: "Circuit Information",
+    title: "Circuit pages",
     description:
-      "Access detailed track maps, grandstand locations, and facilities info",
+      "Open circuit pages, track maps and grandstand notes where coverage exists",
     icon: Info
   },
   {
-    title: "Community Reviews",
+    title: "Race pages",
     description:
-      "Read and share experiences from fellow motorsport fans who've attended races",
-    icon: Users
-  },
-  {
-    title: "Race Guides",
-    description:
-      "Essential tips and local information for each race weekend",
+      "Open supported race pages for dates, circuit context and planning entry points",
     icon: Flag
   },
   {
-    title: "Event Details",
-    description: "Up-to-date race schedules and weekend activity information",
-    icon: Calendar
+    title: "Flight search",
+    description:
+      "Search flight options as a planning affordance with an external provider handoff",
+    icon: Plane
   },
   {
-    title: "Local Tips",
+    title: "Hotel city search",
     description:
-      "Insider knowledge about each race location and surrounding areas",
+      "Open a generic Booking.com city search. Confirm distance and terms on the provider",
     icon: MapPin
   },
   {
-    title: "Trip Planning",
-    description: "Tools to help organize your perfect race weekend",
+    title: "Planning tools",
+    description:
+      "Use compare and trip-planning tools to assemble a self-directed weekend",
     icon: Calendar
+  },
+  {
+    title: "Honest limits",
+    description:
+      "Unavailable packages, unknown coverage and empty states stay labelled as such",
+    icon: CircleOff
   }
 ]
 
@@ -105,11 +108,11 @@ export const FeaturesSection = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <h2 className="mb-4 text-center text-4xl font-bold">
-            Plan Your Perfect Race Weekend
+            Tools for choosing a race weekend
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            Everything you need to research, plan, and organize your race
-            race experience.
+            A five-series calendar, race and circuit pages, compare tools,
+            and labelled external search.
           </p>
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             {features.map((feature, index) => (

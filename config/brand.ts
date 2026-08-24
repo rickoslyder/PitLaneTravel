@@ -8,21 +8,21 @@ generate their own metadata from the `series` table; this is the umbrella copy.
 
 export const brand = {
   name: "PitLane Travel",
-  tagline: "Your ultimate motorsport travel planning platform",
+  tagline: "Decision layer for self-directed motorsport trips",
   // Series called out for SEO reach. F1 stays first as the flagship.
   seriesKeywords: [
     "F1 travel",
-    "Formula 1 tickets",
-    "MotoGP tickets",
+    "Formula 1 calendar",
+    "MotoGP travel",
     "Formula E travel",
-    "IndyCar tickets",
-    "WEC Le Mans travel",
-    "grand prix packages",
+    "IndyCar travel",
+    "WEC travel",
     "grandstand guides",
+    "race calendar",
     "race weekend planning"
   ],
   description:
-    "Plan your perfect race weekend across Formula 1, MotoGP, Formula E, IndyCar and WEC. Compare tickets and grandstands, find flights and accommodation, and get expert circuit guides — all in one place.",
+    "Compare and plan race weekends across Formula 1, Formula E, MotoGP, IndyCar and WEC. Browse the calendar, open race and circuit pages where coverage exists, and use planning tools with labelled external search handoffs.",
   shortDescription:
-    "Race tickets, grandstand guides, flights and accommodation for motorsport fans worldwide."
+    "Compare and plan motorsport trips across Formula 1, Formula E, MotoGP, IndyCar and WEC."
 } as const

@@ -84,7 +84,7 @@ export function FlightSearch({
 
   // Important dates for calendar highlighting
   const raceWeekendDates = [
-    { date: thursdayDate, description: "Paddock Club & VIP Events" },
+    { date: thursdayDate, description: "Thursday session — check organizer" },
     { date: fridayDate, description: "Practice Sessions" },
     { date: saturdayDate, description: "Qualifying/Sprint" },
     { date: raceDate, description: "Race Day" }
@@ -335,8 +335,8 @@ export function FlightSearch({
             <div className="mb-2 font-medium">Travel Tips</div>
             <div className="text-muted-foreground space-y-2 text-sm">
               <p>
-                • Book early for the best rates - prices typically increase 2-3
-                months before the race
+                • Flight prices and schedules are set by the provider and can
+                change. Confirm the current fare and times on the results.
               </p>
               {nearestAirports.length > 1 && (
                 <p>

@@ -39,7 +39,7 @@ const MAX_DAYS_AFTER_RACE = 14 // 2 weeks after race
 
 // Schedule information for warnings
 const WEEKEND_SCHEDULE = {
-  thursday: "Paddock Club & VIP Events",
+  thursday: "Thursday session — check organizer",
   friday: "Practice Sessions",
   saturday: "Qualifying/Sprint",
   sunday: "Race Day"

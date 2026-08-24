@@ -1,27 +1,28 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Calendar, GitCompare, MapPin } from "lucide-react"
 import { motion } from "framer-motion"
+import Link from "next/link"
 
-const testimonials = [
+const affordances = [
   {
-    name: "Sarah L.",
-    avatar: "SL",
-    text: "PitLane Travel made planning my first race trip a breeze. I felt so confident and prepared!",
-    image: "/placeholder.svg?height=100&width=100"
+    title: "Five-series calendar",
+    icon: Calendar,
+    href: "/races",
+    text: "Browse Formula 1, Formula E, MotoGP, IndyCar and WEC events on the public race calendar."
   },
   {
-    name: "Mike R.",
-    avatar: "MR",
-    text: "The circuit-specific guides saved me hours of research. Absolutely invaluable resource!",
-    image: "/placeholder.svg?height=100&width=100"
+    title: "Race and circuit pages",
+    icon: MapPin,
+    href: "/circuits/grandstands",
+    text: "Open race and circuit pages where coverage exists, including grandstand notes when they are published."
   },
   {
-    name: "Emma T.",
-    avatar: "ET",
-    text: "Thanks to PitLane Travel, I discovered the best viewing spots and local tips I wouldn't have found otherwise.",
-    image: "/placeholder.svg?height=100&width=100"
+    title: "Compare and plan",
+    icon: GitCompare,
+    href: "/races/compare",
+    text: "Compare events, then use planning tools and labelled external search for flights and stays."
   }
 ]
 
@@ -35,39 +36,35 @@ export default function TestimonialSection() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <h2 className="mb-4 text-center text-4xl font-bold">
-            What Our Users Say
+            From calendar to plan
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            Join thousands of race fans who've discovered their perfect race
-            experience with PitLane Travel.
+            PitLane Travel is a decision layer for self-directed travellers.
+            Open the live tools, then assemble the trip yourself.
           </p>
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-3">
-            {testimonials.map((testimonial, index) => (
+            {affordances.map((item, index) => (
               <motion.div
-                key={index}
+                key={item.title}
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.5, delay: index * 0.2 }}
               >
-                <Card className="group h-full transition-shadow duration-200 hover:shadow-lg">
-                  <CardHeader className="flex flex-col items-center">
-                    <Avatar className="mb-4 size-20">
-                      <AvatarImage
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                      />
-                      <AvatarFallback>{testimonial.avatar}</AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="text-xl">
-                      {testimonial.name}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground text-center italic">
-                      &ldquo;{testimonial.text}&rdquo;
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link href={item.href} className="block h-full">
+                  <Card className="group h-full transition-shadow duration-200 hover:shadow-lg">
+                    <CardHeader className="flex flex-col items-center">
+                      <div className="mb-4 flex size-20 items-center justify-center rounded-full bg-[#E10600]">
+                        <item.icon className="size-8 text-white" />
+                      </div>
+                      <CardTitle className="text-xl">{item.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground text-center">
+                        {item.text}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
               </motion.div>
             ))}
           </div>
