@@ -5,16 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Book,
   Calendar,
-  Contact,
   FileQuestion,
+  GitCompare,
   HelpCircle,
   Info,
   LifeBuoy,
   MapPin,
   MessageCircle,
-  ScrollText,
-  Search,
-  Ticket
+  Plane,
+  ScrollText
 } from "lucide-react"
 import Link from "next/link"
 
@@ -25,26 +24,26 @@ interface GuideProps {
   icon: React.ReactNode
 }
 
-const guides: GuideProps[] = [
+const routes: GuideProps[] = [
   {
-    title: "Finding the Right Race",
+    title: "Race calendar",
     description:
-      "Compare circuits, dates, and locations to choose your perfect F1 weekend.",
+      "Compare dates and locations across Formula 1, Formula E, MotoGP, IndyCar and WEC.",
     href: "/races",
     icon: <Calendar className="size-5 text-[#E10600]" />
   },
   {
-    title: "Understanding Tickets",
+    title: "Compare races",
     description:
-      "Learn about different ticket types, grandstands, and viewing options.",
-    href: "/faq#tickets",
-    icon: <Ticket className="size-5 text-[#E10600]" />
+      "Open the compare tool. Missing travel-decision values stay unknown.",
+    href: "/races/compare",
+    icon: <GitCompare className="size-5 text-[#E10600]" />
   },
   {
-    title: "Planning Your Trip",
+    title: "Hotel city search",
     description:
-      "Tips for accommodation, transportation, and creating your itinerary.",
-    href: "/faq#planning",
+      "Open a generic Booking.com city search. Confirm distance and terms on the provider.",
+    href: "/hotels",
     icon: <MapPin className="size-5 text-[#E10600]" />
   }
 ]
@@ -53,20 +52,20 @@ const resources: GuideProps[] = [
   {
     title: "FAQs",
     description:
-      "Find answers to commonly asked questions about F1 travel planning.",
+      "Coverage, planning tools, and labelled flight, hotel and package limits.",
     href: "/faq",
     icon: <FileQuestion className="size-5 text-[#E10600]" />
   },
   {
-    title: "Contact Support",
-    description: "Get in touch with our team for platform-related assistance.",
+    title: "Contact",
+    description: "Use the contact form for platform-related questions.",
     href: "/contact",
     icon: <MessageCircle className="size-5 text-[#E10600]" />
   },
   {
     title: "About Us",
     description:
-      "Learn about our platform and how we help plan F1 experiences.",
+      "What PitLane Travel is and what it does not sell or operate.",
     href: "/about",
     icon: <Info className="size-5 text-[#E10600]" />
   }
@@ -121,41 +120,43 @@ export default async function HelpPage() {
         </div>
         <h1 className="mb-4 text-4xl font-bold">Help Center</h1>
         <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-          Find guides, FAQs, and resources to help you plan your F1 race weekend
+          Live routes and current limits for planning a self-directed race
+          weekend
         </p>
       </div>
 
-      {/* Search Bar */}
-      <div className="mx-auto mb-16 max-w-2xl">
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search help articles..."
-              className="bg-background w-full rounded-lg border px-10 py-3 focus:outline-none focus:ring-2 focus:ring-[#E10600]"
-            />
-          </div>
-          <Button className="bg-[#E10600] hover:bg-[#FF0800]">
-            <Contact className="mr-2 size-4" />
-            Contact Us
-          </Button>
-        </div>
+      <div className="mx-auto mb-16 flex max-w-3xl flex-wrap justify-center gap-3">
+        <Button asChild className="bg-[#E10600] hover:bg-[#FF0800]">
+          <Link href="/races">
+            <Calendar className="mr-2 size-4" />
+            Race calendar
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/races/compare">Compare races</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/flights">
+            <Plane className="mr-2 size-4" />
+            Flight search
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/hotels">Hotel search</Link>
+        </Button>
       </div>
 
-      {/* Quick Start Guides */}
       <div className="mb-16">
-        <h2 className="mb-8 text-2xl font-bold">Quick Start Guides</h2>
+        <h2 className="mb-8 text-2xl font-bold">Planning routes</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {guides.map((guide, index) => (
-            <GuideCard key={index} {...guide} />
+          {routes.map((route, index) => (
+            <GuideCard key={index} {...route} />
           ))}
         </div>
       </div>
 
-      {/* Help Resources */}
       <div className="mb-16">
-        <h2 className="mb-8 text-2xl font-bold">Help Resources</h2>
+        <h2 className="mb-8 text-2xl font-bold">Site pages</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {resources.map((resource, index) => (
             <GuideCard key={index} {...resource} />
@@ -163,7 +164,6 @@ export default async function HelpPage() {
         </div>
       </div>
 
-      {/* Policies */}
       <div className="mb-16">
         <h2 className="mb-8 text-2xl font-bold">Policies</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -173,17 +173,16 @@ export default async function HelpPage() {
         </div>
       </div>
 
-      {/* Still Need Help? */}
       <div className="rounded-lg bg-gradient-to-r from-gray-50 to-white p-8 text-center dark:from-gray-800 dark:to-gray-900">
-        <h2 className="mb-4 text-2xl font-bold">Still Need Help?</h2>
+        <h2 className="mb-4 text-2xl font-bold">Still have a question?</h2>
         <p className="text-muted-foreground mx-auto mb-6 max-w-2xl">
-          Can't find what you're looking for? Our support team is here to help
-          with any platform-related questions.
+          Use the contact form for platform-related questions. There is no
+          claimed support desk or race-weekend hotline.
         </p>
         <Link href="/contact">
           <Button className="bg-[#E10600] hover:bg-[#FF0800]">
             <MessageCircle className="mr-2 size-4" />
-            Contact Support
+            Open contact form
           </Button>
         </Link>
       </div>

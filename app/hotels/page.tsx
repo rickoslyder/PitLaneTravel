@@ -6,9 +6,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 export const metadata: Metadata = {
-  title: "Where to Stay | Hotels Near Every Circuit | PitLane Travel",
+  title: "Where to Stay | External hotel search | PitLane Travel",
   description:
-    "Find accommodation near motorsport circuits worldwide. Search hotels close to the track for your F1, MotoGP, Formula E, IndyCar or WEC race weekend."
+    "Open a generic Booking.com city search for a circuit's city and country. PitLane does not verify, rank, or partner on stays. Confirm distance and terms on the provider."
 }
 
 export default async function HotelsPage() {
@@ -23,8 +23,9 @@ export default async function HotelsPage() {
         <Building2 className="mx-auto size-12 text-primary" />
         <h1 className="text-4xl font-bold tracking-tight">Where to Stay</h1>
         <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-          Book accommodation close to the action. Search verified stays near
-          each circuit — hotels sell out fast on race weekends, so book early.
+          This is a generic external hotel search on Booking.com, using the
+          circuit&apos;s city and country. Stays are not verified, ranked, or
+          circuit-specific. Confirm distance and booking terms on the provider.
         </p>
       </header>
 
@@ -47,9 +48,9 @@ export default async function HotelsPage() {
                       country: circuit.country
                     })}
                     target="_blank"
-                    rel="noopener noreferrer sponsored"
+                    rel="noopener noreferrer"
                   >
-                    Search stays
+                    Search on Booking.com
                     <ExternalLink className="ml-2 size-4" />
                   </a>
                 </Button>

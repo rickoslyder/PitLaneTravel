@@ -28,8 +28,9 @@ export default async function MarketingLayout({
             <div>
               <h3 className="text-lg font-semibold">About PitLane Travel</h3>
               <p className="text-muted-foreground mt-4 text-sm">
-                Your trusted platform for motorsport travel planning. We help
-                make attending races seamless and unforgettable.
+                A decision layer for self-directed travellers. Compare races
+                across Formula 1, Formula E, MotoGP, IndyCar and WEC, then hand
+                off to external suppliers.
               </p>
             </div>
 
@@ -65,7 +66,7 @@ export default async function MarketingLayout({
                     href="/packages"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Travel Packages
+                    Packages
                   </Link>
                 </li>
                 <li>

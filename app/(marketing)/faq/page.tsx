@@ -10,147 +10,62 @@ import { Card } from "@/components/ui/card"
 
 const faqs = [
   {
-    category: "Race Planning",
+    category: "Coverage",
     questions: [
       {
-        question: "How far in advance should I book my F1 race tickets?",
+        question: "Which championships does PitLane Travel cover?",
         answer:
-          "We recommend booking F1 race tickets at least 6-8 months in advance, especially for popular races like Monaco, Silverstone, or Monza. Early booking ensures better seat selection and often better prices."
+          "The public catalogue is Formula 1, Formula E, MotoGP, IndyCar and WEC. Every supported event stays discoverable. Depth varies: some races have circuit pages, others are calendar-only."
       },
       {
-        question: "Which grandstand should I choose?",
+        question: "Do you cover every circuit or series worldwide?",
         answer:
-          "The best grandstand depends on your preferences. Our circuit guides provide detailed comparisons of viewing angles, covered vs. uncovered options, and price points. You can also use our grandstand comparison tool to make an informed decision."
+          "No. Coverage is those five series only. A race without a guide is still listed; missing logistics or viewing notes stay unknown."
       },
       {
-        question: "What's included in a typical race weekend package?",
+        question: "Can I get information about specific grandstands?",
         answer:
-          "Our race weekend packages typically include race tickets, accommodation, and optional extras like circuit transfers and exclusive events. Each package is customizable to your preferences and budget."
-      },
-      {
-        question: "Can I attend practice and qualifying sessions?",
-        answer:
-          "Yes! Most F1 tickets include access to all weekend sessions (Friday practice, Saturday qualifying, and Sunday race). Some circuits also offer single-day tickets for specific sessions."
+          "Race and circuit pages include grandstand notes where coverage exists. If a viewing area is not documented, that gap is left unknown."
       }
     ]
   },
   {
-    category: "Tickets & Access",
+    category: "Planning tools",
     questions: [
       {
-        question: "How do I receive my tickets?",
+        question: "What can I actually use on the site?",
         answer:
-          "Most tickets are delivered digitally through our secure platform. You'll receive an email notification when your tickets are ready to download, typically 2-3 weeks before the race."
+          "The race calendar, race and circuit pages where they exist, the compare tool, and labelled external search handoffs for flights and hotels."
       },
       {
-        question: "Can I transfer or resell my tickets?",
+        question: "Does PitLane Travel sell tickets?",
         answer:
-          "Ticket transfer policies vary by circuit and ticket type. Contact our support team for specific guidance on your tickets. For safety and security reasons, we recommend only purchasing tickets through authorized vendors."
+          "PitLane is not a ticket seller or travel agency. Any ticket inventory, if present, is labelled as such. There is no digital ticket-delivery product here."
       },
       {
-        question: "What happens if I lose my tickets?",
+        question: "How do I contact someone?",
         answer:
-          "For digital tickets, you can always re-download them from your account. For physical tickets, contact our support team immediately, and we'll help coordinate with the circuit for replacement tickets."
-      },
-      {
-        question: "Do children need tickets?",
-        answer:
-          "Ticket requirements for children vary by circuit. Some venues offer free entry for young children, while others require tickets regardless of age. Check our circuit guides for specific age policies."
+          "Use the contact form. There is no claimed support desk or race-weekend hotline."
       }
     ]
   },
   {
-    category: "Travel & Accommodation",
+    category: "Flights, hotels and packages",
     questions: [
       {
-        question: "What's the best way to get to the circuit?",
+        question: "Does PitLane Travel offer package deals for races?",
         answer:
-          "Transportation options vary by circuit. We provide detailed transport guides including public transit, shuttle services, and parking information. Many circuits offer special race weekend transport services."
+          "PitLane Travel does not currently sell race-weekend packages. It is a decision layer for self-directed travellers, not a package principal."
       },
       {
-        question: "How close should I stay to the circuit?",
+        question: "Do you book flights?",
         answer:
-          "We recommend staying within a 30-minute travel radius of the circuit. However, some cities like Monaco or Singapore offer excellent public transport, allowing you to stay further away without inconvenience."
+          "Flight search is a planning affordance with an external provider handoff. PitLane does not book, sell, or issue flights."
       },
       {
-        question: "When should I arrive at the circuit?",
+        question: "Are hotels verified or nearby the circuit?",
         answer:
-          "We recommend arriving at least 2-3 hours before the main race. This allows time for security checks, finding your seat, and exploring the circuit. Practice and qualifying sessions are usually less crowded."
-      },
-      {
-        question: "Do you arrange airport transfers?",
-        answer:
-          "Yes, we can arrange private or shared airport transfers at most race locations. This service can be added to your package during booking or arranged later through our platform."
-      }
-    ]
-  },
-  {
-    category: "Trip Planning",
-    questions: [
-      {
-        question: "How does the AI Trip Planner work?",
-        answer:
-          "Our AI Trip Planner uses your preferences and race details to create personalized itineraries. It suggests activities, restaurants, and local attractions while considering the race schedule and local transport options."
-      },
-      {
-        question: "Can I share my trip plans with friends?",
-        answer:
-          "Yes! You can share your trip plans with other PitLane Travel users. This is especially useful for group trips, allowing everyone to view and contribute to the itinerary."
-      },
-      {
-        question: "What happens if the race is cancelled?",
-        answer:
-          "In case of race cancellation, ticket refunds are typically handled by the official ticket provider. We'll assist you with the refund process and help modify any travel arrangements made through our platform."
-      }
-    ]
-  },
-  {
-    category: "Circuit Experience",
-    questions: [
-      {
-        question: "What can I bring to the circuit?",
-        answer:
-          "Essential items include your tickets, ID, comfortable shoes, weather-appropriate clothing, and sun protection. Most circuits allow small bags, cameras for personal use, and sealed water bottles. Each circuit has specific rules about permitted items, which we detail in our race guides."
-      },
-      {
-        question: "Are there food and drink options at the circuit?",
-        answer:
-          "Yes, all circuits offer various food and beverage options. However, prices can be high and queues long during peak times. Some circuits allow you to bring your own food and sealed non-alcoholic drinks - check our circuit guides for specific policies."
-      },
-      {
-        question: "What happens in case of rain?",
-        answer:
-          "F1 races proceed in wet conditions unless deemed unsafe by race control. We recommend checking our circuit guides for covered seating options and bringing appropriate wet weather gear."
-      },
-      {
-        question: "Can I leave and re-enter the circuit?",
-        answer:
-          "Re-entry policies vary by circuit. Most venues allow re-entry with a valid ticket and hand stamp/wristband, but some restrict movement during certain times. Check our circuit guides for specific re-entry policies."
-      }
-    ]
-  },
-  {
-    category: "Platform & Support",
-    questions: [
-      {
-        question: "Is my payment information secure?",
-        answer:
-          "Yes, we use industry-standard encryption and secure payment processing through Stripe. We never store your full credit card details on our servers."
-      },
-      {
-        question: "Can I access my tickets offline?",
-        answer:
-          "Yes, you can download your tickets and travel documents for offline access through our platform. We recommend doing this before your trip."
-      },
-      {
-        question: "How do I contact support?",
-        answer:
-          "You can reach our support team through the Help Center, email at support@pitlanetravel.com, or live chat. During race weekends, we offer extended support hours to assist with any urgent queries."
-      },
-      {
-        question: "What happens if I need to cancel my booking?",
-        answer:
-          "Our cancellation policy varies depending on the package and how close to the race date you cancel. We recommend reviewing our cancellation policy before booking and considering travel insurance for added protection."
+          "Hotel links open a generic Booking.com city search using the circuit's city and country. Stays are not verified, ranked, or partnered. Confirm distance and terms on the provider."
       }
     ]
   }
@@ -162,7 +77,7 @@ export default async function FAQPage() {
       <div className="mb-12 text-center">
         <h1 className="mb-4 text-4xl font-bold">Frequently Asked Questions</h1>
         <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-          Find answers to common questions about planning your F1 race weekend
+          Limits and live routes for planning a self-directed race weekend
         </p>
       </div>
 
