@@ -408,3 +408,62 @@ What is in place now:
 either flips, this flow needs a review round that comes back clean *without* me fixing
 anything in response — that has not happened once in three rounds. The client-side Stripe
 Elements step is also still missing, so booking would 402 regardless.
+
+---
+
+## 2026-08-24 — Freeze the Day-70 product contract (PLT-001)
+
+**Canonical contract:** [`docs/product/day-70-contract.md`](docs/product/day-70-contract.md)
+**Issue / conventions:** stable IDs are `PLT-NNN`; GitHub numbers are transport; milestone
+gates are **A–F**. Days 1–70 are sequence windows, not duration estimates. Gates cannot be
+skipped because implementation is fast. Tracker: `days-1-70-issue-tracker.md`.
+**Evidence (out-of-repo workbench artifacts):**
+`decision-history-and-grounded-path-2026-08-24.md`, `days-1-70-platform-plan.md`,
+`days-1-70-issue-tracker.md`, `modern-capabilities-layer-2026-08-24.md`.
+**Restore point before this decision:** `99a5ffb9d28035996c61f95a9dfa316e7b00eed2`.
+
+**Decision.** Freeze the active product contract as:
+
+> PitLane Travel is the decision layer for self-directed motorsport trips: compare races,
+> choose where to sit, understand the real logistics, build a context-aware plan, then
+> hand off to trusted suppliers.
+
+Governing doctrine: **Broad catalogue, explicit depth.** Public coverage stays exactly
+F1, Formula E, MotoGP, IndyCar and WEC. Operational depth is labelled tiers 0–4
+(calendar → logistics → decision-grade guide → live offers → personalised plan). Do not
+shrink the catalogue. Do not add a sixth series.
+
+`SPEC.md` is reclassified as a historical implementation record of the 2026 revamp. It is
+not the live business contract. `README.md` is left stale on purpose (PLT-002). Prior
+entries in this log are preserved, including the standing **off** state of
+`FLIGHTS_BOOKING_ENABLED` and `RECONCILE_AUTO_REFUND`.
+
+**Commercial and AI boundaries (through Gate F, unless a later owner decision records a
+hypothesis, displaced priority, metric and approval):**
+
+- not a miniature OTA, bespoke agency, generic AI itinerary generator, ticket-affiliate
+  directory, or community platform looking for a use;
+- no new community/social product; no package operation as principal;
+- no merchant-of-record flight booking; no automatic refunds;
+- no recurring subscription absent a genuinely gated repeated-use product;
+- no generic guide generation; no B2B API/widget before consumer evidence;
+- no custom model or LoRA absent a frozen retrieval eval that retrieval+prompting failed;
+- no unsupported trust/scale claims;
+- supplier handoffs / affiliate attribution may be *tested* after trust and
+  instrumentation gates A–C; a one-time paid personalised/offline artifact is a
+  post-Gate-F demand test, not Days 1–70 scope;
+- AI/agents may ingest, extract, draft and explain inside an evidence plane;
+  deterministic code owns date-state, ranking inputs, attribution, publishing gates and
+  evaluation; humans approve material trust and content changes.
+
+**Why now.** The 2026-08-24 audit found a broad five-series public surface with broken
+current race-detail routes, untrustworthy date-state, unsupported homepage trust copy,
+fake newsletter success, untagged hotel links, ticket-only attribution, a live pricing
+page without a real entitlement, and no demonstrated demand. The failure is the missing
+operating loop, not catalogue breadth. Agent advice had oscillated between “one race”
+and “the whole travel ecosystem”; this freeze records the missing middle.
+
+**Not decided here.** Brand styling (“PitLane Travel” vs “Pit Lane Travel”) stays
+unresolved; new contract copy uses PitLane Travel. Partner commission/cookie/deep-link
+rules stay unverified until the current agreement is read. No traffic or conversion
+baseline is invented.
