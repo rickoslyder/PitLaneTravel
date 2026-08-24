@@ -8,6 +8,7 @@ Uses a robust singleton pattern with proper connection management.
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 import * as schema from "./schema"
+import { requiredServerEnv } from "@/config/server-env"
 
 // Global declarations
 declare global {
@@ -15,14 +16,10 @@ declare global {
   var _client: ReturnType<typeof postgres> | undefined
 }
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is required")
-}
-
-const connectionString = process.env.DATABASE_URL
-
 // Connection function with pooling
 function createConnection() {
+  const connectionString = requiredServerEnv("DATABASE_URL")
+
   // In production, use the global singleton
   if (process.env.NODE_ENV === "production") {
     if (!global._db) {
@@ -61,4 +58,13 @@ if (process.env.NODE_ENV !== "production") {
     }
   })
 }
-export const db = createConnection()
+
+type Db = ReturnType<typeof drizzle>
+
+export const db: Db = new Proxy({} as Db, {
+  get(_target, prop) {
+    const real = createConnection()
+    const value = Reflect.get(real as object, prop, real)
+    return typeof value === "function" ? value.bind(real) : value
+  }
+})
