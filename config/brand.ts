@@ -6,9 +6,15 @@ generate their own metadata from the `series` table; this is the umbrella copy.
 </ai_context>
 */
 
+// Styling choice remains unresolved. This is the temporary display value.
+const temporaryDisplayName = "PitLane Travel"
+
 export const brand = {
-  name: "PitLane Travel",
+  name: temporaryDisplayName,
   tagline: "Decision layer for self-directed motorsport trips",
+  positioningShort:
+    "A decision layer for self-directed travellers. Compare races across Formula 1, Formula E, MotoGP, IndyCar and WEC, then hand off to external suppliers.",
+  affiliateDisclosureShort: `Some external supplier links may be affiliate links and may pay ${temporaryDisplayName} a commission. Provider terms apply.`,
   // Series called out for SEO reach. F1 stays first as the flagship.
   seriesKeywords: [
     "F1 travel",

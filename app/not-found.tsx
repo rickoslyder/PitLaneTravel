@@ -4,6 +4,7 @@ import NotFoundContent from "@/app/_components/not-found-content"
 import Header from "@/components/header"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
+import { brand } from "@/config/brand"
 
 export default async function NotFound() {
   return (
@@ -20,11 +21,9 @@ export default async function NotFound() {
         <div className="mx-auto max-w-screen-2xl space-y-8 px-4 py-16">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div>
-              <h3 className="text-lg font-semibold">About PitLane Travel</h3>
+              <h3 className="text-lg font-semibold">About {brand.name}</h3>
               <p className="text-muted-foreground mt-4 text-sm">
-                A decision layer for self-directed travellers. Compare races
-                across Formula 1, Formula E, MotoGP, IndyCar and WEC, then hand
-                off to external suppliers.
+                {brand.positioningShort}
               </p>
             </div>
 
@@ -123,7 +122,7 @@ export default async function NotFound() {
 
           <div className="text-muted-foreground flex flex-col items-center justify-between gap-4 text-center text-sm md:flex-row md:text-left">
             <p>
-              © {new Date().getFullYear()} PitLane Travel. All rights reserved.
+              © {new Date().getFullYear()} {brand.name}. All rights reserved.
             </p>
           </div>
         </div>

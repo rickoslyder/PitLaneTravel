@@ -14,12 +14,11 @@ import {
   SignUpButton,
   UserButton
 } from "@clerk/nextjs"
-import { Menu, Rocket, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ThemeSwitcher } from "./utilities/theme-switcher"
-import PitLaneTravelLogo from "@/logos/PitLaneTravelLogo"
-import router from "next/router"
+import { brand } from "@/config/brand"
 
 const navLinks = [
   { href: "/races", label: "Races" },
@@ -62,12 +61,28 @@ export default function Header() {
       }`}
     >
       <div className="mx-auto flex max-w-screen-2xl items-center justify-between p-2 sm:p-4">
-        <div className="flex items-center space-x-2 hover:cursor-pointer hover:opacity-80">
-          <Link href="/" className="text-xl font-bold">
-            <PitLaneTravelLogo
-              className="h-[32px] max-h-[40px] sm:h-[4vh]"
-              onClick={() => router.push("/")}
-            />
+        <div className="flex min-w-0 items-center">
+          <Link
+            href="/"
+            className="flex min-w-0 items-center gap-2 hover:opacity-80"
+          >
+            <span
+              aria-hidden="true"
+              className="border-border grid size-7 shrink-0 grid-cols-2 overflow-hidden rounded-sm border sm:size-8"
+            >
+              <span className="bg-foreground" />
+              <span className="bg-background" />
+              <span className="bg-background" />
+              <span className="bg-foreground" />
+            </span>
+            <span className="flex min-w-0 flex-col leading-tight">
+              <span className="truncate text-base font-semibold tracking-tight sm:text-lg">
+                {brand.name}
+              </span>
+              <span className="text-muted-foreground hidden max-w-[16rem] text-xs font-normal leading-snug lg:block">
+                {brand.tagline}
+              </span>
+            </span>
           </Link>
         </div>
 
