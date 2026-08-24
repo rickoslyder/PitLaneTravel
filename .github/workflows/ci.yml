@@ -1,0 +1,280 @@
+# First repository CI (PLT-003). Secret-free. Not production verification.
+# Workflow syntax: https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions
+# Postgres services: https://docs.github.com/en/actions/use-cases-and-examples/using-containerized-services/creating-postgresql-service-containers
+# Artifacts: https://docs.github.com/en/actions/tutorials/store-and-share-data
+# Hardening: https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Least privilege for GITHUB_TOKEN. Unspecified scopes become none.
+# https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  contents: read
+
+# Cancel superseded runs of this workflow on the same ref.
+# https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Skip husky prepare/hooks on CI. https://typicode.github.io/husky/how-to.html#ci-server-and-docker
+env:
+  HUSKY: "0"
+
+jobs:
+  quality:
+    name: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Locked install only. https://docs.npmjs.com/cli/v10/commands/npm-ci
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check and test
+        run: npm run check
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Runner-mapped disposable Postgres. Job uses 127.0.0.1, not a remote host.
+    # Local trust auth only — no password and no secret context. Suitable solely
+    # for this disposable runner-mapped container (POSTGRES_HOST_AUTH_METHOD=trust).
+    # https://docs.github.com/en/actions/use-cases-and-examples/using-containerized-services/creating-postgresql-service-containers
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: pitlane_ci
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      DATABASE_URL: postgresql://postgres@127.0.0.1:5432/pitlane_ci
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2kuaW52YWxpZCQ=
+      CLERK_SECRET_KEY: sk_test_Y2kuaW52YWxpZCQ=
+      CLERK_WEBHOOK_SECRET: whsec_ci_invalid
+      RESEND_API_KEY: re_ci_invalid
+      NEXT_PUBLIC_POSTHOG_KEY: phc_ci_invalid
+      NEXT_PUBLIC_POSTHOG_HOST: https://posthog.invalid
+      STRIPE_SECRET_KEY: sk_test_ci_invalid
+      STRIPE_WEBHOOK_SECRET: whsec_stripe_ci_invalid
+      NEXT_PUBLIC_STRIPE_PORTAL_LINK: ""
+      NEXT_PUBLIC_STRIPE_PAYMENT_LINK_YEARLY: ""
+      NEXT_PUBLIC_STRIPE_PAYMENT_LINK_MONTHLY: ""
+      DUFFEL_ACCESS_TOKEN: duffel_test_ci_invalid
+      GOOGLE_MAPS_API_KEY: gmaps_ci_invalid
+      GEMINI_API_KEY: gemini_ci_invalid
+      NEXT_PUBLIC_SUPABASE_URL: https://ci.invalid
+      SUPABASE_SERVICE_ROLE_KEY: sb_service_ci_invalid
+      SUPABASE_PROJECT_ID: ci-invalid
+      CRON_SECRET: cron_ci_invalid
+      NEXT_PUBLIC_MAPBOX_TOKEN: pk.ci.invalid
+      NEXT_PUBLIC_CLARITY_PROJECT_ID: ""
+      VISUAL_CROSSING_API_KEY: vc_ci_invalid
+      HOTEL_AFFILIATE_ID: ""
+      FLIGHTS_BOOKING_ENABLED: "false"
+      RECONCILE_AUTO_REFUND: "false"
+      AI_PLANNER_PRO_GATE: "false"
+      FLIGHT_SERVICE_FEE_PERCENT: "0"
+      FLIGHT_SERVICE_FEE_MINIMUM: "0"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prove synthetic sentinels and no secret context
+        run: |
+          set -eu
+          passed=0
+          ok() {
+            echo "ok $1"
+            passed=$((passed + 1))
+          }
+          fail() {
+            echo "fail $1 (mismatch or empty; value not printed)"
+            exit 1
+          }
+          fail_flag() {
+            echo "fail $1 (must be false; value not printed)"
+            exit 1
+          }
+
+          if [ "${DATABASE_URL-}" = "postgresql://postgres@127.0.0.1:5432/pitlane_ci" ]; then
+            ok DATABASE_URL
+          else
+            fail DATABASE_URL
+          fi
+          if [ "${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY-}" = "pk_test_Y2kuaW52YWxpZCQ=" ]; then
+            ok NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+          else
+            fail NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+          fi
+          if [ "${CLERK_SECRET_KEY-}" = "sk_test_Y2kuaW52YWxpZCQ=" ]; then
+            ok CLERK_SECRET_KEY
+          else
+            fail CLERK_SECRET_KEY
+          fi
+          if [ "${CLERK_WEBHOOK_SECRET-}" = "whsec_ci_invalid" ]; then
+            ok CLERK_WEBHOOK_SECRET
+          else
+            fail CLERK_WEBHOOK_SECRET
+          fi
+          if [ "${RESEND_API_KEY-}" = "re_ci_invalid" ]; then
+            ok RESEND_API_KEY
+          else
+            fail RESEND_API_KEY
+          fi
+          if [ "${NEXT_PUBLIC_POSTHOG_HOST-}" = "https://posthog.invalid" ]; then
+            ok NEXT_PUBLIC_POSTHOG_HOST
+          else
+            fail NEXT_PUBLIC_POSTHOG_HOST
+          fi
+          if [ "${FLIGHTS_BOOKING_ENABLED-}" = "false" ]; then
+            ok FLIGHTS_BOOKING_ENABLED
+          else
+            fail_flag FLIGHTS_BOOKING_ENABLED
+          fi
+          if [ "${RECONCILE_AUTO_REFUND-}" = "false" ]; then
+            ok RECONCILE_AUTO_REFUND
+          else
+            fail_flag RECONCILE_AUTO_REFUND
+          fi
+          if [ "${AI_PLANNER_PRO_GATE-}" = "false" ]; then
+            ok AI_PLANNER_PRO_GATE
+          else
+            fail_flag AI_PLANNER_PRO_GATE
+          fi
+
+          needle="secrets"
+          needle="${needle}."
+          if grep -Fq -- "$needle" "${GITHUB_WORKSPACE}/.github/workflows/ci.yml"; then
+            echo "fail workflow contains forbidden secret context"
+            exit 1
+          fi
+          echo "ok workflow_has_no_secret_context"
+          passed=$((passed + 1))
+          echo "sentinel checks passed=${passed}"
+
+      # Disposable pitlane_ci only. Split contract: journalled then SQL 0003+.
+      - name: Apply split migrations to disposable database
+        run: npm run db:migrate:all
+
+      - name: Production build
+        run: npm run build
+
+  dependency-audit:
+    name: dependency-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Capture JSON even when npm audit exits 1 for known findings.
+      # Exit 0 = clean, 1 = findings (preserve; PLT-005 remediates). Other = fail.
+      # https://docs.npmjs.com/cli/v10/commands/npm-audit
+      - name: Produce production dependency audit
+        run: |
+          set +e
+          npm run --silent audit:production > npm-audit-production.json
+          status=$?
+          set -e
+          printf 'exit_code=%s\n' "$status" > npm-audit-status.txt
+
+          if [ ! -s npm-audit-production.json ]; then
+            printf 'status=missing_or_empty\n' >> npm-audit-status.txt
+            echo "audit output missing or empty"
+            exit 1
+          fi
+
+          set +e
+          python3 - <<'PY'
+          import json
+          import sys
+
+          try:
+              with open("npm-audit-production.json", encoding="utf-8") as handle:
+                  data = json.load(handle)
+          except Exception:
+              print("audit output is not valid JSON")
+              sys.exit(2)
+
+          if not isinstance(data, dict):
+              print("audit JSON is not an object")
+              sys.exit(2)
+
+          has_report = "metadata" in data and "vulnerabilities" in data
+          if not has_report:
+              print("audit JSON is not a report (missing metadata/vulnerabilities)")
+              sys.exit(2)
+
+          print("audit JSON report accepted")
+          PY
+          py_status=$?
+          set -e
+
+          if [ "$py_status" -ne 0 ]; then
+            printf 'status=invalid_json\n' >> npm-audit-status.txt
+            echo "audit could not produce a valid JSON report"
+            exit 1
+          fi
+
+          if [ "$status" -eq 0 ]; then
+            printf 'status=clean\n' >> npm-audit-status.txt
+          elif [ "$status" -eq 1 ]; then
+            printf 'status=findings\n' >> npm-audit-status.txt
+          else
+            printf 'status=command_failed\n' >> npm-audit-status.txt
+            echo "npm audit failed without a usable findings report"
+            exit 1
+          fi
+
+      - name: Upload dependency audit artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dependency-audit
+          path: |
+            npm-audit-production.json
+            npm-audit-status.txt
+          if-no-files-found: error
+          retention-days: 14

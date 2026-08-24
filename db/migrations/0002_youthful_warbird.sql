@@ -295,14 +295,14 @@ ALTER TABLE "circuits" ALTER COLUMN "updated_at" SET DATA TYPE timestamp with ti
 ALTER TABLE "races" ALTER COLUMN "date" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "races" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "races" ALTER COLUMN "updated_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
-ALTER TABLE "package_tickets" ALTER COLUMN "package_id" SET DATA TYPE serial;--> statement-breakpoint
-ALTER TABLE "package_tickets" ALTER COLUMN "ticket_id" SET DATA TYPE serial;--> statement-breakpoint
-ALTER TABLE "ticket_feature_mappings" ALTER COLUMN "ticket_id" SET DATA TYPE serial;--> statement-breakpoint
-ALTER TABLE "ticket_feature_mappings" ALTER COLUMN "feature_id" SET DATA TYPE serial;--> statement-breakpoint
+ALTER TABLE "package_tickets" ALTER COLUMN "package_id" SET DATA TYPE integer;--> statement-breakpoint
+ALTER TABLE "package_tickets" ALTER COLUMN "ticket_id" SET DATA TYPE integer;--> statement-breakpoint
+ALTER TABLE "ticket_feature_mappings" ALTER COLUMN "ticket_id" SET DATA TYPE integer;--> statement-breakpoint
+ALTER TABLE "ticket_feature_mappings" ALTER COLUMN "feature_id" SET DATA TYPE integer;--> statement-breakpoint
 ALTER TABLE "ticket_packages" ALTER COLUMN "description" SET NOT NULL;--> statement-breakpoint
 ALTER TABLE "ticket_packages" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "ticket_packages" ALTER COLUMN "created_at" SET NOT NULL;--> statement-breakpoint
-ALTER TABLE "ticket_pricing" ALTER COLUMN "ticket_id" SET DATA TYPE serial;--> statement-breakpoint
+ALTER TABLE "ticket_pricing" ALTER COLUMN "ticket_id" SET DATA TYPE integer;--> statement-breakpoint
 ALTER TABLE "ticket_pricing" ALTER COLUMN "valid_from" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "ticket_pricing" ALTER COLUMN "valid_to" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "ticket_pricing" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
@@ -313,16 +313,17 @@ ALTER TABLE "tickets" ALTER COLUMN "created_at" SET DATA TYPE timestamp with tim
 ALTER TABLE "tickets" ALTER COLUMN "created_at" SET NOT NULL;--> statement-breakpoint
 ALTER TABLE "tickets" ALTER COLUMN "updated_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "tickets" ALTER COLUMN "updated_at" SET NOT NULL;--> statement-breakpoint
-ALTER TABLE "trips" ALTER COLUMN "race_id" SET DATA TYPE uuid;--> statement-breakpoint
-ALTER TABLE "meetups" ALTER COLUMN "race_id" SET DATA TYPE uuid;--> statement-breakpoint
-ALTER TABLE "reviews" ALTER COLUMN "race_id" SET DATA TYPE uuid;--> statement-breakpoint
-ALTER TABLE "reviews" ALTER COLUMN "rating" SET DATA TYPE integer;--> statement-breakpoint
+ALTER TABLE "trips" ALTER COLUMN "race_id" SET DATA TYPE uuid USING "race_id"::uuid;--> statement-breakpoint
+ALTER TABLE "meetups" ALTER COLUMN "race_id" SET DATA TYPE uuid USING "race_id"::uuid;--> statement-breakpoint
+ALTER TABLE "reviews" ALTER COLUMN "race_id" SET DATA TYPE uuid USING "race_id"::uuid;--> statement-breakpoint
+ALTER TABLE "reviews" ALTER COLUMN "rating" SET DATA TYPE integer USING "rating"::integer;--> statement-breakpoint
 ALTER TABLE "reviews" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "reviews" ALTER COLUMN "updated_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
-ALTER TABLE "tips" ALTER COLUMN "race_id" SET DATA TYPE uuid;--> statement-breakpoint
+ALTER TABLE "tips" ALTER COLUMN "race_id" SET DATA TYPE uuid USING "race_id"::uuid;--> statement-breakpoint
 ALTER TABLE "tips" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
 ALTER TABLE "tips" ALTER COLUMN "updated_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
-ALTER TABLE "saved_itineraries" ALTER COLUMN "id" SET DATA TYPE uuid;--> statement-breakpoint
+ALTER TABLE "saved_itineraries" ALTER COLUMN "id" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "saved_itineraries" ALTER COLUMN "id" SET DATA TYPE uuid USING gen_random_uuid();--> statement-breakpoint
 ALTER TABLE "saved_itineraries" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
 ALTER TABLE "saved_itineraries" ALTER COLUMN "itinerary" DROP NOT NULL;--> statement-breakpoint
 ALTER TABLE "saved_itineraries" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
