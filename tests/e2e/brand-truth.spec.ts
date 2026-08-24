@@ -172,6 +172,24 @@ describe("PLT-008 brand truth", () => {
       expect(header).toMatch(/SignedIn|SignedOut|SignInButton|UserButton/)
       expect(header).toContain("/races")
     })
+
+    it("does not configure the brand tagline as a one-line truncation/ellipsis", () => {
+      const taglineRender = headerCode.match(
+        /<([A-Za-z][\w.]*)([^>]*)>\s*\{brand\.tagline\}\s*<\/\1>/
+      )
+      expect(
+        taglineRender,
+        "active header must render {brand.tagline} in an element"
+      ).toBeTruthy()
+
+      const taglineAttrs = taglineRender![2]
+      expect(taglineAttrs).not.toMatch(/\btruncate\b/)
+      expect(taglineAttrs).not.toMatch(/\btext-ellipsis\b/)
+      expect(taglineAttrs).not.toMatch(/\bwhitespace-nowrap\b/)
+      expect(taglineAttrs).not.toMatch(/\bline-clamp-1\b/)
+      expect(taglineAttrs).not.toMatch(/text-overflow\s*:\s*ellipsis/i)
+      expect(taglineAttrs).not.toMatch(/white-space\s*:\s*nowrap/i)
+    })
   })
 
   describe("active marketing and 404 footers use centralized copy", () => {

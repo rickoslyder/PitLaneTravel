@@ -79,7 +79,7 @@ export default function Header() {
               <span className="truncate text-base font-semibold tracking-tight sm:text-lg">
                 {brand.name}
               </span>
-              <span className="text-muted-foreground hidden max-w-[16rem] truncate text-xs font-normal lg:block">
+              <span className="text-muted-foreground hidden max-w-[16rem] text-xs font-normal leading-snug lg:block">
                 {brand.tagline}
               </span>
             </span>
