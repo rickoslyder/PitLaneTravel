@@ -1,17 +1,29 @@
 # Pit Lane Travel — Revamp & Multi-Series Expansion Spec
 
-Status: in progress on branch `revamp/multi-series`.
-Owner: Richard Bankole. Last updated: 2026-07-09.
+- **Record class:** historical implementation record — **not** the active product contract.
+- **Canonical contract:** [`docs/product/day-70-contract.md`](docs/product/day-70-contract.md) (frozen 2026-08-24, PLT-001).
+- **Owner:** Richard Bankole.
+- **Originally written:** 2026-07-09 for the `revamp/multi-series` line.
+- **Classified historical:** 2026-08-24. Repository baseline at classification: `99a5ffb9d28035996c61f95a9dfa316e7b00eed2`.
 
-This document specs (1) remediation of the security/quality debt found in the Jan-2025
-codebase, (2) the architecture to expand from F1-only to a multi-series motorsport travel
-hub (F1, Formula E, MotoGP, IndyCar, WEC), and (3) completion of every half-built or
-not-yet-started feature. Work is sequenced into phases A–E; each phase is independently
-shippable.
+This file records (1) remediation of the security/quality debt found in the Jan-2025
+codebase, (2) the architecture used to expand from F1-only to a multi-series motorsport
+travel hub (F1, Formula E, MotoGP, IndyCar, WEC), and (3) the then-intended completion of
+half-built features. Phases A–E below are the 2026-07 engineering sequence. They are
+completed-implementation notes and contemporaneous remaining-work lists, not a live
+capability statement and not the Days 1–70 business contract.
+
+Do not read checkmarks, “applied to production,” or remaining-owner-decision items in
+this file as current product truth. Live-versus-planned capability, commercial stop
+rules, coverage tiers and AI authority live only in the Day-70 contract.
 
 ---
 
 ## 0. Context
+
+*Written 2026-07-09. Several sentences below were later overtaken by the 2026-07
+implementation snapshot in §“Applied to production,” and then by the 2026-08-24 audit.
+Keep this paragraph as origin context; do not treat it as a current-state report.*
 
 The app is a Next.js 15 App Router platform: Clerk auth, Supabase Postgres + Drizzle,
 Duffel flights, Stripe (payment-link subscriptions), OpenAI + Gemini, Resend email,
@@ -254,6 +266,7 @@ Each stub becomes real, series-agnostic, and monetisable where applicable.
 ### D8. Flights payment (completes A5)
 - Stripe PaymentIntent charging offer total + service fee before Duffel order; booking
   confirmation shows the fee. Flip `FLIGHTS_BOOKING_ENABLED` on once done.
+  *(Historical Phase D intent. The 2026-08-24 contract keeps the flag off through Gate F.)*
 
 ### D9. Notifications / community polish
 - Wire push (web-push/PWA) or clearly scope to email-only; add review photo upload +
@@ -276,17 +289,33 @@ Each stub becomes real, series-agnostic, and monetisable where applicable.
 
 ## Sequencing & status
 
-| Phase | Scope | Status |
+*Historical 2026-07 sequencing view. Phase E’s “in progress” line is the original
+status, not a current branch state. The 2026-07-26 snapshot below later recorded
+migrations, calendars and DNS as applied; the 2026-08-24 contract then separated
+those implementation notes from live capability. Feature-completion “done” means
+the listed surfaces were built in code — not that they meet the Day-70 contract.*
+
+| Phase | Scope | Status (as recorded 2026-07) |
 |-------|-------|--------|
 | A | Security criticals | ✅ done (branch `revamp/multi-series`) |
 | B | Repo hygiene | ✅ done |
 | C | Multi-series foundation | ✅ done (schema, providers, naming, series filter, landing pages, de-brand of key SEO) |
-| D | Feature completion | ✅ done (grandstands, budget, transport, packages, planner, hotels, compare) |
-| E | Data + launch | 🔧 in progress — series + sample multi-series seeds authored; migrations not yet run; full de-brand sweep + full calendars + DNS remain |
+| D | Feature completion | ✅ done as implementation (grandstands, budget, transport, packages, planner, hotels, compare) — not a live decision-grade / commercial claim |
+| E | Data + launch | Originally 🔧 in progress (seeds authored; migrations not yet run). Superseded as a status line by the 2026-07-26 snapshot below; superseded as live truth by `docs/product/day-70-contract.md`. |
 
-### Applied to production ✅ (as of 2026-07-26)
+### Applied to production — 2026-07-26 implementation snapshot
 
-**Live and verified** at `https://www.pitlanetravel.com` — every route below returns 200.
+*Historical note, not a live capability statement. Recorded 2026-07-26. The
+2026-08-24 live check contradicted at least: “every route below returns 200”
+(2026 Italian and Dutch GP race-detail URLs returned HTTP 500) and “statuses
+derived from dates, so nothing goes stale” (series pages labelled past events
+Upcoming). Sitemap URL counts in this snapshot (267) were later revised in
+`DECISIONS.md` (179) and again observed live as 179 on 2026-08-24. Treat numbers
+and “verified live” sentences here as dated notes. Current contract:
+`docs/product/day-70-contract.md`.*
+
+**Then recorded** at `https://www.pitlanetravel.com` — the 2026-07-26 note claimed
+every route below returned 200; that claim is **not** live-verified as of 2026-08-24.
 
 - **DNS fixed**: `www` CNAME added in Cloudflare; the canonical domain was fully down.
 - **Security**: authz/IDOR guards, cron auth (verified live 401 without / 200 with secret),
@@ -295,7 +324,10 @@ Each stub becomes real, series-agnostic, and monetisable where applicable.
 - **Migrations 0003–0006** applied (series, grandstands, cancelled races, flight payments).
 - **Calendars**: F1 2026 (22 rounds — Bahrain + Saudi correctly cancelled) plus **65
   researched, fact-checked races** across Formula E (17), MotoGP (22), IndyCar (18) and
-  WEC (8). **113 races, 67 circuits.** Statuses derived from dates, so nothing goes stale.
+  WEC (8). **113 races, 67 circuits** (2026-07-26 snapshot counts). The contemporaneous
+  note said statuses were derived from dates so nothing would go stale; the 2026-08-24
+  live check found past events still labelled Upcoming. Date-state remains a Gate A/B
+  repair, not a settled live property.
 - **Grandstand guides**: **145 stands across all 24 circuits**, split into per-circuit pages
   (index went 5.1 MB → 153 KB) with per-circuit SEO titles.
 - **Sitemap**: dynamic, **267 canonical URLs** (was a stale 57-URL static file on the
@@ -308,7 +340,14 @@ Each stub becomes real, series-agnostic, and monetisable where applicable.
 
 ### Remaining — owner decisions and business development
 
-1. **Turn on flight booking** *(owner call — moves real money)*. The server flow is done.
+*2026-07-26 remaining-work list, preserved as history. Item 1 (enable merchant
+flight booking this cycle) is **superseded as an in-cycle goal** by the Day-70
+contract: `FLIGHTS_BOOKING_ENABLED` stays off through Gate F. Ticket-inventory
+and Formula E Season 13 notes remain operational facts, not permission to add a
+sixth series or to treat 2026-07 inventory as current. See
+`docs/product/day-70-contract.md` §§5–6.*
+
+1. **Turn on flight booking** *(owner call — moves real money; **not** a Days 1–70 goal)*. The server flow is done.
    Before flipping `FLIGHTS_BOOKING_ENABLED`: run a Stripe test-mode booking end-to-end,
    **set `FLIGHT_SERVICE_FEE_PERCENT`** — at the 0% default you *lose* money on every
    booking (Stripe processing + FX come out of a charge equal to the offer total), and
