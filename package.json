@@ -9,6 +9,7 @@
     "lint": "next lint",
     "clean": "npm run lint:fix && npm run format:write",
     "type-check": "tsc --noEmit",
+    "check": "npm run type-check && npm test",
     "lint:fix": "next lint --fix",
     "format:write": "prettier --write \"{app,lib,db,components,context,types}/**/*.{ts,tsx}\" --cache",
     "format:check": "prettier --check \"{app,lib,db,components,context,types}**/*.{ts,tsx}\" --cache",
@@ -29,7 +30,8 @@
     "migrate:track-maps": "tsx scripts/migrate-track-maps.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:migrate-sql": "tsx scripts/apply-sql-migrations.ts"
+    "db:migrate-sql": "tsx scripts/apply-sql-migrations.ts",
+    "db:migrate:all": "npm run db:migrate && npm run db:migrate-sql"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.11",
