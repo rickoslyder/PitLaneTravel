@@ -8,6 +8,8 @@ import { pluralizeEventNoun } from "@/lib/series"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { isActiveRaceStatus } from "@/lib/race-status"
 import { RaceGrid } from "@/components/races/RaceGrid"
+import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
+import { coverageByRaceId } from "@/lib/public-coverage"
 
 interface SeriesPageProps {
   params: Promise<{ slug: string }>
@@ -50,6 +52,12 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
     excludeCancelled: true
   })
   const upcoming = (races ?? []).filter(r => isActiveRaceStatus(r.status))
+  const coverageResult = await getPublicCoverageSummariesAction(
+    upcoming.map(race => race.id)
+  )
+  const coverageMap = coverageResult.isSuccess
+    ? coverageByRaceId(coverageResult.data)
+    : {}
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-4 sm:p-8">
@@ -81,7 +89,11 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
         </div>
 
         {upcoming.length > 0 ? (
-          <RaceGrid races={upcoming} viewType="grid" />
+          <RaceGrid
+            races={upcoming}
+            viewType="grid"
+            coverageByRaceId={coverageMap}
+          />
         ) : (
           <div className="rounded-lg border border-dashed p-10 text-center text-muted-foreground">
             The {series.name} calendar is being finalised. Check back soon or

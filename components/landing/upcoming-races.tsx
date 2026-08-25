@@ -7,43 +7,59 @@ import { motion } from "framer-motion"
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useSyncExternalStore } from "react"
 import { cn } from "@/lib/utils"
+import { CoverageBadge } from "@/components/coverage/coverage-badge"
+import type { PublicCoverageSummary } from "@/lib/public-coverage"
+import {
+  UPCOMING_RACES_SSR_VISIBLE_COUNT,
+  upcomingRacesNextDisabled,
+  upcomingRacesNextIndex,
+  upcomingRacesPrevDisabled,
+  upcomingRacesPrevIndex,
+  upcomingRacesVisibleCount
+} from "@/components/landing/upcoming-races-visible-count"
 
 interface UpcomingRacesProps {
   races: RaceWithCircuitAndSeries[]
+  coverageByRaceId?: Record<string, PublicCoverageSummary>
 }
 
-export function UpcomingRaces({ races }: UpcomingRacesProps) {
-  const [currentIndex, setCurrentIndex] = useState(0)
+function subscribeUpcomingRacesViewport(onStoreChange: () => void) {
+  window.addEventListener("resize", onStoreChange)
+  return () => window.removeEventListener("resize", onStoreChange)
+}
 
-  const getVisibleCount = () => {
-    if (typeof window === "undefined") return 4 // Default for SSR
-    if (window.innerWidth >= 1536) return 4 // 2xl: 4 items in one row
-    if (window.innerWidth >= 1024) return 3 // lg: exactly 3 items
-    if (window.innerWidth >= 768) return 4 // md: 4 items in 2x2 grid
-    return 1 // mobile: 1 item
-  }
+function getUpcomingRacesViewportSnapshot() {
+  return upcomingRacesVisibleCount(window.innerWidth)
+}
+
+function getUpcomingRacesServerSnapshot() {
+  return UPCOMING_RACES_SSR_VISIBLE_COUNT
+}
+
+export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const visibleCount = useSyncExternalStore(
+    subscribeUpcomingRacesViewport,
+    getUpcomingRacesViewportSnapshot,
+    getUpcomingRacesServerSnapshot
+  )
 
   const nextSlide = () => {
-    const visibleCount = getVisibleCount()
     setCurrentIndex(current =>
-      current + visibleCount >= races.length ? 0 : current + visibleCount
+      upcomingRacesNextIndex(current, visibleCount, races.length)
     )
   }
 
   const prevSlide = () => {
-    const visibleCount = getVisibleCount()
     setCurrentIndex(current =>
-      current - visibleCount < 0
-        ? Math.max(races.length - visibleCount, 0)
-        : current - visibleCount
+      upcomingRacesPrevIndex(current, visibleCount, races.length)
     )
   }
 
   if (!races.length) return null
 
-  const visibleCount = getVisibleCount()
   const visibleRaces = races.slice(currentIndex, currentIndex + visibleCount)
 
   return (
@@ -68,7 +84,7 @@ export function UpcomingRaces({ races }: UpcomingRacesProps) {
               size="icon"
               onClick={prevSlide}
               className="absolute -left-4 top-1/2 z-10 -translate-y-1/2"
-              disabled={currentIndex === 0}
+              disabled={upcomingRacesPrevDisabled(currentIndex)}
             >
               <ChevronLeft className="size-6" />
             </Button>
@@ -101,6 +117,14 @@ export function UpcomingRaces({ races }: UpcomingRacesProps) {
                       <h3 className="mb-2 text-xl font-semibold">
                         {race.name}
                       </h3>
+                      {coverageByRaceId?.[race.id] && (
+                        <div className="mb-2">
+                          <CoverageBadge
+                            summary={coverageByRaceId[race.id]}
+                            compact
+                          />
+                        </div>
+                      )}
                       <p className="text-muted-foreground mb-2">
                         {race.circuit?.location}
                       </p>
@@ -130,7 +154,11 @@ export function UpcomingRaces({ races }: UpcomingRacesProps) {
               size="icon"
               onClick={nextSlide}
               className="absolute -right-4 top-1/2 z-10 -translate-y-1/2"
-              disabled={currentIndex + visibleCount >= races.length}
+              disabled={upcomingRacesNextDisabled(
+                currentIndex,
+                visibleCount,
+                races.length
+              )}
             >
               <ChevronRight className="size-6" />
             </Button>

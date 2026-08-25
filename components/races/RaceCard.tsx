@@ -6,6 +6,8 @@ import { RaceWithCircuitAndSeries } from "@/types/database"
 import { format } from "date-fns"
 import { CalendarDays, Flag, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { CoverageBadge } from "@/components/coverage/coverage-badge"
+import type { PublicCoverageSummary } from "@/lib/public-coverage"
 
 interface RaceCardProps {
   /** The race to display */
@@ -16,6 +18,8 @@ interface RaceCardProps {
   className?: string
   /** Callback when the card is clicked */
   onClick?: () => void
+  /** Safe public coverage summary for this race */
+  coverage?: PublicCoverageSummary
 }
 
 function SeriesBadge({
@@ -52,7 +56,8 @@ export function RaceCard({
   race,
   variant = "grid",
   className,
-  onClick
+  onClick,
+  coverage
 }: RaceCardProps) {
   const raceDate = new Date(race.date)
   const isCancelled = race.status === "cancelled"
@@ -88,6 +93,7 @@ export function RaceCard({
               <div className="flex flex-wrap items-center gap-2">
                 <SeriesBadge race={race} />
                 {isCancelled && <CancelledBadge />}
+                {coverage && <CoverageBadge summary={coverage} compact />}
                 <h3
                   className={cn(
                     "font-semibold",
@@ -161,6 +167,7 @@ export function RaceCard({
         >
           {race.name}
         </h3>
+        {coverage && <CoverageBadge summary={coverage} compact />}
         <div className="text-muted-foreground flex flex-col gap-2 text-sm">
           <div className="flex items-center gap-1">
             <MapPin className="size-3.5" />
