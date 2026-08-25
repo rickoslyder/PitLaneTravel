@@ -35,7 +35,7 @@ export function ConsentBannerView({
   const showSettingsButton = status !== "undecided"
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] p-3 sm:p-4">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] p-3 pb-20 sm:p-4">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
         {showFirstVisit ? (
           <section

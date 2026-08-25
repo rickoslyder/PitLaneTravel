@@ -123,4 +123,25 @@ describe("consent banner markup", () => {
     expect(html).toMatch(/>Accept analytics</)
     expect(html).toMatch(/>Reject non-essential</)
   })
+
+  it("reserves extra mobile bottom clearance and restores desktop padding at sm", () => {
+    const html = render({
+      status: "undecided",
+      settingsOpen: false,
+      onAccept: noop,
+      onReject: noop,
+      onWithdraw: noop,
+      onOpenSettings: noop,
+      onCloseSettings: noop
+    })
+
+    const outer = html.match(
+      /class="([^"]*\bfixed\b[^"]*\binset-x-0\b[^"]*\bbottom-0\b[^"]*)"/
+    )?.[1]
+    expect(outer, "outer consent shell class").toBeTruthy()
+    expect(outer).toMatch(/\bp-3\b/)
+    expect(outer).toMatch(/\bpb-(1[6-9]|[2-9]\d)\b/)
+    expect(outer).toMatch(/\bsm:p-4\b/)
+    expect(outer).not.toMatch(/overflow(?:-x|-y)?-hidden/)
+  })
 })

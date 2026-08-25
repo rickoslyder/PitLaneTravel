@@ -254,4 +254,29 @@ describe("PLT-016 analytics consent browser source contract", () => {
     expect(banner).not.toMatch(/anonymized/i)
     expect(banner).not.toMatch(/cookieless/i)
   })
+
+  it("reserves mobile bottom clearance for the Progressier badge and restores desktop padding", () => {
+    const banner = read("components/privacy/consent-banner.tsx")
+    expect(banner).toMatch(
+      /pointer-events-none fixed inset-x-0 bottom-0 z-\[60\] p-3 pb-(1[6-9]|[2-9]\d) sm:p-4/
+    )
+    expect(banner).not.toMatch(/overflow(?:-x|-y)?-hidden/)
+    expect(banner).not.toMatch(/matchMedia|innerHeight|innerWidth/)
+    expect(banner).not.toMatch(/progressier/i)
+  })
+
+  it("asserts Progressier badge geometry does not cover consent actions when present", () => {
+    const spec = read("tests/e2e/analytics-consent.spec.ts")
+    expect(spec).toMatch(/function boxesOverlap/)
+    expect(spec).toMatch(/assertProgressierBadgeDoesNotCoverConsentActions/)
+    expect(spec).toMatch(/powered by progressier/i)
+    expect(spec).toMatch(/getBoundingClientRect/)
+    expect(spec).toMatch(/Progressier badge intersects Accept analytics/)
+    expect(spec).toMatch(/Progressier badge intersects Reject non-essential/)
+    expect(
+      spec.match(/assertProgressierBadgeDoesNotCoverConsentActions/g)?.length
+    ).toBeGreaterThanOrEqual(3)
+    expect(spec).not.toMatch(/display:\s*["']none["']/)
+    expect(spec).not.toMatch(/remove\(\)|removeChild/)
+  })
 })
