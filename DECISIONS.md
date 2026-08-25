@@ -467,3 +467,29 @@ and “the whole travel ecosystem”; this freeze records the missing middle.
 unresolved; new contract copy uses PitLane Travel. Partner commission/cookie/deep-link
 rules stay unverified until the current agreement is read. No traffic or conversion
 baseline is invented.
+
+---
+
+## 2026-08-25 — Hold Vercel Hobby during the build; block commercial activation (PLT-056)
+
+**Canonical record:** [`docs/operations/hosting-plan-decision.md`](docs/operations/hosting-plan-decision.md)
+**Issue:** PLT-056 / GitHub #36
+**Owner decision (verbatim, 2026-08-25):** “Keep it as Hobby until we're done with building.”
+
+**Decision.** Remain on the observed Vercel Hobby plan for the build phase. This is an explicit HOLD. It is not Pro approval and not permission to operate commercially on Hobby.
+
+**Verified current state (observed API, 2026-08-25).** Project `pit-lane-travel` (`prj_sZwimmtV4tilXJkWxiNUvGRfQx73`) on team `team_VEwLT4h3vSdKnitmHWwP2kxv` has `billing.plan = hobby`. No upgrade, domain, environment variable, production setting, or `vercel.json` change was performed.
+
+**Commercial activation block.** Official Hobby terms are free, non-commercial personal use only. Day-70 requires a commercial-use-compatible host before tagged monetisation is intentionally operated. Until Richard later declares the build complete and approves the then-current spend envelope and upgrade action: no paid plan change; no intentional operation or promotion of tagged monetized affiliate paths; PLT-018 and PLT-057 may be built/tested with synthetic or untagged/noncommercial proof but are not commercially activated; no live money movement; preserve the public catalogue.
+
+[`docs/operations/production-baseline.md`](docs/operations/production-baseline.md) records `HOTEL_AFFILIATE_ID` absent and money-moving flags off. That metadata does not by itself disable every existing outbound ticket route.
+
+**Trigger for reconsideration.** Not a date. Not Gate F. Reopens only on Richard's explicit declaration that the build phase is complete plus approval of the then-current exact monthly base, seat count, add-ons, spend controls, billing owner, and upgrade action.
+
+**Unapproved Pro envelope (official docs; not approved; no add-ons).** $20/month platform fee; one deploying team seat included; $20/month usage credit; on-demand usage can occur beyond included allocations/credit; additional paid owner/member seats $20/month each.
+
+**Cron.** Six daily UTC jobs remain unchanged (`update-sessions` 12:00, `update-weather` 06:00, `update-exchange-rates` 03:00, `check-waitlist` 09:00, `cleanup-notifications` 04:00, `reconcile-flight-payments` 05:00). Hobby allows up to 100 jobs, minimum once/day, per-hour precision (±59 min). The current expressions are Hobby-compatible but are not exact-minute promises. Pro would allow once/minute and per-minute precision. Instant Rollback does not update active cron schedules.
+
+**Rollback / billing.** Billing owner is Richard. Agents may prepare and read back; they cannot approve spend. Rollback is N/A because no change occurred.
+
+This issue records the hold and commercial blocker. It does not perform the paid upgrade.
