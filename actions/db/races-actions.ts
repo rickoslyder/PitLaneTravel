@@ -8,6 +8,13 @@ import { and, eq, gte, lte, ne, sql } from "drizzle-orm"
 import { InsertRace, SelectRace } from "@/db/schema/races-schema"
 import { AuthError, requireAdmin } from "@/lib/auth"
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function isUuid(value: string): boolean {
+  return UUID_RE.test(value)
+}
+
 /** Postgres unique-violation error code. */
 const PG_UNIQUE_VIOLATION = "23505"
 
@@ -181,6 +188,10 @@ export async function getRacesAction(filters?: {
 }
 
 export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWithCircuitAndSeries>> {
+  if (!isUuid(id)) {
+    return { isSuccess: false, message: "Invalid race id" }
+  }
+
   try {
     console.log("[Races] Getting race by ID:", id)
 
