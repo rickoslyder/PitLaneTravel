@@ -5,7 +5,8 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["**/*.{test,spec}.ts"],
-    exclude: ["node_modules", ".next", "android"]
+    // Playwright owns tests/e2e/smoke.spec.ts. Other tests/e2e/*.spec.ts stay Vitest source-contracts.
+    exclude: ["node_modules", ".next", "android", "tests/e2e/smoke.spec.ts"]
   },
   resolve: {
     alias: {

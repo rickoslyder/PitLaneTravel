@@ -6,6 +6,7 @@ Contains middleware for protecting routes, checking user authentication, and red
 
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import { clerkMiddlewareNetworklessOptions } from "@/lib/clerk-middleware-options"
 
 // Routes that require an authenticated session. Server actions and route handlers
 // still enforce their own authorization (see lib/auth.ts); this is defense-in-depth.
@@ -25,7 +26,7 @@ export default clerkMiddleware(async (auth, req) => {
       return NextResponse.redirect(signIn)
     }
   }
-})
+}, clerkMiddlewareNetworklessOptions())
 
 // Keep the matcher pattern for static assets
 export const config = {

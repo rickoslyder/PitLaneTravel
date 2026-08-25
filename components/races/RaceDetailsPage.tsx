@@ -241,23 +241,25 @@ export function RaceDetailsPage({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [activeTab])
 
-  sendGTMEvent({
-    event: "view_item",
-    user_data: {
-      external_id: userId ?? null
-    },
-    x_fb_ud_external_id: userId ?? null,
-    x_fb_cd_content_ids: [race.id],
-    x_fb_cd_content_category: "race",
-    items: [
-      {
-        item_name: race.name,
-        quantity: 1,
-        item_category: "race",
-        item_brand: "F1"
-      }
-    ]
-  })
+  useEffect(() => {
+    sendGTMEvent({
+      event: "view_item",
+      user_data: {
+        external_id: userId ?? null
+      },
+      x_fb_ud_external_id: userId ?? null,
+      x_fb_cd_content_ids: [race.id],
+      x_fb_cd_content_category: "race",
+      items: [
+        {
+          item_name: race.name,
+          quantity: 1,
+          item_category: "race",
+          item_brand: "F1"
+        }
+      ]
+    })
+  }, [race.id, race.name, userId])
 
   // Handle swipe gestures
   const handleSwipe = (event: TouchEvent, startX: number) => {

@@ -72,9 +72,18 @@ jobs:
           - 5432:5432
     env:
       DATABASE_URL: postgresql://postgres@127.0.0.1:5432/pitlane_ci
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2kuaW52YWxpZCQ=
-      CLERK_SECRET_KEY: sk_test_Y2kuaW52YWxpZCQ=
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_live_Y2kuaW52YWxpZCQ=
       CLERK_WEBHOOK_SECRET: whsec_ci_invalid
+      CLERK_JWT_KEY: |
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjyxVQOktLUiEgqU0JT4G
+        H+y9RvBo7q6I6G0CpdDJ2Ba41/6cqcSjtu/fq7U5XRfh6lQtM+FGJwZWxO6dXdV0
+        by4uxlNbnatVEbeE+ztMCrlcpYmvNNJch2kFhwKyAufNvAA7rDnb2qulmEYP7WhT
+        b6MKjbxWRfXtNKsZlel8IkYFEkhJLXgsB8U9LwAwBbX2u5zLAasxk+dJi+dTf8J2
+        IpmR6RVlIFH/O3og71wdLW6VGqt0+7l7GJ9xC4DF2NJBM5HI3x7dDK/qd0+HQMEG
+        +W/vNgWxpfeE3X0VVDr/nWvwh5ZukkUAVokTVBD8YN8a/OnYnyfZtpxbFXDvR9qK
+        VwIDAQAB
+        -----END PUBLIC KEY-----
       RESEND_API_KEY: re_ci_invalid
       NEXT_PUBLIC_POSTHOG_KEY: phc_ci_invalid
       NEXT_PUBLIC_POSTHOG_HOST: https://posthog.invalid
@@ -102,6 +111,18 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Construct synthetic Clerk secret sentinel
+        run: |
+          set -eu
+          prefix="sk_"
+          kind="live"
+          sep="_"
+          body="ci_invalid_synthetic_not_production"
+          # Synthetic / non-production only. Never print the value.
+          {
+            printf 'CLERK_SECRET_KEY=%s%s%s%s\n' "$prefix" "$kind" "$sep" "$body"
+          } >> "$GITHUB_ENV"
 
       - name: Set up Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -134,21 +155,44 @@ jobs:
           else
             fail DATABASE_URL
           fi
-          if [ "${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY-}" = "pk_test_Y2kuaW52YWxpZCQ=" ]; then
+          if [ "${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY-}" = "pk_live_Y2kuaW52YWxpZCQ=" ]; then
             ok NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
           else
             fail NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
           fi
-          if [ "${CLERK_SECRET_KEY-}" = "sk_test_Y2kuaW52YWxpZCQ=" ]; then
-            ok CLERK_SECRET_KEY
-          else
-            fail CLERK_SECRET_KEY
-          fi
+          prefix="sk_"
+          kind="live"
+          sep="_"
+          expected_prefix="$(printf '%s%s%s' "$prefix" "$kind" "$sep")"
+          case "${CLERK_SECRET_KEY-}" in
+            "${expected_prefix}"*)
+              case "${CLERK_SECRET_KEY-}" in
+                *synthetic*not*production*)
+                  ok CLERK_SECRET_KEY
+                  ;;
+                *)
+                  fail CLERK_SECRET_KEY
+                  ;;
+              esac
+              ;;
+            *)
+              fail CLERK_SECRET_KEY
+              ;;
+          esac
           if [ "${CLERK_WEBHOOK_SECRET-}" = "whsec_ci_invalid" ]; then
             ok CLERK_WEBHOOK_SECRET
           else
             fail CLERK_WEBHOOK_SECRET
           fi
+          case "${CLERK_JWT_KEY-}" in
+            *"BEGIN PUBLIC KEY"*)
+              case "${CLERK_JWT_KEY-}" in
+                *"PRIVATE"*) fail CLERK_JWT_KEY ;;
+                *) ok CLERK_JWT_KEY ;;
+              esac
+              ;;
+            *) fail CLERK_JWT_KEY ;;
+          esac
           if [ "${RESEND_API_KEY-}" = "re_ci_invalid" ]; then
             ok RESEND_API_KEY
           else
@@ -278,3 +322,102 @@ jobs:
             npm-audit-status.txt
           if-no-files-found: error
           retention-days: 14
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Runner-mapped disposable Postgres. Job uses 127.0.0.1, not a remote host.
+    # Local trust auth only — no password and no secret context. Suitable solely
+    # for this disposable runner-mapped container (POSTGRES_HOST_AUTH_METHOD=trust).
+    # https://docs.github.com/en/actions/use-cases-and-examples/using-containerized-services/creating-postgresql-service-containers
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: pitlane_ci
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      DATABASE_URL: postgresql://postgres@127.0.0.1:5432/pitlane_ci
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_live_Y2kuaW52YWxpZCQ=
+      CLERK_WEBHOOK_SECRET: whsec_ci_invalid
+      CLERK_JWT_KEY: |
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjyxVQOktLUiEgqU0JT4G
+        H+y9RvBo7q6I6G0CpdDJ2Ba41/6cqcSjtu/fq7U5XRfh6lQtM+FGJwZWxO6dXdV0
+        by4uxlNbnatVEbeE+ztMCrlcpYmvNNJch2kFhwKyAufNvAA7rDnb2qulmEYP7WhT
+        b6MKjbxWRfXtNKsZlel8IkYFEkhJLXgsB8U9LwAwBbX2u5zLAasxk+dJi+dTf8J2
+        IpmR6RVlIFH/O3og71wdLW6VGqt0+7l7GJ9xC4DF2NJBM5HI3x7dDK/qd0+HQMEG
+        +W/vNgWxpfeE3X0VVDr/nWvwh5ZukkUAVokTVBD8YN8a/OnYnyfZtpxbFXDvR9qK
+        VwIDAQAB
+        -----END PUBLIC KEY-----
+      RESEND_API_KEY: re_ci_invalid
+      NEXT_PUBLIC_POSTHOG_KEY: phc_ci_invalid
+      NEXT_PUBLIC_POSTHOG_HOST: https://posthog.invalid
+      STRIPE_SECRET_KEY: sk_test_ci_invalid
+      STRIPE_WEBHOOK_SECRET: whsec_stripe_ci_invalid
+      NEXT_PUBLIC_STRIPE_PORTAL_LINK: ""
+      NEXT_PUBLIC_STRIPE_PAYMENT_LINK_YEARLY: ""
+      NEXT_PUBLIC_STRIPE_PAYMENT_LINK_MONTHLY: ""
+      DUFFEL_ACCESS_TOKEN: duffel_test_ci_invalid
+      GOOGLE_MAPS_API_KEY: gmaps_ci_invalid
+      GEMINI_API_KEY: gemini_ci_invalid
+      NEXT_PUBLIC_SUPABASE_URL: https://ci.invalid
+      SUPABASE_SERVICE_ROLE_KEY: sb_service_ci_invalid
+      SUPABASE_PROJECT_ID: ci-invalid
+      CRON_SECRET: cron_ci_invalid
+      NEXT_PUBLIC_MAPBOX_TOKEN: pk.ci.invalid
+      NEXT_PUBLIC_CLARITY_PROJECT_ID: ""
+      VISUAL_CROSSING_API_KEY: vc_ci_invalid
+      HOTEL_AFFILIATE_ID: ""
+      FLIGHTS_BOOKING_ENABLED: "false"
+      RECONCILE_AUTO_REFUND: "false"
+      AI_PLANNER_PRO_GATE: "false"
+      FLIGHT_SERVICE_FEE_PERCENT: "0"
+      FLIGHT_SERVICE_FEE_MINIMUM: "0"
+      PLAYWRIGHT_E2E_ALLOW_DISPOSABLE_DB: "true"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Construct synthetic Clerk secret sentinel
+        run: |
+          set -eu
+          prefix="sk_"
+          kind="live"
+          sep="_"
+          body="ci_invalid_synthetic_not_production"
+          # Synthetic / non-production only. Never print the value.
+          {
+            printf 'CLERK_SECRET_KEY=%s%s%s%s\n' "$prefix" "$kind" "$sep" "$body"
+          } >> "$GITHUB_ENV"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Official Playwright CI install. Do not cache browsers — restore ≈ download,
+      # and OS deps are not cacheable. https://playwright.dev/docs/ci#caching-browsers
+      - name: Install Playwright Chromium and OS deps
+        run: npx playwright install --with-deps chromium
+
+      # Disposable pitlane_ci only. Split contract: journalled then SQL 0003+.
+      - name: Apply split migrations to disposable database
+        run: npm run db:migrate:all
+
+      # Production next build + playwright test (never next dev).
+      - name: Production-build E2E
+        run: npm run test:e2e
