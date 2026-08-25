@@ -49,9 +49,26 @@ Run this against a GitHub Actions run of `CI` on a pull request targeting `main`
 8. Confirm the run requested no GitHub Environment and no repository/organization secret context. The workflow file must not contain a secret context, `environment:`, or `pull_request_target`. Permissions must be `contents: read` only.
 9. Confirm no `.env` file and no Next.js build output were uploaded as artifacts.
 
+## Production hosting boundary (PLT-056)
+
+This file remains the PLT-003 isolation contract. Preview, CI, and local
+`check` prove isolation and buildability. They do **not** authorize commercial
+operation or a paid Vercel upgrade.
+
+Canonical hold: [hosting-plan-decision.md](hosting-plan-decision.md). Production
+remains on the observed Hobby plan. PLT-056 changed no domain, environment
+variable, production setting, or `vercel.json` cron entry.
+
+Tagged monetized affiliate paths must not be intentionally operated or promoted
+while that Hobby hold remains. PLT-018 and PLT-057 may be built or tested here
+with synthetic or untagged/noncommercial proof; Preview success is not
+commercial activation.
+
 ## Official sources
 
 - https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions
 - https://docs.github.com/en/actions/use-cases-and-examples/using-containerized-services/creating-postgresql-service-containers
 - https://docs.github.com/en/actions/tutorials/store-and-share-data
 - https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions
+- https://vercel.com/docs/plans/hobby
+- https://vercel.com/docs/limits/fair-use-guidelines#commercial-usage
