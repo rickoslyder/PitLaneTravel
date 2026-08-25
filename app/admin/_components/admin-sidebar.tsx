@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -30,7 +30,8 @@ import {
   CreditCard,
   Briefcase,
   ChevronDown,
-  DollarSign
+  DollarSign,
+  LayoutGrid
 } from "lucide-react"
 import PitLaneTravelLogo from "@/logos/PitLaneTravelLogo"
 
@@ -61,6 +62,11 @@ const sections: NavSection[] = [
         title: "Races",
         href: "/admin/races",
         icon: <Flag className="mr-2 size-4" />
+      },
+      {
+        title: "Coverage",
+        href: "/admin/coverage",
+        icon: <LayoutGrid className="mr-2 size-4" />
       },
       {
         title: "Championships",
@@ -151,11 +157,68 @@ const sections: NavSection[] = [
   }
 ]
 
+function AdminNav({
+  pathname,
+  expandedSections,
+  toggleSection,
+  className
+}: {
+  pathname: string
+  expandedSections: string[]
+  toggleSection: (title: string) => void
+  className?: string
+}) {
+  return (
+    <nav aria-label="Admin" className={className}>
+      {sections.map(section => (
+        <div key={section.title}>
+          <Button
+            variant="ghost"
+            className="h-8 w-full justify-between px-2 py-1.5"
+            onClick={() => toggleSection(section.title)}
+          >
+            <span className="text-xs font-semibold uppercase text-gray-400">
+              {section.title}
+            </span>
+            <ChevronDown
+              className={cn(
+                "size-4 transition-transform",
+                expandedSections.includes(section.title)
+                  ? "rotate-0"
+                  : "-rotate-90"
+              )}
+            />
+          </Button>
+
+          {expandedSections.includes(section.title) && (
+            <div className="ml-2 space-y-0.5">
+              {section.items.map(item => (
+                <Button
+                  key={item.href}
+                  variant={pathname === item.href ? "secondary" : "ghost"}
+                  className="h-8 w-full justify-start py-1"
+                  asChild
+                >
+                  <Link href={item.href}>
+                    {item.icon}
+                    {item.title}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </nav>
+  )
+}
+
 export function AdminSidebar() {
   const pathname = usePathname()
   const [expandedSections, setExpandedSections] = useState<string[]>(
     sections.map(s => s.title)
   )
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   const toggleSection = (title: string) => {
     setExpandedSections(prev =>
@@ -163,57 +226,52 @@ export function AdminSidebar() {
     )
   }
 
-  return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r bg-white">
-      <div className="flex h-full flex-col">
-        <div className="flex h-16 items-center border-b px-6">
-          <PitLaneTravelLogo className="h-[4vh]" />
-        </div>
-        <div className="flex h-16 items-center border-b px-6">
-          <h1 className="text-xl font-bold">Admin Panel</h1>
-        </div>
-        <nav className="flex-1 space-y-2 px-3 py-4">
-          {sections.map(section => (
-            <div key={section.title}>
-              <Button
-                variant="ghost"
-                className="h-8 w-full justify-between px-2 py-1.5"
-                onClick={() => toggleSection(section.title)}
-              >
-                <span className="text-xs font-semibold uppercase text-gray-400">
-                  {section.title}
-                </span>
-                <ChevronDown
-                  className={cn(
-                    "size-4 transition-transform",
-                    expandedSections.includes(section.title)
-                      ? "rotate-0"
-                      : "-rotate-90"
-                  )}
-                />
-              </Button>
+  useEffect(() => {
+    setMobileNavOpen(false)
+  }, [pathname])
 
-              {expandedSections.includes(section.title) && (
-                <div className="ml-2 space-y-0.5">
-                  {section.items.map(item => (
-                    <Button
-                      key={item.href}
-                      variant={pathname === item.href ? "secondary" : "ghost"}
-                      className="h-8 w-full justify-start py-1"
-                      asChild
-                    >
-                      <Link href={item.href}>
-                        {item.icon}
-                        {item.title}
-                      </Link>
-                    </Button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </nav>
-      </div>
-    </aside>
+  return (
+    <>
+      <details
+        className="border-b bg-white md:hidden"
+        open={mobileNavOpen}
+        onToggle={event => setMobileNavOpen(event.currentTarget.open)}
+        onKeyDown={event => {
+          if (event.key === "Escape") {
+            setMobileNavOpen(false)
+          }
+        }}
+      >
+        <summary
+          className="cursor-pointer px-4 py-3 text-sm font-semibold"
+          aria-label="Admin menu"
+        >
+          Admin menu
+        </summary>
+        <AdminNav
+          pathname={pathname}
+          expandedSections={expandedSections}
+          toggleSection={toggleSection}
+          className="space-y-2 px-3 pb-4"
+        />
+      </details>
+
+      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r bg-white md:block">
+        <div className="flex h-full flex-col">
+          <div className="flex h-16 items-center border-b px-6">
+            <PitLaneTravelLogo className="h-[4vh]" />
+          </div>
+          <div className="flex h-16 items-center border-b px-6">
+            <h1 className="text-xl font-bold">Admin Panel</h1>
+          </div>
+          <AdminNav
+            pathname={pathname}
+            expandedSections={expandedSections}
+            toggleSection={toggleSection}
+            className="flex-1 space-y-2 px-3 py-4"
+          />
+        </div>
+      </aside>
+    </>
   )
 }

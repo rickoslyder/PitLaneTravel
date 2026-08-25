@@ -78,7 +78,7 @@ describe("PLT-009 smoke locator and anonymous-boundary source contract", () => {
     expect(middleware).not.toMatch(/process\.env\.(NODE_ENV|VERCEL_ENV|CI)\b/)
     expect(middleware).not.toMatch(/PLAYWRIGHT/)
     expect(playwright).toMatch(
-      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*\]/
+      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*\]/
     )
     expect(playwright).toMatch(/retries:\s*0/)
     expect(smoke.match(/test\(/g)?.length).toBe(6)
