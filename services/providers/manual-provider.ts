@@ -9,6 +9,7 @@ instead of a live feed. Used by every series without an automated data source
 
 import { db } from "@/db/db"
 import { racesTable, SelectRace } from "@/db/schema/races-schema"
+import { deriveRaceStatus } from "@/lib/race-status"
 import { eq } from "drizzle-orm"
 import type { RaceDataProvider, RaceStatusValue } from "./types"
 
@@ -18,14 +19,7 @@ export class ManualProvider implements RaceDataProvider {
 
   /** Derive status from the race's stored time window. */
   deriveStatus(race: SelectRace, now: Date = new Date()): RaceStatusValue {
-    if (race.status === "cancelled") return "cancelled"
-    const start = race.weekendStart ?? race.date
-    // Fall back to end-of-race-day when no weekend end is stored.
-    const end =
-      race.weekendEnd ?? new Date(new Date(race.date).getTime() + 24 * 60 * 60 * 1000)
-    if (now < start) return "upcoming"
-    if (now > end) return "completed"
-    return "in_progress"
+    return deriveRaceStatus(race, now)
   }
 
   async updateRaceStatus(race: SelectRace): Promise<RaceStatusValue | null> {

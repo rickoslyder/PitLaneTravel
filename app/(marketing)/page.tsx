@@ -8,6 +8,7 @@ import { FeaturesSection } from "@/components/landing/features"
 import { HeroSection } from "@/components/landing/hero"
 import { UpcomingRaces } from "@/components/landing/upcoming-races"
 import { getRacesAction } from "@/actions/db/races-actions"
+import { isActiveRaceStatus } from "@/lib/race-status"
 import WhyChooseFeaturesSection from "@/components/WhyChooseFeaturesSection"
 import TestimonialSection from "@/components/TestimonialSection"
 import FaqSection from "@/components/FaqSection"
@@ -39,10 +40,10 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const { data: upcomingRaces } = await getRacesAction({
-    startDate: new Date().toISOString(),
+  const { data: races } = await getRacesAction({
     excludeCancelled: true
   })
+  const upcomingRaces = (races ?? []).filter(race => isActiveRaceStatus(race.status))
 
   // Dynamically import components that are not needed for initial render
   const DynamicCircuitExplorer = dynamic(

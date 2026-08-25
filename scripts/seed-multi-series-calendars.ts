@@ -6,8 +6,8 @@ Idempotent: races are upserted on (series, season, round). Circuits are resolved
 existing rows first and only created when genuinely new, using the real coordinates
 carried in the seed file (never 0,0 placeholders).
 
-Race status is DERIVED FROM THE DATE at run time rather than read from the file, so
-re-running keeps the calendar honest as the season progresses.
+Race status is derived at run time by the shared race-status helper rather than read
+from the file, so re-running keeps the calendar honest as the season progresses.
 
 Run: npx tsx scripts/seed-multi-series-calendars.ts [--dry-run]
 Requires DATABASE_URL and that scripts/seed-series.ts has run.
@@ -21,6 +21,7 @@ import { join } from "node:path"
 import { db } from "@/db/db"
 import { racesTable, seriesTable } from "@/db/schema"
 import { and, eq, ne } from "drizzle-orm"
+import { deriveRaceStatus } from "@/lib/race-status"
 import { buildRaceSlug } from "@/lib/series"
 import { findExistingCircuitId, findOrCreateCircuit } from "./_circuits"
 
@@ -34,12 +35,6 @@ interface SeedRound {
   note?: string
   latitude?: number
   longitude?: number
-}
-
-/** Status implied by the race date; a race weekend is treated as done the day after. */
-function deriveStatus(date: Date, now: Date): "upcoming" | "completed" {
-  const dayAfter = new Date(date.getTime() + 24 * 60 * 60 * 1000)
-  return now > dayAfter ? "completed" : "upcoming"
 }
 
 /**
@@ -98,7 +93,6 @@ async function main() {
 
     for (const r of payload.rounds) {
       const date = new Date(r.date)
-      const status = deriveStatus(date, now)
       const circuitId = dryRun ? "dry-run" : await resolveCircuit(r)
       const slugValue = buildRaceSlug(
         {
@@ -111,12 +105,18 @@ async function main() {
       )
 
       if (dryRun) {
+        const status = deriveRaceStatus({ date }, now)
         console.log(`    [dry] R${r.round} ${r.date} ${status.padEnd(9)} ${r.name}`)
         continue
       }
 
       const [existing] = await db
-        .select({ id: racesTable.id, status: racesTable.status })
+        .select({
+          id: racesTable.id,
+          status: racesTable.status,
+          weekendStart: racesTable.weekendStart,
+          weekendEnd: racesTable.weekendEnd
+        })
         .from(racesTable)
         .where(
           and(
@@ -129,6 +129,18 @@ async function main() {
           )
         )
         .limit(1)
+
+      const status = deriveRaceStatus(
+        existing
+          ? {
+              date,
+              status: existing.status,
+              weekendStart: existing.weekendStart,
+              weekendEnd: existing.weekendEnd
+            }
+          : { date },
+        now
+      )
 
       const values = {
         circuitId,
@@ -144,13 +156,9 @@ async function main() {
       }
 
       if (existing) {
-        // Never downgrade a status the session cron has moved to in_progress: the seed
-        // only knows the race date, the cron knows the live session state.
-        const { status: derived, ...rest } = values
-        const preserveLiveStatus = existing.status === "in_progress"
         await db
           .update(racesTable)
-          .set(preserveLiveStatus ? rest : values)
+          .set(values)
           .where(eq(racesTable.id, existing.id))
         updated++
       } else {

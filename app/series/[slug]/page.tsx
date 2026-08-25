@@ -6,6 +6,7 @@ import { Metadata } from "next"
 import { getSeriesBySlugAction } from "@/actions/db/series-actions"
 import { pluralizeEventNoun } from "@/lib/series"
 import { getRacesAction } from "@/actions/db/races-actions"
+import { isActiveRaceStatus } from "@/lib/race-status"
 import { RaceGrid } from "@/components/races/RaceGrid"
 
 interface SeriesPageProps {
@@ -48,7 +49,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
     series: slug,
     excludeCancelled: true
   })
-  const upcoming = (races ?? []).filter(r => r.status !== "completed")
+  const upcoming = (races ?? []).filter(r => isActiveRaceStatus(r.status))
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-4 sm:p-8">
