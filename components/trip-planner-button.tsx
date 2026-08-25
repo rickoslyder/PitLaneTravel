@@ -22,7 +22,7 @@ import { RaceWithDetails } from "@/types/race"
 import { useRouter } from "next/navigation"
 import { createTripAction } from "@/actions/db/trips-actions"
 import { toast } from "sonner"
-import { sendGTMEvent } from "@/lib/analytics-events"
+import { captureAnalyticsEvent } from "@/lib/analytics/capture"
 
 interface TripPlannerButtonProps {
   race: RaceWithDetails
@@ -57,24 +57,7 @@ export function TripPlannerButton({
 
       if (result.isSuccess) {
         toast.success("Trip plan created!")
-        sendGTMEvent({
-          event: "add_to_wishlist",
-          user_data: {
-            external_id: userId ?? null
-          },
-          x_fb_ud_external_id: userId ?? null,
-          x_fb_cd_content_ids: [result.data.id],
-          x_fb_cd_content_category: "trip",
-          items: [
-            {
-              item_name: `${race.name} Trip`,
-              quantity: 1,
-              // price: offer.total_amount,
-              item_category: "trip",
-              item_brand: race.name
-            }
-          ]
-        })
+        captureAnalyticsEvent({ event: "trip created" })
         router.push(`/trips/${result.data.id}`)
       } else {
         toast.error(result.message)

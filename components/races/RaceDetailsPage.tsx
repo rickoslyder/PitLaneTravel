@@ -24,7 +24,7 @@ import {
 import { ChevronDown, LucideIcon } from "lucide-react"
 import { RaceHero } from "./hero/RaceHero"
 import { SelectRaceHistory } from "@/db/schema/race-history-schema"
-import { sendGTMEvent } from "@/lib/analytics-events"
+import { captureAnalyticsEvent } from "@/lib/analytics/capture"
 import { useAnalyticsConsent } from "@/lib/analytics-consent"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
@@ -253,24 +253,8 @@ export function RaceDetailsPage({
     if (consent !== "granted") {
       return
     }
-    sendGTMEvent({
-      event: "view_item",
-      user_data: {
-        external_id: userId ?? null
-      },
-      x_fb_ud_external_id: userId ?? null,
-      x_fb_cd_content_ids: [race.id],
-      x_fb_cd_content_category: "race",
-      items: [
-        {
-          item_name: race.name,
-          quantity: 1,
-          item_category: "race",
-          item_brand: "F1"
-        }
-      ]
-    })
-  }, [consent, race.id, race.name, userId])
+    captureAnalyticsEvent({ event: "race viewed" })
+  }, [consent])
 
   // Handle swipe gestures
   const handleSwipe = (event: TouchEvent, startX: number) => {

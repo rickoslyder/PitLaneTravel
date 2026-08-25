@@ -78,25 +78,27 @@ describe("PLT-009 smoke locator and anonymous-boundary source contract", () => {
     expect(middleware).not.toMatch(/process\.env\.(NODE_ENV|VERCEL_ENV|CI)\b/)
     expect(middleware).not.toMatch(/PLAYWRIGHT/)
     expect(playwright).toMatch(
-      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*\]/
+      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*\]/
     )
     expect(playwright).toMatch(/retries:\s*0/)
     expect(smoke.match(/test\(/g)?.length).toBe(6)
     expect(smoke).not.toMatch(/\.(only|skip|fixme|force)\(/)
   })
 
-  it("emits race-detail view_item from a client effect keyed to race and user identity", () => {
+  it("emits race-detail analytics from a client effect without identity or item PII", () => {
     const source = readFileSync(
       path.join(root, "components/races/RaceDetailsPage.tsx"),
       "utf8"
     )
 
-    expect(source).toMatch(/sendGTMEvent\s*\(/)
-    expect(source).toMatch(/event:\s*["']view_item["']/)
-    expect(source).toMatch(/x_fb_cd_content_ids:\s*\[\s*race\.id\s*\]/)
-    expect(source).toMatch(/item_name:\s*race\.name/)
+    expect(source).toMatch(/captureAnalyticsEvent\s*\(/)
+    expect(source).toMatch(/event:\s*["']race viewed["']/)
+    expect(source).not.toMatch(/sendGTMEvent\s*\(/)
+    expect(source).not.toMatch(/view_item/)
+    expect(source).not.toMatch(/x_fb_cd_content_ids/)
+    expect(source).not.toMatch(/item_name:\s*race\.name/)
     expect(source).toMatch(
-      /useEffect\(\s*\(\)\s*=>\s*\{[\s\S]*sendGTMEvent\(\{[\s\S]*event:\s*["']view_item["'][\s\S]*\}\)\s*\n\s*\},\s*\[[^\]]*race\.id[^\]]*race\.name[^\]]*userId[^\]]*\]\s*\)/
+      /useEffect\(\s*\(\)\s*=>\s*\{[\s\S]*captureAnalyticsEvent\(\{\s*event:\s*["']race viewed["']\s*\}\)/
     )
     expect(source).not.toMatch(/typeof\s+window/)
     expect(source).not.toMatch(
@@ -107,6 +109,7 @@ describe("PLT-009 smoke locator and anonymous-boundary source contract", () => {
       /useEffect\(\s*\(\)\s*=>\s*\{[\s\S]*?\}\s*,\s*\[[^\]]*\]\s*\)/g,
       ""
     )
+    expect(renderBody).not.toMatch(/captureAnalyticsEvent\s*\(/)
     expect(renderBody).not.toMatch(/sendGTMEvent\s*\(/)
   })
 })

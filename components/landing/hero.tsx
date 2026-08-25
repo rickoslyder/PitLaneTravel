@@ -21,7 +21,7 @@ import {
   TimerIcon
 } from "lucide-react"
 import Link from "next/link"
-import { capturePostHog } from "@/lib/analytics-events"
+import { captureAnalyticsEvent } from "@/lib/analytics/capture"
 import AnimatedGradientText from "../magicui/animated-gradient-text"
 import HeroVideoDialog from "../magicui/hero-video-dialog"
 import supabaseLoader from "@/supabase-image-loader"
@@ -54,10 +54,6 @@ const HeroImage = ({
 }
 
 export const HeroSection = () => {
-  const handleGetStartedClick = () => {
-    capturePostHog("clicked_get_started")
-  }
-
   const { scrollY } = useScroll()
   const opacity = useTransform(scrollY, [0, 300], [1, 0])
   const scale = useTransform(scrollY, [0, 300], [1, 0.95])
@@ -265,7 +261,14 @@ export const HeroSection = () => {
                   size="lg"
                   className="bg-red-600 px-6 py-5 text-base text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-red-700 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
                 >
-                  <Link href="/races">
+                  <Link
+                    href="/races"
+                    onClick={() =>
+                      captureAnalyticsEvent({
+                        event: "hero calendar CTA clicked"
+                      })
+                    }
+                  >
                     <FlagIcon className="mr-2 size-4 sm:size-5" />
                     View Race Calendar
                   </Link>
@@ -276,7 +279,14 @@ export const HeroSection = () => {
                   variant="outline"
                   className="border-white/20 bg-white/10 px-6 py-5 text-base text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
                 >
-                  <Link href="/races/compare">
+                  <Link
+                    href="/races/compare"
+                    onClick={() =>
+                      captureAnalyticsEvent({
+                        event: "hero compare CTA clicked"
+                      })
+                    }
+                  >
                     <StarIcon className="mr-2 size-4 sm:size-5" />
                     Compare Races
                   </Link>

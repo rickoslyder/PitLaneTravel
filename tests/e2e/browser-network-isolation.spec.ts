@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest"
 import {
   classifyBrowserRequest,
   isAppOriginConsoleError,
-  isNetworkOnlyConsoleError
+  isNetworkOnlyConsoleError,
+  suppressionResponseFor
 } from "./browser-network-isolation"
 
 const root = process.cwd()
@@ -269,5 +270,105 @@ describe("PLT-009 browser network isolation", () => {
     expect(controller).toMatch(/SpeedInsights/)
     expect(layout).toMatch(/progressier\.app/)
     expect(middleware).not.toMatch(/process\.env\.(NODE_ENV|CI|PLAYWRIGHT)/)
+  })
+})
+
+describe("PLT-017 suppressed ingest response contract", () => {
+  const handlerPaths = [
+    "tests/e2e/fixtures.ts",
+    "tests/e2e/analytics-consent.spec.ts",
+    "tests/e2e/typed-analytics.spec.ts"
+  ] as const
+
+  function readHandler(rel: (typeof handlerPaths)[number]): string {
+    return readFileSync(path.join(root, rel), "utf8")
+  }
+
+  it("returns HTTP 200 JSON for an exact production PostHog ingest POST", () => {
+    expect(
+      classifyBrowserRequest(
+        "https://www.pitlanetravel.com/ingest/e/?compression=gzip-js"
+      )
+    ).toBe("suppress")
+    const response = suppressionResponseFor({
+      method: "POST",
+      url: "https://www.pitlanetravel.com/ingest/e/?compression=gzip-js"
+    })
+    expect(response.status).toBe(200)
+    expect(response.contentType).toMatch(/application\/json/i)
+    expect(JSON.parse(response.body)).toEqual({ status: 1 })
+  })
+
+  it("returns HTTP 200 JSON for an exact loopback /ingest POST when classified suppress", () => {
+    expect(classifyBrowserRequest("http://localhost:3100/ingest")).toBe(
+      "suppress"
+    )
+    const response = suppressionResponseFor({
+      method: "POST",
+      url: "http://localhost:3100/ingest"
+    })
+    expect(response.status).toBe(200)
+    expect(response.contentType).toMatch(/application\/json/i)
+    expect(JSON.parse(response.body)).toEqual({ status: 1 })
+  })
+
+  it("keeps GET /ingest/static/array.js as HTTP 204 empty transport suppression", () => {
+    expect(
+      classifyBrowserRequest("http://127.0.0.1:3100/ingest/static/array.js")
+    ).toBe("suppress")
+    const response = suppressionResponseFor({
+      method: "GET",
+      url: "http://127.0.0.1:3100/ingest/static/array.js"
+    })
+    expect(response.status).toBe(204)
+    expect(response.body).toBe("")
+  })
+
+  it("does not convert POST /ingest-foo; classifier stays allow/normal", () => {
+    expect(classifyBrowserRequest("http://localhost:3100/ingest-foo")).toBe(
+      "allow"
+    )
+    const response = suppressionResponseFor({
+      method: "POST",
+      url: "http://localhost:3100/ingest-foo"
+    })
+    expect(response.status).not.toBe(200)
+  })
+
+  it("keeps ordinary known suppress URLs as HTTP 204 empty", () => {
+    const url = "https://www.googletagmanager.com/gtm.js?id=GTM-PF957G29"
+    expect(classifyBrowserRequest(url)).toBe("suppress")
+    const response = suppressionResponseFor({
+      method: "GET",
+      url
+    })
+    expect(response.status).toBe(204)
+    expect(response.body).toBe("")
+  })
+
+  it("keeps unknown external traffic denied and does not mint an ingest success", () => {
+    expect(classifyBrowserRequest("https://example.com/")).toBe("deny")
+    const response = suppressionResponseFor({
+      method: "POST",
+      url: "https://example.com/"
+    })
+    expect(response.status).not.toBe(200)
+  })
+
+  it("exports one shared helper and makes all three route handlers consume it instead of blanket 204", () => {
+    const isolation = readFileSync(
+      path.join(root, "tests/e2e/browser-network-isolation.ts"),
+      "utf8"
+    )
+    expect(isolation).toMatch(/export function suppressionResponseFor/)
+    expect(isolation).toMatch(/status:\s*200/)
+    expect(isolation).toMatch(/application\/json/)
+
+    for (const rel of handlerPaths) {
+      const source = readHandler(rel)
+      expect(source, rel).toMatch(/suppressionResponseFor/)
+      expect(source, rel).toMatch(/route\.fulfill\(\s*suppressionResponseFor\(/)
+      expect(source, rel).not.toMatch(/status:\s*204/)
+    }
   })
 })

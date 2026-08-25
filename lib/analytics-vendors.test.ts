@@ -1,7 +1,19 @@
 import { readFileSync } from "node:fs"
 import path from "node:path"
-import { describe, expect, it } from "vitest"
-import { vendorCookieDeletionStrings } from "./analytics-vendors"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import posthog from "posthog-js"
+import {
+  createBrowserAnalyticsAdapters,
+  vendorCookieDeletionStrings
+} from "./analytics-vendors"
+
+vi.mock("posthog-js", () => ({
+  default: {
+    init: vi.fn(),
+    opt_in_capturing: vi.fn(),
+    opt_out_capturing: vi.fn()
+  }
+}))
 
 const EXPIRED = "Thu, 01 Jan 1970 00:00:00 GMT"
 const UNRELATED_DOMAINS =
@@ -115,5 +127,89 @@ describe("vendorCookieDeletionStrings", () => {
     expect(source).toMatch(/vendorCookieDeletionStrings\(/)
     expect(source).not.toMatch(/\$\{name\}=; Max-Age=0; path=\//)
     expect(source).not.toMatch(/console\.(log|info|debug|warn|error)\s*\(/)
+  })
+})
+
+describe("browser PostHog consent-gated init", () => {
+  const originalKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
+  const originalHost = process.env.NEXT_PUBLIC_POSTHOG_HOST
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    process.env.NEXT_PUBLIC_POSTHOG_KEY = "phc_test_key"
+    process.env.NEXT_PUBLIC_POSTHOG_HOST = "https://us.i.posthog.com"
+    vi.stubGlobal("window", {
+      localStorage: { length: 0, key: () => null, removeItem: () => undefined },
+      sessionStorage: { length: 0, key: () => null, removeItem: () => undefined },
+      document: { cookie: "" },
+      location: { hostname: "localhost", pathname: "/" }
+    })
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    if (originalKey === undefined) {
+      delete process.env.NEXT_PUBLIC_POSTHOG_KEY
+    } else {
+      process.env.NEXT_PUBLIC_POSTHOG_KEY = originalKey
+    }
+    if (originalHost === undefined) {
+      delete process.env.NEXT_PUBLIC_POSTHOG_HOST
+    } else {
+      process.env.NEXT_PUBLIC_POSTHOG_HOST = originalHost
+    }
+  })
+
+  function adapters() {
+    return createBrowserAnalyticsAdapters({
+      onLoadGoogleTagManager() {},
+      reload() {}
+    })
+  }
+
+  function initAfterConsent(): void {
+    adapters().initPostHogAfterConsent()
+  }
+
+  it("passes a public loaded callback that opts in on the init argument exactly once", () => {
+    initAfterConsent()
+
+    expect(posthog.init).toHaveBeenCalledTimes(1)
+    expect(posthog.opt_in_capturing).not.toHaveBeenCalled()
+
+    const config = vi.mocked(posthog.init).mock.calls[0]?.[1] as {
+      loaded?: (instance: { opt_in_capturing: () => void }) => void
+      opt_out_capturing_by_default?: boolean
+      opt_out_persistence_by_default?: boolean
+      request_batching?: boolean
+    }
+    expect(typeof config.loaded).toBe("function")
+
+    const instance = { opt_in_capturing: vi.fn() }
+    config.loaded?.(instance)
+
+    expect(instance.opt_in_capturing).toHaveBeenCalledTimes(1)
+    expect(posthog.opt_in_capturing).not.toHaveBeenCalled()
+  })
+
+  it("keeps both opt-out-by-default flags true and does not disable batching", () => {
+    initAfterConsent()
+
+    const config = vi.mocked(posthog.init).mock.calls[0]?.[1] as Record<
+      string,
+      unknown
+    >
+    expect(config.opt_out_capturing_by_default).toBe(true)
+    expect(config.opt_out_persistence_by_default).toBe(true)
+    expect(config.request_batching).not.toBe(false)
+    expect(config).not.toHaveProperty("send_instantly")
+  })
+
+  it("exposes one grant-time PostHog init and no separate opt-in adapter", () => {
+    const created = adapters()
+    expect(created).toHaveProperty("initPostHogAfterConsent")
+    expect(created).not.toHaveProperty("optInPostHog")
+    expect(created).not.toHaveProperty("initPostHog")
+    expect(created).toHaveProperty("optOutPostHog")
   })
 })

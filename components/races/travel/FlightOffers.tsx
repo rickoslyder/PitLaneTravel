@@ -1,6 +1,6 @@
 "use client"
 
-import { sendGTMEvent } from "@/lib/analytics-events"
+import { captureAnalyticsEvent } from "@/lib/analytics/capture"
 import { FlightDetails } from "./FlightDetails"
 import { TransformedFlightOffer } from "@/types/duffel"
 
@@ -26,32 +26,7 @@ export function FlightOffers({
           flight={offer}
           onSelect={() => {
             onSelect(offer)
-            let flightDetails =
-              offer.slices
-                ?.map(slice =>
-                  slice.segments
-                    .map(segment => segment.flight_number)
-                    .join(", ")
-                )
-                .join(" / ") || "Flight number not available"
-            sendGTMEvent({
-              event: "add_to_cart",
-              user_data: {
-                external_id: userId ?? null
-              },
-              x_fb_ud_external_id: userId ?? null,
-              x_fb_cd_content_ids: [offer.id],
-              x_fb_cd_content_category: "flight",
-              items: [
-                {
-                  item_name: flightDetails,
-                  quantity: 1,
-                  price: offer.total_amount,
-                  item_category: "flight",
-                  item_brand: offer.airline.name
-                }
-              ]
-            })
+            captureAnalyticsEvent({ event: "flight offer selected" })
           }}
           isSelected={selectedOfferId === offer.id}
           userId={userId ?? undefined}
