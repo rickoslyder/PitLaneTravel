@@ -1,24 +1,26 @@
 "use client"
 
-import { sendGTMEvent } from "@next/third-parties/google"
+import { useAnalyticsConsent } from "@/lib/analytics-consent"
+import { sendGTMEvent } from "@/lib/analytics-events"
 import { useEffect } from "react"
 import { usePathname } from "next/navigation"
 
 export function PageViewTracker({ userId }: { userId: string | null }) {
   const pathname = usePathname()
+  const consent = useAnalyticsConsent()
 
   useEffect(() => {
-    // Track a pageview whenever the pathname changes
-    if (pathname) {
-      sendGTMEvent({
-        event: "page_view",
-        user_data: {
-          external_id: userId ?? null
-        },
-        x_fb_ud_external_id: userId ?? null
-      })
+    if (consent !== "granted" || !pathname) {
+      return
     }
-  }, [pathname])
+    sendGTMEvent({
+      event: "page_view",
+      user_data: {
+        external_id: userId ?? null
+      },
+      x_fb_ud_external_id: userId ?? null
+    })
+  }, [consent, pathname, userId])
 
   return null
 }

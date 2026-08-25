@@ -22,7 +22,7 @@ import { RaceWithDetails } from "@/types/race"
 import { useRouter } from "next/navigation"
 import { createTripAction } from "@/actions/db/trips-actions"
 import { toast } from "sonner"
-import { sendGTMEvent } from "@next/third-parties/google"
+import { sendGTMEvent } from "@/lib/analytics-events"
 
 interface TripPlannerButtonProps {
   race: RaceWithDetails

@@ -30,7 +30,7 @@ import { TransportTab } from "./transport-tab"
 import { PackingTab } from "./packing-tab"
 import { MerchTab } from "./merch-tab"
 import { AiTab } from "./ai-tab"
-import { sendGTMEvent } from "@next/third-parties/google"
+import { sendGTMEvent } from "@/lib/analytics-events"
 
 interface TripDetailsProps {
   trip: Trip

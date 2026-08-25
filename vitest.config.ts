@@ -14,7 +14,8 @@ export default defineConfig({
       "tests/e2e/smoke.spec.ts",
       "tests/e2e/catalogue-matrix.spec.ts",
       "tests/e2e/admin-coverage.spec.ts",
-      "tests/e2e/public-coverage.spec.ts"
+      "tests/e2e/public-coverage.spec.ts",
+      "tests/e2e/analytics-consent.spec.ts"
     ]
   },
   resolve: {

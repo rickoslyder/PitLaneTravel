@@ -24,7 +24,8 @@ import {
 import { ChevronDown, LucideIcon } from "lucide-react"
 import { RaceHero } from "./hero/RaceHero"
 import { SelectRaceHistory } from "@/db/schema/race-history-schema"
-import { sendGTMEvent } from "@next/third-parties/google"
+import { sendGTMEvent } from "@/lib/analytics-events"
+import { useAnalyticsConsent } from "@/lib/analytics-consent"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { ErrorBoundary } from "./error-boundary"
@@ -145,6 +146,7 @@ export function RaceDetailsPage({
   const router = useRouter()
   const searchParams = useSearchParams()
   const { announce, Announcer } = useAnnouncer()
+  const consent = useAnalyticsConsent()
   const [activeTab, setActiveTab] = useState(() => {
     const tabFromUrl = searchParams.get("tab")
     return tabFromUrl && TAB_OPTIONS.some(tab => tab.value === tabFromUrl)
@@ -248,6 +250,9 @@ export function RaceDetailsPage({
   }, [activeTab])
 
   useEffect(() => {
+    if (consent !== "granted") {
+      return
+    }
     sendGTMEvent({
       event: "view_item",
       user_data: {
@@ -265,7 +270,7 @@ export function RaceDetailsPage({
         }
       ]
     })
-  }, [race.id, race.name, userId])
+  }, [consent, race.id, race.name, userId])
 
   // Handle swipe gestures
   const handleSwipe = (event: TouchEvent, startX: number) => {

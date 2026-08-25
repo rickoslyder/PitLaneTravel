@@ -45,7 +45,7 @@ import PhoneInput, {
   formatPhoneNumber
 } from "react-phone-number-input"
 import "react-phone-number-input/style.css"
-import { sendGTMEvent } from "@next/third-parties/google"
+import { sendGTMEvent } from "@/lib/analytics-events"
 
 interface FlightBookingFormProps {
   offer: TransformedFlightOffer

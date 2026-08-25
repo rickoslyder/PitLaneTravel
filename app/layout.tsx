@@ -9,22 +9,19 @@ import {
   getProfileByUserIdAction
 } from "@/actions/db/profiles-actions"
 import { Toaster } from "@/components/ui/toaster"
+import { AnalyticsController } from "@/components/privacy/analytics-controller"
 import { PostHogPageview } from "@/components/utilities/posthog/posthog-pageview"
 import { PostHogUserIdentify } from "@/components/utilities/posthog/posthog-user-identity"
 import { Providers } from "@/components/utilities/providers"
 import { TailwindIndicator } from "@/components/utilities/tailwind-indicator"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 import { cn } from "@/lib/utils"
 import { brand } from "@/config/brand"
 import { ClerkProvider } from "@clerk/nextjs"
 import { auth } from "@clerk/nextjs/server"
-import { GoogleTagManager } from "@next/third-parties/google"
-import { gtmPixelID, gtmServerID } from "@/lib/google-tag-manager"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { PageViewTracker } from "./components/gtm/page-view-tracker"
-import Clarity from "@microsoft/clarity"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -83,12 +80,6 @@ export default async function RootLayout({
     }
   }
 
-  const projectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID
-
-  if (projectId) {
-    Clarity.init(projectId)
-  }
-
   return (
     <ClerkProvider>
       <link
@@ -119,8 +110,6 @@ export default async function RootLayout({
         src="https://progressier.app/fCbsNMgvDZeSMoERSrZK/script.js"
       ></script>
       <html lang="en" suppressHydrationWarning>
-        <GoogleTagManager gtmId={gtmPixelID} />
-        <GoogleTagManager gtmId={gtmServerID} />
         <body
           className={cn(
             "bg-background mx-auto min-h-screen w-full scroll-smooth antialiased",
@@ -133,6 +122,7 @@ export default async function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
+            <AnalyticsController />
             <PostHogUserIdentify />
             <PostHogPageview />
 
@@ -141,7 +131,6 @@ export default async function RootLayout({
             {children}
 
             <TailwindIndicator />
-            <SpeedInsights />
 
             <Toaster />
           </Providers>

@@ -21,7 +21,7 @@ import {
   TimerIcon
 } from "lucide-react"
 import Link from "next/link"
-import posthog from "posthog-js"
+import { capturePostHog } from "@/lib/analytics-events"
 import AnimatedGradientText from "../magicui/animated-gradient-text"
 import HeroVideoDialog from "../magicui/hero-video-dialog"
 import supabaseLoader from "@/supabase-image-loader"
@@ -55,7 +55,7 @@ const HeroImage = ({
 
 export const HeroSection = () => {
   const handleGetStartedClick = () => {
-    posthog.capture("clicked_get_started")
+    capturePostHog("clicked_get_started")
   }
 
   const { scrollY } = useScroll()
