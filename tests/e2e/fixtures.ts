@@ -1,4 +1,4 @@
-import { test as base, expect, type ConsoleMessage } from "@playwright/test"
+import { test as base, expect, type ConsoleMessage, type Page } from "@playwright/test"
 import postgres from "postgres"
 import {
   classifyBrowserRequest,
@@ -40,6 +40,79 @@ export const E2E_RACE_CANCELLED_SLUG = "plt-e2e-synthetic-indycar-cancelled"
 export const E2E_RACE_CANCELLED_DATE = "2098-04-01T12:00:00.000Z"
 export const E2E_RACE_CANCELLED_REASON =
   "Synthetic e2e cancellation. Not a real event."
+
+export const E2E_ADMIN_USER_ID = "user_plt014_admin"
+export const E2E_NONADMIN_USER_ID = "user_plt014_nonadmin"
+export const E2E_CLERK_SESSION_ADMIN_ENV = "PLAYWRIGHT_E2E_CLERK_SESSION_ADMIN"
+export const E2E_CLERK_SESSION_NONADMIN_ENV =
+  "PLAYWRIGHT_E2E_CLERK_SESSION_NONADMIN"
+export const E2E_CLERK_CLIENT_UAT_ENV = "PLAYWRIGHT_E2E_CLERK_CLIENT_UAT"
+
+export const E2E_COVERAGE_MISSING_RACE_ID = E2E_RACE_CANCELLED_ID
+export const E2E_COVERAGE_EXPIRED_RACE_ID = E2E_RACE_COMPLETED_ID
+export const E2E_COVERAGE_CURRENT_RACE_ID = E2E_RACE_ID
+
+export const E2E_COVERAGE_EXPIRED_CALENDAR_ID =
+  "b1070009-e2e0-4000-8000-000000000110"
+export const E2E_COVERAGE_EXPIRED_LOGISTICS_ID =
+  "b1070009-e2e0-4000-8000-000000000111"
+export const E2E_COVERAGE_EXPIRED_DECISION_GUIDE_ID =
+  "b1070009-e2e0-4000-8000-000000000112"
+export const E2E_COVERAGE_EXPIRED_LIVE_OFFER_ID =
+  "b1070009-e2e0-4000-8000-000000000113"
+export const E2E_COVERAGE_CURRENT_CALENDAR_ID =
+  "b1070009-e2e0-4000-8000-000000000120"
+export const E2E_COVERAGE_CURRENT_LOGISTICS_ID =
+  "b1070009-e2e0-4000-8000-000000000121"
+export const E2E_COVERAGE_CURRENT_DECISION_GUIDE_ID =
+  "b1070009-e2e0-4000-8000-000000000122"
+export const E2E_COVERAGE_CURRENT_LIVE_OFFER_ID =
+  "b1070009-e2e0-4000-8000-000000000123"
+
+export const E2E_COVERAGE_EVIDENCE_IDS = [
+  E2E_COVERAGE_EXPIRED_CALENDAR_ID,
+  E2E_COVERAGE_EXPIRED_LOGISTICS_ID,
+  E2E_COVERAGE_EXPIRED_DECISION_GUIDE_ID,
+  E2E_COVERAGE_EXPIRED_LIVE_OFFER_ID,
+  E2E_COVERAGE_CURRENT_CALENDAR_ID,
+  E2E_COVERAGE_CURRENT_LOGISTICS_ID,
+  E2E_COVERAGE_CURRENT_DECISION_GUIDE_ID,
+  E2E_COVERAGE_CURRENT_LIVE_OFFER_ID
+] as const
+
+export const ADMIN_COVERAGE_MATRIX_MARKERS = [
+  "Coverage matrix for every supplied event",
+  "Why this tier",
+  "Current inventory",
+  "Add missing calendar evidence",
+  "Refresh expired live-offer evidence",
+  "Limited by expired live_offer",
+  "Limited by missing personalized_plan"
+] as const
+
+const COVERAGE_KIND_ATTRIBUTES = {
+  calendar: {
+    officialSource: true,
+    datesVerified: true,
+    statusVerified: true
+  },
+  logistics: {
+    primaryOrLocalSources: true,
+    accessVerified: true,
+    stayGuidanceVerified: true
+  },
+  decision_guide: {
+    structuredGuide: true,
+    citationsPresent: true,
+    confidenceAssessed: true,
+    qaPassed: true
+  },
+  live_offer: {
+    inventoryAvailable: true,
+    taggedLink: true,
+    attributionConfigured: true
+  }
+} as const
 
 export const CANONICAL_SERIES_SLUGS = [
   "f1",
@@ -200,6 +273,184 @@ function requireSeriesId(
     )
   }
   return id
+}
+
+export function requireEphemeralClerkSession(role: "admin" | "nonadmin"): {
+  session: string
+  clientUat: string
+} {
+  const sessionEnv =
+    role === "admin"
+      ? E2E_CLERK_SESSION_ADMIN_ENV
+      : E2E_CLERK_SESSION_NONADMIN_ENV
+  const session = process.env[sessionEnv]
+  const clientUat = process.env[E2E_CLERK_CLIENT_UAT_ENV]
+  if (!session || !clientUat) {
+    throw new Error(
+      `Missing ephemeral Clerk ${role} session for production e2e`
+    )
+  }
+  return { session, clientUat }
+}
+
+export function ephemeralClerkCookieHeader(
+  role: "admin" | "nonadmin"
+): string {
+  const { session, clientUat } = requireEphemeralClerkSession(role)
+  return `__session=${session}; __client_uat=${clientUat}`
+}
+
+export async function applyEphemeralClerkSession(
+  page: Page,
+  role: "admin" | "nonadmin"
+): Promise<void> {
+  const { session, clientUat } = requireEphemeralClerkSession(role)
+  await page.context().addCookies([
+    {
+      name: "__session",
+      value: session,
+      url: "http://localhost:3100"
+    },
+    {
+      name: "__client_uat",
+      value: clientUat,
+      url: "http://localhost:3100"
+    }
+  ])
+}
+
+type CoverageKind = keyof typeof COVERAGE_KIND_ATTRIBUTES
+
+async function upsertCoverageEvidence(
+  tx: postgres.Sql,
+  row: {
+    id: string
+    raceId: string
+    kind: CoverageKind
+    freshness: "current" | "expired"
+  }
+): Promise<void> {
+  const attributes = JSON.stringify(COVERAGE_KIND_ATTRIBUTES[row.kind])
+  const verifiedAtSql =
+    row.freshness === "current"
+      ? tx`now() - interval '1 day'`
+      : tx`now() - interval '30 days'`
+  const expiresAtSql =
+    row.freshness === "current"
+      ? tx`now() + interval '30 days'`
+      : tx`now() - interval '1 day'`
+
+  await tx`
+    INSERT INTO coverage_evidence (
+      id, race_id, kind, source_url, source_label, attributes,
+      verified_at, expires_at, review_state, revoked_at
+    )
+    VALUES (
+      ${row.id}::uuid,
+      ${row.raceId}::uuid,
+      ${row.kind}::coverage_evidence_kind,
+      ${`https://coverage.invalid/${row.kind}`},
+      ${`Synthetic ${row.kind} evidence`},
+      ${attributes}::jsonb,
+      ${verifiedAtSql},
+      ${expiresAtSql},
+      ${"verified"}::coverage_review_state,
+      NULL
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      race_id = EXCLUDED.race_id,
+      kind = EXCLUDED.kind,
+      source_url = EXCLUDED.source_url,
+      source_label = EXCLUDED.source_label,
+      attributes = EXCLUDED.attributes,
+      verified_at = EXCLUDED.verified_at,
+      expires_at = EXCLUDED.expires_at,
+      review_state = EXCLUDED.review_state,
+      revoked_at = EXCLUDED.revoked_at,
+      updated_at = now()
+  `
+}
+
+async function seedDisposableProfilesAndCoverage(
+  tx: postgres.Sql
+): Promise<void> {
+  await tx`
+    INSERT INTO profiles (user_id, membership, is_admin)
+    VALUES
+      (${E2E_ADMIN_USER_ID}, ${"free"}::membership, true),
+      (${E2E_NONADMIN_USER_ID}, ${"free"}::membership, false)
+    ON CONFLICT (user_id) DO UPDATE SET
+      is_admin = EXCLUDED.is_admin,
+      updated_at = now()
+  `
+
+  const expired = [
+    {
+      id: E2E_COVERAGE_EXPIRED_CALENDAR_ID,
+      raceId: E2E_COVERAGE_EXPIRED_RACE_ID,
+      kind: "calendar" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_EXPIRED_LOGISTICS_ID,
+      raceId: E2E_COVERAGE_EXPIRED_RACE_ID,
+      kind: "logistics" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_EXPIRED_DECISION_GUIDE_ID,
+      raceId: E2E_COVERAGE_EXPIRED_RACE_ID,
+      kind: "decision_guide" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_EXPIRED_LIVE_OFFER_ID,
+      raceId: E2E_COVERAGE_EXPIRED_RACE_ID,
+      kind: "live_offer" as const,
+      freshness: "expired" as const
+    }
+  ]
+  const current = [
+    {
+      id: E2E_COVERAGE_CURRENT_CALENDAR_ID,
+      raceId: E2E_COVERAGE_CURRENT_RACE_ID,
+      kind: "calendar" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_CURRENT_LOGISTICS_ID,
+      raceId: E2E_COVERAGE_CURRENT_RACE_ID,
+      kind: "logistics" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_CURRENT_DECISION_GUIDE_ID,
+      raceId: E2E_COVERAGE_CURRENT_RACE_ID,
+      kind: "decision_guide" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_CURRENT_LIVE_OFFER_ID,
+      raceId: E2E_COVERAGE_CURRENT_RACE_ID,
+      kind: "live_offer" as const,
+      freshness: "current" as const
+    }
+  ]
+
+  for (const row of [...expired, ...current]) {
+    await upsertCoverageEvidence(tx, row)
+  }
+}
+
+async function cleanupDisposableCoverage(sql: postgres.Sql): Promise<void> {
+  for (const id of E2E_COVERAGE_EVIDENCE_IDS) {
+    await sql`DELETE FROM coverage_evidence WHERE id = ${id}::uuid`
+  }
+}
+
+async function cleanupDisposableProfiles(sql: postgres.Sql): Promise<void> {
+  await sql`DELETE FROM profiles WHERE user_id = ${E2E_ADMIN_USER_ID}`
+  await sql`DELETE FROM profiles WHERE user_id = ${E2E_NONADMIN_USER_ID}`
 }
 
 async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
@@ -412,6 +663,8 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
         has_big_screen = EXCLUDED.has_big_screen,
         updated_at = now()
     `
+
+    await seedDisposableProfilesAndCoverage(tx)
   })
 
   return {
@@ -422,12 +675,14 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
 }
 
 async function cleanupCatalog(sql: postgres.Sql): Promise<void> {
+  await cleanupDisposableCoverage(sql)
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_IN_PROGRESS_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_COMPLETED_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_CANCELLED_ID}::uuid`
   await sql`DELETE FROM grandstands WHERE id = ${E2E_GRANDSTAND_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_ID}::uuid`
   await sql`DELETE FROM circuits WHERE id = ${E2E_CIRCUIT_ID}::uuid`
+  await cleanupDisposableProfiles(sql)
 }
 
 export const test = base.extend<{ consoleGuard: void }, { seededCatalog: SeededCatalog }>({

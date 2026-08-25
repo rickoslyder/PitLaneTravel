@@ -34,7 +34,8 @@
     "test:watch": "vitest",
     "db:migrate-sql": "tsx scripts/apply-sql-migrations.ts",
     "db:migrate:all": "npm run db:migrate && npm run db:migrate-sql",
-    "test:e2e": "npm run build && playwright test"
+    "test:e2e": "tsx scripts/run-clerk-e2e-auth.ts npm run test:e2e:base",
+    "test:e2e:base": "npm run build && playwright test"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.11",
