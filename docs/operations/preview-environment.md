@@ -52,17 +52,36 @@ Run this against a GitHub Actions run of `CI` on a pull request targeting `main`
 ## Production hosting boundary (PLT-056)
 
 This file remains the PLT-003 isolation contract. Preview, CI, and local
-`check` prove isolation and buildability. They do **not** authorize commercial
-operation or a paid Vercel upgrade.
+`check` prove isolation and buildability. They do **not** authorize a paid
+Vercel upgrade or intentional commercial launch / operation.
 
 Canonical hold: [hosting-plan-decision.md](hosting-plan-decision.md). Production
-remains on the observed Hobby plan. PLT-056 changed no domain, environment
-variable, production setting, or `vercel.json` cron entry.
+remains on the observed Hobby plan until Richard's explicit go-ahead for a paid
+plan change. PLT-056 changed no domain, environment variable, production
+setting, or `vercel.json` cron entry.
 
-Tagged monetized affiliate paths must not be intentionally operated or promoted
-while that Hobby hold remains. PLT-018 and PLT-057 may be built or tested here
-with synthetic or untagged/noncommercial proof; Preview success is not
-commercial activation.
+The Hobby hold is **only** that paid plan-change / launch-hosting boundary. It
+does **not** freeze developing, merging, previewing, or deploying
+commercial-capability code while there are no users / no intentional commercial
+operation. Preview, CI, and production deployment **may** prove and host
+commercial features during this no-user build phase. A feature's existence in
+code or a deployment is not by itself treated as commercial launch.
+
+This hosting hold must **not** block PLT-018, PLT-057, attribution plumbing,
+partner schemas, commercial CTA UX, reporting, or other monetization-enabling
+implementation, and must not be used as an excuse to skip them. PLT-018 and
+PLT-057 may be fully developed; they are not limited to synthetic or
+untagged / noncommercial proof by hosting. PLT-057's own evidence rules and
+PLT-018's dependency still apply.
+
+Live money movement, real supplier orders, unsupported partner claims / terms,
+external campaigns / sends, and owner-operated enabling flags remain gated by
+their existing separate product / security / provider decisions. Do not attribute those gates to Vercel Hobby.
+
+Do not claim affiliate routes are technically disabled. Preserve the public catalogue. “No users yet” is the owner's present operational context, not a
+permanent guarantee. Before intentional launch / operation for users and
+monetization, re-evaluate the then-current Vercel commercial-use requirement
+and obtain the hosting go-ahead.
 
 ## Official sources
 
