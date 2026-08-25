@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { readFileSync } from "node:fs"
+import path from "node:path"
 
 const VALID_RACE_ID = "550e8400-e29b-41d4-a716-446655440000"
 const DATABASE_URL = "postgres://present.invalid/db"
@@ -121,5 +123,36 @@ describe("getRaceByIdAction UUID fail-fast", () => {
     expect(chain.select).toHaveBeenCalled()
     expect(error.mock.calls.flat().join("\n")).toContain("[Races] Error getting race:")
     expect(error.mock.calls.flat().join("\n")).toContain(dbError.message)
+  })
+})
+
+describe("read-time race status projection", () => {
+  it("derives list, detail, and slug status from Date bounds at one now snapshot", () => {
+    const source = readFileSync(path.join(process.cwd(), "actions/db/races-actions.ts"), "utf8")
+
+    expect(source).toMatch(
+      /import\s*\{[^}]*deriveRaceStatus[^}]*\}\s*from\s*["']@\/lib\/race-status["']/
+    )
+    expect((source.match(/const now = new Date\(\)/g) ?? []).length).toBe(3)
+    expect((source.match(/deriveRaceStatus\s*\(/g) ?? []).length).toBeGreaterThanOrEqual(1)
+    expect(source).not.toMatch(
+      /weekend_end:\s*race\.weekend_end\?\.toISOString\(\)\s*\|\|\s*null,\s*status:\s*race\.status/
+    )
+  })
+
+  it("preserves cancelled through deriveRaceStatus and does not coerce malformed dates", () => {
+    const source = readFileSync(path.join(process.cwd(), "actions/db/races-actions.ts"), "utf8")
+    const helper = source.slice(
+      source.indexOf("function projectRaceReadStatus"),
+      source.indexOf("export async function getRacesAction")
+    )
+
+    expect(source).toMatch(/function projectRaceReadStatus/)
+    expect(helper).toMatch(/deriveRaceStatus\s*\(/)
+    expect(helper).toMatch(/weekendStart:\s*race\.weekend_start/)
+    expect(helper).toMatch(/weekendEnd:\s*race\.weekend_end/)
+    expect(helper).not.toMatch(/catch/)
+    expect(source).toMatch(/Failed to get races/)
+    expect(source).toMatch(/Failed to get race/)
   })
 })

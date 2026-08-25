@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { FlightSearchContainer } from "./_components/flight-search-container"
 import { getRacesAction } from "@/actions/db/races-actions"
+import { isActiveRaceStatus } from "@/lib/race-status"
 
 export default async function FlightsPage() {
   const { userId } = await auth()
@@ -16,7 +17,7 @@ export default async function FlightsPage() {
     throw new Error("Failed to fetch races")
   }
 
-  const upcomingRaces = races.filter(race => new Date(race.date) > new Date())
+  const upcomingRaces = races.filter(race => isActiveRaceStatus(race.status))
 
   return (
     <div className="container space-y-8 py-8">

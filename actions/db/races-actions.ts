@@ -7,6 +7,8 @@ import { RaceWithCircuitAndSeries } from "@/types/database"
 import { and, eq, gte, lte, ne, sql } from "drizzle-orm"
 import { InsertRace, SelectRace } from "@/db/schema/races-schema"
 import { AuthError, requireAdmin } from "@/lib/auth"
+import { deriveRaceStatus } from "@/lib/race-status"
+import type { RaceStatusValue } from "@/services/providers/types"
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -24,6 +26,26 @@ function isUniqueViolation(error: unknown): boolean {
     error !== null &&
     "code" in error &&
     (error as { code?: string }).code === PG_UNIQUE_VIOLATION
+  )
+}
+
+function projectRaceReadStatus(
+  race: {
+    status: RaceStatusValue
+    date: Date
+    weekend_start: Date | null
+    weekend_end: Date | null
+  },
+  now: Date
+): RaceStatusValue {
+  return deriveRaceStatus(
+    {
+      status: race.status,
+      date: race.date,
+      weekendStart: race.weekend_start,
+      weekendEnd: race.weekend_end
+    },
+    now
   )
 }
 
@@ -157,6 +179,7 @@ export async function getRacesAction(filters?: {
       return acc
     }, {} as Record<string, any[]>)
 
+    const now = new Date()
     return {
       isSuccess: true,
       message: "Races retrieved successfully",
@@ -167,7 +190,7 @@ export async function getRacesAction(filters?: {
         updated_at: race.updated_at.toISOString(),
         weekend_start: race.weekend_start?.toISOString() || null,
         weekend_end: race.weekend_end?.toISOString() || null,
-        status: race.status,
+        status: projectRaceReadStatus(race, now),
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),
@@ -256,6 +279,7 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
       .where(eq(supportingSeriesTable.raceId, race.id))
 
     console.log("[Races] Race found successfully")
+    const now = new Date()
     return {
       isSuccess: true,
       message: "Race retrieved successfully",
@@ -266,7 +290,7 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
         updated_at: race.updated_at.toISOString(),
         weekend_start: race.weekend_start?.toISOString() || null,
         weekend_end: race.weekend_end?.toISOString() || null,
-        status: race.status,
+        status: projectRaceReadStatus(race, now),
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),
@@ -493,6 +517,7 @@ export async function getRaceBySlugAction(slug: string): Promise<ActionState<Rac
       .where(eq(supportingSeriesTable.raceId, race.id))
 
     console.log("[Races] Race found successfully")
+    const now = new Date()
     return {
       isSuccess: true,
       message: "Race retrieved successfully",
@@ -503,7 +528,7 @@ export async function getRaceBySlugAction(slug: string): Promise<ActionState<Rac
         updated_at: race.updated_at.toISOString(),
         weekend_start: race.weekend_start?.toISOString() || null,
         weekend_end: race.weekend_end?.toISOString() || null,
-        status: race.status,
+        status: projectRaceReadStatus(race, now),
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),

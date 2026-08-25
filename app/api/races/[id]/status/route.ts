@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm"
 import { db } from "@/db/db"
 import { racesTable } from "@/db/schema"
+import { deriveRaceStatus } from "@/lib/race-status"
 import { RaceMapper } from "@/services/openf1/race-mapper"
 import { NextResponse } from "next/server"
 
@@ -15,6 +16,9 @@ export async function GET(
       .select({
         id: racesTable.id,
         status: racesTable.status,
+        date: racesTable.date,
+        weekendStart: racesTable.weekendStart,
+        weekendEnd: racesTable.weekendEnd,
         openf1SessionKey: racesTable.openf1SessionKey
       })
       .from(racesTable)
@@ -26,13 +30,16 @@ export async function GET(
       return new NextResponse("Race not found", { status: 404 })
     }
 
+    const now = new Date()
+    const status = deriveRaceStatus(race, now)
+
     // If race has OpenF1 mapping, get additional real-time data
     let additionalData = null
     if (race.openf1SessionKey) {
       const raceMapper = new RaceMapper()
       const openF1Data = await raceMapper.getOpenF1Session(
         race.id,
-        new Date().getFullYear()
+        now.getFullYear()
       )
       if (openF1Data) {
         additionalData = {
@@ -44,7 +51,7 @@ export async function GET(
     }
 
     return NextResponse.json({
-      status: race.status,
+      status,
       openf1Data: additionalData
     })
   } catch (error) {

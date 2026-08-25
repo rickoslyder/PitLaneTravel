@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getRacesAction } from '@/actions/db/races-actions'
 import { RaceWithCircuitAndSeries } from '@/types/database'
+import { selectNextCountdownRace } from '@/lib/race-status'
 
 export function useNextRace() {
   const [nextRace, setNextRace] = useState<RaceWithCircuitAndSeries | null>(null)
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const racesRef = useRef<RaceWithCircuitAndSeries[]>([])
 
   useEffect(() => {
     const fetchRaces = async () => {
@@ -16,15 +18,10 @@ export function useNextRace() {
           throw new Error(result.message)
         }
 
-        const now = new Date()
-        const upcomingRaces = result.data.filter(
-          race => race.status !== 'cancelled' && new Date(race.date) > now
-        )
-        const nextUpcomingRace = upcomingRaces[0] // First race is the next one since they're ordered by date
-
-        if (nextUpcomingRace) {
-          setNextRace(nextUpcomingRace)
-        }
+        racesRef.current = result.data
+        // Event classification comes from derived status (getRacesAction).
+        // race.date is the countdown target/order only.
+        setNextRace(selectNextCountdownRace(result.data, new Date()) ?? null)
       } catch (err) {
         console.error('Error fetching next race:', err)
         setError(err instanceof Error ? err.message : 'Failed to fetch next race')
@@ -44,22 +41,11 @@ export function useNextRace() {
       const raceDate = new Date(nextRace.date)
       const difference = raceDate.getTime() - now.getTime()
 
-      // If the race has passed, refetch races to get the next one
+      // Date passed: pick the next future countdown target from the already-loaded
+      // list. Do not refetch every second — an in-progress weekend whose race.date
+      // has passed would otherwise loop and hide the next future race.
       if (difference < 0) {
-        const fetchRaces = async () => {
-          const result = await getRacesAction()
-          if (result.isSuccess) {
-            const now = new Date()
-            const upcomingRaces = result.data.filter(
-          race => race.status !== 'cancelled' && new Date(race.date) > now
-        )
-            const nextUpcomingRace = upcomingRaces[0]
-            if (nextUpcomingRace) {
-              setNextRace(nextUpcomingRace)
-            }
-          }
-        }
-        fetchRaces()
+        setNextRace(selectNextCountdownRace(racesRef.current, now) ?? null)
         return
       }
 
@@ -81,4 +67,3 @@ export function useNextRace() {
     nextRace // Return the full race object in case we need more details
   }
 }
-
