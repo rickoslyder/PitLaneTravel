@@ -4,9 +4,10 @@ const baseURL = "http://localhost:3100"
 
 export default defineConfig({
   testDir: "tests/e2e",
-  // Other *.spec.ts in this dir are Vitest; Playwright must select smoke only.
+  // Other *.spec.ts in this dir are Vitest; Playwright selects only the
+  // production smoke and catalogue-matrix browser suites.
   // https://playwright.dev/docs/test-configuration#filtering-tests
-  testMatch: "smoke.spec.ts",
+  testMatch: ["smoke.spec.ts", "catalogue-matrix.spec.ts"],
   forbidOnly: !!process.env.CI,
   retries: 0,
   // Official CI guidance: one worker for stability/reproducibility.

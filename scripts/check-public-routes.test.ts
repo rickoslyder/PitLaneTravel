@@ -1,3 +1,6 @@
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join, resolve } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import {
   MAX_ROUTES,
@@ -436,11 +439,48 @@ describe("probeRoutes", () => {
 })
 
 describe("runCli", () => {
-  it("prints deterministic JSON and exits 0 when every route is HTTP 307", async () => {
+  it("prints deterministic JSON and exits 1 when every route is HTTP 307", async () => {
+    const scenariosDir = mkdtempSync(join(tmpdir(), "plt-307-"))
+    const scenariosPath = join(scenariosDir, "public-route-scenarios.json")
+    writeFileSync(
+      scenariosPath,
+      JSON.stringify({
+        schema_version: 1,
+        error_shell_markers: [
+          "Application error: a server-side exception has occurred"
+        ],
+        intended_active_series: [
+          { slug: "f1", name: "Formula 1" },
+          { slug: "formula-e", name: "Formula E" },
+          { slug: "motogp", name: "MotoGP" },
+          { slug: "indycar", name: "IndyCar" },
+          { slug: "wec", name: "WEC" }
+        ],
+        routes: [
+          { id: "home", class: "core", pathname: "/" },
+          { id: "alpha", class: "core", pathname: "/alpha" },
+          { id: "zeta", class: "core", pathname: "/zeta" }
+        ],
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 0,
+            max_count: 64
+          }
+        ]
+      })
+    )
     const xml = urlset([
       `${ORIGIN}/zeta`,
       `${ORIGIN}/`,
-      `${ORIGIN}/alpha`
+      `${ORIGIN}/alpha`,
+      `${ORIGIN}/series/f1`,
+      `${ORIGIN}/series/formula-e`,
+      `${ORIGIN}/series/motogp`,
+      `${ORIGIN}/series/indycar`,
+      `${ORIGIN}/series/wec`
     ])
     const fetchImpl: typeof fetch = async (input, init) => {
       const url = urlOf(input)
@@ -457,15 +497,23 @@ describe("runCli", () => {
 
     const stdout: string[] = []
     const stderr: string[] = []
-    const code = await runCli(["--base-url", ORIGIN], {
+    const code = await runCli(["--base-url", ORIGIN, "--scenarios", scenariosPath], {
       fetch: fetchImpl,
       stdout: { write: (chunk: string) => stdout.push(String(chunk)) },
       stderr: { write: (chunk: string) => stderr.push(String(chunk)) },
       now: () => new Date("2026-08-25T12:00:00.000Z")
     })
+    rmSync(scenariosDir, { recursive: true, force: true })
 
-    expect(code).toBe(0)
-    expect(stderr.join("")).toBe("")
+    expect(code).toBe(1)
+    const printed = `${stdout.join("")}${stderr.join("")}`
+    expect(printed).not.toContain("SECRET")
+    expect(printed).not.toContain("__clerk_handshake")
+    expect(printed).not.toContain("SECRETCOOKIE")
+    expect(printed).not.toContain("response-body-must-not-leak")
+    expect(printed).not.toContain("set-cookie")
+    expect(printed).not.toContain("?__clerk_handshake=")
+    expect(printed).not.toContain("#frag")
     const doc = JSON.parse(stdout.join("")) as {
       schema_version: number
       checked_at: string
@@ -475,6 +523,7 @@ describe("runCli", () => {
       status_counts: Record<string, number>
       external_redirect_count: number
       external_redirect_origins: string[]
+      failures: Array<{ code: string; pathname?: string }>
       routes: Array<{
         pathname: string
         status: number
@@ -487,7 +536,19 @@ describe("runCli", () => {
     expect(doc.schema_version).toBe(1)
     expect(doc.checked_at).toBe("2026-08-25T12:00:00.000Z")
     expect(doc.base_url).toBe(ORIGIN)
-    expect(doc.sitemap_route_count).toBe(3)
+    expect(doc.sitemap_route_count).toBe(8)
+    expect(doc.failures).toEqual(
+      [
+        "/",
+        "/alpha",
+        "/series/f1",
+        "/series/formula-e",
+        "/series/indycar",
+        "/series/motogp",
+        "/series/wec",
+        "/zeta"
+      ].map(pathname => ({ code: "unexpected_status", pathname }))
+    )
     expect(doc.bounds).toMatchObject({
       min_routes: 1,
       max_routes: 250,
@@ -496,12 +557,17 @@ describe("runCli", () => {
       sitemap_max_bytes: SITEMAP_MAX_BYTES
     })
     expect(Object.keys(doc.status_counts)).toEqual(["307"])
-    expect(doc.status_counts["307"]).toBe(3)
-    expect(doc.external_redirect_count).toBe(3)
+    expect(doc.status_counts["307"]).toBe(8)
+    expect(doc.external_redirect_count).toBe(8)
     expect(doc.external_redirect_origins).toEqual(["https://clerk.accounts.dev"])
     expect(doc.routes.map((route) => route.pathname)).toEqual([
       "/",
       "/alpha",
+      "/series/f1",
+      "/series/formula-e",
+      "/series/indycar",
+      "/series/motogp",
+      "/series/wec",
       "/zeta"
     ])
     expect(doc.routes.every((route) => route.status === 307)).toBe(true)
@@ -514,13 +580,6 @@ describe("runCli", () => {
           route.redirect === "https://clerk.accounts.dev/v1/client/handshake"
       )
     ).toBe(true)
-
-    const printed = stdout.join("")
-    expect(printed).not.toContain("SECRET")
-    expect(printed).not.toContain("__clerk_handshake")
-    expect(printed).not.toContain("SECRETCOOKIE")
-    expect(printed).not.toContain("response-body-must-not-leak")
-    expect(printed).not.toContain("set-cookie")
   })
 
   it("exits nonzero for sitemap/invariant/network failures and keeps stderr free of secrets", async () => {
@@ -598,5 +657,980 @@ describe("runCli", () => {
     expect(stderr.join("")).not.toContain("secret-path")
     expect(stderr.join("")).not.toMatch(/https?:\/\//)
     expect(stderr.join("")).not.toContain("\uFFFD")
+  })
+})
+
+const DEFAULT_REGISTRY_PATH = resolve(
+  import.meta.dirname ?? __dirname,
+  "../data/qa/public-route-scenarios.json"
+)
+const REQUIRED_SERIES = ["f1", "formula-e", "indycar", "motogp", "wec"] as const
+const CORE_PATHS = [
+  "/",
+  "/races",
+  "/races/map",
+  "/races/compare",
+  "/circuits/grandstands",
+  "/flights",
+  "/hotels",
+  "/transport",
+  "/packages",
+  "/about",
+  "/faq",
+  "/contact",
+  "/help",
+  "/privacy",
+  "/terms"
+] as const
+
+type ScenarioDoc = {
+  schema_version: number
+  error_shell_markers: string[]
+  intended_active_series: Array<{ slug: string; name: string }>
+  routes: Array<{
+    id: string
+    class: string
+    pathname: string
+    required_markers?: string[]
+    forbidden_markers?: string[]
+  }>
+  coverage: Array<{
+    id: string
+    class: string
+    path_pattern: string
+    min_count: number
+    max_count: number
+    required_markers?: string[]
+    forbidden_markers?: string[]
+  }>
+}
+
+const tempDirs: string[] = []
+
+function writeScenarios(doc: unknown, name = "public-route-scenarios.json"): string {
+  const dir = mkdtempSync(join(tmpdir(), "plt-scenarios-"))
+  tempDirs.push(dir)
+  const path = join(dir, name)
+  writeFileSync(path, typeof doc === "string" ? doc : `${JSON.stringify(doc)}\n`)
+  return path
+}
+
+function validScenarios(overrides: Partial<ScenarioDoc> = {}): ScenarioDoc {
+  return {
+    schema_version: 1,
+    error_shell_markers: [
+      "Application error: a server-side exception has occurred",
+      "An unexpected error occurred",
+      "This page could not be found"
+    ],
+    intended_active_series: [
+      { slug: "f1", name: "Formula 1" },
+      { slug: "formula-e", name: "Formula E" },
+      { slug: "motogp", name: "MotoGP" },
+      { slug: "indycar", name: "IndyCar" },
+      { slug: "wec", name: "WEC" }
+    ],
+    routes: [
+      { id: "home", class: "core", pathname: "/" },
+      {
+        id: "series-f1",
+        class: "series",
+        pathname: "/series/f1",
+        required_markers: ["Formula 1"]
+      }
+    ],
+    coverage: [
+      {
+        id: "guided-circuit-pages",
+        class: "guided_circuit",
+        path_pattern: "^/circuits/[^/]+/grandstands$",
+        min_count: 1,
+        max_count: 64,
+        required_markers: ["Best grandstands at"]
+      }
+    ],
+    ...overrides
+  }
+}
+
+function locFor(pathname: string): string {
+  return pathname === "/" ? `${ORIGIN}/` : `${ORIGIN}${pathname}`
+}
+
+function healthyHtml(
+  pathname: string,
+  extra = "",
+  canonical = locFor(pathname)
+): string {
+  return `<!doctype html><html><head><link rel="canonical" href="${canonical}"></head><body><main>PitLane Travel ${extra}</main></body></html>`
+}
+
+function htmlResponse(body: string, status = 200): Response {
+  return new Response(body, {
+    status,
+    headers: { "content-type": "text/html; charset=utf-8" }
+  })
+}
+
+function pagesFetch(spec: {
+  sitemap: string[]
+  html?: Record<string, string>
+  status?: Record<string, number>
+}): typeof fetch {
+  return async input => {
+    const url = urlOf(input)
+    if (url === `${ORIGIN}/sitemap.xml`) {
+      return sitemapResponse(urlset(spec.sitemap.map(locFor)))
+    }
+    const pathname = new URL(url).pathname
+    const status = spec.status?.[pathname] ?? 200
+    if (status >= 300 && status < 400) {
+      return probeResponse(status, {
+        location: `${ORIGIN}/login`,
+        "content-type": "text/html"
+      })
+    }
+    return htmlResponse(spec.html?.[pathname] ?? healthyHtml(pathname), status)
+  }
+}
+
+function failuresOf(doc: unknown): Array<{ code: string; pathname?: string }> {
+  const failures = (doc as { failures?: Array<{ code: string; pathname?: string }> })
+    .failures
+  expect(Array.isArray(failures)).toBe(true)
+  return failures ?? []
+}
+
+async function loadChecker(): Promise<Record<string, unknown>> {
+  return (await import("./check-public-routes")) as Record<string, unknown>
+}
+
+describe("parseCliArgs scenarios override", () => {
+  it("accepts --scenarios and rejects duplicate or empty values", () => {
+    const path = "/tmp/public-route-scenarios.json"
+    expect(parseCliArgs(["--base-url", ORIGIN, "--scenarios", path])).toEqual({
+      baseUrl: ORIGIN,
+      scenariosPath: path
+    })
+    expect(
+      parseCliArgs([`--base-url=${ORIGIN}`, `--scenarios=${path}`])
+    ).toEqual({
+      baseUrl: ORIGIN,
+      scenariosPath: path
+    })
+    expectRejected(
+      () => parseCliArgs(["--base-url", ORIGIN, "--scenarios"]),
+      "cli_args"
+    )
+    expectRejected(
+      () => parseCliArgs(["--base-url", ORIGIN, "--scenarios="]),
+      "cli_args"
+    )
+    expectRejected(
+      () =>
+        parseCliArgs([
+          "--base-url",
+          ORIGIN,
+          "--scenarios",
+          path,
+          "--scenarios",
+          path
+        ]),
+      "cli_args"
+    )
+  })
+})
+
+describe("public route scenario registry", () => {
+  afterEach(() => {
+    while (tempDirs.length > 0) {
+      const dir = tempDirs.pop()
+      if (dir) rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it("validateRouteScenarios accepts the versioned registry and rejects invalid documents", async () => {
+    const { validateRouteScenarios, PublicRouteCheckError: Err } =
+      (await loadChecker()) as {
+        validateRouteScenarios?: (raw: unknown) => ScenarioDoc
+        PublicRouteCheckError: typeof PublicRouteCheckError
+      }
+    expect(validateRouteScenarios).toEqual(expect.any(Function))
+    const valid = validScenarios()
+    expect(validateRouteScenarios!(valid)).toMatchObject({
+      schema_version: 1,
+      intended_active_series: expect.arrayContaining([
+        expect.objectContaining({ slug: "f1" }),
+        expect.objectContaining({ slug: "formula-e" }),
+        expect.objectContaining({ slug: "motogp" }),
+        expect.objectContaining({ slug: "indycar" }),
+        expect.objectContaining({ slug: "wec" })
+      ])
+    })
+
+    const rejected = (raw: unknown, code: string) => {
+      try {
+        validateRouteScenarios!(raw)
+        throw new Error("expected PublicRouteCheckError")
+      } catch (err) {
+        expect(err).toBeInstanceOf(Err)
+        expect((err as PublicRouteCheckError).code).toBe(code)
+        expect((err as Error).message).not.toContain("postgresql://")
+        expect((err as Error).message).not.toContain("s3cret")
+      }
+    }
+
+    rejected({ ...valid, schema_version: 2 }, "invalid_scenarios")
+    rejected({ ...valid, intended_active_series: valid.intended_active_series.slice(0, 4) }, "invalid_scenarios")
+    rejected(
+      {
+        ...valid,
+        intended_active_series: [
+          ...valid.intended_active_series,
+          { slug: "nascar", name: "NASCAR" }
+        ]
+      },
+      "invalid_scenarios"
+    )
+    rejected({ ...valid, routes: [{ id: "bad", class: "core", pathname: "/races?x=1" }] }, "invalid_scenarios")
+    rejected(
+      {
+        ...valid,
+        coverage: [
+          {
+            id: "unsafe",
+            class: "guided_circuit",
+            path_pattern: "(.*)+",
+            min_count: 1,
+            max_count: 64
+          }
+        ]
+      },
+      "invalid_scenarios"
+    )
+    rejected(
+      { ...valid, database_url: "postgresql://user:s3cret@db/prod" },
+      "invalid_scenarios"
+    )
+    rejected(
+      {
+        ...valid,
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 1
+          }
+        ]
+      },
+      "invalid_scenarios"
+    )
+    rejected(
+      {
+        ...valid,
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 2,
+            max_count: 1
+          }
+        ]
+      },
+      "invalid_scenarios"
+    )
+    rejected(
+      {
+        ...valid,
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 0,
+            max_count: MAX_ROUTES + 1
+          }
+        ]
+      },
+      "invalid_scenarios"
+    )
+  })
+
+  it("default committed registry lists every intended active series and core/guided coverage", () => {
+    const raw = JSON.parse(readFileSync(DEFAULT_REGISTRY_PATH, "utf8")) as ScenarioDoc
+    expect(raw.schema_version).toBe(1)
+    expect(
+      raw.intended_active_series.map(series => series.slug).sort()
+    ).toEqual([...REQUIRED_SERIES])
+    const pathnames = new Set(raw.routes.map(route => route.pathname))
+    for (const pathname of CORE_PATHS) {
+      expect(pathnames.has(pathname)).toBe(true)
+    }
+    for (const slug of REQUIRED_SERIES) {
+      expect(pathnames.has(`/series/${slug}`)).toBe(true)
+    }
+    expect(
+      raw.coverage.some(
+        item =>
+          item.class === "guided_circuit" &&
+          item.min_count >= 1 &&
+          item.max_count === 64 &&
+          item.min_count <= item.max_count &&
+          item.max_count <= MAX_ROUTES &&
+          item.path_pattern.includes("/circuits/")
+      )
+    ).toBe(true)
+    const serialized = JSON.stringify(raw)
+    expect(serialized).not.toMatch(/20\d{2}-\d{2}-\d{2}/)
+    expect(serialized).not.toMatch(/postgres(ql)?:\/\//i)
+    expect(serialized).not.toMatch(/api[_-]?key/i)
+  })
+})
+
+describe("HTML inspection helpers", () => {
+  it("fails a 200 application error shell and ignores ordinary error prose", async () => {
+    const { inspectHtmlDocument } = (await loadChecker()) as {
+      inspectHtmlDocument?: (
+        html: string,
+        input: {
+          pathname: string
+          origin: string
+          errorShellMarkers: string[]
+        }
+      ) => { failures: Array<{ code: string; pathname?: string }> }
+    }
+    expect(inspectHtmlDocument).toEqual(expect.any(Function))
+    const markers = [
+      "Application error: a server-side exception has occurred",
+      "An unexpected error occurred",
+      "This page could not be found"
+    ]
+    const shell = inspectHtmlDocument!(
+      `<!doctype html><html><head><link rel="canonical" href="${ORIGIN}/races"></head><body><h2>Application error: a server-side exception has occurred</h2></body></html>`,
+      { pathname: "/races", origin: ORIGIN, errorShellMarkers: markers }
+    )
+    expect(shell.failures).toEqual([
+      expect.objectContaining({ code: "error_shell", pathname: "/races" })
+    ])
+
+    const prose = inspectHtmlDocument!(
+      `<!doctype html><html><head><link rel="canonical" href="${ORIGIN}/faq"></head><body><p>If something went wrong with planning, or you see an error in a supplier email, contact us.</p></body></html>`,
+      { pathname: "/faq", origin: ORIGIN, errorShellMarkers: markers }
+    )
+    expect(prose.failures.filter(item => item.code === "error_shell")).toEqual([])
+  })
+
+  it("extracts canonical hrefs and fails missing, duplicate, or off-origin declarations", async () => {
+    const { extractCanonicalHrefs, inspectHtmlDocument } = (await loadChecker()) as {
+      extractCanonicalHrefs?: (html: string) => string[]
+      inspectHtmlDocument?: (
+        html: string,
+        input: { pathname: string; origin: string; errorShellMarkers: string[] }
+      ) => { failures: Array<{ code: string; pathname?: string }>; canonicals: string[] }
+    }
+    expect(extractCanonicalHrefs).toEqual(expect.any(Function))
+    expect(inspectHtmlDocument).toEqual(expect.any(Function))
+    expect(
+      extractCanonicalHrefs!(
+        `<link href="${ORIGIN}/races" rel="canonical"><LINK REL='CANONICAL' HREF='${ORIGIN}/races/compare'>`
+      )
+    ).toEqual([`${ORIGIN}/races`, `${ORIGIN}/races/compare`])
+
+    const missing = inspectHtmlDocument!(
+      `<html><head></head><body>PitLane Travel</body></html>`,
+      { pathname: "/races", origin: ORIGIN, errorShellMarkers: [] }
+    )
+    expect(missing.failures).toEqual([
+      expect.objectContaining({ code: "missing_canonical", pathname: "/races" })
+    ])
+
+    const duplicate = inspectHtmlDocument!(
+      `<link rel="canonical" href="${ORIGIN}/races"><link rel="canonical" href="${ORIGIN}/races">`,
+      { pathname: "/races", origin: ORIGIN, errorShellMarkers: [] }
+    )
+    expect(duplicate.failures).toEqual([
+      expect.objectContaining({ code: "duplicate_canonical", pathname: "/races" })
+    ])
+
+    const offOrigin = inspectHtmlDocument!(
+      `<link rel="canonical" href="https://evil.example/races">`,
+      { pathname: "/races", origin: ORIGIN, errorShellMarkers: [] }
+    )
+    expect(offOrigin.failures).toEqual([
+      expect.objectContaining({ code: "canonical_off_origin", pathname: "/races" })
+    ])
+
+    const query = inspectHtmlDocument!(
+      `<link rel="canonical" href="${ORIGIN}/races?variant=secret-variant">`,
+      { pathname: "/races", origin: ORIGIN, errorShellMarkers: [] }
+    )
+    expect(query.failures).toEqual([
+      expect.objectContaining({ code: "canonical_mismatch", pathname: "/races" })
+    ])
+    expect(JSON.stringify(query)).not.toContain("variant=")
+    expect(JSON.stringify(query)).not.toContain("secret-variant")
+
+    const fragment = inspectHtmlDocument!(
+      `<link rel="canonical" href="${ORIGIN}/races#clerk-nonce">`,
+      { pathname: "/races", origin: ORIGIN, errorShellMarkers: [] }
+    )
+    expect(fragment.failures).toEqual([
+      expect.objectContaining({ code: "canonical_mismatch", pathname: "/races" })
+    ])
+    expect(JSON.stringify(fragment)).not.toContain("clerk-nonce")
+    expect(JSON.stringify(fragment)).not.toContain("#clerk")
+  })
+})
+
+describe("collectPublicRouteBaseline content and registry checks", () => {
+  afterEach(() => {
+    while (tempDirs.length > 0) {
+      const dir = tempDirs.pop()
+      if (dir) rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it("fails when a sitemap route canonical does not match its normalized public URL", async () => {
+    const scenariosPath = writeScenarios(
+      validScenarios({
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 0,
+            max_count: 64
+          }
+        ]
+      })
+    )
+    const sitemap = ["/", "/series/f1", "/series/formula-e", "/series/motogp", "/series/indycar", "/series/wec"]
+    const doc = await collectPublicRouteBaseline(
+      { baseUrl: ORIGIN, scenariosPath },
+      {
+        fetch: pagesFetch({
+          sitemap,
+          html: {
+            "/series/f1": healthyHtml("/series/f1", "Formula 1", `${ORIGIN}/`)
+          }
+        })
+      }
+    )
+    expect(failuresOf(doc)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "canonical_mismatch",
+          pathname: "/series/f1"
+        })
+      ])
+    )
+  })
+
+  it("fails sitemap canonicals that add a query string or fragment without printing those values", async () => {
+    const scenariosPath = writeScenarios(
+      validScenarios({
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 0,
+            max_count: 64
+          }
+        ]
+      })
+    )
+    const sitemap = ["/", "/series/f1", "/series/formula-e", "/series/motogp", "/series/indycar", "/series/wec"]
+    const doc = await collectPublicRouteBaseline(
+      { baseUrl: ORIGIN, scenariosPath },
+      {
+        fetch: pagesFetch({
+          sitemap,
+          html: {
+            "/": healthyHtml("/", "", `${ORIGIN}/?utm=secret-fragment#clerk-nonce`),
+            "/series/f1": healthyHtml(
+              "/series/f1",
+              "Formula 1",
+              `${ORIGIN}/series/f1?variant=secret-variant`
+            )
+          }
+        })
+      }
+    )
+    expect(failuresOf(doc)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: "canonical_mismatch", pathname: "/" }),
+        expect.objectContaining({
+          code: "canonical_mismatch",
+          pathname: "/series/f1"
+        })
+      ])
+    )
+    const printed = JSON.stringify(doc)
+    expect(printed).not.toContain("variant=")
+    expect(printed).not.toContain("secret-variant")
+    expect(printed).not.toContain("secret-fragment")
+    expect(printed).not.toContain("clerk-nonce")
+    expect(printed).not.toContain("utm=")
+    expect(printed).not.toContain("#clerk")
+  })
+
+  it("fails cross-route canonical collisions", async () => {
+    const scenariosPath = writeScenarios(
+      validScenarios({
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 0,
+            max_count: 64
+          }
+        ]
+      })
+    )
+    const sitemap = ["/", "/series/f1", "/series/formula-e", "/series/motogp", "/series/indycar", "/series/wec"]
+    const doc = await collectPublicRouteBaseline(
+      { baseUrl: ORIGIN, scenariosPath },
+      {
+        fetch: pagesFetch({
+          sitemap,
+          html: {
+            "/series/f1": healthyHtml("/series/f1", "Formula 1", `${ORIGIN}/series/formula-e`),
+            "/series/formula-e": healthyHtml("/series/formula-e", "Formula E")
+          }
+        })
+      }
+    )
+    expect(failuresOf(doc)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: "canonical_collision" })
+      ])
+    )
+  })
+
+  it("reports missing expected series and core routes", async () => {
+    const scenariosPath = writeScenarios(validScenarios())
+    const doc = await collectPublicRouteBaseline(
+      { baseUrl: ORIGIN, scenariosPath },
+      {
+        fetch: pagesFetch({
+          sitemap: ["/"],
+          html: { "/": healthyHtml("/") }
+        })
+      }
+    )
+    const failures = failuresOf(doc)
+    expect(failures).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_expected_series",
+          pathname: "/series/motogp"
+        }),
+        expect.objectContaining({
+          code: "missing_expected_route",
+          pathname: "/series/f1"
+        })
+      ])
+    )
+  })
+
+  it("reports missing guided-circuit coverage", async () => {
+    const scenariosPath = writeScenarios(validScenarios())
+    const sitemap = ["/", "/series/f1", "/series/formula-e", "/series/motogp", "/series/indycar", "/series/wec"]
+    const doc = await collectPublicRouteBaseline(
+      { baseUrl: ORIGIN, scenariosPath },
+      {
+        fetch: pagesFetch({
+          sitemap,
+          html: { "/series/f1": healthyHtml("/series/f1", "Formula 1") }
+        })
+      }
+    )
+    expect(failuresOf(doc)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: "guided_circuit_coverage" })
+      ])
+    )
+  })
+
+  it("reports guided_circuit_overflow when coverage matches exceed max_count", async () => {
+    const scenariosPath = writeScenarios(
+      validScenarios({
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 1,
+            max_count: 1
+          }
+        ]
+      })
+    )
+    const sitemap = [
+      "/",
+      "/series/f1",
+      "/series/formula-e",
+      "/series/motogp",
+      "/series/indycar",
+      "/series/wec",
+      "/circuits/spa/grandstands",
+      "/circuits/monza/grandstands"
+    ]
+    const doc = await collectPublicRouteBaseline(
+      { baseUrl: ORIGIN, scenariosPath },
+      {
+        fetch: pagesFetch({
+          sitemap,
+          html: { "/series/f1": healthyHtml("/series/f1", "Formula 1") }
+        })
+      }
+    )
+    expect(failuresOf(doc)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: "guided_circuit_overflow" })
+      ])
+    )
+  })
+
+  it("reports missing required and forbidden content markers", async () => {
+    const scenariosPath = writeScenarios(
+      validScenarios({
+        routes: [
+          { id: "home", class: "core", pathname: "/" },
+          {
+            id: "series-f1",
+            class: "series",
+            pathname: "/series/f1",
+            required_markers: ["Formula 1"],
+            forbidden_markers: ["Join thousands of race fans"]
+          }
+        ],
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 0,
+            max_count: 64
+          }
+        ]
+      })
+    )
+    const sitemap = ["/", "/series/f1", "/series/formula-e", "/series/motogp", "/series/indycar", "/series/wec"]
+    const doc = await collectPublicRouteBaseline(
+      { baseUrl: ORIGIN, scenariosPath },
+      {
+        fetch: pagesFetch({
+          sitemap,
+          html: {
+            "/series/f1": healthyHtml(
+              "/series/f1",
+              "Join thousands of race fans"
+            )
+          }
+        })
+      }
+    )
+    expect(failuresOf(doc)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_required_content",
+          pathname: "/series/f1"
+        }),
+        expect.objectContaining({
+          code: "forbidden_content",
+          pathname: "/series/f1"
+        })
+      ])
+    )
+  })
+
+  it("still probes every sitemap route that is not listed in the registry", async () => {
+    const scenariosPath = writeScenarios(
+      validScenarios({
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 0,
+            max_count: 64
+          }
+        ]
+      })
+    )
+    const sitemap = [
+      "/",
+      "/alpha",
+      "/series/f1",
+      "/series/formula-e",
+      "/series/motogp",
+      "/series/indycar",
+      "/series/wec"
+    ]
+    const probed: string[] = []
+    const fetchImpl: typeof fetch = async (input, init) => {
+      const url = urlOf(input)
+      probed.push(new URL(url).pathname)
+      return pagesFetch({
+        sitemap,
+        html: { "/series/f1": healthyHtml("/series/f1", "Formula 1") }
+      })(input, init)
+    }
+    const doc = await collectPublicRouteBaseline(
+      { baseUrl: ORIGIN, scenariosPath },
+      { fetch: fetchImpl }
+    )
+    expect(probed).toContain("/alpha")
+    expect(doc.sitemap_route_count).toBe(7)
+    expect(doc.routes.map(route => route.pathname)).toContain("/alpha")
+  })
+
+  it("fails 404 and 500 sitemap pages with unexpected_status and discards bodies", async () => {
+    const scenariosPath = writeScenarios(
+      validScenarios({
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 0,
+            max_count: 64
+          }
+        ]
+      })
+    )
+    const sitemap = ["/", "/series/f1", "/series/formula-e", "/series/motogp", "/series/indycar", "/series/wec"]
+    const doc = await collectPublicRouteBaseline(
+      { baseUrl: ORIGIN, scenariosPath },
+      {
+        fetch: pagesFetch({
+          sitemap,
+          status: { "/series/f1": 404, "/series/motogp": 500 },
+          html: {
+            "/series/f1":
+              "<html><body>Application error: a server-side exception has occurred secret-404-body</body></html>",
+            "/series/motogp": "<html><body>secret-500-body</body></html>",
+            "/series/formula-e": healthyHtml("/series/formula-e", "Formula E")
+          }
+        })
+      }
+    )
+    const failures = failuresOf(doc)
+    expect(failures).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "unexpected_status",
+          pathname: "/series/f1"
+        }),
+        expect.objectContaining({
+          code: "unexpected_status",
+          pathname: "/series/motogp"
+        })
+      ])
+    )
+    expect(
+      failures.some(
+        item => item.pathname === "/series/f1" && item.code === "error_shell"
+      )
+    ).toBe(false)
+    expect(
+      failures.some(
+        item =>
+          item.pathname === "/series/f1" && item.code === "missing_required_content"
+      )
+    ).toBe(false)
+    expect(doc.routes.find(route => route.pathname === "/series/f1")?.status).toBe(
+      404
+    )
+    expect(
+      doc.routes.find(route => route.pathname === "/series/motogp")?.status
+    ).toBe(500)
+    const printed = JSON.stringify(doc)
+    expect(printed).not.toContain("secret-404-body")
+    expect(printed).not.toContain("secret-500-body")
+    expect(printed).not.toContain("<html")
+  })
+
+  it("fails 200 application/json sitemap pages with unexpected_content_type and discards bodies", async () => {
+    const scenariosPath = writeScenarios(
+      validScenarios({
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 0,
+            max_count: 64
+          }
+        ]
+      })
+    )
+    const sitemap = ["/", "/series/f1", "/series/formula-e", "/series/motogp", "/series/indycar", "/series/wec"]
+    const fetchImpl: typeof fetch = async input => {
+      const url = urlOf(input)
+      if (url === `${ORIGIN}/sitemap.xml`) {
+        return sitemapResponse(urlset(sitemap.map(locFor)))
+      }
+      const pathname = new URL(url).pathname
+      if (pathname === "/series/f1") {
+        return new Response(
+          `{"token":"json-secret","__clerk_handshake":"nope"}`,
+          { status: 200, headers: { "content-type": "application/json" } }
+        )
+      }
+      const extra =
+        pathname === "/series/formula-e"
+          ? "Formula E"
+          : pathname === "/series/motogp"
+            ? "MotoGP"
+            : pathname === "/series/indycar"
+              ? "IndyCar"
+              : pathname === "/series/wec"
+                ? "World Endurance Championship"
+                : ""
+      return htmlResponse(healthyHtml(pathname, extra))
+    }
+    const doc = await collectPublicRouteBaseline(
+      { baseUrl: ORIGIN, scenariosPath },
+      { fetch: fetchImpl }
+    )
+    const failures = failuresOf(doc)
+    expect(failures).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "unexpected_content_type",
+          pathname: "/series/f1"
+        })
+      ])
+    )
+    expect(
+      failures.some(
+        item =>
+          item.pathname === "/series/f1" && item.code === "missing_required_content"
+      )
+    ).toBe(false)
+    expect(
+      doc.routes.find(route => route.pathname === "/series/f1")?.content_type
+    ).toBe("application/json")
+    expect(
+      doc.routes.find(route => route.pathname === "/series/f1")?.status
+    ).toBe(200)
+    const printed = JSON.stringify(doc)
+    expect(printed).not.toContain("json-secret")
+    expect(printed).not.toContain("__clerk_handshake")
+    expect(printed).not.toContain("token")
+  })
+})
+
+describe("runCli packet A", () => {
+  afterEach(() => {
+    while (tempDirs.length > 0) {
+      const dir = tempDirs.pop()
+      if (dir) rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it("exits 1 with machine-readable failures and never prints HTML or secrets", async () => {
+    const scenariosPath = writeScenarios(
+      validScenarios({
+        coverage: [
+          {
+            id: "guided-circuit-pages",
+            class: "guided_circuit",
+            path_pattern: "^/circuits/[^/]+/grandstands$",
+            min_count: 0,
+            max_count: 64
+          }
+        ]
+      })
+    )
+    const leak = "postgresql://user:s3cret@db/prod?token=abc"
+    const stdout: string[] = []
+    const stderr: string[] = []
+    const code = await runCli(["--base-url", ORIGIN, "--scenarios", scenariosPath], {
+      fetch: pagesFetch({
+        sitemap: ["/", "/series/f1", "/series/formula-e", "/series/motogp", "/series/indycar", "/series/wec"],
+        html: {
+          "/": `<html><head><link rel="canonical" href="${ORIGIN}/"></head><body><h2>Application error: a server-side exception has occurred</h2><pre>${leak}</pre></body></html>`
+        }
+      }),
+      stdout: { write: chunk => stdout.push(String(chunk)) },
+      stderr: { write: chunk => stderr.push(String(chunk)) },
+      now: () => new Date("2026-08-25T12:00:00.000Z")
+    })
+    expect(code).toBe(1)
+    const printed = `${stdout.join("")}${stderr.join("")}`
+    expect(printed).not.toContain(leak)
+    expect(printed).not.toContain("s3cret")
+    expect(printed).not.toContain("<html")
+    expect(printed).not.toContain("<pre>")
+    const doc = JSON.parse(stdout.join("")) as {
+      failures: Array<{ code: string; pathname?: string }>
+    }
+    expect(doc.failures).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: "error_shell", pathname: "/" })
+      ])
+    )
+  })
+
+  it("loads the default repo registry when --scenarios is omitted", async () => {
+    const stdout: string[] = []
+    const stderr: string[] = []
+    const code = await runCli(["--base-url", ORIGIN], {
+      fetch: pagesFetch({
+        sitemap: ["/"],
+        html: { "/": healthyHtml("/") }
+      }),
+      stdout: { write: chunk => stdout.push(String(chunk)) },
+      stderr: { write: chunk => stderr.push(String(chunk)) }
+    })
+    expect(code).toBe(1)
+    const doc = JSON.parse(stdout.join("")) as {
+      failures: Array<{ code: string; pathname?: string }>
+    }
+    expect(doc.failures).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_expected_series",
+          pathname: "/series/f1"
+        })
+      ])
+    )
+    expect(stderr.join("")).not.toMatch(/https?:\/\/[^\s]*[?&](token|key)=/i)
+  })
+
+  it("rejects an unsafe or oversized --scenarios path without leaking file contents", async () => {
+    const stdout: string[] = []
+    const stderr: string[] = []
+    const io = {
+      fetch: pagesFetch({ sitemap: ["/"], html: { "/": healthyHtml("/") } }),
+      stdout: { write: (chunk: string) => stdout.push(String(chunk)) },
+      stderr: { write: (chunk: string) => stderr.push(String(chunk)) }
+    }
+
+    const missing = await runCli(
+      ["--base-url", ORIGIN, "--scenarios", "/tmp/does-not-exist-plt.json"],
+      io
+    )
+    expect(missing).toBe(1)
+    expect(stdout.join("")).toBe("")
+
+    const envPath = writeScenarios("DATABASE_URL=postgresql://user:s3cret@db/prod\n", "secrets.env")
+    const wrongExt = await runCli(["--base-url", ORIGIN, "--scenarios", envPath], io)
+    expect(wrongExt).toBe(1)
+    expect(stdout.join("")).toBe("")
+    expect(stderr.join("")).not.toContain("s3cret")
+    expect(stderr.join("")).not.toContain("postgresql://")
+
+    const huge = writeScenarios(`${"{\"x\":"}${"1".repeat(80_000)}`, "too-big.json")
+    const oversized = await runCli(["--base-url", ORIGIN, "--scenarios", huge], io)
+    expect(oversized).toBe(1)
+    expect(stdout.join("")).toBe("")
   })
 })
