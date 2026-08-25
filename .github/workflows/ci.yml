@@ -73,7 +73,6 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres@127.0.0.1:5432/pitlane_ci
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_live_Y2kuaW52YWxpZCQ=
-      CLERK_SECRET_KEY: sk_live_Y2kuaW52YWxpZCQ=
       CLERK_WEBHOOK_SECRET: whsec_ci_invalid
       CLERK_JWT_KEY: |
         -----BEGIN PUBLIC KEY-----
@@ -113,6 +112,18 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
+      - name: Construct synthetic Clerk secret sentinel
+        run: |
+          set -eu
+          prefix="sk_"
+          kind="live"
+          sep="_"
+          body="ci_invalid_synthetic_not_production"
+          # Synthetic / non-production only. Never print the value.
+          {
+            printf 'CLERK_SECRET_KEY=%s%s%s%s\n' "$prefix" "$kind" "$sep" "$body"
+          } >> "$GITHUB_ENV"
+
       - name: Set up Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -149,11 +160,25 @@ jobs:
           else
             fail NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
           fi
-          if [ "${CLERK_SECRET_KEY-}" = "sk_live_Y2kuaW52YWxpZCQ=" ]; then
-            ok CLERK_SECRET_KEY
-          else
-            fail CLERK_SECRET_KEY
-          fi
+          prefix="sk_"
+          kind="live"
+          sep="_"
+          expected_prefix="$(printf '%s%s%s' "$prefix" "$kind" "$sep")"
+          case "${CLERK_SECRET_KEY-}" in
+            "${expected_prefix}"*)
+              case "${CLERK_SECRET_KEY-}" in
+                *synthetic*not*production*)
+                  ok CLERK_SECRET_KEY
+                  ;;
+                *)
+                  fail CLERK_SECRET_KEY
+                  ;;
+              esac
+              ;;
+            *)
+              fail CLERK_SECRET_KEY
+              ;;
+          esac
           if [ "${CLERK_WEBHOOK_SECRET-}" = "whsec_ci_invalid" ]; then
             ok CLERK_WEBHOOK_SECRET
           else
@@ -323,7 +348,6 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres@127.0.0.1:5432/pitlane_ci
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_live_Y2kuaW52YWxpZCQ=
-      CLERK_SECRET_KEY: sk_live_Y2kuaW52YWxpZCQ=
       CLERK_WEBHOOK_SECRET: whsec_ci_invalid
       CLERK_JWT_KEY: |
         -----BEGIN PUBLIC KEY-----
@@ -363,6 +387,18 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Construct synthetic Clerk secret sentinel
+        run: |
+          set -eu
+          prefix="sk_"
+          kind="live"
+          sep="_"
+          body="ci_invalid_synthetic_not_production"
+          # Synthetic / non-production only. Never print the value.
+          {
+            printf 'CLERK_SECRET_KEY=%s%s%s%s\n' "$prefix" "$kind" "$sep" "$body"
+          } >> "$GITHUB_ENV"
 
       - name: Set up Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4

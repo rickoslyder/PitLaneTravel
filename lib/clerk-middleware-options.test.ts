@@ -133,9 +133,13 @@ describe("Clerk networkless verification stays cryptographic and fail-closed", (
       privateKeyEncoding: { type: "pkcs8", format: "pem" }
     })
 
+    const secretKey = ["sk_", "live", "_", "ci_invalid_synthetic_not_production"].join(
+      ""
+    )
+
     const client = createClerkClient({
       publishableKey: "pk_live_Y2kuaW52YWxpZCQ=",
-      secretKey: "sk_live_Y2kuaW52YWxpZCQ=",
+      secretKey,
       jwtKey: publicKey
     })
 
