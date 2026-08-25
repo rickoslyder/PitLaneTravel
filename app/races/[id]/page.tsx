@@ -12,6 +12,7 @@ import { RaceDetailsPage } from "@/components/races/RaceDetailsPage"
 import LocalAttractions from "@/components/races/LocalAttractions"
 import { RaceWithDetails } from "@/types/race"
 import { getRaceHistoryAction } from "@/actions/db/race-history-actions"
+import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { Metadata } from "next"
 
 interface RacePageProps {
@@ -111,6 +112,12 @@ export default async function RacePage({ params }: RacePageProps) {
 
   // Get race history
   const historyResult = await getRaceHistoryAction(raceResult.data.id)
+  const coverageResult = await getPublicCoverageSummariesAction([
+    raceResult.data.id
+  ])
+  const coverage = coverageResult.isSuccess
+    ? coverageResult.data[0] ?? null
+    : null
 
   // Get user's existing trip for this race if they're logged in
   let existingTripId: string | undefined
@@ -213,6 +220,7 @@ export default async function RacePage({ params }: RacePageProps) {
         userId={userId}
         existingTripId={existingTripId}
         history={historyResult.isSuccess ? historyResult.data : undefined}
+        coverage={coverage}
       />
       {/* <LocalAttractions circuit={circuitResult.data} /> */}
     </div>

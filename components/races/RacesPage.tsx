@@ -10,12 +10,14 @@ import { RaceGrid } from "./RaceGrid"
 import { EmptyState } from "./EmptyState"
 import { HeroSection } from "./HeroSection"
 import { ViewSwitcher } from "./ViewSwitcher"
+import type { PublicCoverageSummary } from "@/lib/public-coverage"
 
 interface RacesPageProps {
   initialRaces: RaceWithCircuitAndSeries[]
+  coverageByRaceId?: Record<string, PublicCoverageSummary>
 }
 
-export function RacesPage({ initialRaces }: RacesPageProps) {
+export function RacesPage({ initialRaces, coverageByRaceId }: RacesPageProps) {
   const router = useRouter()
   const [races] = useState<RaceWithCircuitAndSeries[]>(initialRaces)
   const [viewType, setViewType] = useState<"grid" | "list">("grid")
@@ -190,6 +192,7 @@ export function RacesPage({ initialRaces }: RacesPageProps) {
               races={filteredRaces}
               viewType={viewType}
               onRaceClick={handleRaceClick}
+              coverageByRaceId={coverageByRaceId}
             />
           ) : (
             <EmptyState

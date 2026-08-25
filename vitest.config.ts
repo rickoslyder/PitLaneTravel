@@ -13,7 +13,8 @@ export default defineConfig({
       "android",
       "tests/e2e/smoke.spec.ts",
       "tests/e2e/catalogue-matrix.spec.ts",
-      "tests/e2e/admin-coverage.spec.ts"
+      "tests/e2e/admin-coverage.spec.ts",
+      "tests/e2e/public-coverage.spec.ts"
     ]
   },
   resolve: {

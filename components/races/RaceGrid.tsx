@@ -4,6 +4,7 @@ import { RaceWithCircuitAndSeries } from "@/types/database"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { RaceCard } from "./RaceCard"
+import type { PublicCoverageSummary } from "@/lib/public-coverage"
 
 interface RaceGridProps {
   /** The races to display */
@@ -12,9 +13,16 @@ interface RaceGridProps {
   viewType: "grid" | "list"
   /** Callback when a race is clicked. Defaults to navigating to the race page. */
   onRaceClick?: (race: RaceWithCircuitAndSeries) => void
+  /** Public coverage summaries keyed by race id */
+  coverageByRaceId?: Record<string, PublicCoverageSummary>
 }
 
-export function RaceGrid({ races, viewType, onRaceClick }: RaceGridProps) {
+export function RaceGrid({
+  races,
+  viewType,
+  onRaceClick,
+  coverageByRaceId
+}: RaceGridProps) {
   const router = useRouter()
   const handleClick =
     onRaceClick ??
@@ -49,6 +57,7 @@ export function RaceGrid({ races, viewType, onRaceClick }: RaceGridProps) {
               race={race}
               onClick={() => handleClick(race)}
               className="h-full"
+              coverage={coverageByRaceId?.[race.id]}
             />
           </motion.div>
         ))}
@@ -69,6 +78,7 @@ export function RaceGrid({ races, viewType, onRaceClick }: RaceGridProps) {
             race={race}
             onClick={() => handleClick(race)}
             variant="list"
+            coverage={coverageByRaceId?.[race.id]}
           />
         </motion.div>
       ))}

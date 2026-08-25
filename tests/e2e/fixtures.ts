@@ -69,6 +69,33 @@ export const E2E_COVERAGE_CURRENT_DECISION_GUIDE_ID =
 export const E2E_COVERAGE_CURRENT_LIVE_OFFER_ID =
   "b1070009-e2e0-4000-8000-000000000123"
 
+export const E2E_COVERAGE_TIER0_RACE_ID = "b1070009-e2e0-4000-8000-000000000008"
+export const E2E_COVERAGE_TIER4_RACE_ID = "b1070009-e2e0-4000-8000-000000000009"
+export const E2E_COVERAGE_TIER0_RACE_NAME = "Synthetic WEC Calendar Grand Prix"
+export const E2E_COVERAGE_TIER0_RACE_SLUG = "plt-e2e-synthetic-wec-calendar"
+export const E2E_COVERAGE_TIER0_RACE_DATE = "2099-10-15T12:00:00.000Z"
+export const E2E_COVERAGE_TIER4_RACE_NAME =
+  "Synthetic WEC Personalized Grand Prix"
+export const E2E_COVERAGE_TIER4_RACE_SLUG = "plt-e2e-synthetic-wec-plan"
+export const E2E_COVERAGE_TIER4_RACE_DATE = "2099-11-15T12:00:00.000Z"
+
+export const E2E_COVERAGE_TIER1_CALENDAR_ID =
+  "b1070009-e2e0-4000-8000-000000000130"
+export const E2E_COVERAGE_TIER1_LOGISTICS_ID =
+  "b1070009-e2e0-4000-8000-000000000131"
+export const E2E_COVERAGE_TIER0_CALENDAR_ID =
+  "b1070009-e2e0-4000-8000-000000000140"
+export const E2E_COVERAGE_TIER4_CALENDAR_ID =
+  "b1070009-e2e0-4000-8000-000000000150"
+export const E2E_COVERAGE_TIER4_LOGISTICS_ID =
+  "b1070009-e2e0-4000-8000-000000000151"
+export const E2E_COVERAGE_TIER4_DECISION_GUIDE_ID =
+  "b1070009-e2e0-4000-8000-000000000152"
+export const E2E_COVERAGE_TIER4_LIVE_OFFER_ID =
+  "b1070009-e2e0-4000-8000-000000000153"
+export const E2E_COVERAGE_TIER4_PERSONALIZED_PLAN_ID =
+  "b1070009-e2e0-4000-8000-000000000154"
+
 export const E2E_COVERAGE_EVIDENCE_IDS = [
   E2E_COVERAGE_EXPIRED_CALENDAR_ID,
   E2E_COVERAGE_EXPIRED_LOGISTICS_ID,
@@ -77,7 +104,15 @@ export const E2E_COVERAGE_EVIDENCE_IDS = [
   E2E_COVERAGE_CURRENT_CALENDAR_ID,
   E2E_COVERAGE_CURRENT_LOGISTICS_ID,
   E2E_COVERAGE_CURRENT_DECISION_GUIDE_ID,
-  E2E_COVERAGE_CURRENT_LIVE_OFFER_ID
+  E2E_COVERAGE_CURRENT_LIVE_OFFER_ID,
+  E2E_COVERAGE_TIER1_CALENDAR_ID,
+  E2E_COVERAGE_TIER1_LOGISTICS_ID,
+  E2E_COVERAGE_TIER0_CALENDAR_ID,
+  E2E_COVERAGE_TIER4_CALENDAR_ID,
+  E2E_COVERAGE_TIER4_LOGISTICS_ID,
+  E2E_COVERAGE_TIER4_DECISION_GUIDE_ID,
+  E2E_COVERAGE_TIER4_LIVE_OFFER_ID,
+  E2E_COVERAGE_TIER4_PERSONALIZED_PLAN_ID
 ] as const
 
 export const ADMIN_COVERAGE_MATRIX_MARKERS = [
@@ -111,6 +146,11 @@ const COVERAGE_KIND_ATTRIBUTES = {
     inventoryAvailable: true,
     taggedLink: true,
     attributionConfigured: true
+  },
+  personalized_plan: {
+    completeInputs: true,
+    sourceBackedRecommendations: true,
+    handoffsTracked: true
   }
 } as const
 
@@ -177,6 +217,65 @@ export const CATALOGUE_STATUS_RACES: readonly CatalogueStatusRace[] = [
     visibleStatus: "Cancelled"
   }
 ]
+
+export const PUBLIC_COVERAGE_SEARCH_QUERY = "Synthetic"
+
+export const PUBLIC_COVERAGE_TIER_CASES = [
+  {
+    id: E2E_RACE_CANCELLED_ID,
+    slug: E2E_RACE_CANCELLED_SLUG,
+    name: E2E_RACE_CANCELLED_NAME,
+    tier: null,
+    depthLabel: "No verified coverage",
+    offerLabel: "No current offers",
+    tone: "muted"
+  },
+  {
+    id: E2E_COVERAGE_TIER0_RACE_ID,
+    slug: E2E_COVERAGE_TIER0_RACE_SLUG,
+    name: E2E_COVERAGE_TIER0_RACE_NAME,
+    tier: 0,
+    depthLabel: "Calendar only",
+    offerLabel: "No current offers",
+    tone: "muted"
+  },
+  {
+    id: E2E_RACE_IN_PROGRESS_ID,
+    slug: E2E_RACE_IN_PROGRESS_SLUG,
+    name: E2E_RACE_IN_PROGRESS_NAME,
+    tier: 1,
+    depthLabel: "Logistics",
+    offerLabel: "No current offers",
+    tone: "emphasis"
+  },
+  {
+    id: E2E_RACE_COMPLETED_ID,
+    slug: E2E_RACE_COMPLETED_SLUG,
+    name: E2E_RACE_COMPLETED_NAME,
+    tier: 2,
+    depthLabel: "Decision guide",
+    offerLabel: "No current offers",
+    tone: "emphasis"
+  },
+  {
+    id: E2E_RACE_ID,
+    slug: E2E_RACE_SLUG,
+    name: E2E_RACE_NAME,
+    tier: 3,
+    depthLabel: "Live offers",
+    offerLabel: "Current offers",
+    tone: "emphasis"
+  },
+  {
+    id: E2E_COVERAGE_TIER4_RACE_ID,
+    slug: E2E_COVERAGE_TIER4_RACE_SLUG,
+    name: E2E_COVERAGE_TIER4_RACE_NAME,
+    tier: 4,
+    depthLabel: "Personalized plan",
+    offerLabel: "Current offers",
+    tone: "emphasis"
+  }
+] as const
 
 export const SHARED_CIRCUIT_RACE_SLUGS = [
   E2E_RACE_SLUG,
@@ -435,11 +534,61 @@ async function seedDisposableProfilesAndCoverage(
       kind: "live_offer" as const,
       freshness: "current" as const
     }
-  ]
+    ]
+    const extraTiers = [
+    {
+      id: E2E_COVERAGE_TIER1_CALENDAR_ID,
+      raceId: E2E_RACE_IN_PROGRESS_ID,
+      kind: "calendar" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_TIER1_LOGISTICS_ID,
+      raceId: E2E_RACE_IN_PROGRESS_ID,
+      kind: "logistics" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_TIER0_CALENDAR_ID,
+      raceId: E2E_COVERAGE_TIER0_RACE_ID,
+      kind: "calendar" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_TIER4_CALENDAR_ID,
+      raceId: E2E_COVERAGE_TIER4_RACE_ID,
+      kind: "calendar" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_TIER4_LOGISTICS_ID,
+      raceId: E2E_COVERAGE_TIER4_RACE_ID,
+      kind: "logistics" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_TIER4_DECISION_GUIDE_ID,
+      raceId: E2E_COVERAGE_TIER4_RACE_ID,
+      kind: "decision_guide" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_TIER4_LIVE_OFFER_ID,
+      raceId: E2E_COVERAGE_TIER4_RACE_ID,
+      kind: "live_offer" as const,
+      freshness: "current" as const
+    },
+    {
+      id: E2E_COVERAGE_TIER4_PERSONALIZED_PLAN_ID,
+      raceId: E2E_COVERAGE_TIER4_RACE_ID,
+      kind: "personalized_plan" as const,
+      freshness: "current" as const
+    }
+    ]
 
-  for (const row of [...expired, ...current]) {
+    for (const row of [...expired, ...current, ...extraTiers]) {
     await upsertCoverageEvidence(tx, row)
-  }
+    }
 }
 
 async function cleanupDisposableCoverage(sql: postgres.Sql): Promise<void> {
@@ -460,6 +609,7 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
     const motogpSeriesId = requireSeriesId(seriesIdBySlug, "motogp")
     const formulaESeriesId = requireSeriesId(seriesIdBySlug, "formula-e")
     const indycarSeriesId = requireSeriesId(seriesIdBySlug, "indycar")
+    const wecSeriesId = requireSeriesId(seriesIdBySlug, "wec")
 
     await tx`
       INSERT INTO circuits (
@@ -642,6 +792,74 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
     `
 
     await tx`
+      INSERT INTO races (
+        id, circuit_id, series_id, name, date, season, round,
+        country, description, status, slug, is_sprint_weekend
+      )
+      VALUES (
+        ${E2E_COVERAGE_TIER0_RACE_ID}::uuid,
+        ${E2E_CIRCUIT_ID}::uuid,
+        ${wecSeriesId}::uuid,
+        ${E2E_COVERAGE_TIER0_RACE_NAME},
+        ${E2E_COVERAGE_TIER0_RACE_DATE}::timestamptz,
+        2099,
+        2,
+        ${E2E_CIRCUIT_COUNTRY},
+        ${"Synthetic WEC calendar-only weekend used only by disposable Playwright e2e. Not a real event."},
+        ${"upcoming"}::race_status,
+        ${E2E_COVERAGE_TIER0_RACE_SLUG},
+        false
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        circuit_id = EXCLUDED.circuit_id,
+        series_id = EXCLUDED.series_id,
+        name = EXCLUDED.name,
+        date = EXCLUDED.date,
+        season = EXCLUDED.season,
+        round = EXCLUDED.round,
+        country = EXCLUDED.country,
+        description = EXCLUDED.description,
+        status = EXCLUDED.status,
+        slug = EXCLUDED.slug,
+        is_sprint_weekend = EXCLUDED.is_sprint_weekend,
+        updated_at = now()
+    `
+
+    await tx`
+      INSERT INTO races (
+        id, circuit_id, series_id, name, date, season, round,
+        country, description, status, slug, is_sprint_weekend
+      )
+      VALUES (
+        ${E2E_COVERAGE_TIER4_RACE_ID}::uuid,
+        ${E2E_CIRCUIT_ID}::uuid,
+        ${wecSeriesId}::uuid,
+        ${E2E_COVERAGE_TIER4_RACE_NAME},
+        ${E2E_COVERAGE_TIER4_RACE_DATE}::timestamptz,
+        2099,
+        3,
+        ${E2E_CIRCUIT_COUNTRY},
+        ${"Synthetic WEC personalized-plan weekend used only by disposable Playwright e2e. Not a real event."},
+        ${"upcoming"}::race_status,
+        ${E2E_COVERAGE_TIER4_RACE_SLUG},
+        false
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        circuit_id = EXCLUDED.circuit_id,
+        series_id = EXCLUDED.series_id,
+        name = EXCLUDED.name,
+        date = EXCLUDED.date,
+        season = EXCLUDED.season,
+        round = EXCLUDED.round,
+        country = EXCLUDED.country,
+        description = EXCLUDED.description,
+        status = EXCLUDED.status,
+        slug = EXCLUDED.slug,
+        is_sprint_weekend = EXCLUDED.is_sprint_weekend,
+        updated_at = now()
+    `
+
+    await tx`
       INSERT INTO grandstands (
         id, circuit_id, name, slug, description, covered, has_big_screen
       )
@@ -676,6 +894,8 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
 
 async function cleanupCatalog(sql: postgres.Sql): Promise<void> {
   await cleanupDisposableCoverage(sql)
+  await sql`DELETE FROM races WHERE id = ${E2E_COVERAGE_TIER0_RACE_ID}::uuid`
+  await sql`DELETE FROM races WHERE id = ${E2E_COVERAGE_TIER4_RACE_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_IN_PROGRESS_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_COMPLETED_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_CANCELLED_ID}::uuid`

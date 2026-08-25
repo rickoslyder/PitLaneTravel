@@ -30,6 +30,9 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ErrorBoundary } from "./error-boundary"
 import { ProgressIndicator } from "./progress-indicator"
 import { useAnnouncer } from "./use-announcer"
+import { CoverageBadge } from "@/components/coverage/coverage-badge"
+import { FreshnessNote } from "@/components/coverage/freshness-note"
+import type { PublicCoverageSummary } from "@/lib/public-coverage"
 
 // Create a loading component
 function TabLoadingSpinner() {
@@ -78,6 +81,8 @@ interface RaceDetailsPageProps {
   userId?: string | null
   /** The race's history data */
   history?: SelectRaceHistory
+  /** Safe public coverage summary for this race */
+  coverage?: PublicCoverageSummary | null
 }
 
 interface TabOption {
@@ -134,7 +139,8 @@ export function RaceDetailsPage({
   race,
   existingTripId,
   userId,
-  history
+  history,
+  coverage
 }: RaceDetailsPageProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -316,6 +322,15 @@ export function RaceDetailsPage({
         existingTripId={existingTripId}
         onTabChange={handleTabChange}
       />
+
+      {coverage && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+          <div className="space-y-2">
+            <CoverageBadge summary={coverage} />
+            <FreshnessNote summary={coverage} />
+          </div>
+        </div>
+      )}
 
       {race.status === "cancelled" && (
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
