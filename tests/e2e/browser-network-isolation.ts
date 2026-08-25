@@ -15,6 +15,7 @@ const SUPPRESS_HOST_PATTERNS: RegExp[] = [
   /(^|\.)posthog\.com$/i,
   /(^|\.)i\.posthog\.com$/i,
   /(^|\.)vercel-insights\.com$/i,
+  /(^|\.)va\.vercel-scripts\.com$/i,
   /(^|\.)clarity\.ms$/i,
   /(^|\.)formula1\.com$/i,
   /(^|\.)supabase\.co$/i,
@@ -32,6 +33,10 @@ function isLoopback(url: URL): boolean {
   return LOOPBACK_HOSTS.has(hostnameOf(url))
 }
 
+function isPostHogIngestPath(url: URL): boolean {
+  return url.pathname === "/ingest" || url.pathname.startsWith("/ingest/")
+}
+
 function isLocalSupportPath(url: URL): boolean {
   const optimizedSource =
     url.pathname === "/_next/image" ? url.searchParams.get("url") : null
@@ -43,6 +48,7 @@ function isLocalSupportPath(url: URL): boolean {
   return (
     url.pathname.startsWith("/_vercel/speed-insights") ||
     url.pathname.startsWith("/_vercel/insights") ||
+    isPostHogIngestPath(url) ||
     url.pathname.includes("progressier") ||
     optimizesExternalImage
   )
@@ -63,6 +69,12 @@ function isKnownTelemetryOrRemoteAsset(url: URL): boolean {
   if (
     host === "ci.invalid" &&
     url.pathname.startsWith("/npm/@clerk/clerk-js")
+  ) {
+    return true
+  }
+  if (
+    (host === "www.pitlanetravel.com" || host === "pitlanetravel.com") &&
+    isPostHogIngestPath(url)
   ) {
     return true
   }

@@ -1,24 +1,20 @@
-/*
-<ai_context>
-This client component tracks pageviews in PostHog.
-</ai_context>
-*/
-
 "use client"
 
+import { useAnalyticsConsent } from "@/lib/analytics-consent"
+import { capturePostHog } from "@/lib/analytics-events"
 import { usePathname } from "next/navigation"
-import posthog from "posthog-js"
 import { useEffect } from "react"
 
 export function PostHogPageview() {
   const pathname = usePathname()
+  const consent = useAnalyticsConsent()
 
   useEffect(() => {
-    // Track a pageview whenever the pathname changes
-    if (pathname) {
-      posthog.capture("$pageview", { path: pathname })
+    if (consent !== "granted" || !pathname) {
+      return
     }
-  }, [pathname])
+    capturePostHog("$pageview", { path: pathname })
+  }, [consent, pathname])
 
   return null
 }

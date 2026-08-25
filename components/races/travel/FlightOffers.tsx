@@ -1,6 +1,6 @@
 "use client"
 
-import { sendGTMEvent } from "@next/third-parties/google"
+import { sendGTMEvent } from "@/lib/analytics-events"
 import { FlightDetails } from "./FlightDetails"
 import { TransformedFlightOffer } from "@/types/duffel"
 

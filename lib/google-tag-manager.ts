@@ -1,4 +1,4 @@
-import { sendGTMEvent } from "@next/third-parties/google"
+import { sendGTMEvent } from "@/lib/analytics-events"
 import { RaceWithDetails } from "@/types/race"
 export const gtmPixelID = "GTM-PF957G29"
 export const gtmServerID = "GTM-5JPSQKB2"

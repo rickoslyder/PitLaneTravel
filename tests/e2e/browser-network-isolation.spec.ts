@@ -45,6 +45,23 @@ describe("PLT-009 browser network isolation", () => {
       classifyBrowserRequest("http://127.0.0.1:3100/_vercel/insights/script.js")
     ).toBe("suppress")
     expect(
+      classifyBrowserRequest("https://va.vercel-scripts.com/v1/speed-insights/script.js")
+    ).toBe("suppress")
+    expect(
+      classifyBrowserRequest("http://localhost:3100/ingest/e")
+    ).toBe("suppress")
+    expect(
+      classifyBrowserRequest("http://127.0.0.1:3100/ingest/static/array.js")
+    ).toBe("suppress")
+    expect(
+      classifyBrowserRequest("https://www.pitlanetravel.com/ingest/e/")
+    ).toBe("suppress")
+    expect(
+      classifyBrowserRequest(
+        "https://www.pitlanetravel.com/ingest/static/array.js"
+      )
+    ).toBe("suppress")
+    expect(
       classifyBrowserRequest(
         "http://localhost:3100/_next/image?url=https%3A%2F%2Fci-invalid.supabase.co%2Fhero.jpeg&w=1920&q=75"
       )
@@ -84,6 +101,18 @@ describe("PLT-009 browser network isolation", () => {
       "deny"
     )
     expect(classifyBrowserRequest("https://example.com/")).toBe("deny")
+    expect(classifyBrowserRequest("https://www.pitlanetravel.com/")).toBe(
+      "deny"
+    )
+    expect(classifyBrowserRequest("https://www.pitlanetravel.com/races")).toBe(
+      "deny"
+    )
+    expect(
+      classifyBrowserRequest("http://localhost:3100/api/cron/update-sessions")
+    ).toBe("allow")
+    expect(classifyBrowserRequest("http://localhost:3100/ingest-foo")).toBe(
+      "allow"
+    )
     expect(
       classifyBrowserRequest(
         "http://localhost:3100/_next/image?url=%2Fandroid-chrome-512x512.png&w=640&q=75"
@@ -222,6 +251,10 @@ describe("PLT-009 browser network isolation", () => {
       "utf8"
     )
     const layout = readFileSync(path.join(root, "app/layout.tsx"), "utf8")
+    const controller = readFileSync(
+      path.join(root, "components/privacy/analytics-controller.tsx"),
+      "utf8"
+    )
     const middleware = readFileSync(path.join(root, "middleware.ts"), "utf8")
 
     expect(fixtures).toMatch(/classifyBrowserRequest/)
@@ -230,8 +263,10 @@ describe("PLT-009 browser network isolation", () => {
     expect(fixtures).toMatch(/deniedExternalRequests\.push/)
     expect(fixtures).toMatch(/expect\([\s\S]*deniedExternalRequests[\s\S]*toEqual\(\[\]\)/)
     expect(fixtures).not.toMatch(/test\.skip|test\.fixme|test\.only/)
-    expect(layout).toMatch(/SpeedInsights/)
-    expect(layout).toMatch(/GoogleTagManager/)
+    expect(layout).not.toMatch(/SpeedInsights/)
+    expect(layout).not.toMatch(/GoogleTagManager/)
+    expect(controller).toMatch(/GoogleTagManager/)
+    expect(controller).toMatch(/SpeedInsights/)
     expect(layout).toMatch(/progressier\.app/)
     expect(middleware).not.toMatch(/process\.env\.(NODE_ENV|CI|PLAYWRIGHT)/)
   })

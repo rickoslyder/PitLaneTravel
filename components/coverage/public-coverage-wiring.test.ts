@@ -109,7 +109,7 @@ describe("public coverage wiring source contract", () => {
     const playwright = read("playwright.config.ts")
     const middleware = read("middleware.ts")
     expect(playwright).toMatch(
-      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*\]/
+      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*\]/
     )
     expect(playwright).toMatch(/retries:\s*0/)
     expect(middleware).toMatch(/export default clerkMiddleware\s*\(/)
