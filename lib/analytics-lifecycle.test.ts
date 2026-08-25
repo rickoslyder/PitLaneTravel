@@ -15,11 +15,8 @@ function createHarness() {
       calls.push(`persist:${status}`)
     },
     adapters: {
-      initPostHog() {
-        calls.push("posthog.init")
-      },
-      optInPostHog() {
-        calls.push("posthog.opt_in_capturing")
+      initPostHogAfterConsent() {
+        calls.push("posthog.initAfterConsent")
       },
       optOutPostHog() {
         calls.push("posthog.opt_out_capturing")
@@ -76,8 +73,7 @@ describe("analytics vendor lifecycle", () => {
     expect(persisted).toEqual(["granted"])
     expect(calls).toEqual([
       "persist:granted",
-      "posthog.init",
-      "posthog.opt_in_capturing",
+      "posthog.initAfterConsent",
       "google.consent.default.denied",
       "google.consent.update.analytics_granted",
       "google.load",
@@ -91,8 +87,7 @@ describe("analytics vendor lifecycle", () => {
     const { calls, lifecycle } = createHarness()
     lifecycle.boot("granted")
     expect(calls).toEqual([
-      "posthog.init",
-      "posthog.opt_in_capturing",
+      "posthog.initAfterConsent",
       "google.consent.default.denied",
       "google.consent.update.analytics_granted",
       "google.load",
@@ -153,8 +148,8 @@ describe("analytics vendor lifecycle", () => {
     lifecycle.grant()
 
     expect(persisted).toEqual(["granted"])
-    expect(calls.filter((call) => call === "posthog.init")).toEqual([
-      "posthog.init"
+    expect(calls.filter((call) => call === "posthog.initAfterConsent")).toEqual([
+      "posthog.initAfterConsent"
     ])
     expect(calls.filter((call) => call === "clarity.init")).toEqual([
       "clarity.init"
@@ -359,7 +354,7 @@ describe("analytics vendor lifecycle", () => {
     lifecycle.grant()
     lifecycle.boot("granted")
     expect(persisted).toEqual(["granted"])
-    expect(calls.filter((call) => call === "posthog.init")).toHaveLength(1)
+    expect(calls.filter((call) => call === "posthog.initAfterConsent")).toHaveLength(1)
 
     calls.length = 0
     persisted.length = 0
@@ -369,6 +364,19 @@ describe("analytics vendor lifecycle", () => {
     expect(persisted).toEqual(["denied"])
     expect(calls.filter((call) => call === "reload")).toEqual(["reload"])
     expect(lifecycle.isInitialized()).toBe(false)
+  })
+
+  it("uses one PostHog grant-time init and no separate opt-in adapter call", () => {
+    const { calls, persisted, lifecycle } = createHarness()
+    lifecycle.grant()
+    expect(persisted).toEqual(["granted"])
+    expect(
+      calls.filter(
+        (call) => call.startsWith("posthog.") && call !== "posthog.opt_out_capturing"
+      )
+    ).toEqual(["posthog.initAfterConsent"])
+    expect(calls).not.toContain("posthog.init")
+    expect(calls).not.toContain("posthog.opt_in_capturing")
   })
 
   it("does not initialize vendors when grant persistence fails", () => {
@@ -420,11 +428,8 @@ describe("analytics vendor lifecycle", () => {
 
 function recordingAdapters(calls: string[]) {
   return {
-    initPostHog() {
-      calls.push("posthog.init")
-    },
-    optInPostHog() {
-      calls.push("posthog.opt_in_capturing")
+    initPostHogAfterConsent() {
+      calls.push("posthog.initAfterConsent")
     },
     optOutPostHog() {
       calls.push("posthog.opt_out_capturing")

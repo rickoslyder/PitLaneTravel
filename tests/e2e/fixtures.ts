@@ -2,7 +2,8 @@ import { test as base, expect, type ConsoleMessage, type Page } from "@playwrigh
 import postgres from "postgres"
 import {
   classifyBrowserRequest,
-  isAppOriginConsoleError
+  isAppOriginConsoleError,
+  suppressionResponseFor
 } from "./browser-network-isolation"
 
 // Official fixtures + empty storage state:
@@ -946,11 +947,12 @@ export const test = base.extend<{ consoleGuard: void }, { seededCatalog: SeededC
           return
         }
         if (classification === "suppress") {
-          await route.fulfill({
-            status: 204,
-            contentType: "text/plain",
-            body: ""
-          })
+          await route.fulfill(
+            suppressionResponseFor({
+              method: route.request().method(),
+              url: route.request().url()
+            })
+          )
           return
         }
         deniedExternalRequests.push(redactSecrets(route.request().url()))

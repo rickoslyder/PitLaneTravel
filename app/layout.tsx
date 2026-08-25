@@ -21,7 +21,6 @@ import { auth } from "@clerk/nextjs/server"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { PageViewTracker } from "./components/gtm/page-view-tracker"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -125,8 +124,6 @@ export default async function RootLayout({
             <AnalyticsController />
             <PostHogUserIdentify />
             <PostHogPageview />
-
-            <PageViewTracker userId={userId} />
 
             {children}
 

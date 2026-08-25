@@ -11,7 +11,7 @@ function read(rel: string): string {
 }
 
 const PLAYWRIGHT_TEST_MATCH =
-  /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*\]/
+  /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*\]/
 
 describe("PLT-016 analytics consent browser source contract", () => {
   it("selects analytics-consent.spec.ts in Playwright and excludes it from Vitest", () => {
@@ -48,7 +48,7 @@ describe("PLT-016 analytics consent browser source contract", () => {
     expect(publicCoverage).toMatch(/analytics-consent/)
     expect(clerk).toMatch(/analytics-consent/)
     expect(wiring).toMatch(/analytics-consent/)
-    expect(clerk).toMatch(/exactly the five production Playwright suites/)
+    expect(clerk).toMatch(/exactly the six production Playwright suites/)
   })
 
   it("covers first-visit, reject, accept, withdraw, cross-tab, and damaged-storage scenarios", () => {
@@ -157,6 +157,49 @@ describe("PLT-016 analytics consent browser source contract", () => {
     expect(helper).not.toMatch(/localStorage|sessionStorage|cookie|consent/i)
     expect(helper).not.toMatch(/opt_out_useragent_filter/)
     expect(helper).not.toMatch(/opt_in_capturing|posthog/)
+  })
+
+  it("normalizes navigator.userAgent HeadlessChrome to Chrome via a configurable getter before navigation", () => {
+    const helper = read("tests/e2e/analytics-consent-automation.ts")
+
+    const defineAt = helper.search(
+      /Object\.defineProperty\(\s*navigator\s*,\s*["']userAgent["']/
+    )
+    expect(
+      defineAt,
+      "init script must defineProperty(navigator, \"userAgent\")"
+    ).toBeGreaterThanOrEqual(0)
+
+    const earlyReturnAt = helper.search(/if\s*\(\s*!original\s*\)/)
+    expect(
+      earlyReturnAt,
+      "userAgent getter must be installed before the userAgentData early return"
+    ).toBeGreaterThan(defineAt)
+
+    const userAgentBlock = helper.slice(defineAt, earlyReturnAt)
+    expect(userAgentBlock).toMatch(/configurable:\s*true/)
+    expect(userAgentBlock).toMatch(/get\s*\(\s*\)/)
+    expect(userAgentBlock).toMatch(
+      /\.replace\(\s*["']HeadlessChrome["']\s*,\s*["']Chrome["']\s*\)/
+    )
+    expect(helper).toMatch(/navigator\.userAgent(?!Data)/)
+    expect(helper).not.toMatch(/navigator\.userAgent\s*=/)
+
+    expect(helper).toMatch(
+      /Object\.defineProperty\(\s*navigator\s*,\s*["']webdriver["']/
+    )
+    expect(helper).toMatch(
+      /Object\.defineProperty\(\s*navigator\s*,\s*["']userAgentData["']/
+    )
+    expect(helper).toMatch(/entry\.brand === ["']HeadlessChrome["']/)
+    expect(helper).toMatch(/["']Google Chrome["']/)
+  })
+
+  it("keeps product PostHog default user-agent bot filtering and both opt-out-by-default flags", () => {
+    const vendors = read("lib/analytics-vendors.ts")
+    expect(vendors).not.toMatch(/opt_out_useragent_filter\s*:\s*true/)
+    expect(vendors).toMatch(/opt_out_capturing_by_default:\s*true/)
+    expect(vendors).toMatch(/opt_out_persistence_by_default:\s*true/)
   })
 
   it("observes an always-available Node from the order probe init script", () => {

@@ -1,5 +1,28 @@
 export type BrowserRequestClass = "allow" | "suppress" | "deny"
 
+export type IsolationRequestMeta = {
+  method: string
+  url: string
+}
+
+export type SuppressionFulfillment = {
+  status: 200 | 204
+  contentType: "application/json" | "text/plain"
+  body: string
+}
+
+const EMPTY_SUPPRESSION: SuppressionFulfillment = {
+  status: 204,
+  contentType: "text/plain",
+  body: ""
+}
+
+const POSTHOG_INGEST_SUCCESS: SuppressionFulfillment = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify({ status: 1 })
+}
+
 const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1"])
 
 const SUPPRESS_HOST_PATTERNS: RegExp[] = [
@@ -112,6 +135,30 @@ export function classifyBrowserRequest(urlString: string): BrowserRequestClass {
   }
 
   return "deny"
+}
+
+export function suppressionResponseFor(
+  request: IsolationRequestMeta
+): SuppressionFulfillment {
+  if (request.method.toUpperCase() !== "POST") {
+    return EMPTY_SUPPRESSION
+  }
+  if (classifyBrowserRequest(request.url) !== "suppress") {
+    return EMPTY_SUPPRESSION
+  }
+
+  let url: URL
+  try {
+    url = new URL(request.url)
+  } catch {
+    return EMPTY_SUPPRESSION
+  }
+
+  if (!isPostHogIngestPath(url)) {
+    return EMPTY_SUPPRESSION
+  }
+
+  return POSTHOG_INGEST_SUCCESS
 }
 
 export function isNetworkOnlyConsoleError(text: string): boolean {

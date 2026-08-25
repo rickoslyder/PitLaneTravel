@@ -1,7 +1,7 @@
 "use client"
 
 import { useAnalyticsConsent } from "@/lib/analytics-consent"
-import { capturePostHog } from "@/lib/analytics-events"
+import { captureAnalyticsEvent } from "@/lib/analytics/capture"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 
@@ -13,7 +13,7 @@ export function PostHogPageview() {
     if (consent !== "granted" || !pathname) {
       return
     }
-    capturePostHog("$pageview", { path: pathname })
+    captureAnalyticsEvent({ event: "page viewed", pathname })
   }, [consent, pathname])
 
   return null

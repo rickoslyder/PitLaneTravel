@@ -6,11 +6,14 @@ import { identifyPostHog, resetPostHog } from "@/lib/analytics-events"
 import { useEffect } from "react"
 
 export function PostHogUserIdentify() {
-  const { user } = useUser()
+  const { user, isLoaded } = useUser()
   const consent = useAnalyticsConsent()
 
   useEffect(() => {
     if (consent !== "granted") {
+      return
+    }
+    if (!isLoaded) {
       return
     }
     if (user?.id) {
@@ -18,7 +21,7 @@ export function PostHogUserIdentify() {
     } else {
       resetPostHog()
     }
-  }, [consent, user?.id])
+  }, [consent, isLoaded, user?.id])
 
   return null
 }

@@ -8,6 +8,7 @@ export type AnalyticsEventVendors = {
   capture: (event: string, properties?: Record<string, unknown>) => void
   identify: (distinctId: string) => void
   reset: () => void
+  optInCapturing: (options: { captureEventName: false }) => void
 }
 
 export type AnalyticsEventGuards = {
@@ -57,6 +58,7 @@ export function createAnalyticsEventGuards(
     resetPostHog() {
       return runIfGranted(deps.isGranted, () => {
         deps.reset()
+        deps.optInCapturing({ captureEventName: false })
       })
     }
   }
@@ -75,6 +77,9 @@ const defaultGuards = createAnalyticsEventGuards({
   },
   reset() {
     posthog.reset()
+  },
+  optInCapturing(options) {
+    posthog.opt_in_capturing(options)
   }
 })
 

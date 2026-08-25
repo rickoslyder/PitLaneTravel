@@ -11,6 +11,14 @@ export async function installAutomationMarkerNormalization(
       }
     })
 
+    const originalUserAgent = navigator.userAgent
+    Object.defineProperty(navigator, "userAgent", {
+      configurable: true,
+      get() {
+        return originalUserAgent.replace("HeadlessChrome", "Chrome")
+      }
+    })
+
     const original = (
       navigator as Navigator & {
         userAgentData?: {

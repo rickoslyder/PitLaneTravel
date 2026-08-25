@@ -1,8 +1,7 @@
 import type { AnalyticsConsentStatus, StoredAnalyticsConsentStatus } from "./analytics-consent"
 
 export type AnalyticsVendorAdapters = {
-  initPostHog: () => void
-  optInPostHog: () => void
+  initPostHogAfterConsent: () => void
   optOutPostHog: () => void
   applyGoogleConsentDefaultDenied: () => void
   updateGoogleAnalyticsGranted: () => void
@@ -24,8 +23,7 @@ export type AnalyticsVendorLifecycle = {
 }
 
 function initializeVendors(adapters: AnalyticsVendorAdapters): void {
-  adapters.initPostHog()
-  adapters.optInPostHog()
+  adapters.initPostHogAfterConsent()
   adapters.applyGoogleConsentDefaultDenied()
   adapters.updateGoogleAnalyticsGranted()
   adapters.loadGoogleTagManager()

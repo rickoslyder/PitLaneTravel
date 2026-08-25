@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { SelectTrip } from "@/db/schema"
 import { RaceWithDetails } from "@/types/race"
@@ -30,7 +30,8 @@ import { TransportTab } from "./transport-tab"
 import { PackingTab } from "./packing-tab"
 import { MerchTab } from "./merch-tab"
 import { AiTab } from "./ai-tab"
-import { sendGTMEvent } from "@/lib/analytics-events"
+import { captureAnalyticsEvent } from "@/lib/analytics/capture"
+import { useAnalyticsConsent } from "@/lib/analytics-consent"
 
 interface TripDetailsProps {
   trip: Trip
@@ -45,6 +46,14 @@ export function TripDetails({ trip, race, userId }: TripDetailsProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editedTrip, setEditedTrip] = useState<Trip>(trip)
   const [editingSection, setEditingSection] = useState<string | null>(null)
+  const consent = useAnalyticsConsent()
+
+  useEffect(() => {
+    if (consent !== "granted") {
+      return
+    }
+    captureAnalyticsEvent({ event: "trip viewed" })
+  }, [consent])
 
   const handleSave = async () => {
     setIsLoading(true)
@@ -85,25 +94,6 @@ export function TripDetails({ trip, race, userId }: TripDetailsProps) {
       }
     }))
   }
-
-  sendGTMEvent({
-    event: "view_item",
-    user_data: {
-      external_id: userId ?? null
-    },
-    x_fb_ud_external_id: userId ?? null,
-    x_fb_cd_content_ids: [trip.id],
-    x_fb_cd_content_category: "trip",
-    items: [
-      {
-        item_name: trip.title,
-        quantity: 1,
-        // price: 123.45,
-        item_category: "trip",
-        item_brand: race.name
-      }
-    ]
-  })
 
   return (
     <motion.div

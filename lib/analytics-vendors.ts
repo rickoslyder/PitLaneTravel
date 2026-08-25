@@ -157,7 +157,7 @@ export function createBrowserAnalyticsAdapters(options: {
   reload: () => void
 }): AnalyticsVendorAdapters {
   return {
-    initPostHog() {
+    initPostHogAfterConsent() {
       const w = analyticsWindow()
       if (!w) {
         return
@@ -170,6 +170,7 @@ export function createBrowserAnalyticsAdapters(options: {
       try {
         // https://posthog.com/docs/libraries/js
         // https://posthog.com/docs/libraries/js/config
+        // https://posthog.com/docs/references/posthog-js/types/PostHogConfig
         posthog.init(key, {
           api_host: "https://www.pitlanetravel.com/ingest",
           ui_host: host,
@@ -180,15 +181,11 @@ export function createBrowserAnalyticsAdapters(options: {
           persistence: "localStorage",
           advanced_disable_decide: true,
           opt_out_capturing_by_default: true,
-          opt_out_persistence_by_default: true
+          opt_out_persistence_by_default: true,
+          loaded(instance) {
+            instance.opt_in_capturing()
+          }
         })
-      } catch {
-        return
-      }
-    },
-    optInPostHog() {
-      try {
-        posthog.opt_in_capturing()
       } catch {
         return
       }

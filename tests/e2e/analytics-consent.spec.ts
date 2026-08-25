@@ -1,7 +1,8 @@
 import type { ConsoleMessage, BrowserContext, Page, Request } from "@playwright/test"
 import {
   classifyBrowserRequest,
-  isAppOriginConsoleError
+  isAppOriginConsoleError,
+  suppressionResponseFor
 } from "./browser-network-isolation"
 import { installAutomationMarkerNormalization } from "./analytics-consent-automation"
 import { expect, test } from "./fixtures"
@@ -144,11 +145,12 @@ async function attachIsolation(page: Page): Promise<{ assertClean: () => void }>
       return
     }
     if (classification === "suppress") {
-      await route.fulfill({
-        status: 204,
-        contentType: "text/plain",
-        body: ""
-      })
+      await route.fulfill(
+        suppressionResponseFor({
+          method: route.request().method(),
+          url: route.request().url()
+        })
+      )
       return
     }
     deniedExternalRequests.push(redactSecrets(route.request().url()))
