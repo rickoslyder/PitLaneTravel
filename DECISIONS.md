@@ -493,3 +493,24 @@ baseline is invented.
 **Rollback / billing.** Billing owner is Richard. Agents may prepare and read back; they cannot approve spend. Rollback is N/A because no change occurred.
 
 This issue records the hold and commercial blocker. It does not perform the paid upgrade.
+
+---
+
+## 2026-08-25 — Owner correction: Hobby hold is plan-change only (PLT-056 addendum)
+
+**Canonical record:** [`docs/operations/hosting-plan-decision.md`](docs/operations/hosting-plan-decision.md)
+**Issue:** PLT-056 / GitHub #36
+**Owner clarification (verbatim, 2026-08-25):** “Well hold on, we can still develop the commercial features etc - we don't have any users yet so it doesn't matter if they exist, I'm just saying no to Hobby until my go-ahead”
+
+**This addendum supersedes** two over-broad parts of the preceding PLT-056 entry: (1) the development restriction that PLT-018 / PLT-057 (and commercial features generally) may only be built or tested with synthetic or untagged / noncommercial proof while Hobby remains; (2) the trigger that required Richard first to declare the build phase complete **and** approve cost / seat / add-on / spend items before go-ahead could be given. Historical text above is retained. The original 2026-08-25 quote (“Keep it as Hobby until we're done with building.”) is not rewritten.
+
+Interpreted from context: remain on the current Hobby plan / say no to a paid Vercel plan change until Richard's explicit go-ahead. That “no” is a hold on a paid plan change, not a change of the current Hobby plan. Observed state remains Hobby; the first decision was to remain there.
+
+**Decision (operative).** The hosting hold is **only** a paid plan-change / commercial-launch hosting boundary. It is not a freeze on developing, merging, previewing, or deploying commercial-capability code while there are no users / no intentional commercial operation.
+
+- **A. Allowed now without a Vercel plan change:** develop, merge, preview, production-deploy, and production-dogfood commercial-feature code; use synthetic / test / sandbox or otherwise non-money-moving proof where separate provider / product gates require it; keep product code ready for future users. PLT-018, PLT-057, attribution plumbing, partner schemas, commercial CTA UX, reporting, and other monetization-enabling work are not blocked by hosting and must not be skipped because of it. A feature's existence in code or a deployment is not by itself commercial launch. PLT-018 and PLT-057 may be fully developed; hosting does not limit them to synthetic / untagged proof. PLT-057's own evidence rules and PLT-018's dependency still apply.
+- **B. Still gated by existing separate product / security / provider decisions:** live money movement, real supplier orders, unsupported partner claims / terms, external campaigns / sends, or enabling flags that existing contracts say are owner-operated. Do **not** attribute these gates to Vercel Hobby.
+- **C. Paid hosting change:** stay Hobby until Richard's explicit go-ahead; then re-read current pricing / plan / seat / add-on / spend and get explicit approval for the actual upgrade action (issue #36). No automatic date or Gate F trigger. No mandatory “build complete” declaration. Cost / seat / add-on / spend approvals are obtained at the upgrade action; they are not a hidden conjunction that must precede go-ahead.
+- **D. Commercial launch / traffic:** before intentionally launching / operating for users and monetization, re-evaluate the then-current Vercel commercial-use requirement and obtain the hosting go-ahead. “No users yet” is present operational context, not a permanent guarantee.
+
+Do not claim affiliate routes are technically disabled. Preserve the public catalogue. The unapproved Pro envelope in the preceding entry remains a 2026-08-25 official-docs snapshot and requires fresh readback at go-ahead. No upgrade, domain, env, production setting, or `vercel.json` change was performed.
