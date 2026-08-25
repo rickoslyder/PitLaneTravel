@@ -65,7 +65,7 @@ describe("PLT-009 smoke locator and anonymous-boundary source contract", () => {
     expect(smoke).not.toMatch(/storageState:\s*\{[^}]*cookies:[^}]*__session/)
   })
 
-  it("does not add a production auth bypass or extra Playwright cases", () => {
+  it("does not add a production auth bypass or unintended Playwright cases", () => {
     const middleware = readFileSync(path.join(root, "middleware.ts"), "utf8")
     const playwright = readFileSync(
       path.join(root, "playwright.config.ts"),
@@ -77,7 +77,9 @@ describe("PLT-009 smoke locator and anonymous-boundary source contract", () => {
     expect(middleware).toMatch(/await auth\(\)/)
     expect(middleware).not.toMatch(/process\.env\.(NODE_ENV|VERCEL_ENV|CI)\b/)
     expect(middleware).not.toMatch(/PLAYWRIGHT/)
-    expect(playwright).toMatch(/testMatch:\s*["']smoke\.spec\.ts["']/)
+    expect(playwright).toMatch(
+      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*\]/
+    )
     expect(playwright).toMatch(/retries:\s*0/)
     expect(smoke.match(/test\(/g)?.length).toBe(6)
     expect(smoke).not.toMatch(/\.(only|skip|fixme|force)\(/)

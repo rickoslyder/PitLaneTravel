@@ -18,6 +18,9 @@ export { expect }
 export const E2E_CIRCUIT_ID = "b1070009-e2e0-4000-8000-000000000002"
 export const E2E_RACE_ID = "b1070009-e2e0-4000-8000-000000000003"
 export const E2E_GRANDSTAND_ID = "b1070009-e2e0-4000-8000-000000000004"
+export const E2E_RACE_IN_PROGRESS_ID = "b1070009-e2e0-4000-8000-000000000005"
+export const E2E_RACE_COMPLETED_ID = "b1070009-e2e0-4000-8000-000000000006"
+export const E2E_RACE_CANCELLED_ID = "b1070009-e2e0-4000-8000-000000000007"
 
 export const E2E_CIRCUIT_NAME = "Synthetic E2E Circuit"
 export const E2E_CIRCUIT_LOCATION = "E2E Fixture City"
@@ -27,6 +30,85 @@ export const E2E_RACE_SLUG = "plt-e2e-synthetic-grand-prix"
 export const E2E_GRANDSTAND_NAME = "Synthetic Main Grandstand"
 export const E2E_GRANDSTAND_SLUG = "synthetic-main"
 export const E2E_RACE_DATE = "2099-09-15T12:00:00.000Z"
+export const E2E_RACE_IN_PROGRESS_NAME = "Synthetic MotoGP Grand Prix"
+export const E2E_RACE_IN_PROGRESS_SLUG = "plt-e2e-synthetic-motogp-live"
+export const E2E_RACE_COMPLETED_NAME = "Synthetic Formula E E-Prix"
+export const E2E_RACE_COMPLETED_SLUG = "plt-e2e-synthetic-formula-e-completed"
+export const E2E_RACE_COMPLETED_DATE = "1999-06-12T12:00:00.000Z"
+export const E2E_RACE_CANCELLED_NAME = "Synthetic IndyCar Grand Prix"
+export const E2E_RACE_CANCELLED_SLUG = "plt-e2e-synthetic-indycar-cancelled"
+export const E2E_RACE_CANCELLED_DATE = "2098-04-01T12:00:00.000Z"
+export const E2E_RACE_CANCELLED_REASON =
+  "Synthetic e2e cancellation. Not a real event."
+
+export const CANONICAL_SERIES_SLUGS = [
+  "f1",
+  "formula-e",
+  "motogp",
+  "indycar",
+  "wec"
+] as const
+
+export type CatalogueDerivedStatus =
+  | "upcoming"
+  | "in_progress"
+  | "completed"
+  | "cancelled"
+
+export type CatalogueVisibleStatus =
+  | "Upcoming"
+  | "Live"
+  | "Completed"
+  | "Cancelled"
+
+export type CatalogueStatusRace = {
+  id: string
+  slug: string
+  name: string
+  seriesSlug: (typeof CANONICAL_SERIES_SLUGS)[number]
+  derivedStatus: CatalogueDerivedStatus
+  visibleStatus: CatalogueVisibleStatus
+}
+
+export const CATALOGUE_STATUS_RACES: readonly CatalogueStatusRace[] = [
+  {
+    id: E2E_RACE_ID,
+    slug: E2E_RACE_SLUG,
+    name: E2E_RACE_NAME,
+    seriesSlug: "f1",
+    derivedStatus: "upcoming",
+    visibleStatus: "Upcoming"
+  },
+  {
+    id: E2E_RACE_IN_PROGRESS_ID,
+    slug: E2E_RACE_IN_PROGRESS_SLUG,
+    name: E2E_RACE_IN_PROGRESS_NAME,
+    seriesSlug: "motogp",
+    derivedStatus: "in_progress",
+    visibleStatus: "Live"
+  },
+  {
+    id: E2E_RACE_COMPLETED_ID,
+    slug: E2E_RACE_COMPLETED_SLUG,
+    name: E2E_RACE_COMPLETED_NAME,
+    seriesSlug: "formula-e",
+    derivedStatus: "completed",
+    visibleStatus: "Completed"
+  },
+  {
+    id: E2E_RACE_CANCELLED_ID,
+    slug: E2E_RACE_CANCELLED_SLUG,
+    name: E2E_RACE_CANCELLED_NAME,
+    seriesSlug: "indycar",
+    derivedStatus: "cancelled",
+    visibleStatus: "Cancelled"
+  }
+]
+
+export const SHARED_CIRCUIT_RACE_SLUGS = [
+  E2E_RACE_SLUG,
+  E2E_RACE_IN_PROGRESS_SLUG
+] as const
 
 type SeededCatalog = {
   raceSlug: string
@@ -83,21 +165,50 @@ function redactSecrets(text: string): string {
     .replace(/\b(?:sk|pk|whsec)_[A-Za-z0-9+/=._-]+/g, "[redacted-key]")
 }
 
-async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
-  await sql.begin(async tx => {
-    const f1Rows = await tx<{ id: string }[]>`
+async function loadCanonicalSeriesIds(
+  tx: postgres.Sql
+): Promise<Map<string, string>> {
+  const seriesIdBySlug = new Map<string, string>()
+
+  for (const slug of CANONICAL_SERIES_SLUGS) {
+    const rows = await tx<{ id: string }[]>`
       SELECT id
       FROM series
-      WHERE slug = 'f1'
+      WHERE slug = ${slug}
     `
 
-    if (f1Rows.length !== 1) {
+    if (rows.length !== 1) {
       throw new Error(
-        `Expected exactly one canonical series row with slug f1, found ${f1Rows.length}`
+        `Expected exactly one canonical series row with slug ${slug}, found ${rows.length}`
       )
     }
 
-    const f1SeriesId = f1Rows[0].id
+    seriesIdBySlug.set(slug, rows[0].id)
+  }
+
+  return seriesIdBySlug
+}
+
+function requireSeriesId(
+  seriesIdBySlug: Map<string, string>,
+  slug: (typeof CANONICAL_SERIES_SLUGS)[number]
+): string {
+  const id = seriesIdBySlug.get(slug)
+  if (!id) {
+    throw new Error(
+      `Expected exactly one canonical series row with slug ${slug}, found 0`
+    )
+  }
+  return id
+}
+
+async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
+  await sql.begin(async tx => {
+    const seriesIdBySlug = await loadCanonicalSeriesIds(tx)
+    const f1SeriesId = requireSeriesId(seriesIdBySlug, "f1")
+    const motogpSeriesId = requireSeriesId(seriesIdBySlug, "motogp")
+    const formulaESeriesId = requireSeriesId(seriesIdBySlug, "formula-e")
+    const indycarSeriesId = requireSeriesId(seriesIdBySlug, "indycar")
 
     await tx`
       INSERT INTO circuits (
@@ -157,6 +268,129 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
     `
 
     await tx`
+      INSERT INTO races (
+        id, circuit_id, series_id, name, date, season, round,
+        country, description, status, slug, is_sprint_weekend,
+        weekend_start, weekend_end, cancellation_reason
+      )
+      VALUES (
+        ${E2E_RACE_IN_PROGRESS_ID}::uuid,
+        ${E2E_CIRCUIT_ID}::uuid,
+        ${motogpSeriesId}::uuid,
+        ${E2E_RACE_IN_PROGRESS_NAME},
+        now(),
+        2099,
+        1,
+        ${E2E_CIRCUIT_COUNTRY},
+        ${"Synthetic MotoGP weekend used only by disposable Playwright e2e. Not a real event."},
+        ${"upcoming"}::race_status,
+        ${E2E_RACE_IN_PROGRESS_SLUG},
+        false,
+        now() - interval '12 hours',
+        now() + interval '12 hours',
+        NULL
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        circuit_id = EXCLUDED.circuit_id,
+        series_id = EXCLUDED.series_id,
+        name = EXCLUDED.name,
+        date = EXCLUDED.date,
+        season = EXCLUDED.season,
+        round = EXCLUDED.round,
+        country = EXCLUDED.country,
+        description = EXCLUDED.description,
+        status = EXCLUDED.status,
+        slug = EXCLUDED.slug,
+        is_sprint_weekend = EXCLUDED.is_sprint_weekend,
+        weekend_start = EXCLUDED.weekend_start,
+        weekend_end = EXCLUDED.weekend_end,
+        cancellation_reason = EXCLUDED.cancellation_reason,
+        updated_at = now()
+    `
+
+    await tx`
+      INSERT INTO races (
+        id, circuit_id, series_id, name, date, season, round,
+        country, description, status, slug, is_sprint_weekend,
+        weekend_start, weekend_end, cancellation_reason
+      )
+      VALUES (
+        ${E2E_RACE_COMPLETED_ID}::uuid,
+        ${E2E_CIRCUIT_ID}::uuid,
+        ${formulaESeriesId}::uuid,
+        ${E2E_RACE_COMPLETED_NAME},
+        ${E2E_RACE_COMPLETED_DATE}::timestamptz,
+        1999,
+        1,
+        ${E2E_CIRCUIT_COUNTRY},
+        ${"Synthetic Formula E weekend used only by disposable Playwright e2e. Not a real event."},
+        ${"completed"}::race_status,
+        ${E2E_RACE_COMPLETED_SLUG},
+        false,
+        ${E2E_RACE_COMPLETED_DATE}::timestamptz,
+        ${E2E_RACE_COMPLETED_DATE}::timestamptz + interval '1 day',
+        NULL
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        circuit_id = EXCLUDED.circuit_id,
+        series_id = EXCLUDED.series_id,
+        name = EXCLUDED.name,
+        date = EXCLUDED.date,
+        season = EXCLUDED.season,
+        round = EXCLUDED.round,
+        country = EXCLUDED.country,
+        description = EXCLUDED.description,
+        status = EXCLUDED.status,
+        slug = EXCLUDED.slug,
+        is_sprint_weekend = EXCLUDED.is_sprint_weekend,
+        weekend_start = EXCLUDED.weekend_start,
+        weekend_end = EXCLUDED.weekend_end,
+        cancellation_reason = EXCLUDED.cancellation_reason,
+        updated_at = now()
+    `
+
+    await tx`
+      INSERT INTO races (
+        id, circuit_id, series_id, name, date, season, round,
+        country, description, status, slug, is_sprint_weekend,
+        weekend_start, weekend_end, cancellation_reason
+      )
+      VALUES (
+        ${E2E_RACE_CANCELLED_ID}::uuid,
+        ${E2E_CIRCUIT_ID}::uuid,
+        ${indycarSeriesId}::uuid,
+        ${E2E_RACE_CANCELLED_NAME},
+        ${E2E_RACE_CANCELLED_DATE}::timestamptz,
+        2098,
+        1,
+        ${E2E_CIRCUIT_COUNTRY},
+        ${"Synthetic IndyCar weekend used only by disposable Playwright e2e. Not a real event."},
+        ${"cancelled"}::race_status,
+        ${E2E_RACE_CANCELLED_SLUG},
+        false,
+        NULL,
+        NULL,
+        ${E2E_RACE_CANCELLED_REASON}
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        circuit_id = EXCLUDED.circuit_id,
+        series_id = EXCLUDED.series_id,
+        name = EXCLUDED.name,
+        date = EXCLUDED.date,
+        season = EXCLUDED.season,
+        round = EXCLUDED.round,
+        country = EXCLUDED.country,
+        description = EXCLUDED.description,
+        status = EXCLUDED.status,
+        slug = EXCLUDED.slug,
+        is_sprint_weekend = EXCLUDED.is_sprint_weekend,
+        weekend_start = EXCLUDED.weekend_start,
+        weekend_end = EXCLUDED.weekend_end,
+        cancellation_reason = EXCLUDED.cancellation_reason,
+        updated_at = now()
+    `
+
+    await tx`
       INSERT INTO grandstands (
         id, circuit_id, name, slug, description, covered, has_big_screen
       )
@@ -188,6 +422,9 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
 }
 
 async function cleanupCatalog(sql: postgres.Sql): Promise<void> {
+  await sql`DELETE FROM races WHERE id = ${E2E_RACE_IN_PROGRESS_ID}::uuid`
+  await sql`DELETE FROM races WHERE id = ${E2E_RACE_COMPLETED_ID}::uuid`
+  await sql`DELETE FROM races WHERE id = ${E2E_RACE_CANCELLED_ID}::uuid`
   await sql`DELETE FROM grandstands WHERE id = ${E2E_GRANDSTAND_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_ID}::uuid`
   await sql`DELETE FROM circuits WHERE id = ${E2E_CIRCUIT_ID}::uuid`

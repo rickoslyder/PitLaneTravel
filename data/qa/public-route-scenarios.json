@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "error_shell_markers": [
+    "Application error: a server-side exception has occurred",
+    "An unexpected error occurred",
+    "This page could not be found"
+  ],
+  "intended_active_series": [
+    { "slug": "f1", "name": "Formula 1" },
+    { "slug": "formula-e", "name": "Formula E" },
+    { "slug": "motogp", "name": "MotoGP" },
+    { "slug": "indycar", "name": "IndyCar" },
+    { "slug": "wec", "name": "WEC" }
+  ],
+  "routes": [
+    { "id": "home", "class": "core", "pathname": "/" },
+    { "id": "races-index", "class": "core", "pathname": "/races" },
+    { "id": "races-map", "class": "core", "pathname": "/races/map" },
+    { "id": "races-compare", "class": "core", "pathname": "/races/compare" },
+    {
+      "id": "grandstand-index",
+      "class": "guided_circuit_index",
+      "pathname": "/circuits/grandstands",
+      "required_markers": ["Grandstand Guides"]
+    },
+    { "id": "flights", "class": "core", "pathname": "/flights" },
+    { "id": "hotels", "class": "core", "pathname": "/hotels" },
+    { "id": "transport", "class": "core", "pathname": "/transport" },
+    { "id": "packages", "class": "core", "pathname": "/packages" },
+    { "id": "about", "class": "core", "pathname": "/about" },
+    { "id": "faq", "class": "core", "pathname": "/faq" },
+    { "id": "contact", "class": "core", "pathname": "/contact" },
+    { "id": "help", "class": "core", "pathname": "/help" },
+    { "id": "privacy", "class": "legal", "pathname": "/privacy" },
+    { "id": "terms", "class": "legal", "pathname": "/terms" },
+    {
+      "id": "series-f1",
+      "class": "series",
+      "pathname": "/series/f1",
+      "required_markers": ["Formula 1"]
+    },
+    {
+      "id": "series-formula-e",
+      "class": "series",
+      "pathname": "/series/formula-e",
+      "required_markers": ["Formula E"]
+    },
+    {
+      "id": "series-motogp",
+      "class": "series",
+      "pathname": "/series/motogp",
+      "required_markers": ["MotoGP"]
+    },
+    {
+      "id": "series-indycar",
+      "class": "series",
+      "pathname": "/series/indycar",
+      "required_markers": ["IndyCar"]
+    },
+    {
+      "id": "series-wec",
+      "class": "series",
+      "pathname": "/series/wec",
+      "required_markers": ["World Endurance Championship"]
+    }
+  ],
+  "coverage": [
+    {
+      "id": "guided-circuit-pages",
+      "class": "guided_circuit",
+      "path_pattern": "^/circuits/[^/]+/grandstands$",
+      "min_count": 1,
+      "max_count": 64,
+      "required_markers": ["Best grandstands at"]
+    }
+  ]
+}

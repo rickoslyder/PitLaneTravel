@@ -1,16 +1,48 @@
-import { resolve } from "node:path"
-import { pathToFileURL } from "node:url"
+import { readFileSync, statSync } from "node:fs"
+import { isAbsolute, resolve } from "node:path"
+import { fileURLToPath, pathToFileURL } from "node:url"
 import { parseString } from "xml2js"
 
 export const SCHEMA_VERSION = 1
+export const SCENARIO_SCHEMA_VERSION = 1
 export const MIN_ROUTES = 1
 export const MAX_ROUTES = 250
 export const PROBE_CONCURRENCY = 4
 export const PROBE_TIMEOUT_MS = 10_000
 export const SITEMAP_TIMEOUT_MS = 15_000
 export const SITEMAP_MAX_BYTES = 1_048_576
+export const HTML_BODY_MAX_BYTES = 1_048_576
+export const SCENARIOS_MAX_BYTES = 65_536
+export const REPO_ROOT = resolve(fileURLToPath(new URL(".", import.meta.url)), "..")
+export const DEFAULT_SCENARIOS_PATH = resolve(
+  REPO_ROOT,
+  "data/qa/public-route-scenarios.json"
+)
 const SITEMAP_PROTOCOL_NAMESPACE =
   "http://www.sitemaps.org/schemas/sitemap/0.9"
+const REQUIRED_SERIES_SLUGS = [
+  "f1",
+  "formula-e",
+  "indycar",
+  "motogp",
+  "wec"
+] as const
+const SCENARIO_ROUTE_CLASSES = new Set([
+  "core",
+  "series",
+  "guided_circuit_index",
+  "guided_circuit",
+  "marketing",
+  "legal"
+])
+const SCENARIO_TOP_LEVEL_KEYS = new Set([
+  "schema_version",
+  "error_shell_markers",
+  "intended_active_series",
+  "routes",
+  "coverage"
+])
+const SAFE_PATH_PATTERN = /^[\^$/a-z0-9+[\]_-]+$/i
 export const CHECKER_USER_AGENT =
   "PitLaneTravelPublicRouteCheck/1.0 (+https://www.pitlanetravel.com)"
 export const BROWSER_USER_AGENT =
@@ -36,6 +68,37 @@ export type RouteRecord = {
   duration_ms: number
 }
 
+export type RouteCheckFailure = {
+  code: string
+  pathname?: string
+}
+
+export type RouteScenario = {
+  id: string
+  class: string
+  pathname: string
+  required_markers: string[]
+  forbidden_markers: string[]
+}
+
+export type CoverageScenario = {
+  id: string
+  class: string
+  path_pattern: string
+  min_count: number
+  max_count: number
+  required_markers: string[]
+  forbidden_markers: string[]
+}
+
+export type RouteScenarios = {
+  schema_version: number
+  error_shell_markers: string[]
+  intended_active_series: Array<{ slug: string; name: string }>
+  routes: RouteScenario[]
+  coverage: CoverageScenario[]
+}
+
 export type BaselineDocument = {
   schema_version: number
   checked_at: string
@@ -53,6 +116,7 @@ export type BaselineDocument = {
   external_redirect_count: number
   external_redirect_origins: string[]
   routes: RouteRecord[]
+  failures: RouteCheckFailure[]
 }
 
 export type CliIo = {
@@ -76,8 +140,12 @@ export function isDirectCliExecution(
   }
 }
 
-export function parseCliArgs(argv: string[]): { baseUrl: string } {
+export function parseCliArgs(argv: string[]): {
+  baseUrl: string
+  scenariosPath?: string
+} {
   let raw: string | undefined
+  let scenariosRaw: string | undefined
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i] ?? ""
@@ -110,13 +178,45 @@ export function parseCliArgs(argv: string[]): { baseUrl: string } {
       raw = value
       continue
     }
+    if (arg === "--scenarios") {
+      if (scenariosRaw !== undefined) {
+        throw new PublicRouteCheckError("duplicate --scenarios", "cli_args")
+      }
+      const value = argv[i + 1]
+      if (!value || value.startsWith("--")) {
+        throw new PublicRouteCheckError(
+          "--scenarios requires a json file path",
+          "cli_args"
+        )
+      }
+      scenariosRaw = value
+      i += 1
+      continue
+    }
+    if (arg.startsWith("--scenarios=")) {
+      if (scenariosRaw !== undefined) {
+        throw new PublicRouteCheckError("duplicate --scenarios", "cli_args")
+      }
+      const value = arg.slice("--scenarios=".length)
+      if (!value) {
+        throw new PublicRouteCheckError(
+          "--scenarios requires a json file path",
+          "cli_args"
+        )
+      }
+      scenariosRaw = value
+      continue
+    }
     throw new PublicRouteCheckError("unexpected argument", "cli_args")
   }
 
   if (!raw) {
     throw new PublicRouteCheckError("missing required --base-url", "cli_args")
   }
-  return { baseUrl: normalizeBaseUrl(raw) }
+  return {
+    baseUrl: normalizeBaseUrl(raw),
+    ...(scenariosRaw ? { scenariosPath: scenariosRaw } : {})
+  }
 }
 
 export function normalizeBaseUrl(raw: string): string {
@@ -248,11 +348,447 @@ export function normalizeContentType(
   return media || null
 }
 
+export function validateRouteScenarios(raw: unknown): RouteScenarios {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+  const doc = raw as Record<string, unknown>
+  for (const key of Object.keys(doc)) {
+    if (!SCENARIO_TOP_LEVEL_KEYS.has(key)) {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+  }
+  if (doc.schema_version !== SCENARIO_SCHEMA_VERSION) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+
+  const errorShellMarkers = parseMarkerList(doc.error_shell_markers, 1, 32)
+  const seriesRaw = doc.intended_active_series
+  if (!Array.isArray(seriesRaw) || seriesRaw.length !== REQUIRED_SERIES_SLUGS.length) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+  const series: Array<{ slug: string; name: string }> = []
+  const seriesSlugs = new Set<string>()
+  for (const item of seriesRaw) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    const row = item as Record<string, unknown>
+    if (Object.keys(row).some(key => key !== "slug" && key !== "name")) {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    if (typeof row.slug !== "string" || typeof row.name !== "string") {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    const slug = row.slug.trim()
+    const name = row.name.trim()
+    if (!slug || !name || name.length > 80 || seriesSlugs.has(slug)) {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    seriesSlugs.add(slug)
+    series.push({ slug, name })
+  }
+  const required = new Set<string>(REQUIRED_SERIES_SLUGS)
+  if (seriesSlugs.size !== required.size || [...seriesSlugs].some(slug => !required.has(slug))) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+
+  const ids = new Set<string>()
+  const routes = parseRouteScenarios(doc.routes, ids)
+  const coverage = parseCoverageScenarios(doc.coverage, ids)
+  return {
+    schema_version: SCENARIO_SCHEMA_VERSION,
+    error_shell_markers: errorShellMarkers,
+    intended_active_series: series,
+    routes,
+    coverage
+  }
+}
+
+export function resolveScenariosPath(raw: string): string {
+  if (!raw || raw.includes("\0")) {
+    throw new PublicRouteCheckError("scenarios path is invalid", "scenarios_path")
+  }
+  const resolved = isAbsolute(raw) ? resolve(raw) : resolve(REPO_ROOT, raw)
+  if (!resolved.endsWith(".json")) {
+    throw new PublicRouteCheckError("scenarios path is invalid", "scenarios_path")
+  }
+  return resolved
+}
+
+export function loadRouteScenarios(path: string): RouteScenarios {
+  const resolved = resolveScenariosPath(path)
+  let stat
+  try {
+    stat = statSync(resolved)
+  } catch {
+    throw new PublicRouteCheckError("scenarios file is not readable", "scenarios_path")
+  }
+  if (!stat.isFile()) {
+    throw new PublicRouteCheckError("scenarios file is not readable", "scenarios_path")
+  }
+  if (stat.size > SCENARIOS_MAX_BYTES) {
+    throw new PublicRouteCheckError("scenarios file exceeds byte cap", "scenarios_too_large")
+  }
+  let text: string
+  try {
+    text = readFileSync(resolved, "utf8")
+  } catch {
+    throw new PublicRouteCheckError("scenarios file is not readable", "scenarios_path")
+  }
+  if (Buffer.byteLength(text, "utf8") > SCENARIOS_MAX_BYTES) {
+    throw new PublicRouteCheckError("scenarios file exceeds byte cap", "scenarios_too_large")
+  }
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(text)
+  } catch {
+    throw new PublicRouteCheckError("scenarios JSON is malformed", "invalid_scenarios")
+  }
+  return validateRouteScenarios(parsed)
+}
+
+export function extractCanonicalHrefs(html: string): string[] {
+  const hrefs: string[] = []
+  const linkRe = /<link\b[^>]*>/gi
+  let match: RegExpExecArray | null
+  while ((match = linkRe.exec(html)) !== null) {
+    const tag = match[0] ?? ""
+    const rel = getHtmlAttr(tag, "rel")
+    if (!rel) continue
+    const tokens = rel.trim().toLowerCase().split(/\s+/)
+    if (!tokens.includes("canonical")) continue
+    const href = getHtmlAttr(tag, "href")
+    if (href !== null) hrefs.push(href.trim())
+  }
+  return hrefs
+}
+
+export function inspectHtmlDocument(
+  html: string,
+  input: {
+    pathname: string
+    origin: string
+    errorShellMarkers: string[]
+    requiredMarkers?: string[]
+    forbiddenMarkers?: string[]
+  }
+): { failures: RouteCheckFailure[]; canonicals: string[] } {
+  const pathname = input.pathname
+  for (const marker of input.errorShellMarkers) {
+    if (marker && html.includes(marker)) {
+      return {
+        failures: [{ code: "error_shell", pathname }],
+        canonicals: []
+      }
+    }
+  }
+
+  const failures: RouteCheckFailure[] = []
+  const rawCanonicals = extractCanonicalHrefs(html)
+  const canonicals: string[] = []
+  if (rawCanonicals.length === 0) {
+    failures.push({ code: "missing_canonical", pathname })
+  } else if (rawCanonicals.length > 1) {
+    failures.push({ code: "duplicate_canonical", pathname })
+  } else {
+    const resolved = resolveCanonicalHref(
+      rawCanonicals[0] ?? "",
+      input.origin,
+      pathname
+    )
+    if (resolved.failure) {
+      failures.push(resolved.failure)
+    }
+    if (resolved.href) {
+      canonicals.push(resolved.href)
+    }
+  }
+
+  for (const marker of input.requiredMarkers ?? []) {
+    if (marker && !html.includes(marker)) {
+      failures.push({ code: "missing_required_content", pathname })
+      break
+    }
+  }
+  for (const marker of input.forbiddenMarkers ?? []) {
+    if (marker && html.includes(marker)) {
+      failures.push({ code: "forbidden_content", pathname })
+      break
+    }
+  }
+
+  return { failures, canonicals }
+}
+
 export async function probeRoutes(
   urls: string[],
   deps: { fetch: typeof fetch }
 ): Promise<RouteRecord[]> {
-  return mapPool(urls, PROBE_CONCURRENCY, async (target) => {
+  const pages = await probeRoutePages(urls, deps)
+  return pages.map(page => page.record)
+}
+
+export async function collectPublicRouteBaseline(
+  input: { baseUrl: string; scenariosPath?: string },
+  deps: { fetch: typeof fetch; now?: () => Date }
+): Promise<BaselineDocument> {
+  const origin = normalizeBaseUrl(input.baseUrl)
+  const scenarios = loadRouteScenarios(
+    input.scenariosPath ?? DEFAULT_SCENARIOS_PATH
+  )
+  const xml = await fetchSitemapXml(origin, deps)
+  const locs = parseSitemapLocs(xml)
+  const routes = assertSitemapRoutes(locs, origin)
+  const pages = await probeRoutePages(routes, deps)
+  const records = pages.map(page => page.record)
+  const failures = evaluateRouteHealth(origin, pages, scenarios)
+  return buildBaselineDocument(
+    origin,
+    records,
+    deps.now?.() ?? new Date(),
+    failures
+  )
+}
+
+export async function runCli(argv: string[], io: CliIo): Promise<number> {
+  try {
+    const { baseUrl, scenariosPath } = parseCliArgs(argv)
+    const document = await collectPublicRouteBaseline(
+      { baseUrl, scenariosPath },
+      io
+    )
+    io.stdout.write(`${JSON.stringify(document, null, 2)}\n`)
+    if (document.failures.length > 0) {
+      for (const failure of document.failures) {
+        const suffix = failure.pathname ? ` ${failure.pathname}` : ""
+        io.stderr.write(`${failure.code}${suffix}\n`)
+      }
+      return 1
+    }
+    return 0
+  } catch (err) {
+    const message =
+      err instanceof PublicRouteCheckError
+        ? err.message
+        : "public route check failed"
+    io.stderr.write(`${message}\n`)
+    return 1
+  }
+}
+
+function parseMarkerList(
+  raw: unknown,
+  min: number,
+  max: number
+): string[] {
+  if (!Array.isArray(raw) || raw.length < min || raw.length > max) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+  const markers: string[] = []
+  for (const item of raw) {
+    if (typeof item !== "string") {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    if (!item || item.length > 200) {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    markers.push(item)
+  }
+  return markers
+}
+
+function parseOptionalMarkers(raw: unknown): string[] {
+  if (raw === undefined) return []
+  return parseMarkerList(raw, 0, 16)
+}
+
+function takeScenarioId(raw: unknown, ids: Set<string>): string {
+  if (typeof raw !== "string" || !/^[a-z0-9-]+$/.test(raw) || raw.length > 64) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+  if (ids.has(raw)) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+  ids.add(raw)
+  return raw
+}
+
+function assertScenarioPathname(pathname: string): string {
+  if (!pathname.startsWith("/") || pathname.includes("//")) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+  if (pathname.includes("?") || pathname.includes("#") || pathname.includes("\\")) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+  if (pathname.length > 1 && pathname.endsWith("/")) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+  return pathname
+}
+
+function parseRouteScenarios(raw: unknown, ids: Set<string>): RouteScenario[] {
+  if (!Array.isArray(raw) || raw.length > 100) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+  const routes: RouteScenario[] = []
+  for (const item of raw) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    const row = item as Record<string, unknown>
+    for (const key of Object.keys(row)) {
+      if (
+        key !== "id" &&
+        key !== "class" &&
+        key !== "pathname" &&
+        key !== "required_markers" &&
+        key !== "forbidden_markers"
+      ) {
+        throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+      }
+    }
+    if (typeof row.class !== "string" || !SCENARIO_ROUTE_CLASSES.has(row.class)) {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    if (typeof row.pathname !== "string") {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    routes.push({
+      id: takeScenarioId(row.id, ids),
+      class: row.class,
+      pathname: assertScenarioPathname(row.pathname),
+      required_markers: parseOptionalMarkers(row.required_markers),
+      forbidden_markers: parseOptionalMarkers(row.forbidden_markers)
+    })
+  }
+  return routes
+}
+
+function parseCoverageScenarios(raw: unknown, ids: Set<string>): CoverageScenario[] {
+  if (!Array.isArray(raw) || raw.length > 16) {
+    throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+  }
+  const coverage: CoverageScenario[] = []
+  for (const item of raw) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    const row = item as Record<string, unknown>
+    for (const key of Object.keys(row)) {
+      if (
+        key !== "id" &&
+        key !== "class" &&
+        key !== "path_pattern" &&
+        key !== "min_count" &&
+        key !== "max_count" &&
+        key !== "required_markers" &&
+        key !== "forbidden_markers"
+      ) {
+        throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+      }
+    }
+    if (typeof row.class !== "string" || !SCENARIO_ROUTE_CLASSES.has(row.class)) {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    if (
+      typeof row.path_pattern !== "string" ||
+      !row.path_pattern.startsWith("^") ||
+      !row.path_pattern.endsWith("$") ||
+      !SAFE_PATH_PATTERN.test(row.path_pattern)
+    ) {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    if (
+      typeof row.min_count !== "number" ||
+      !Number.isInteger(row.min_count) ||
+      typeof row.max_count !== "number" ||
+      !Number.isInteger(row.max_count) ||
+      row.min_count < 0 ||
+      row.max_count > MAX_ROUTES ||
+      row.min_count > row.max_count
+    ) {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    try {
+      new RegExp(row.path_pattern)
+    } catch {
+      throw new PublicRouteCheckError("scenarios document is invalid", "invalid_scenarios")
+    }
+    coverage.push({
+      id: takeScenarioId(row.id, ids),
+      class: row.class,
+      path_pattern: row.path_pattern,
+      min_count: row.min_count,
+      max_count: row.max_count,
+      required_markers: parseOptionalMarkers(row.required_markers),
+      forbidden_markers: parseOptionalMarkers(row.forbidden_markers)
+    })
+  }
+  return coverage
+}
+
+function getHtmlAttr(tag: string, name: string): string | null {
+  const re = new RegExp(
+    `\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`,
+    "i"
+  )
+  const match = tag.match(re)
+  if (!match) return null
+  return match[1] ?? match[2] ?? match[3] ?? null
+}
+
+function normalizePublicUrl(url: URL): string {
+  let pathname = url.pathname || "/"
+  if (pathname.length > 1 && pathname.endsWith("/")) {
+    pathname = pathname.slice(0, -1)
+  }
+  return `${url.origin}${pathname}`
+}
+
+function resolveCanonicalHref(
+  href: string,
+  origin: string,
+  pathname: string
+): { href?: string; failure?: RouteCheckFailure } {
+  const pageUrl = pathname === "/" ? `${origin}/` : `${origin}${pathname}`
+  let url: URL
+  try {
+    url = new URL(href, pageUrl)
+  } catch {
+    return { failure: { code: "canonical_invalid", pathname } }
+  }
+  if (url.protocol !== "https:" || url.origin !== origin) {
+    return { failure: { code: "canonical_off_origin", pathname } }
+  }
+  if (url.username || url.password) {
+    return { failure: { code: "canonical_invalid", pathname } }
+  }
+  if (url.search !== "" || url.hash !== "") {
+    return { failure: { code: "canonical_mismatch", pathname } }
+  }
+  const normalized = normalizePublicUrl(url)
+  const expected = normalizePublicUrl(new URL(pageUrl))
+  if (normalized !== expected) {
+    return {
+      href: normalized,
+      failure: { code: "canonical_mismatch", pathname }
+    }
+  }
+  return { href: normalized }
+}
+
+type ProbedPage = {
+  record: RouteRecord
+  html: string | null
+  htmlTooLarge: boolean
+}
+
+async function probeRoutePages(
+  urls: string[],
+  deps: { fetch: typeof fetch }
+): Promise<ProbedPage[]> {
+  return mapPool(urls, PROBE_CONCURRENCY, async target => {
     const started = performance.now()
     let res: Response
     try {
@@ -273,44 +809,138 @@ export async function probeRoutes(
       throw new PublicRouteCheckError("route probe failed", "probe_network")
     }
 
-    await discardBody(res)
     const url = new URL(target)
-    return {
+    const record: RouteRecord = {
       pathname: url.pathname,
       status: res.status,
       content_type: normalizeContentType(res.headers.get("content-type")),
       redirect: sanitizeRedirect(res.headers.get("location"), target),
       duration_ms: Math.max(0, Math.round(performance.now() - started))
     }
+
+    const inspectable =
+      record.status === 200 && isHtmlContentType(record.content_type)
+    if (!inspectable) {
+      await discardBody(res)
+      return { record, html: null, htmlTooLarge: false }
+    }
+
+    try {
+      const html = await readBoundedText(res, HTML_BODY_MAX_BYTES, "html")
+      return { record, html, htmlTooLarge: false }
+    } catch (err) {
+      if (err instanceof PublicRouteCheckError && err.code === "html_too_large") {
+        return { record, html: null, htmlTooLarge: true }
+      }
+      throw err
+    }
   })
 }
 
-export async function collectPublicRouteBaseline(
-  input: { baseUrl: string },
-  deps: { fetch: typeof fetch; now?: () => Date }
-): Promise<BaselineDocument> {
-  const origin = normalizeBaseUrl(input.baseUrl)
-  const xml = await fetchSitemapXml(origin, deps)
-  const locs = parseSitemapLocs(xml)
-  const routes = assertSitemapRoutes(locs, origin)
-  const records = await probeRoutes(routes, deps)
-  return buildBaselineDocument(origin, records, deps.now?.() ?? new Date())
+function evaluateRouteHealth(
+  origin: string,
+  pages: ProbedPage[],
+  scenarios: RouteScenarios
+): RouteCheckFailure[] {
+  const failures: RouteCheckFailure[] = []
+  const sitemapPathnames = new Set(pages.map(page => page.record.pathname))
+
+  for (const series of scenarios.intended_active_series) {
+    const pathname = `/series/${series.slug}`
+    if (!sitemapPathnames.has(pathname)) {
+      failures.push({ code: "missing_expected_series", pathname })
+    }
+  }
+  for (const route of scenarios.routes) {
+    if (!sitemapPathnames.has(route.pathname)) {
+      failures.push({ code: "missing_expected_route", pathname: route.pathname })
+    }
+  }
+
+  const compiledCoverage = scenarios.coverage.map(item => ({
+    ...item,
+    regex: new RegExp(item.path_pattern)
+  }))
+  for (const item of compiledCoverage) {
+    const matches = [...sitemapPathnames].filter(pathname => item.regex.test(pathname))
+    if (matches.length < item.min_count) {
+      failures.push({ code: "guided_circuit_coverage" })
+    }
+    if (matches.length > item.max_count) {
+      failures.push({ code: "guided_circuit_overflow" })
+    }
+  }
+
+  const routeByPath = new Map(scenarios.routes.map(route => [route.pathname, route]))
+  const canonicalOwner = new Map<string, string>()
+
+  for (const page of pages) {
+    const pathname = page.record.pathname
+    if (page.record.status !== 200) {
+      failures.push({ code: "unexpected_status", pathname })
+      continue
+    }
+    if (!isHtmlContentType(page.record.content_type)) {
+      failures.push({ code: "unexpected_content_type", pathname })
+      continue
+    }
+    if (page.htmlTooLarge) {
+      failures.push({ code: "html_too_large", pathname })
+      continue
+    }
+    if (page.html === null) continue
+
+    const route = routeByPath.get(pathname)
+    const coverageHits = compiledCoverage.filter(item => item.regex.test(pathname))
+    const required = [
+      ...(route?.required_markers ?? []),
+      ...coverageHits.flatMap(item => item.required_markers)
+    ]
+    const forbidden = [
+      ...(route?.forbidden_markers ?? []),
+      ...coverageHits.flatMap(item => item.forbidden_markers)
+    ]
+    const inspected = inspectHtmlDocument(page.html, {
+      pathname,
+      origin,
+      errorShellMarkers: scenarios.error_shell_markers,
+      requiredMarkers: required,
+      forbiddenMarkers: forbidden
+    })
+    failures.push(...inspected.failures)
+    for (const canonical of inspected.canonicals) {
+      const owner = canonicalOwner.get(canonical)
+      if (owner && owner !== pathname) {
+        failures.push({ code: "canonical_collision", pathname })
+        if (!failures.some(item => item.code === "canonical_collision" && item.pathname === owner)) {
+          failures.push({ code: "canonical_collision", pathname: owner })
+        }
+      } else {
+        canonicalOwner.set(canonical, pathname)
+      }
+    }
+  }
+
+  return sortFailures(dedupeFailures(failures))
 }
 
-export async function runCli(argv: string[], io: CliIo): Promise<number> {
-  try {
-    const { baseUrl } = parseCliArgs(argv)
-    const document = await collectPublicRouteBaseline({ baseUrl }, io)
-    io.stdout.write(`${JSON.stringify(document, null, 2)}\n`)
-    return 0
-  } catch (err) {
-    const message =
-      err instanceof PublicRouteCheckError
-        ? err.message
-        : "public route check failed"
-    io.stderr.write(`${message}\n`)
-    return 1
+function dedupeFailures(failures: RouteCheckFailure[]): RouteCheckFailure[] {
+  const seen = new Set<string>()
+  const unique: RouteCheckFailure[] = []
+  for (const failure of failures) {
+    const key = `${failure.code}\0${failure.pathname ?? ""}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    unique.push(failure)
   }
+  return unique
+}
+
+function sortFailures(failures: RouteCheckFailure[]): RouteCheckFailure[] {
+  return [...failures].sort((left, right) => {
+    if (left.code !== right.code) return left.code.localeCompare(right.code)
+    return (left.pathname ?? "").localeCompare(right.pathname ?? "")
+  })
 }
 
 function parseHttpsUrl(
@@ -384,6 +1014,10 @@ function isXmlContentType(media: string | null): boolean {
   )
 }
 
+function isHtmlContentType(media: string | null): boolean {
+  return media === "text/html" || media === "application/xhtml+xml"
+}
+
 async function fetchSitemapXml(
   origin: string,
   deps: { fetch: typeof fetch }
@@ -429,19 +1063,26 @@ async function fetchSitemapXml(
 
 async function readBoundedText(
   res: Response,
-  maxBytes: number
+  maxBytes: number,
+  kind: "sitemap" | "html" = "sitemap"
 ): Promise<string> {
+  const tooLargeCode = kind === "html" ? "html_too_large" : "sitemap_too_large"
+  const emptyCode = kind === "html" ? "html_malformed" : "sitemap_malformed"
+  const networkCode = kind === "html" ? "probe_network" : "sitemap_network"
+  const malformedCode = kind === "html" ? "html_malformed" : "sitemap_malformed"
+  const label = kind === "html" ? "html body" : "sitemap"
+
   const declared = Number(res.headers.get("content-length"))
   if (Number.isFinite(declared) && declared > maxBytes) {
     await discardBody(res)
     throw new PublicRouteCheckError(
-      `sitemap exceeds ${maxBytes} byte cap`,
-      "sitemap_too_large"
+      `${label} exceeds ${maxBytes} byte cap`,
+      tooLargeCode
     )
   }
 
   if (!res.body) {
-    throw new PublicRouteCheckError("empty sitemap body", "sitemap_malformed")
+    throw new PublicRouteCheckError(`empty ${label}`, emptyCode)
   }
 
   const reader = res.body.getReader()
@@ -456,15 +1097,15 @@ async function readBoundedText(
       if (total > maxBytes) {
         await reader.cancel().catch(() => undefined)
         throw new PublicRouteCheckError(
-          `sitemap exceeds ${maxBytes} byte cap`,
-          "sitemap_too_large"
+          `${label} exceeds ${maxBytes} byte cap`,
+          tooLargeCode
         )
       }
       chunks.push(value)
     }
   } catch (err) {
     if (err instanceof PublicRouteCheckError) throw err
-    throw new PublicRouteCheckError("failed to read sitemap body", "sitemap_network")
+    throw new PublicRouteCheckError(`failed to read ${label}`, networkCode)
   }
 
   const merged = new Uint8Array(total)
@@ -476,7 +1117,7 @@ async function readBoundedText(
   try {
     return new TextDecoder("utf-8", { fatal: true }).decode(merged)
   } catch {
-    throw new PublicRouteCheckError("sitemap is not valid UTF-8", "sitemap_malformed")
+    throw new PublicRouteCheckError(`${label} is not valid UTF-8`, malformedCode)
   }
 }
 
@@ -512,7 +1153,8 @@ async function mapPool<T, R>(
 function buildBaselineDocument(
   origin: string,
   records: RouteRecord[],
-  now: Date
+  now: Date,
+  failures: RouteCheckFailure[] = []
 ): BaselineDocument {
   const routes = [...records].sort((left, right) => {
     if (left.pathname < right.pathname) return -1
@@ -560,7 +1202,8 @@ function buildBaselineDocument(
     status_counts,
     external_redirect_count: externalCount,
     external_redirect_origins: [...externalOrigins].sort(),
-    routes
+    routes,
+    failures
   }
 }
 
