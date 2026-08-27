@@ -1,0 +1,27 @@
+{
+  "observed_at": "2026-08-27T19:00:00Z",
+  "campaign": "P1 Travel",
+  "method": "bounded read-only Partnerize creative endpoint aggregate",
+  "secrets_or_tracking_urls_retained": false,
+  "http_status": 200,
+  "creative_count": 1399,
+  "active_state_counts": {
+    "active": 759,
+    "inactive": 640
+  },
+  "destination_host_counts": {
+    "www.p1travel.com": 1292,
+    "www.p1travel.de": 60,
+    "www.p1travel.nl": 22,
+    "www.p1travel.co.uk": 6,
+    "www.p1travel.es": 6,
+    "www.p1travel.fr": 6
+  },
+  "tracking_link_rows": 1399,
+  "rows_with_price_or_cost_field_name": 0,
+  "series_keyword_hits_in_public_creative_metadata": {
+    "Formula 1": 157,
+    "MotoGP": 30
+  },
+  "interpretation": "The creative endpoint supplies tracked destination assets and campaign metadata, not a normalized price or availability feed."
+}

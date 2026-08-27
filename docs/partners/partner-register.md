@@ -90,6 +90,8 @@ Verification of a current agreement is **human review**. This register does not 
 
 **Next proof required.** Human read of the **current P1 agreement/terms** — especially authorised inventory, deep-link rules, attribution, sub-ID support/semantics, reporting, disclosure, contact, and renewal fields — **or** a separately approved disable of that attributed path. Dashboard presence and historical acceptance do not satisfy this. Until then, every current P1 commercial term remains a blocking unknown and PLT-057 / Gate C stay open.
 
+**Technical capability addendum (2026-08-27).** Bounded read-only probes now verify working API access to Impact, Awin, and Partnerize, including the active programme/campaign inventories summarized in [`api-capability-and-price-intelligence.md`](api-capability-and-price-intelligence.md). This upgrades technical-access evidence only. It does not verify current agreements, authorise product enablement, or close Gate C.
+
 ## Summary
 
 | Party | Account | Product | Current terms | Commercial |
