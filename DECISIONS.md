@@ -514,3 +514,27 @@ Interpreted from context: remain on the current Hobby plan / say no to a paid Ve
 - **D. Commercial launch / traffic:** before intentionally launching / operating for users and monetization, re-evaluate the then-current Vercel commercial-use requirement and obtain the hosting go-ahead. “No users yet” is present operational context, not a permanent guarantee.
 
 Do not claim affiliate routes are technically disabled. Preserve the public catalogue. The unapproved Pro envelope in the preceding entry remains a 2026-08-25 official-docs snapshot and requires fresh readback at go-ahead. No upgrade, domain, env, production setting, or `vercel.json` change was performed.
+
+---
+
+## 2026-08-27 — Fail-closed partner register; PLT-057 / Gate C remain open (PLT-057)
+
+**Canonical record:** [`docs/partners/partner-register.md`](docs/partners/partner-register.md), template [`docs/partners/partner-template.md`](docs/partners/partner-template.md)
+**Issue:** PLT-057 / GitHub #8 (open)
+**Depends on:** PLT-001 / GitHub #2
+**Milestone:** Gate C — **not closed**
+**Evidence cut-off / read date:** 2026-08-27
+
+**This entry does not close GitHub #8.** Acceptance needs a directly verified current capability record for every product-enabled partner. That proof is still missing.
+
+**Live P1 finding (production-observed 2026-08-27).** Australian Grand Prix 2025 live ticket cards. Three independent same-origin masked purchase URLs resolved by bounded GET through `p1travel.prf.hn` then `www.p1travel.com` (hostnames/statuses only). Current code masks ticket redirects and can fall back to the reseller URL. Product claims ticket availability/prices and does **not** state a commission rate. Historical seed `213aed…` (314 URLs, all `p1travel.prf.hn`) plus `scripts/parse-p1-tickets.ts` prove historical technical integration, not current agreement. 2026-07 hygiene gitignored the raw XML dump; a parsed seed remains under `data/seeds/` and is still not current terms. Available Gmail account and available Hermes operator vault searches on the evidence cut-off found no P1 affiliate acceptance, agreement, dashboard, commission, renewal, or current contact. Those two sources do **not** prove that no account or evidence exists in inaccessible dashboards, other vaults, or other mailboxes. The scoped absence remains blocking, not a global nonexistence claim. Newsletters/club messages are not partner evidence.
+
+**Inventory truth.** P1 is the only verified **product-enabled attributed** partner path in this evidence set, and its current agreement/account/terms are **unverified**. Gootickets, F1 Store/Fanatics on Impact, Omio on Impact, and Airalo on Impact are `accepted-historical` inventory only — not product-enabled; historical welcome capabilities stay historical; contract-change notices are notice-only. Duffel is a supplier/API customer (2022 welcome; 2026-03-26 Services Agreement update notice) with `FLIGHTS_BOOKING_ENABLED` off/absent — not an affiliate and not an enabled merchant pathway. Booking.com is a generic untagged city search (`HOTEL_AFFILIATE_ID` absent) — not an enabled affiliate partner. Grand Prix Grand Tours is an unverified candidate (marketing/quote emails only).
+
+**Blocked acceptance / Gate C.** Unknown terms remain blocking unknowns. Product code must not claim a rate or attribution capability absent from the register. Missing current partner access/terms is a business blocker, not engineering completion. This docs slice is fail-closed evidence infrastructure and may be merged while #8 stays open.
+
+**Activation boundary.** `accepted-historical` ≠ product-enabled ≠ current-terms-verified ≠ commercially approved. Do not product-enable inventory rows from historical welcomes or notices. The live P1 attributed redirect may remain as deployed technical behaviour; it is not terms-verified and not commercially approved here. Enabling any other path, or treating P1 as terms-verified, requires `current-agreement-verified` plus owner sign-off. Disabling the live P1 attributed path is a **separate approved change**, not this issue. PLT-056 does not freeze this work and does not relax these gates.
+
+**Sensitive-data exclusion.** Git must not contain credentials, login names, publisher/account/affiliate IDs, message IDs, Drive IDs/URLs, exact commission rates, payout thresholds, confidential terms, tracking query strings, redirect slugs, or sensitive partner contacts. Public provider/program names and public root hostnames only.
+
+**Next proof required.** Human review of the current P1 agreement and dashboard (or an approved disable of that attributed production path). Until then PLT-057 stays unaccepted and Gate C stays open.
