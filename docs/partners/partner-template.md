@@ -15,6 +15,9 @@ Canonical inventory: [`partner-register.md`](partner-register.md).
 - Historical welcome ≠ current terms.
 - A contract-change / legal-update notice ≠ current agreement (even if it mentions that rates or reporting changed).
 - Accepted account ≠ product-enabled integration ≠ current terms verified ≠ commercially approved.
+- A current human dashboard/login observation (`current-dashboard`) upgrades the **account** axis only. It is not a current-agreement read and never moves the terms axis.
+- Campaign presence on a dashboard, existence of a vault credential (`private-vault-metadata`, existence-only), industry norms, API availability, or portal access never substitute for reading the current agreement.
+- Portal access (login, quote creation, referral-link generator) is a human portal capability: it is not partner status by itself and not permission to automate. Automation against any portal needs separate authorization and review.
 - A generic untagged external handoff is not an enabled affiliate partner.
 - A configured-off supplier API is not an enabled merchant pathway.
 - Industry norms are not evidence.
@@ -39,13 +42,13 @@ Forbidden in this record and in any Git path:
 
 Allowed when operationally useful: public provider/program names and public root hostnames.
 
-Confidential details stay in the account holder’s private systems. Git records only the **existence class** of evidence (for example `historical-onboarding`, `notice-only`, `negative-search`) and non-confidential operational facts.
+Confidential details stay in the account holder’s private systems. Git records only the **existence class** of evidence (for example `historical-onboarding`, `current-dashboard`, `private-vault-metadata`, `notice-only`, `negative-search`) and non-confidential operational facts. `private-vault-metadata` records **only** that a credential, API token, or login entry for a named provider exists in the private Hermes operator vault — never its fields, values, identifiers, or login name — and never implies any capability.
 
 ## Lifecycle axes (all required; do not collapse)
 
 | Axis | Allowed values | Notes |
 |---|---|---|
-| Account / application | `none` / `requested` / `accepted-historical` / `supplier-customer` / `unverified-candidate` | Acceptance is not enablement. |
+| Account / application | `none` / `requested` / `accepted-historical` / `active-current-dashboard` / `inaccessible-current` / `rejected-current` / `closed-historical` / `supplier-customer` / `unverified-candidate` | Acceptance is not enablement. `active-current-dashboard` = owner dashboard/login review confirms an accessible account (and campaign presence where stated); not a terms read. `inaccessible-current` = access currently failing; historical acceptance stays historical. `rejected-current` = portal reports the account cannot proceed. `closed-historical` = programme/account reported closed; migration/business status unknown unless separately evidenced. |
 | Product enablement | `product-enabled` / `not-product-enabled` | Fail-closed definition below. |
 | Current terms | `unverified` / `historical-welcome-only` / `notice-only` / `current-agreement-verified` | Only the last permits capability claims. |
 | Commercial approval | `not-commercially-approved` / `owner-approved` | Owner-approved requires verified current terms plus the activation block. |
@@ -57,13 +60,13 @@ Confidential details stay in the account holder’s private systems. Git records
 | Field | Value |
 |---|---|
 | Evidence cut-off / read date | YYYY-MM-DD. This register slice: **2026-08-27**. Date the source was read, not the date the email was sent, unless they coincide and you say so. |
-| Evidence source class | `production-observed` / `repository-audited` / `historical-seed` / `historical-onboarding` / `current-messaging-not-terms` / `notice-only` / `negative-search` / `absent` — plus a human `current-dashboard` / `current-agreement` class when those were actually read |
+| Evidence source class | `production-observed` / `repository-audited` / `historical-seed` / `historical-onboarding` / `current-dashboard` / `private-vault-metadata` / `current-messaging-not-terms` / `notice-only` / `negative-search` / `absent` — `current-dashboard` only when a human actually reviewed the dashboard/login on the read date (presence/state observation, not an agreement read); `private-vault-metadata` is existence-only; `current-agreement-verified` on the terms axis requires a human current-agreement read with date |
 | Evidence date | YYYY-MM-DD of this artefact (must be on or before the cut-off unless a later dated amendment is added). |
 | What was read | Exact artefact class (production browser, bounded GET hostnames only, current dashboard, current agreement, historical welcome, notice, **available Gmail** / **available Hermes operator vault** negative search, repository path). No IDs. |
 | What was **not** read | Explicit. If the dashboard was not opened, write that. |
 | Reviewer | Human name/role. Agent-authored inventory is not current-terms verification. |
 
-A field may cite historical evidence **only** when labelled historical. Current capability requires current-dashboard or current-agreement evidence dated on this form.
+A field may cite historical evidence **only** when labelled historical. Current capability requires a human current-agreement read dated on this form. A `current-dashboard` observation is **not** a current-agreement read: it may support the account axis (`active-current-dashboard`, `inaccessible-current`, `rejected-current`, `closed-historical`) but leaves the terms axis `unverified` (or `historical-welcome-only` / `notice-only` as evidenced).
 
 A `none` or `negative-search` result is scoped absence in the sources actually searched. It is not proof of global nonexistence and remains blocking.
 
