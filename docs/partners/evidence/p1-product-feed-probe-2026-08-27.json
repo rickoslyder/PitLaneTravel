@@ -1,0 +1,37 @@
+{
+  "observed_at": "2026-08-27T18:59:34Z",
+  "campaign": "P1 Travel",
+  "method": "bounded read-only Partnerize publisher-feed endpoint plus direct HTTPS GET of every returned feed location",
+  "secrets_feed_urls_credentials_or_tracking_links_retained": false,
+  "publisher_feed_endpoint_http_status": 200,
+  "feed_definitions": 18,
+  "declared_formats": {
+    "xml": 12,
+    "csv": 6
+  },
+  "declared_scopes": [
+    "all-products locale feeds",
+    "Formula 1 locale feeds"
+  ],
+  "declared_locales": [
+    "COM",
+    "DE",
+    "ES",
+    "FR",
+    "NL",
+    "UK"
+  ],
+  "location_host": "feeds.performancehorizon.com",
+  "metadata": {
+    "feeds_with_filesize_zero": 18,
+    "feeds_with_last_processed_zero": 18,
+    "oldest_updated_at": "2023-01-04T13:31:08Z",
+    "newest_updated_at": "2023-08-22T11:19:49Z"
+  },
+  "download_probe": {
+    "locations_checked": 18,
+    "http_404": 18,
+    "usable_feeds": 0
+  },
+  "interpretation": "P1 has configured historic XML/CSV product-feed definitions, including Formula 1-specific feeds, but none is currently downloadable. These are not usable price or availability inputs until P1 or Partnerize regenerates or repairs them."
+}

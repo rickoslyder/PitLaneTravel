@@ -1,0 +1,52 @@
+{
+  "observed_at": "2026-08-27T18:41:06Z",
+  "method": "bounded read-only API probes with credentials injected locally from 1Password",
+  "secrets_retained": false,
+  "impact": {
+    "auth_ok": true,
+    "programs": [
+      {"name": "Omio Travel Partner Program", "status": "active", "deeplinking": true},
+      {"name": "F1 Store", "status": "active", "deeplinking": true},
+      {"name": "Airalo", "status": "active", "deeplinking": true}
+    ],
+    "active_contracts": 3,
+    "catalogs": 25,
+    "ads_first_page": 100,
+    "ads_first_page_deeplink_capable": 100,
+    "reports": 64,
+    "reports_api_accessible": 56
+  },
+  "awin": {
+    "auth_ok": true,
+    "programs": [
+      {"name": "Awin", "status": "active"},
+      {"name": "minicabit", "status": "active"},
+      {"name": "F1 Authentics UK - Memento Exclusives", "status": "active"},
+      {"name": "Alpine Hearing Protection UK", "status": "active"},
+      {"name": "SportsBreaks", "status": "active"}
+    ],
+    "commission_group_reads_ok": 5,
+    "publisher_account_read_ok": true,
+    "transactions_previous_7_days_read_ok": true,
+    "transactions_previous_7_days": 0,
+    "enhanced_feed_probe": {
+      "F1 Authentics UK - Memento Exclusives": "en_GB retail endpoint accessible",
+      "SportsBreaks": "en_GB retail endpoint returned 404; other feed routes remain unverified"
+    }
+  },
+  "partnerize": {
+    "auth_ok": true,
+    "campaigns": [
+      {"name": "P1 Travel", "campaign_status": "active", "publisher_status": "active", "deeplinking": true},
+      {"name": "DAZN GLOBAL Partners (RETIRED)", "campaign_status": "retired", "publisher_status": "active-artifact", "deeplinking": true}
+    ],
+    "p1_commission_endpoint_ok": true,
+    "p1_creative_endpoint_ok": true,
+    "p1_creatives": 1399,
+    "p1_publisher_feed_endpoint_ok": true,
+    "p1_feed_definitions": 18,
+    "p1_feed_formats": {"xml": 12, "csv": 6},
+    "p1_feed_download_results": {"http_404": 18, "usable": 0},
+    "legacy_reporting_endpoint": "not_verified"
+  }
+}

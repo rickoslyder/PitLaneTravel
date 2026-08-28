@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-08-27T19:10:00Z",
+  "method": "bounded read-only Awin enhanced-feed GET; en_GB retail; first 2048 bytes only",
+  "secrets_or_payload_retained": false,
+  "results": [
+    {
+      "program": "F1 Authentics UK - Memento Exclusives",
+      "http_status": 200,
+      "sample_nonempty": true,
+      "interpretation": "An enhanced retail en_GB feed is accessible."
+    },
+    {
+      "program": "SportsBreaks",
+      "http_status": 404,
+      "sample_nonempty": true,
+      "interpretation": "The enhanced retail en_GB endpoint is not available at this path; this does not prove that no other SportsBreaks feed exists."
+    }
+  ]
+}
