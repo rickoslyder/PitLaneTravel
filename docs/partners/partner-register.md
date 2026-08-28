@@ -7,7 +7,7 @@ Not marketing copy. Not a capability claim. Not Gate C closure.
 - **Depends on:** PLT-001 / GitHub #2
 - **Milestone:** Gate C — **not satisfied**
 - **Register date:** 2026-08-27
-- **Evidence cut-off / read date:** 2026-08-27
+- **Evidence cut-off / read date:** 2026-08-28
 - **Scope:** PitLane commercial handoffs / supplier pathways only. Unrelated personal affiliate memberships are out of scope as pathways; where a network dashboard observation below lists campaigns, relevance of each campaign to PitLane is separately unverified.
 
 This file may be merged as **fail-closed evidence infrastructure**. It does **not** close GitHub #8, accept PLT-057, or close Gate C.
@@ -22,7 +22,7 @@ This file may be merged as **fail-closed evidence infrastructure**. It does **no
 6. **Product code must not claim a rate or attribution capability absent from this register.**
 7. **Credentials and confidential payloads stay out of Git.** No login names, publisher/account/affiliate IDs, message IDs, Drive IDs/URLs, exact commission rates, payout thresholds, confidential terms, tracking query strings, redirect slugs, or sensitive partner contacts. Public provider/program names and public root hostnames only when operationally useful. A vault credential is recorded as **existence-only metadata** (`private-vault-metadata`); no secret fields, values, or identifiers.
 8. **PLT-056 Hobby hold** is a paid Vercel plan-change / commercial-launch hosting boundary only. It does not freeze this inventory, does not block developing or deploying commercial-capability code, and does not relax the separate partner/commercial evidence gates in this register.
-9. **Evidence cut-off.** Current-state reads in this register are cut off at **2026-08-27**. Later mailbox, vault, dashboard, or production observations are outside this slice unless a later dated entry is added.
+9. **Evidence cut-off.** Current-state reads in this register are cut off at **2026-08-28**. Later mailbox, vault, dashboard, API, or production observations are outside this slice unless a later dated entry is added.
 10. **Negative search is scoped, not global.** `negative-search` means only the **available Gmail account** and the **available Hermes operator vault** were searched on the evidence cut-off date. Those two sources are not every mailbox, vault, or partner dashboard. Absence there does **not** prove that no account, agreement, or other evidence exists in inaccessible dashboards, other vaults, or other mailboxes. The scoped absence remains a **blocking unknown**, not a global nonexistence claim. Owner dashboard/vault review can later locate evidence a scoped search missed; when it does, record the new class and date.
 11. **Portal access is not partner status and not automation permission.** A working login, quote creation, or a referral-link generator is a human portal capability. Any future automation against such a portal needs separate authorization and review.
 
@@ -69,6 +69,7 @@ P1 Travel is the **only** currently verified product-enabled attributed partner 
 | `historical-seed` | Historical ticket URL host at seed commit `213aed…`. Technical integration, not current terms. 2026-07 hygiene gitignored the raw XML dump and deleted a duplicate test JSON; a parsed ticket seed still exists under `data/seeds/` (this register records hostnames only). |
 | `historical-onboarding` | Historical acceptance/welcome email. Then-stated capabilities only. Confidential payloads omitted. |
 | `current-dashboard` | Human dashboard/login observation by the owner on the read date. Account/campaign presence and portal capabilities only. **Not** a current-agreement read; moves the account axis, never the terms axis. |
+| `current-api-terms-observed` | Current effective campaign terms retrieved directly through the authenticated Partnerize terms API and reviewed by the agent for named operational clauses. This is stronger than dashboard presence, but it is **not** `current-agreement-verified` until the owner performs the required human review and records activation. |
 | `private-vault-metadata` | Existence-only record that a credential, API token, or login entry for the named provider exists in the private Hermes operator vault. No secret fields, values, identifiers, or login names are recorded. Vault existence never implies any capability. |
 | `current-messaging-not-terms` | Automated account or promotional messaging. Not a current agreement. |
 | `notice-only` | Contract-terms-changed or services-agreement update notice. Not a full terms read. |
@@ -81,14 +82,14 @@ Verification of a current agreement is **human review**. This register does not 
 
 | Claim | State |
 |---|---|
-| PLT-057 accepted | **No.** The enabled partner (P1) now has verified current dashboard access and campaign presence, but still lacks a directly read **current** agreement/terms record. |
-| Gate C closed | **No.** Missing current partner terms is a business blocker, not engineering completion. |
-| GitHub #8 | **Open.** Do not use closing language until P1’s current agreement is directly read **or** the product-enabled attributed path is disabled under a separate approved change. |
+| PLT-057 accepted | **No.** The effective P1 terms were retrieved directly through Partnerize on 2026-08-28, but owner/human review, commercial activation, comparison-feed permission, and several operational fields remain unresolved. |
+| Gate C closed | **No.** Current terms retrieval does not substitute for owner activation or the remaining attribution/reporting/disclosure proof. |
+| GitHub #8 | **Open.** Do not use closing language until the owner reviews the retrieved terms, resolves the remaining unknowns, and records activation — or the product-enabled attributed path is disabled under a separate approved change. |
 | This docs slice | Mergeable as fail-closed inventory. Does not enable, disable, or commercially approve any path. |
 
 **Activation boundary.** Do not product-enable any inventory row, and do not treat the live P1 redirect as terms-verified, until `current-agreement-verified` plus owner sign-off. Disabling the live P1 attributed path is a **separate approved change**, not this issue.
 
-**Next proof required.** Human read of the **current P1 agreement/terms** — especially authorised inventory, deep-link rules, attribution, sub-ID support/semantics, reporting, disclosure, contact, and renewal fields — **or** a separately approved disable of that attributed path. Dashboard presence and historical acceptance do not satisfy this. Until then, every current P1 commercial term remains a blocking unknown and PLT-057 / Gate C stay open.
+**Next proof required.** Owner/human review of the terms retrieved on 2026-08-28, plus direct resolution of comparison-feed permission, attribution/sub-ID semantics, reporting, disclosure, contact, and renewal fields — **or** a separately approved disable of that attributed path. The retrieved terms establish important restrictions but do not answer every activation question. PLT-057 / Gate C stay open.
 
 **Technical capability addendum (2026-08-27).** Bounded read-only probes now verify working API access to Impact, Awin, and Partnerize, including the active programme/campaign inventories summarized in [`api-capability-and-price-intelligence.md`](api-capability-and-price-intelligence.md). This upgrades technical-access evidence only. It does not verify current agreements, authorise product enablement, or close Gate C.
 
@@ -96,7 +97,7 @@ Verification of a current agreement is **human review**. This register does not 
 
 | Party | Account | Product | Current terms | Commercial |
 |---|---|---|---|---|
-| P1 Travel (Partnerize) | `active-current-dashboard` | `product-enabled` | `unverified` | `not-commercially-approved` |
+| P1 Travel (Partnerize) | `active-current-dashboard` | `product-enabled` | `unverified` (current terms retrieved; owner review still required) | `not-commercially-approved` |
 | Gootickets | `inaccessible-current` | `not-product-enabled` | `historical-welcome-only` | `not-commercially-approved` |
 | F1 Store / Fanatics on Impact | `active-current-dashboard` | `not-product-enabled` | `historical-welcome-only` | `not-commercially-approved` |
 | Omio on Impact | `active-current-dashboard` | `not-product-enabled` | `notice-only` (plus historical welcome) | `not-commercially-approved` |
@@ -116,23 +117,23 @@ Verification of a current agreement is **human review**. This register does not 
 
 ## P1 Travel (Partnerize)
 
-Live attributed ticket handoff exists. Current dashboard access and campaign presence are verified. The current agreement/terms are **not** read and remain blocking.
+Live attributed ticket handoff exists. Current dashboard access and campaign presence are verified. Effective terms were retrieved directly through Partnerize on 2026-08-28, but the owner has not yet recorded the required human review or commercial activation.
 
 | Field | Record | Evidence |
 |---|---|---|
 | Account / application | **`active-current-dashboard`.** Historical: P1 accepted PitLane Travel into Partnerize per a 2025-01-03 Workspace Gmail acceptance email; Partnerize independently confirmed the P1 Travel campaign acceptance; no P1 termination/suspension email was found. Current: owner dashboard review 2026-08-27 — the Partnerize dashboard is accessible and currently shows P1 Travel as the only campaign. A Partnerize API credential and a separate login entry exist in the private Hermes vault (existence only; nothing recorded here). This owner review supersedes the earlier scoped negative-search record for the **account** axis only; it changes nothing on the terms axis. | `historical-onboarding` 2025-01-03; `current-dashboard` 2026-08-27; `private-vault-metadata` 2026-08-27 |
 | Product enablement | **`product-enabled`.** Production showed Australian Grand Prix 2025 live ticket cards. Three independent same-origin masked purchase URLs resolved by bounded GET through `p1travel.prf.hn` then `www.p1travel.com`. Hostnames/statuses only; no query strings or tracking IDs retained. Current code creates public masked ticket redirects and can fall back to the reseller URL. Product claims ticket availability/prices; it does **not** state a commission rate. | `production-observed` 2026-08-27; `repository-audited` (`TicketCard`, `/api/redirect/[slug]`, ticket-redirect actions) |
-| Offer classes | Production displays ticket cards (availability/prices) for the observed event. Dashboard shows the P1 Travel campaign present. **Current authorised offer classes: blocking unknown** (agreement not read; campaign presence does not state them). | `production-observed`; `current-dashboard`; terms `unverified` |
-| Regions / series | Observed production event: Australian Grand Prix 2025. **Current authorised regions/series: blocking unknown.** Historical seed/parser coverage is not a current authorisation. | `production-observed`; `historical-seed` is not current terms |
-| Attribution / sub-ID | Production handoff uses public hostname `p1travel.prf.hn` then `www.p1travel.com`. **Current contractual attribution, sub-ID support, and sub-ID semantics: blocking unknown.** Do not infer a live network agreement from the hostname or from dashboard campaign presence. | `production-observed`; terms `unverified` |
-| Deep-link rules | Observed: same-origin mask → `p1travel.prf.hn` → `www.p1travel.com`. **Current deep-link rules: blocking unknown.** | `production-observed`; terms `unverified` |
+| Offer classes | Production displays ticket cards (availability/prices) for the observed event. Current P1 terms make the country-specific product feed the controlling list of promotable events and exclude any event omitted for that country. They do **not** independently enumerate offer classes. | `production-observed`; `current-api-terms-observed` 2026-08-28 |
+| Regions / series | Current terms require the matching country-domain feed, make country-specific exclusions override the general COM feed, and prohibit promotion through P1’s UK site. Exact current event/series eligibility must therefore come from a working locale feed; the dead feeds cannot establish it. | `current-api-terms-observed`; current feed probe |
+| Attribution / sub-ID | Production handoff uses public hostname `p1travel.prf.hn` then `www.p1travel.com`. The campaign API reports an active participation and a 30-day-equivalent cookie field, but the retrieved terms do not define sub-ID support/semantics or complete attribution rules. Those remain blocking unknowns. | `production-observed`; authenticated Partnerize API 2026-08-28 |
+| Deep-link rules | Partnerize reports deep-linking enabled for the active P1 campaign. Current terms prohibit copying P1 site text/images and permit only content/images shared by P1; country-feed exclusions still control what may be promoted. Destination allowlists and sub-ID mechanics remain unresolved. | `current-api-terms-observed`; authenticated Partnerize campaign API 2026-08-28 |
 | Reporting lag | **Blocking unknown.** Dashboard access exists but reporting terms were not read from a current agreement. | `absent` |
-| Commission / cookie terms | **Blocking unknown.** Historical emails described a historical rate range; exact terms/rates are confidential and stay out of Git, and are **not** reused as current terms. Product does not state a rate. Do not invent one. | `historical-onboarding` (confidential omitted); `repository-audited` (no rate claim in ticket UI path); current `absent` |
-| Feed / API format | Historical parser/import remains at `scripts/parse-p1-tickets.ts`. Historical seed at `213aed…` had 314 ticket URLs, all hosted on `p1travel.prf.hn`. 2026-07 hygiene gitignored the raw XML dump and deleted a duplicate test JSON; a parsed seed still exists under `data/seeds/`. That proves historical technical integration, **not** current feed access or format. A Partnerize API credential exists in the private vault (existence only); credential existence does not evidence current authorised use. **Current feed/API: blocking unknown.** | `repository-audited`; `historical-seed`; `private-vault-metadata` |
+| Commission / cookie terms | Exact rates remain confidential and are omitted. The authenticated campaign API reports a 30-day-equivalent cookie field; the retrieved terms do not fully define attribution. Product does not state a rate. Do not invent one. | authenticated Partnerize API 2026-08-28; `repository-audited` |
+| Feed / API format | The authenticated publisher-feed endpoint exposes 18 P1 definitions (12 XML, 6 CSV) across COM/DE/ES/FR/NL/UK, including Formula 1 feeds. Current terms explicitly make the locale feed the controlling promotion/exclusion source. All 18 definitions report zero bytes and never processed; every returned location answered 404. There is no documented publisher-side regeneration endpoint. Do not ingest until P1/Partnerize repairs them and confirms comparison-site use. | `current-api-terms-observed`; [`evidence/p1-product-feed-probe-2026-08-27.json`](evidence/p1-product-feed-probe-2026-08-27.json) |
 | Disclosure | **Blocking unknown.** | `absent` |
 | Contact / renewal | **Blocking unknown.** No termination/suspension email found; current contact/renewal terms not read. | `negative-search` 2026-08-27; terms `unverified` |
-| Last verification | 2026-08-27 — owner Partnerize dashboard review (campaign presence); owner vault metadata confirmation (existence only); production browser/bounded GET; repository audit of redirect/parser. **No current agreement/terms read.** | mixed |
-| Blockers / next action | **Blocks PLT-057 acceptance and Gate C.** Next: human read of the current P1 agreement/terms — especially authorised inventory, deep-link rules, attribution, sub-ID support/semantics, reporting, disclosure, contact, and renewal fields — **or** a separate approved change that disables this attributed production path. Until one of those, do not claim current rates, cookies, sub-IDs, reporting, disclosure, or authorised inventory. | — |
+| Last verification | 2026-08-28 — current effective P1 terms retrieved through the authenticated Partnerize API; active participation reports latest terms agreed. 2026-08-27 — owner dashboard review, production redirect observation, and feed probe. Owner/human terms review is still unrecorded. | mixed |
+| Blockers / next action | **Blocks PLT-057 acceptance and Gate C.** Next: owner review of the retrieved terms; obtain written confirmation that comparison-site ingestion is permitted; repair the 18 feeds; and resolve sub-ID semantics, reporting, disclosure, contact, and renewal. Do not send the prepared support draft without explicit approval. | — |
 
 ---
 

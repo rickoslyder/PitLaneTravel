@@ -1,0 +1,46 @@
+{
+  "observed_at": "2026-08-28T12:36:18Z",
+  "campaign": "P1 Travel",
+  "method": "bounded read-only authenticated Partnerize campaign, participation, and effective-terms endpoints",
+  "secrets_ids_rates_or_full_terms_retained": false,
+  "http_status": {
+    "campaign": 200,
+    "participation": 200,
+    "effective_terms": 200
+  },
+  "participation": {
+    "campaign_active": true,
+    "publisher_approved": true,
+    "latest_terms_agreed": true,
+    "custom_partner_terms": false
+  },
+  "campaign_capabilities": {
+    "deep_linking_enabled": true,
+    "cookie_period_days_equivalent": 30
+  },
+  "effective_terms": {
+    "document_count": 1,
+    "locale": "en",
+    "observed_rules": [
+      "Only content and images supplied by P1 may be used; P1 website content may not be copied without permission.",
+      "The product feed for the matching country domain controls which events may be promoted.",
+      "Country-specific exclusions override the general COM feed.",
+      "P1 promotion through the UK site is prohibited.",
+      "Search advertising, social-media advertising, and retargeting are prohibited.",
+      "Each email newsletter requires prior P1 affiliate-team approval; organic social posts require preview before publication.",
+      "Excluded software, incentive, pop-up, and pop-under traffic requires explicit consent."
+    ]
+  },
+  "remaining_unknowns": [
+    "Explicit permission to ingest and republish feed-derived data for ticket comparison",
+    "Sub-ID support and field semantics",
+    "Complete attribution and deduplication mechanics beyond the published restrictions",
+    "Reporting lag and reconciliation expectations",
+    "Affiliate disclosure wording",
+    "Current operational contact and renewal/change-notice mechanics",
+    "How the publisher can request regeneration of dead feeds"
+  ],
+  "human_review_recorded": false,
+  "commercial_activation_recorded": false,
+  "interpretation": "Current terms materially constrain content, geography, traffic, and channel use. They make the locale product feed operationally authoritative, but the feeds are unavailable and comparison-site ingestion permission is not explicit. PLT-057 remains open."
+}
