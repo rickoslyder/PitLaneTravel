@@ -392,6 +392,13 @@ describe("0009 ticket price observation SQL migration", () => {
     expect(existsSync(migrationPath())).toBe(true)
   })
 
+  it("uses valid SQL comments instead of diff-marker-prefixed pseudo-comments", () => {
+    const invalidCommentLines = read(migrationPath())
+      .split("\n")
+      .filter(line => /^\s*\|--/.test(line))
+    expect(invalidCommentLines).toEqual([])
+  })
+
   it("is additive and idempotent, append-only, and has no drops/resets/backfill", () => {
     const sql = read(migrationPath())
     const stripped = stripSqlComments(sql)

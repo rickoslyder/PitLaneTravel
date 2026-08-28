@@ -1,10 +1,10 @@
-|-- Immutable ticket price observation persistence (provider-neutral).
-|-- Attempts and successful observations are append-only: UPDATE and DELETE are
-|-- rejected by trigger. Latest-known-good is derived from immutable successful
-|-- rows by source-offer identity (provider + source URL + the comparable offer
-|-- dimensions); no mutable latest state is stored. Additive and idempotent.
-|-- Preserve existing rows. No drops, resets, or backfills. Reversible only via
-|-- a future additive inverse migration.
+-- Immutable ticket price observation persistence (provider-neutral).
+-- Attempts and successful observations are append-only: UPDATE and DELETE are
+-- rejected by trigger. Latest-known-good is derived from immutable successful
+-- rows by source-offer identity (provider + source URL + the comparable offer
+-- dimensions); no mutable latest state is stored. Additive and idempotent.
+-- Preserve existing rows. No drops, resets, or backfills. Reversible only via
+-- a future additive inverse migration.
 
 DO $$ BEGIN
   IF NOT EXISTS (
