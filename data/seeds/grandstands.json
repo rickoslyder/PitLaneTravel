@@ -49,8 +49,8 @@
       {
         "name": "Becketts",
         "viewRating": 4,
-        "covered": false,
-        "hasBigScreen": false,
+        "covered": true,
+        "hasBigScreen": true,
         "priceTier": "mid",
         "bestFor": "Best value — the fast esses",
         "viewsOf": [
