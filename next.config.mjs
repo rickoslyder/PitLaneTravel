@@ -11,6 +11,13 @@ process.env directly.
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Guide markdown is read from disk at build and again when the sitemap
+  // regenerates. Keep the files in the server trace for those routes.
+  outputFileTracingIncludes: {
+    "/guides": ["./content/guides/**/*"],
+    "/guides/[slug]": ["./content/guides/**/*"],
+    "/sitemap.xml": ["./content/guides/**/*"]
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "vsszkzazjhvlecyryzon.supabase.co" },

@@ -22,6 +22,7 @@ import { brand } from "@/config/brand"
 
 const navLinks = [
   { href: "/races", label: "Races" },
+  { href: "/guides", label: "Guides" },
   { href: "/flights", label: "Flights" },
   { href: "/packages", label: "Packages" },
   // { href: "/meetups", label: "Meetups" },

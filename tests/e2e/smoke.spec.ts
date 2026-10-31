@@ -99,4 +99,62 @@ test.describe("production smoke", () => {
     expect(body).not.toMatch(/Error Loading Trips/)
     expect(body).not.toMatch(/Manage and plan your F1 race weekends/)
   })
+
+  test("guides index lists both articles", async ({ page }) => {
+    const response = await page.goto("/guides")
+    expect(response, "/guides should return a response").toBeTruthy()
+    expect(response!.ok(), "/guides should be HTTP success").toBeTruthy()
+
+    await expect(
+      page.getByRole("heading", { name: "Guides", exact: true })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("link", {
+        name: "Your First Race: F1, MotoGP, Le Mans, Formula E or Indy 500?",
+        exact: true
+      })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("link", {
+        name: "Two Races, One Trip: Best Cross-Series Pairings for 2027",
+        exact: true
+      })
+    ).toBeVisible()
+  })
+
+  test("which-race-first guide renders the article, a race link, and JSON-LD", async ({
+    page
+  }) => {
+    const response = await page.goto("/guides/which-race-first-2027")
+    expect(response, "guide article should return a response").toBeTruthy()
+    expect(response!.ok(), "guide article should be HTTP success").toBeTruthy()
+
+    await expect(
+      page.getByRole("heading", {
+        name: "Which motorsport race should you go to first? F1, MotoGP, Le Mans, Formula E or the Indy 500",
+        exact: true
+      })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("link", {
+        name: "British Grand Prix race page",
+        exact: true
+      })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("link", {
+        name: "Two Races, One Trip: Best Cross-Series Pairings for 2027",
+        exact: true
+      })
+    ).toBeVisible()
+
+    const blocks = await page
+      .locator('script[type="application/ld+json"]')
+      .allTextContents()
+    const parsed = blocks.map(
+      block => JSON.parse(block) as { "@type"?: string }
+    )
+    expect(parsed.some(block => block["@type"] === "Article")).toBe(true)
+    expect(parsed.some(block => block["@type"] === "BreadcrumbList")).toBe(true)
+  })
 })
