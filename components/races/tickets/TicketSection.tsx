@@ -20,6 +20,8 @@ import { TicketsEmptyState } from "./TicketsEmptyState"
 import { hasTicketListings } from "./ticket-availability"
 import { useTickets } from "./use-tickets"
 import { ticketSectionIntro } from "./ticket-presentation"
+import { affiliatePartnersOnPage } from "@/lib/ticket-affiliate"
+import { AffiliateDisclosure } from "@/components/partners/affiliate-disclosure"
 
 type Ticket = SelectTicket & { features: any[]; currentPrice: any }
 
@@ -40,6 +42,8 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
 
     return matchesSearch && matchesType
   })
+
+  const affiliatePartners = affiliatePartnersOnPage(filteredTickets ?? [])
 
   if (loading) {
     return (
@@ -67,6 +71,10 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
         <h2>Official tickets</h2>
         <p>{ticketSectionIntro(race.name)}</p>
       </div>
+
+      {affiliatePartners.length > 0 && (
+        <AffiliateDisclosure partners={affiliatePartners} />
+      )}
 
       <TicketFilters
         searchQuery={searchQuery}

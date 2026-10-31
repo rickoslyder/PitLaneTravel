@@ -12,6 +12,7 @@ import { siteCopy } from "@/config/site-copy"
 import { getPackagesAvailability } from "@/lib/packages-availability"
 import { Flag, Heart, MapPin, Search, Users } from "lucide-react"
 import Link from "next/link"
+import { AffiliateDisclosure } from "@/components/partners/affiliate-disclosure"
 
 export default async function AboutPage() {
   const { siteWide } = await getPackagesAvailability()
@@ -38,6 +39,9 @@ export default async function AboutPage() {
         <h2 className="mb-8 text-center text-3xl font-bold">What we do</h2>
         <div className="text-muted-foreground mx-auto max-w-3xl text-center text-lg leading-relaxed">
           <p>{copy.aboutMission}</p>
+          <div className="mx-auto mt-6 max-w-3xl text-left">
+            <AffiliateDisclosure />
+          </div>
         </div>
       </div>
 

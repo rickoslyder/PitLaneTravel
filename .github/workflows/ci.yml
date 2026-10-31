@@ -126,6 +126,7 @@ jobs:
       FLIGHTS_BOOKING_ENABLED: "false"
       RECONCILE_AUTO_REFUND: "false"
       AI_PLANNER_PRO_GATE: "false"
+      AFFILIATE_TICKETS_ENABLED: "false"
       FLIGHT_SERVICE_FEE_PERCENT: "0"
       FLIGHT_SERVICE_FEE_MINIMUM: "0"
     steps:
@@ -237,6 +238,11 @@ jobs:
             ok AI_PLANNER_PRO_GATE
           else
             fail_flag AI_PLANNER_PRO_GATE
+          fi
+          if [ "${AFFILIATE_TICKETS_ENABLED-}" = "false" ]; then
+            ok AFFILIATE_TICKETS_ENABLED
+          else
+            fail_flag AFFILIATE_TICKETS_ENABLED
           fi
 
           needle="secrets"
@@ -401,6 +407,7 @@ jobs:
       FLIGHTS_BOOKING_ENABLED: "false"
       RECONCILE_AUTO_REFUND: "false"
       AI_PLANNER_PRO_GATE: "false"
+      AFFILIATE_TICKETS_ENABLED: "false"
       FLIGHT_SERVICE_FEE_PERCENT: "0"
       FLIGHT_SERVICE_FEE_MINIMUM: "0"
       PLAYWRIGHT_E2E_ALLOW_DISPOSABLE_DB: "true"

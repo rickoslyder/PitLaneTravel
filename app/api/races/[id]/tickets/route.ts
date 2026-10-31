@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { getRaceTicketsAction } from "@/actions/db/tickets-actions"
 import { getRacePackagesAction } from "@/actions/db/ticket-packages-actions"
+import { features } from "@/config/features"
+import { visiblePublicTickets } from "@/lib/ticket-affiliate"
 
 export async function GET(
   request: Request,
@@ -21,7 +23,10 @@ export async function GET(
     }
 
     return NextResponse.json({
-      tickets: ticketsResult.data,
+      tickets: visiblePublicTickets(
+        ticketsResult.data,
+        features.affiliateTicketsEnabled
+      ),
       packages: packagesResult.data
     })
   } catch (error) {
