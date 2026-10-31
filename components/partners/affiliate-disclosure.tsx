@@ -15,10 +15,7 @@ export function affiliateDisclosureCopy(partners: readonly string[] = []): {
     partners.length === 1
       ? partners[0]
       : `${partners.slice(0, -1).join(", ")} and ${partners[partners.length - 1]}`
-  return {
-    lead: affiliateDisclosurePartner(names),
-    detail: null
-  }
+  return affiliateDisclosurePartner(names)
 }
 
 export function AffiliateDisclosure({
