@@ -49,9 +49,12 @@ const formSchema = z.object({
   raceId: z.string().min(1, "Race is required"),
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  ticketType: z.enum(["general_admission", "grandstand", "vip"], {
-    required_error: "Ticket type is required"
-  }),
+  ticketType: z.enum(
+    ["general_admission", "grandstand", "vip", "official_store"],
+    {
+      required_error: "Ticket type is required"
+    }
+  ),
   seatingDetails: z.string().optional(),
   availability: z.string().min(1, "Availability is required"),
   daysIncluded: z.record(z.boolean()),
@@ -363,6 +366,9 @@ export function CreateTicketDialog({
                           </SelectItem>
                           <SelectItem value="grandstand">Grandstand</SelectItem>
                           <SelectItem value="vip">VIP</SelectItem>
+                          <SelectItem value="official_store">
+                            Official store
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

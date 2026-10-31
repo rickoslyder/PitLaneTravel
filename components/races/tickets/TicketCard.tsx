@@ -21,12 +21,19 @@ import {
   Wifi,
   Ticket
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatTicketType } from "@/lib/utils"
 import { WaitlistForm } from "./WaitlistForm"
 import { SelectTicket } from "@/db/schema"
 import { SUPPORTED_CURRENCIES } from "@/config/currencies"
 import { convertPriceAction } from "@/actions/db/currency-actions"
 import { generateMaskedUrlAction } from "@/actions/db/ticket-redirect-actions"
+import {
+  TICKET_BUY_LABEL,
+  resellerHost,
+  ticketAvailabilityLabel,
+  ticketShowsBuyButton,
+  ticketShowsWaitlist
+} from "./ticket-presentation"
 
 interface TicketCardProps {
   ticket: SelectTicket & {
@@ -64,7 +71,16 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
   const [maskedUrl, setMaskedUrl] = useState<string | null>(null)
   const [isLoadingUrl, setIsLoadingUrl] = useState(true)
 
+  const showBuyButton = ticketShowsBuyButton(ticket.availability)
+  const showWaitlist = ticketShowsWaitlist(ticket.availability)
+
   useEffect(() => {
+    if (!showBuyButton) {
+      setMaskedUrl(null)
+      setIsLoadingUrl(false)
+      return
+    }
+
     async function generateUrl() {
       try {
         setIsLoadingUrl(true)
@@ -86,7 +102,7 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
       }
     }
     generateUrl()
-  }, [ticket.id, ticket.resellerUrl])
+  }, [showBuyButton, ticket.id, ticket.resellerUrl])
 
   const handleCurrencyChange = useCallback(
     async (currency: string) => {
@@ -126,21 +142,7 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
     })
   }
 
-  const formatTicketType = (type: string) => {
-    switch (type) {
-      case "general_admission":
-        return "General Admission"
-      case "grandstand":
-        return "Grandstand"
-      case "vip":
-        return "VIP"
-      default:
-        return type
-          .split("_")
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ")
-    }
-  }
+  const sellerHost = resellerHost(ticket.resellerUrl)
 
   return (
     <motion.div
@@ -184,8 +186,7 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
                       : "bg-red-500/10 text-red-500"
                 )}
               >
-                {ticket.availability.charAt(0).toUpperCase() +
-                  ticket.availability.slice(1)}
+                {ticketAvailabilityLabel(ticket.availability)}
               </Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -284,28 +285,39 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
             </div>
           </div>
 
-          {ticket.availability === "available" ? (
-            <a
-              href={maskedUrl || "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                (!maskedUrl || isLoadingUrl) &&
-                  "pointer-events-none opacity-50",
-                "mt-4 block"
-              )}
-            >
-              <Button className="w-full" size="lg" disabled={isLoadingUrl}>
-                {isLoadingUrl ? "Loading..." : "Purchase Tickets"}
-              </Button>
-            </a>
-          ) : (
+          {showBuyButton ? (
+            <div className="mt-4 space-y-2">
+              <a
+                href={maskedUrl || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  (!maskedUrl || isLoadingUrl) &&
+                    "pointer-events-none opacity-50",
+                  "block"
+                )}
+              >
+                <Button className="w-full" size="lg" disabled={isLoadingUrl}>
+                  {isLoadingUrl ? "Loading..." : TICKET_BUY_LABEL}
+                </Button>
+              </a>
+              <p className="text-muted-foreground text-center text-xs">
+                {sellerHost
+                  ? `Opens ${sellerHost}`
+                  : "Opens the official seller's site"}
+              </p>
+            </div>
+          ) : showWaitlist ? (
             <WaitlistForm
               raceId={ticket.raceId}
               ticketCategoryId={String(ticket.id)}
               ticketCategoryName={ticket.title}
-              disabled={ticket.availability === "available"}
+              disabled={false}
             />
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              Sold out at the official seller.
+            </p>
           )}
         </CardContent>
       </Card>

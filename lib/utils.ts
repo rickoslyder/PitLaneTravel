@@ -104,9 +104,12 @@ export function formatTicketType(type: string) {
     case "grandstand":
       return "Grandstand"
     case "general":
+    case "general_admission":
       return "General Admission"
     case "vip":
       return "VIP"
+    case "official_store":
+      return "Official store"
     default:
       return type
   }

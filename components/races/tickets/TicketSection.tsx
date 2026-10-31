@@ -19,6 +19,7 @@ import { TicketCardSkeleton } from "./TicketCardSkeleton"
 import { TicketsEmptyState } from "./TicketsEmptyState"
 import { hasTicketListings } from "./ticket-availability"
 import { useTickets } from "./use-tickets"
+import { ticketSectionIntro } from "./ticket-presentation"
 
 type Ticket = SelectTicket & { features: any[]; currentPrice: any }
 
@@ -63,11 +64,8 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
   return (
     <div className="space-y-8">
       <div className="prose prose-gray dark:prose-invert max-w-none">
-        <h2>Race Tickets</h2>
-        <p>
-          Choose from our selection of tickets for the {race.name}. All tickets
-          include access to the circuit for the entire race weekend.
-        </p>
+        <h2>Official tickets</h2>
+        <p>{ticketSectionIntro(race.name)}</p>
       </div>
 
       <TicketFilters
@@ -147,6 +145,7 @@ function TicketFilters({
           <SelectItem value="general_admission">General Admission</SelectItem>
           <SelectItem value="grandstand">Grandstand</SelectItem>
           <SelectItem value="vip">VIP</SelectItem>
+          <SelectItem value="official_store">Official store</SelectItem>
         </SelectContent>
       </Select>
     </div>

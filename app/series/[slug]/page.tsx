@@ -4,7 +4,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Metadata } from "next"
 import { getSeriesBySlugAction } from "@/actions/db/series-actions"
-import { pluralizeEventNoun } from "@/lib/series"
+import { formatFormulaESeason, pluralizeEventNoun } from "@/lib/series"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { isActiveRaceStatus } from "@/lib/race-status"
 import { RaceGrid } from "@/components/races/RaceGrid"
@@ -68,6 +68,12 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
   const coverageMap = coverageResult.isSuccess
     ? coverageByRaceId(coverageResult.data)
     : {}
+  const formulaESeasons =
+    series.slug === "formula-e"
+      ? [...new Set((races ?? []).map(race => race.season))]
+          .sort((a, b) => a - b)
+          .map(year => formatFormulaESeason(year))
+      : []
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-4 sm:p-8">
@@ -81,6 +87,11 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
             {series.seasonLabel ?? series.governingBody}
           </p>
         </div>
+        {formulaESeasons.length > 0 && (
+          <p className="text-muted-foreground mt-2 text-sm">
+            {formulaESeasons.join(" · ")}
+          </p>
+        )}
         <h1 className="text-foreground mt-3 text-3xl font-bold sm:text-4xl">
           {series.name} Travel
         </h1>
