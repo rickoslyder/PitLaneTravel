@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  RACE_TICKETS_CTA,
   TICKET_BUY_LABEL,
   resellerHost,
   ticketAvailabilityLabel,
@@ -22,6 +23,8 @@ describe("ticket availability states", () => {
     expect(ticketShowsWaitlist("available")).toBe(false)
     expect(ticketShowsWaitlist("limited")).toBe(false)
     expect(TICKET_BUY_LABEL).toBe("Buy from official seller")
+    expect(RACE_TICKETS_CTA).toBe("View official tickets")
+    expect(RACE_TICKETS_CTA).not.toMatch(/book|purchase/i)
   })
 
   it("still offers a waitlist for other non-sale states", () => {

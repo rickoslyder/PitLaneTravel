@@ -5,6 +5,9 @@
 
 export const TICKET_BUY_LABEL = "Buy from official seller"
 
+/** Race-page button that opens the tickets tab. PitLane does not book the race. */
+export const RACE_TICKETS_CTA = "View official tickets"
+
 export function ticketSectionIntro(
   raceName: string,
   includesAffiliate = false

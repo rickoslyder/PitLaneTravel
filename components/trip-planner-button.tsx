@@ -118,15 +118,11 @@ export function TripPlannerButton({
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Coming Soon</DialogTitle>
+          <DialogTitle>External search</DialogTitle>
           <DialogDescription>
-            Direct flight and hotel booking integration coming soon! For now, we
-            recommend:
-            <ul className="mt-2 list-inside list-disc space-y-1">
-              <li>Skyscanner for flights</li>
-              <li>Booking.com for hotels</li>
-              <li>Google Maps for local exploration</li>
-            </ul>
+            PitLane Travel does not book or issue flights, and it does not sell
+            race-weekend packages or tickets. Flight and hotel links are
+            external searches. Confirm terms on the provider.
           </DialogDescription>
         </DialogHeader>
       </DialogContent>
