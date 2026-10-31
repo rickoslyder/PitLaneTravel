@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest"
 import {
+  affiliatePartnerFromUrl,
   affiliatePartnersOnPage,
-  isAffiliateTicketUrl
+  isAffiliateTicketUrl,
+  ticketOutboundRel
 } from "./ticket-affiliate"
 
 const official = {
@@ -34,6 +36,27 @@ describe("affiliate ticket detection", () => {
     expect(
       isAffiliateTicketUrl("https://tickets.motogp.com/en/53277-portugal/")
     ).toBe(false)
+  })
+
+  it("marks tagged affiliate links sponsored and nofollow", () => {
+    expect(ticketOutboundRel(affiliatePartnerFromUrl(affiliate.resellerUrl))).toBe(
+      "sponsored nofollow noopener noreferrer"
+    )
+    expect(ticketOutboundRel(affiliatePartnerFromUrl(camref.resellerUrl))).toBe(
+      "sponsored nofollow noopener noreferrer"
+    )
+    expect(
+      ticketOutboundRel(
+        affiliatePartnerFromUrl("https://partnerize.com/click?pubref=1")
+      )
+    ).toBe("sponsored nofollow noopener noreferrer")
+  })
+
+  it("keeps a plain noopener rel for an untagged official seller", () => {
+    expect(ticketOutboundRel(affiliatePartnerFromUrl(official.resellerUrl))).toBe(
+      "noopener noreferrer"
+    )
+    expect(ticketOutboundRel(null)).toBe("noopener noreferrer")
   })
 
   it("names P1 Travel when an affiliate row is on the page", () => {
