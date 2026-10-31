@@ -9,6 +9,11 @@ import { getRaceHistoryAction } from "@/actions/db/race-history-actions"
 import { notFound } from "next/navigation"
 import { RaceHistoryPage } from "@/components/races/RaceHistoryPage"
 import { Metadata } from "next"
+import {
+  buildRaceHistoryDescription,
+  RACE_HISTORY_NOT_FOUND_DESCRIPTION,
+  RACE_HISTORY_NOT_FOUND_TITLE
+} from "@/lib/race-page-metadata"
 
 interface RaceHistoryPageProps {
   params: Promise<{
@@ -56,18 +61,26 @@ export async function generateMetadata({
 
   if (!data) {
     return {
-      title: "Race History | PitLane Travel",
-      description:
-        "Explore the history and memorable moments of this Formula 1 race"
+      title: RACE_HISTORY_NOT_FOUND_TITLE,
+      description: RACE_HISTORY_NOT_FOUND_DESCRIPTION
     }
   }
 
+  const title =
+    data.history.metaTitle || `${data.race.name} History | PitLane Travel`
+  const description = buildRaceHistoryDescription({
+    raceName: data.race.name,
+    series: data.race.series,
+    metaDescription: data.history.metaDescription
+  })
+
   return {
-    title:
-      data.history.metaTitle || `${data.race.name} History | PitLane Travel`,
-    description:
-      data.history.metaDescription ||
-      `Discover the rich history, memorable moments, and fascinating facts about the ${data.race.name}. Explore past winners, records, and iconic moments.`
+    title,
+    description,
+    openGraph: {
+      title,
+      description
+    }
   }
 }
 

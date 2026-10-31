@@ -2,6 +2,7 @@
 
 import { RaceWithDetails } from "@/types/race"
 import { SelectRaceHistory } from "@/db/schema/race-history-schema"
+import { buildRaceHistoryHeading } from "@/lib/race-page-metadata"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -29,8 +30,7 @@ export function RaceHistoryPage({ race, history }: RaceHistoryPageProps) {
         <div>
           <h1 className="text-4xl font-bold">{race.name}: A Rich History</h1>
           <p className="text-muted-foreground mt-2">
-            Explore the fascinating history and memorable moments of this iconic
-            Formula 1 race.
+            {buildRaceHistoryHeading(race.series)}
           </p>
         </div>
 

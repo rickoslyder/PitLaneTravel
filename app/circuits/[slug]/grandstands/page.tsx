@@ -6,6 +6,10 @@ import { ChevronLeft } from "lucide-react"
 import { getCircuitsWithGrandstandsAction } from "@/actions/db/grandstands-actions"
 import { GrandstandCard } from "@/components/grandstands/grandstand-card"
 import { slugify } from "@/lib/series"
+import {
+  FORMULA_E_LONDON_VENUE_NOTE,
+  isEvergreenFormulaELondonVenue
+} from "@/config/formula-e-london"
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -29,9 +33,14 @@ export async function generateMetadata({
   const circuit = await findCircuit(slug)
   if (!circuit) return { title: "Grandstand Guide | PitLane Travel" }
 
+  const londonVenue =
+    isEvergreenFormulaELondonVenue(circuit.name) ||
+    isEvergreenFormulaELondonVenue(circuit.location)
+  const description = `Which grandstand should you book at ${circuit.name}, ${circuit.location}? Compare all ${circuit.grandstands.length} stands on view rating, price, shade, big screens and the corners they overlook.${londonVenue ? ` ${FORMULA_E_LONDON_VENUE_NOTE}` : ""}`
+
   return {
     title: `Best Grandstands at ${circuit.name} | Seat Guide | PitLane Travel`,
-    description: `Which grandstand should you book at ${circuit.name}, ${circuit.location}? Compare all ${circuit.grandstands.length} stands on view rating, price, shade, big screens and the corners they overlook.`,
+    description,
     keywords: [
       `best grandstand ${circuit.name}`,
       `${circuit.name} seating guide`,
@@ -49,6 +58,9 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
   const ranked = [...circuit.grandstands].sort(
     (a, b) => (b.viewRating ?? 0) - (a.viewRating ?? 0)
   )
+  const londonVenue =
+    isEvergreenFormulaELondonVenue(circuit.name) ||
+    isEvergreenFormulaELondonVenue(circuit.location)
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-4 sm:p-8">
@@ -65,8 +77,14 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
           Best grandstands at {circuit.name}
         </h1>
         <p className="text-muted-foreground">
-          {circuit.location}, {circuit.country} · {ranked.length} stands compared
+          {circuit.location}, {circuit.country} · {ranked.length} stands
+          compared
         </p>
+        {londonVenue && (
+          <p className="max-w-3xl text-sm text-muted-foreground">
+            {FORMULA_E_LONDON_VENUE_NOTE}
+          </p>
+        )}
       </header>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

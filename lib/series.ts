@@ -25,7 +25,11 @@ export interface SeriesLike {
  */
 export function formatEventName(
   series: SeriesLike | null | undefined,
-  race: { name?: string | null; country?: string | null; season?: number | null }
+  race: {
+    name?: string | null
+    country?: string | null
+    season?: number | null
+  }
 ): string {
   if (race.name && race.name.trim().length > 0) return race.name
   const noun = series?.eventNoun ?? "Grand Prix"
@@ -51,7 +55,11 @@ export function slugify(input: string): string {
  */
 export function buildRaceSlug(
   series: SeriesLike | null | undefined,
-  race: { name?: string | null; country?: string | null; season?: number | null }
+  race: {
+    name?: string | null
+    country?: string | null
+    season?: number | null
+  }
 ): string {
   const base = slugify(formatEventName(series, { ...race, season: undefined }))
   const seriesPart = series?.slug ? `-${series.slug}` : ""
@@ -66,6 +74,55 @@ export function buildRaceSlug(
 export function extractSeasonFromSlug(slug: string): number | null {
   const match = slug.match(/20[2-9]\d/)
   return match ? Number(match[0]) : null
+}
+
+/**
+ * Public series label used in race-page titles, descriptions, and headings.
+ * Formula E's stored short name is "FE"; the public label is "Formula E".
+ */
+const SERIES_DISPLAY_NAME_BY_SLUG: Record<string, string> = {
+  f1: "F1",
+  "formula-e": "Formula E",
+  motogp: "MotoGP",
+  indycar: "IndyCar",
+  wec: "WEC"
+}
+
+const SERIES_DISPLAY_NAME_BY_SHORT: Record<string, string> = {
+  f1: "F1",
+  fe: "Formula E",
+  "formula e": "Formula E",
+  motogp: "MotoGP",
+  indycar: "IndyCar",
+  wec: "WEC"
+}
+
+export interface SeriesDisplayInput {
+  slug?: string | null
+  name?: string | null
+  shortName?: string | null
+  short_name?: string | null
+}
+
+export function seriesDisplayName(
+  series: SeriesDisplayInput | null | undefined
+): string | null {
+  if (!series) return null
+  const slug = series.slug?.trim().toLowerCase()
+  if (slug && SERIES_DISPLAY_NAME_BY_SLUG[slug]) {
+    return SERIES_DISPLAY_NAME_BY_SLUG[slug]
+  }
+  const short = (series.shortName ?? series.short_name)?.trim().toLowerCase()
+  if (short && SERIES_DISPLAY_NAME_BY_SHORT[short]) {
+    return SERIES_DISPLAY_NAME_BY_SHORT[short]
+  }
+  const name = series.name?.trim().toLowerCase()
+  if (name === "formula 1" || name === "formula one") return "F1"
+  if (name === "formula e") return "Formula E"
+  if (name === "motogp") return "MotoGP"
+  if (name === "indycar") return "IndyCar"
+  if (name === "wec" || name === "world endurance championship") return "WEC"
+  return null
 }
 
 /** Convert a DB series row to the minimal SeriesLike shape. */

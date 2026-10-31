@@ -10,6 +10,7 @@ import { isActiveRaceStatus } from "@/lib/race-status"
 import { RaceGrid } from "@/components/races/RaceGrid"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { coverageByRaceId } from "@/lib/public-coverage"
+import { withFormulaELondonVenueNote } from "@/config/formula-e-london"
 
 interface SeriesPageProps {
   params: Promise<{ slug: string }>
@@ -23,9 +24,12 @@ export async function generateMetadata({
   if (!isSuccess || !series) {
     return { title: "Series | PitLane Travel" }
   }
+  const description = withFormulaELondonVenueNote(slug, series.description)
+
   return {
     title: `${series.name} Travel & Tickets | PitLane Travel`,
-    description: `Plan your ${series.name} trips: the full calendar, ${series.eventNoun} tickets, grandstand guides, flights and accommodation. ${series.description ?? ""}`.trim(),
+    description:
+      `Plan your ${series.name} trips: the full calendar, ${series.eventNoun} tickets, grandstand guides, flights and accommodation. ${description}`.trim(),
     keywords: [
       `${series.name} travel`,
       `${series.name} tickets`,
@@ -46,6 +50,11 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
   }
   // A deactivated championship must not keep serving a public page.
   if (!series || !series.isActive) return notFound()
+
+  const seriesDescription = withFormulaELondonVenueNote(
+    series.slug,
+    series.description
+  )
 
   const { data: races } = await getRacesAction({
     series: slug,
@@ -73,8 +82,8 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
         <h1 className="mt-1 text-3xl font-bold sm:text-4xl">
           {series.name} Travel
         </h1>
-        {series.description && (
-          <p className="mt-3 max-w-2xl text-white/90">{series.description}</p>
+        {seriesDescription && (
+          <p className="mt-3 max-w-2xl text-white/90">{seriesDescription}</p>
         )}
       </header>
 

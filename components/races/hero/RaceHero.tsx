@@ -13,6 +13,7 @@ import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { TripPlannerButton } from "@/components/trip-planner-button"
+import { seriesDisplayName } from "@/lib/series"
 import { useEffect, useState, useMemo } from "react"
 
 interface RaceHeroProps {
@@ -100,6 +101,8 @@ export function RaceHero({
     }
   }
 
+  const seriesHeading = seriesDisplayName(race.series)
+
   const handleShare = async () => {
     const shareData = {
       title: race.name,
@@ -168,7 +171,12 @@ export function RaceHero({
           </div>
 
           <h1 className="mt-4 break-words text-2xl font-bold tracking-tight text-white [text-shadow:_0_4px_24px_rgba(0,0,0,0.5)] sm:text-4xl lg:text-6xl">
-            {race.name}
+            {seriesHeading ? (
+              <span className="mb-2 block text-sm font-semibold uppercase tracking-[0.2em] text-white/80 sm:text-base">
+                {seriesHeading}
+              </span>
+            ) : null}
+            <span className="block">{race.name}</span>
           </h1>
 
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-white/90 sm:mt-6 sm:gap-4 sm:text-base">
