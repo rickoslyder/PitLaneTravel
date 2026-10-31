@@ -39,9 +39,11 @@ describe("Abu Dhabi guide", () => {
       "https://www.formula1.com/en/racing/2026/united-arab-emirates"
     )
     expect(guide!.body).toContain("## Doing Qatar too")
-    expect(guide!.body).toContain(
-      "We haven't found a 2026 rate on an official page, so check before you drive."
-    )
+    expect(guide!.body).toContain("Khaleej Times")
+    expect(guide!.body).toContain("AED 20")
+    expect(guide!.body).toContain("paid parking")
+    expect(guide!.body).not.toContain("StubHub")
+    expect(guide!.body).not.toMatch(/\[40\]/)
     expect(guide!.body).toContain(
       "Fan tips are based on fan reports in r/GrandPrixTravel"
     )
