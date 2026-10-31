@@ -14,6 +14,11 @@ import { RaceWithDetails } from "@/types/race"
 import { getRaceHistoryAction } from "@/actions/db/race-history-actions"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { Metadata } from "next"
+import {
+  buildRacePageMetadata,
+  RACE_PAGE_NOT_FOUND_DESCRIPTION,
+  RACE_PAGE_NOT_FOUND_TITLE
+} from "@/lib/race-page-metadata"
 
 interface RacePageProps {
   params: Promise<{
@@ -65,19 +70,26 @@ export async function generateMetadata({
 
   if (!data) {
     return {
-      title: "Race Details | PitLane Travel",
-      description:
-        "Get comprehensive information about this Formula 1 race weekend, including circuit details, local attractions, and travel tips."
+      title: RACE_PAGE_NOT_FOUND_TITLE,
+      description: RACE_PAGE_NOT_FOUND_DESCRIPTION
     }
   }
 
   const { race, circuit } = data
-  const circuitName = circuit?.name || "the circuit"
-  const locationInfo = circuit?.location ? ` in ${circuit.location}` : ""
+  const copy = buildRacePageMetadata({
+    raceName: race.name,
+    series: race.series,
+    circuitName: circuit?.name,
+    circuitLocation: circuit?.location
+  })
 
   return {
-    title: `${race.name} | F1 Race Weekend Guide | PitLane Travel`,
-    description: `Plan your ${race.name} experience at ${circuitName}${locationInfo}. Get tickets, find flights & accommodation, and discover local attractions for an unforgettable F1 weekend.`
+    title: copy.title,
+    description: copy.description,
+    openGraph: {
+      title: copy.openGraph.title,
+      description: copy.openGraph.description
+    }
   }
 }
 

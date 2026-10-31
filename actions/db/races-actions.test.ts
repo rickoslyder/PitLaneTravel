@@ -21,10 +21,14 @@ function createSelectChain(result: unknown[] | Error): SelectChain {
     return result
   })
   const where = vi.fn(() => ({ limit }))
-  const leftJoin = vi.fn(() => ({ where }))
-  const from = vi.fn(() => ({ leftJoin }))
+  const joined = {
+    leftJoin: vi.fn(),
+    where
+  }
+  joined.leftJoin.mockReturnValue(joined)
+  const from = vi.fn(() => joined)
   const select = vi.fn(() => ({ from }))
-  return { select, from, leftJoin, where, limit }
+  return { select, from, leftJoin: joined.leftJoin, where, limit }
 }
 
 describe("getRaceByIdAction UUID fail-fast", () => {

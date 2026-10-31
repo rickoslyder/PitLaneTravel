@@ -7,6 +7,8 @@ truth at runtime.
 </ai_context>
 */
 
+import { FORMULA_E_LONDON_VENUE_NOTE } from "./formula-e-london"
+
 export interface SeriesDefinition {
   name: string
   shortName: string
@@ -44,8 +46,7 @@ export const SERIES: SeriesDefinition[] = [
     accentColor: "#00b1eb",
     dataProvider: "manual",
     sortOrder: 1,
-    description:
-      "All-electric single-seaters racing on street circuits in the heart of major cities."
+    description: `All-electric single-seaters racing on street circuits in the heart of major cities. ${FORMULA_E_LONDON_VENUE_NOTE}`
   },
   {
     name: "MotoGP",
@@ -88,6 +89,5 @@ export const SERIES: SeriesDefinition[] = [
   }
 ]
 
-export const SERIES_BY_SLUG: Record<string, SeriesDefinition> = Object.fromEntries(
-  SERIES.map(s => [s.slug, s])
-)
+export const SERIES_BY_SLUG: Record<string, SeriesDefinition> =
+  Object.fromEntries(SERIES.map(s => [s.slug, s]))

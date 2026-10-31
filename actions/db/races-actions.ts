@@ -222,6 +222,15 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
       .select({
         id: racesTable.id,
         circuit_id: racesTable.circuitId,
+        series_id: racesTable.seriesId,
+        series: {
+          id: seriesTable.id,
+          name: seriesTable.name,
+          short_name: seriesTable.shortName,
+          slug: seriesTable.slug,
+          event_noun: seriesTable.eventNoun,
+          accent_color: seriesTable.accentColor
+        },
         name: racesTable.name,
         date: racesTable.date,
         season: racesTable.season,
@@ -259,6 +268,7 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
       })
       .from(racesTable)
       .leftJoin(circuitsTable, eq(racesTable.circuitId, circuitsTable.id))
+      .leftJoin(seriesTable, eq(racesTable.seriesId, seriesTable.id))
       .where(eq(racesTable.id, id))
       .limit(1)
 
@@ -460,6 +470,15 @@ export async function getRaceBySlugAction(slug: string): Promise<ActionState<Rac
       .select({
         id: racesTable.id,
         circuit_id: racesTable.circuitId,
+        series_id: racesTable.seriesId,
+        series: {
+          id: seriesTable.id,
+          name: seriesTable.name,
+          short_name: seriesTable.shortName,
+          slug: seriesTable.slug,
+          event_noun: seriesTable.eventNoun,
+          accent_color: seriesTable.accentColor
+        },
         name: racesTable.name,
         date: racesTable.date,
         season: racesTable.season,
@@ -497,6 +516,7 @@ export async function getRaceBySlugAction(slug: string): Promise<ActionState<Rac
       })
       .from(racesTable)
       .leftJoin(circuitsTable, eq(racesTable.circuitId, circuitsTable.id))
+      .leftJoin(seriesTable, eq(racesTable.seriesId, seriesTable.id))
       .where(eq(racesTable.slug, slug))
       .limit(1)
 
