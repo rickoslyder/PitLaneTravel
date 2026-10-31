@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { features } from "@/config/features"
 import {
   affiliatePartnersOnPage,
-  isAffiliateTicketUrl,
-  visiblePublicTickets
+  isAffiliateTicketUrl
 } from "./ticket-affiliate"
 
 const official = {
@@ -46,18 +44,3 @@ describe("affiliate ticket detection", () => {
   })
 })
 
-describe("affiliate ticket display flag", () => {
-  it("defaults off", () => {
-    expect(features.affiliateTicketsEnabled).toBe(false)
-  })
-
-  it("hides affiliate rows when the flag is off and keeps official links", () => {
-    expect(visiblePublicTickets([official, affiliate], false)).toEqual([
-      official
-    ])
-    expect(visiblePublicTickets([official, affiliate], true)).toEqual([
-      official,
-      affiliate
-    ])
-  })
-})

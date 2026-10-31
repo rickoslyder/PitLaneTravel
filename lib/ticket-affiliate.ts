@@ -45,10 +45,3 @@ export function affiliatePartnersOnPage(
   return [...names]
 }
 
-export function visiblePublicTickets<T extends { resellerUrl: string }>(
-  tickets: readonly T[],
-  affiliateTicketsEnabled: boolean
-): T[] {
-  if (affiliateTicketsEnabled) return [...tickets]
-  return tickets.filter(ticket => !isAffiliateTicketUrl(ticket.resellerUrl))
-}
