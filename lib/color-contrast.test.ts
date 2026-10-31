@@ -110,18 +110,24 @@ describe("editorial contrast", () => {
     )
   })
 
-  it("uses the flag mark and one tagline, and drops the failing chrome colours", () => {
+  it("uses the flag mark and drops the failing chrome colours", () => {
     const header = readSource("components/header.tsx")
     const sidebar = readSource("components/sidebar/app-sidebar.tsx")
     const series = readSource("app/series/[slug]/page.tsx")
+    const mark = readSource("components/brand-mark.tsx")
+    const hero = readSource("components/races/hero/RaceHero.tsx")
 
     expect(header).toContain("<Flag")
-    expect(header).toContain("{brand.tagline}")
     expect(header).not.toContain("bg-blue-500")
     expect(header).not.toContain("grid-cols-2")
-    expect(header).not.toContain("Your F1 Travel Companion")
-    expect(sidebar).toContain("BrandMark")
+    expect(mark).not.toContain("brand.tagline")
+    expect(mark).toContain("{brand.name}")
+    expect(sidebar).toContain("<BrandMark />")
+    expect(sidebar).not.toContain("showTagline")
     expect(sidebar).not.toContain("PitLaneTravelLogo")
+    expect(hero).toContain("Book Now")
+    expect(hero).toContain("hover:bg-[#b50500]")
+    expect(hero).not.toContain("#FF0800")
     expect(readSource("components/sidebar/nav-main.tsx")).not.toContain(
       "#B17A50"
     )

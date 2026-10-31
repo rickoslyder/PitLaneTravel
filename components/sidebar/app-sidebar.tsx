@@ -128,7 +128,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <Link href="/" className="block min-w-0 px-2 py-4">
-          <BrandMark showTagline />
+          <BrandMark />
         </Link>
       </SidebarHeader>
 
