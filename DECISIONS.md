@@ -559,3 +559,16 @@ Do not claim affiliate routes are technically disabled. Preserve the public cata
 **Sensitive-data exclusion.** Unchanged and confirmed: no credentials, login names, publisher/account/affiliate IDs, message IDs, exact commission rates, payout thresholds, confidential terms, tracking query strings, redirect slugs, or sensitive contacts in Git. Vault items are existence-only metadata.
 
 **Hosting note.** The PLT-056 Hobby hold remains a paid plan-change / commercial-launch hosting boundary only; it does not block this inventory or development, and the separate partner/commercial evidence gates above still apply.
+
+---
+
+## 2026-09-19 — Gootickets access restored; Muse/agentic selling deferred (PLT-057 / Gate C remain open)
+
+**Canonical record:** [`docs/partners/partner-register.md`](docs/partners/partner-register.md) Gootickets row; future adapter [`docs/product/agentic-distribution-contract.md`](docs/product/agentic-distribution-contract.md)
+**This addendum does not close GitHub #8, Gate C, or Gate F.**
+
+**Gootickets.** Owner directed a portal login check after a vendor password-reset mail. The public hostname `affiliate.tickets-platform.com` authenticated and loaded Statistics / My account. A Login item exists in the private Hermes vault (existence only). Account axis moves `inaccessible-current` → `active-current-dashboard`. Product remains `not-product-enabled`. Terms remain `historical-welcome-only`. No login names, affiliate IDs, or secrets are recorded. Portal access is not an API and not permission to automate.
+
+**Muse Connector / Stripe agentic commerce.** Owner wants this later, once PitLane is fully set up. Day-70 still forbids a B2B API/widget until the freshness/provenance operating system works, and forbids becoming ticket merchant of record by accident. The adapter contract records the stolen operating system (search ≠ book ≠ pay; Link SPT only after a human-usable SKU) and the stop rule: no Muse submission, no public agent API, and no Stripe agentic integration until Gate D evidence exists, a chargeable consumer action works for humans, partner terms allow that distribution, and an explicit post-Gate-F owner exception names the SKU.
+
+**Still blocking Gate C.** P1 current-agreement owner review, comparison-feed permission, and the dead Partnerize feeds. Gootickets access does not substitute.
