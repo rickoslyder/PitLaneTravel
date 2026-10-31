@@ -2,36 +2,18 @@
 
 import { db } from "@/db/db"
 import { raceWeatherTable } from "@/db/schema"
+import {
+  replaceRaceWeather,
+  type RaceWeatherDay
+} from "@/lib/cron/race-weather-write"
 import { ActionState } from "@/types"
 import { and, asc, desc, eq, gte, lte } from "drizzle-orm"
 import { addDays, differenceInDays, isBefore } from "date-fns"
 
 const VISUAL_CROSSING_API_KEY = process.env.VISUAL_CROSSING_API_KEY
 
-interface WeatherDay {
-  datetime: string
-  tempmax: number
-  tempmin: number
-  temp: number
-  feelslike: number
-  dew: number
-  humidity: number
-  precip: number
-  precipprob: number
-  windspeed: number
-  winddir: number
-  pressure: number
-  cloudcover: number
-  visibility: number
-  uvindex: number
-  sunrise: string
-  sunset: string
-  conditions: string
-  icon: string
-}
-
 interface WeatherResponse {
-  days: WeatherDay[]
+  days: RaceWeatherDay[]
 }
 
 export async function getWeatherForRaceAction(
@@ -45,7 +27,7 @@ export async function getWeatherForRaceAction(
   try {
     const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${long}/${startDate.toISOString().split("T")[0]}/${endDate.toISOString().split("T")[0]}?key=${VISUAL_CROSSING_API_KEY}&contentType=json&unitGroup=${unitGroup}`
 
-    console.log("Fetching weather from:", url)
+    console.log("Fetching weather", { raceId, unitGroup })
     const response = await fetch(url)
     if (!response.ok) {
       throw new Error(`Weather API error: ${response.statusText}`)
@@ -65,49 +47,11 @@ export async function getWeatherForRaceAction(
 
 export async function storeRaceWeatherAction(
   raceId: string,
-  weatherData: WeatherDay[],
+  weatherData: RaceWeatherDay[],
   unitGroup: "us" | "metric" = "metric"
 ): Promise<ActionState<void>> {
   try {
-    // Delete existing weather data for this race and these dates
-    const dates = weatherData.map(day => new Date(day.datetime))
-    await db
-      .delete(raceWeatherTable)
-      .where(
-        and(
-          eq(raceWeatherTable.raceId, raceId),
-          eq(raceWeatherTable.unitGroup, unitGroup),
-          gte(raceWeatherTable.date, dates[0]),
-          lte(raceWeatherTable.date, dates[dates.length - 1])
-        )
-      )
-
-    // Insert new weather data
-    await db.insert(raceWeatherTable).values(
-      weatherData.map(day => ({
-        raceId,
-        date: new Date(day.datetime),
-        tempMax: day.tempmax.toString(),
-        tempMin: day.tempmin.toString(),
-        temp: day.temp.toString(),
-        feelsLike: day.feelslike.toString(),
-        dew: day.dew?.toString(),
-        humidity: day.humidity.toString(),
-        precip: day.precip.toString(),
-        precipProb: day.precipprob.toString(),
-        windSpeed: day.windspeed.toString(),
-        windDir: day.winddir?.toString(),
-        pressure: day.pressure?.toString(),
-        cloudCover: day.cloudcover?.toString(),
-        visibility: day.visibility?.toString(),
-        uvIndex: day.uvindex?.toString(),
-        sunrise: day.sunrise,
-        sunset: day.sunset,
-        conditions: day.conditions,
-        icon: day.icon,
-        unitGroup
-      }))
-    )
+    await replaceRaceWeather(db, raceId, weatherData, unitGroup)
 
     return {
       isSuccess: true,
@@ -125,7 +69,7 @@ export async function getRaceWeatherAction(
   startDate: Date,
   endDate: Date,
   unitGroup: "us" | "metric" = "metric"
-): Promise<ActionState<typeof raceWeatherTable.$inferSelect[]>> {
+): Promise<ActionState<(typeof raceWeatherTable.$inferSelect)[]>> {
   try {
     console.log("Getting weather for:", {
       raceId,
@@ -200,6 +144,9 @@ export async function shouldUpdateWeatherAction(
     return { isSuccess: true, message: "No update needed", data: false }
   } catch (error) {
     console.error("Error checking weather update:", error)
-    return { isSuccess: false, message: "Failed to check weather update status" }
+    return {
+      isSuccess: false,
+      message: "Failed to check weather update status"
+    }
   }
-} 
+}

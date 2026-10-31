@@ -1,6 +1,4 @@
 import { db } from "@/db/db"
-import { racesTable, circuitsTable } from "@/db/schema"
-import { eq, gt, sql } from "drizzle-orm"
 import { NextResponse } from "next/server"
 import {
   getWeatherForRaceAction,
@@ -8,6 +6,8 @@ import {
   storeRaceWeatherAction
 } from "@/actions/db/race-weather-actions"
 import { verifyCronRequest } from "@/lib/cron"
+import { forecastBounds } from "@/lib/cron/forecast-window"
+import { selectUpcomingRaces } from "@/lib/cron/upcoming-races"
 
 interface RaceWithCircuit {
   id: string
@@ -21,38 +21,18 @@ interface RaceWithCircuit {
   } | null
 }
 
+export const maxDuration = 60
+
 export async function GET(req: Request) {
   const denied = verifyCronRequest(req)
   if (denied) return denied
 
   try {
     // Get all upcoming races
-    const races = await db
-      .select({
-        id: racesTable.id,
-        name: racesTable.name,
-        date: racesTable.date,
-        weekendStart: racesTable.weekendStart,
-        weekendEnd: racesTable.weekendEnd,
-        circuit: {
-          latitude: sql<number>`CAST(${circuitsTable.latitude} AS float)`,
-          longitude: sql<number>`CAST(${circuitsTable.longitude} AS float)`
-        }
-      })
-      .from(racesTable)
-      .innerJoin(circuitsTable, eq(racesTable.circuitId, circuitsTable.id))
-      .where(gt(racesTable.date, new Date()))
+    const races = await selectUpcomingRaces(db, new Date())
 
     const updates = await Promise.all(
       races.map(async (race: RaceWithCircuit) => {
-        if (!race.weekendStart || !race.weekendEnd) {
-          return {
-            raceId: race.id,
-            status: "skipped",
-            reason: "Missing weekend dates"
-          }
-        }
-
         if (!race.circuit?.latitude || !race.circuit?.longitude) {
           return {
             raceId: race.id,
@@ -73,11 +53,7 @@ export async function GET(req: Request) {
           }
         }
 
-        // Add a day before and after the weekend
-        const startDate = new Date(race.weekendStart)
-        startDate.setDate(startDate.getDate() - 1)
-        const endDate = new Date(race.weekendEnd)
-        endDate.setDate(endDate.getDate() + 1)
+        const { startDate, endDate } = forecastBounds(race)
 
         const updates = []
 

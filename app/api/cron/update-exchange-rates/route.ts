@@ -3,36 +3,10 @@ import { currencyRatesTable } from "@/db/schema/currency-rates-schema"
 import { NextResponse } from "next/server"
 import { SUPPORTED_CURRENCIES } from "@/config/currencies"
 import { verifyCronRequest } from "@/lib/cron"
-
-const PRIMARY_API_URL =
-  "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1"
-const FALLBACK_API_URL = "https://latest.currency-api.pages.dev/v1"
-
-async function fetchWithFallback(currency: string) {
-  try {
-    // Try primary URL first
-    const response = await fetch(
-      `${PRIMARY_API_URL}/currencies/${currency.toLowerCase()}.json`
-    )
-    if (response.ok) {
-      return await response.json()
-    }
-    console.log(`Primary API failed for ${currency}, trying fallback...`)
-
-    // Try fallback URL if primary fails
-    const fallbackResponse = await fetch(
-      `${FALLBACK_API_URL}/currencies/${currency.toLowerCase()}.json`
-    )
-    if (!fallbackResponse.ok) {
-      throw new Error(`Both primary and fallback APIs failed for ${currency}`)
-    }
-    return await fallbackResponse.json()
-  } catch (error) {
-    throw new Error(
-      `Failed to fetch rates for ${currency}: ${error instanceof Error ? error.message : "Unknown error"}`
-    )
-  }
-}
+import {
+  fetchCurrencyDocument,
+  upsertCurrencyRate
+} from "@/lib/cron/currency-rates"
 
 export async function GET(req: Request) {
   const denied = verifyCronRequest(req)
@@ -54,24 +28,14 @@ export async function GET(req: Request) {
 
     for (const currency of SUPPORTED_CURRENCIES) {
       console.log(`Fetching rates for ${currency.code}...`)
-      const response = await fetch(
-        `${PRIMARY_API_URL}/currencies/${currency.code.toLowerCase()}.json`
-      )
+      const data = await fetchCurrencyDocument(currency.code)
+      const rates = data[currency.code.toLowerCase()]
 
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch rates for ${currency.code}: ${response.statusText}`
-        )
-      }
-
-      const data = await response.json()
-      console.log(`Got data for ${currency.code}:`, data)
-
-      if (!data[currency.code.toLowerCase()]) {
+      if (!rates || typeof rates !== "object") {
         throw new Error(`Invalid response format for ${currency.code}`)
       }
 
-      ratesByBase[currency.code] = data[currency.code.toLowerCase()]
+      ratesByBase[currency.code] = rates as Record<string, number>
       console.log(`Got rates for ${currency.code}`)
     }
 
@@ -86,27 +50,12 @@ export async function GET(req: Request) {
           continue
         }
 
-        const now = new Date()
-        await tx
-          .insert(currencyRatesTable)
-          .values({
-            id: `${fromCurrency}-${toCurrency}`,
-            fromCurrency,
-            toCurrency,
-            rate: exchangeRate.toString(),
-            lastUpdated: now,
-            lastFetchSuccess: now,
-            lastFetchError: null
-          })
-          .onConflictDoUpdate({
-            target: currencyRatesTable.id,
-            set: {
-              rate: exchangeRate.toString(),
-              lastUpdated: now,
-              lastFetchSuccess: now,
-              lastFetchError: null
-            }
-          })
+        await upsertCurrencyRate(tx, {
+          fromCurrency,
+          toCurrency,
+          rate: exchangeRate.toString(),
+          at: new Date()
+        })
       }
     })
 
