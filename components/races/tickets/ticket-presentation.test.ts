@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest"
 import {
-  NO_TICKET_LINKS_HEADING,
+  F1_OFFICIAL_TICKET_STORE,
   RACE_TICKETS_CTA,
   TICKET_BUY_LABEL,
+  officialTicketCopyIsBareUnavailable,
+  officialTicketFallback,
   raceDateIsBeforeToday,
   resellerHost,
   ticketAvailabilityLabel,
-  ticketEmptyState,
   ticketSectionIntro,
   ticketShowsBuyButton,
   ticketShowsWaitlist
@@ -35,13 +36,48 @@ describe("ticket availability states", () => {
   })
 })
 
-describe("ticket empty state", () => {
-  it("does not treat a missing link list as not on sale", () => {
-    const copy = ticketEmptyState("Abu Dhabi Grand Prix 2026")
-    expect(copy.heading).toBe(NO_TICKET_LINKS_HEADING)
-    expect(copy.heading).not.toBe("Not on sale yet")
-    expect(copy.body).toMatch(/Abu Dhabi Grand Prix 2026/)
-    expect(copy.body).not.toMatch(/not on sale/i)
+describe("ticket tab when nothing is listed", () => {
+  it("sends an F1 race with no seller URL to the official F1 ticket store", () => {
+    const fallback = officialTicketFallback({
+      seriesSlug: "f1",
+      seriesName: "Formula 1",
+      storedSellerUrl: "https://www.yasmarinacircuit.com"
+    })
+    expect(fallback.href).toBe(F1_OFFICIAL_TICKET_STORE)
+    expect(fallback.linkLabel).toBe("Official F1 ticket store")
+    expect(fallback.disclosure).toMatch(/does not sell tickets/)
+    expect(officialTicketCopyIsBareUnavailable(fallback.disclosure)).toBe(false)
+    expect(fallback.disclosure).not.toMatch(/no tickets are currently available/i)
+  })
+
+  it("uses a stored ticket-seller URL for that F1 race", () => {
+    const fallback = officialTicketFallback({
+      seriesSlug: "f1",
+      storedSellerUrl: "https://tickets.formula1.com/en/f1-abu-dhabi"
+    })
+    expect(fallback.href).toBe("https://tickets.formula1.com/en/f1-abu-dhabi")
+    expect(fallback.linkLabel).toBe("Official F1 ticket store")
+  })
+
+  it("links a non-F1 series site only when the data has one", () => {
+    const listed = officialTicketFallback({
+      seriesSlug: "wec",
+      seriesName: "World Endurance Championship",
+      storedSellerUrl: "https://www.24h-lemans.com/en/tickets"
+    })
+    expect(listed.href).toBe("https://www.24h-lemans.com/en/tickets")
+    expect(listed.linkLabel).toMatch(/World Endurance Championship/)
+
+    const missing = officialTicketFallback({
+      seriesSlug: "formula-e",
+      seriesName: "Formula E"
+    })
+    expect(missing.href).toBeNull()
+    expect(missing.linkLabel).toBeNull()
+    expect(missing.disclosure).toMatch(/Formula E/)
+    expect(missing.disclosure).toMatch(/does not sell tickets/)
+    expect(missing.disclosure).not.toMatch(/no tickets are currently available/i)
+    expect(missing.disclosure).not.toContain(F1_OFFICIAL_TICKET_STORE)
   })
 
   it("reserves Not on sale yet for the explicit availability value", () => {

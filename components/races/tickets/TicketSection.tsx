@@ -16,10 +16,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TicketCard } from "./TicketCard"
 import { PackageCard } from "./PackageCard"
 import { TicketCardSkeleton } from "./TicketCardSkeleton"
-import { TicketsEmptyState } from "./TicketsEmptyState"
 import { hasTicketListings } from "./ticket-availability"
 import { useTickets } from "./use-tickets"
 import {
+  officialTicketFallback,
   ticketSectionIntro,
   ticketShowsBuyButton
 } from "./ticket-presentation"
@@ -70,7 +70,30 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
   }
 
   if (!hasTicketListings(data)) {
-    return <TicketsEmptyState raceName={race.name} />
+    const fallback = officialTicketFallback({
+      seriesSlug: race.series?.slug,
+      seriesName: race.series?.name ?? race.series?.short_name,
+      storedSellerUrl: race.circuit?.website_url
+    })
+    return (
+      <div className="space-y-4">
+        <div className="prose prose-gray dark:prose-invert max-w-none">
+          <h2>Tickets</h2>
+          {fallback.href && fallback.linkLabel ? (
+            <p>
+              <a
+                href={fallback.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {fallback.linkLabel}
+              </a>
+            </p>
+          ) : null}
+          <p>{fallback.disclosure}</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -102,6 +125,11 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
         <TabsContent value="individual">
           <div className="grid gap-6 lg:grid-cols-3">
             <Suspense fallback={<TicketCardSkeleton />}>
+              {filteredTickets?.length ? null : (
+                <p className="text-muted-foreground text-sm">
+                  No listings match this search.
+                </p>
+              )}
               {filteredTickets?.map((ticket: Ticket, index: number) => (
                 <TicketCard
                   key={ticket.id}
