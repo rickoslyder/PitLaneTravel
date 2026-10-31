@@ -145,6 +145,29 @@ describe("guide content loader", () => {
     }
   })
 
+  it("refuses to publish a guide that contains HOLD or TODO", () => {
+    const source = `---
+title: "Hello"
+description: "A short dek."
+slug: hello-guide
+publishedAt: 2026-10-31
+updatedAt: 2026-10-31
+author: PitLane Travel
+---
+
+# Hello
+
+TODO: finish this.
+`
+    expect(() => parseGuideSource(source, "hello-guide.mdx")).toThrow(/TODO/)
+    expect(() =>
+      parseGuideSource(
+        source.replace("TODO: finish this.", "HOLD this."),
+        "hello-guide.mdx"
+      )
+    ).toThrow(/HOLD/)
+  })
+
   it("rejects frontmatter that does not match the filename", () => {
     const source = `---
 title: "Hello"

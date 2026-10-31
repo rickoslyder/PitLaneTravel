@@ -19,7 +19,7 @@ describe("Abu Dhabi guide", () => {
     const guide = getGuide("abu-dhabi-grand-prix-travel-guide")
     expect(guide).not.toBeNull()
     expect(guide!.title).toBe(
-      "Abu Dhabi Grand Prix Travel Guide: Dates, Hotels, Getting There"
+      "Abu Dhabi Grand Prix 2026: Dates, Hotels & Getting There"
     )
     expect(guide!.headline).toBe(
       "Abu Dhabi Grand Prix travel guide: dates, where to stay and getting to Yas Marina"
@@ -38,12 +38,22 @@ describe("Abu Dhabi guide", () => {
     expect(guide!.body).toContain(
       "https://www.formula1.com/en/racing/2026/united-arab-emirates"
     )
+    expect(guide!.body).toContain("## Doing Qatar too")
     expect(guide!.body).toContain(
-      "2. Scout, verified 2026 F1 calendar (internal, 31 Oct 2026)"
+      "We haven't found a 2026 rate on an official page, so check before you drive."
     )
+    expect(guide!.body).toContain(
+      "Fan tips are based on fan reports in r/GrandPrixTravel"
+    )
+    expect(guide!.body).toContain("## Sources")
+    expect(guide!.body).not.toContain("## Date verification")
+    expect(guide!.body).not.toMatch(/\bHOLD\b/)
+    expect(guide!.body).not.toMatch(/\bTODO\b/)
+    expect(guide!.body).not.toContain("P1 Travel")
+    expect(guide!.body).not.toContain("<!--")
     expect(guide!.relatedRaces).toEqual([
-      "abu-dhabi-grand-prix-2026-f1-2026",
       "qatar-grand-prix-2026-f1-2026",
+      "abu-dhabi-grand-prix-2026-f1-2026",
       "las-vegas-grand-prix-2026-f1-2026"
     ])
     expect(guide!.relatedRaces.some(slug => slug.includes("2025"))).toBe(false)
