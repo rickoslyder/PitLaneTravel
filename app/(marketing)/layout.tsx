@@ -62,6 +62,14 @@ export default async function MarketingLayout({
                 </li>
                 <li>
                   <Link
+                    href="/guides"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Guides
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/packages"
                     className="text-muted-foreground hover:text-foreground"
                   >

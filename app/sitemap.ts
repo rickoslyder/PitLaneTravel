@@ -8,6 +8,7 @@ import {
   seriesTable
 } from "@/db/schema"
 import { eq, isNotNull, and, ne } from "drizzle-orm"
+import { listGuides } from "@/lib/guides"
 import { slugify } from "@/lib/series"
 
 const BASE_URL = "https://www.pitlanetravel.com"
@@ -26,8 +27,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: BASE_URL, changeFrequency: "daily", priority: 1 },
     { url: `${BASE_URL}/races`, changeFrequency: "daily", priority: 1 },
     { url: `${BASE_URL}/races/map`, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${BASE_URL}/races/compare`, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE_URL}/circuits/grandstands`, changeFrequency: "weekly", priority: 0.9 },
+    {
+      url: `${BASE_URL}/races/compare`,
+      changeFrequency: "weekly",
+      priority: 0.8
+    },
+    {
+      url: `${BASE_URL}/circuits/grandstands`,
+      changeFrequency: "weekly",
+      priority: 0.9
+    },
     { url: `${BASE_URL}/flights`, changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE_URL}/hotels`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE_URL}/transport`, changeFrequency: "weekly", priority: 0.7 },
@@ -40,35 +49,48 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/terms`, changeFrequency: "yearly", priority: 0.3 }
   ]
 
+  const guideRoutes: MetadataRoute.Sitemap = [
+    { url: `${BASE_URL}/guides`, changeFrequency: "weekly", priority: 0.7 },
+    ...listGuides().map(guide => ({
+      url: `${BASE_URL}/guides/${guide.slug}`,
+      lastModified: guide.updatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.6
+    }))
+  ]
+
   try {
-    const [series, races, racesWithHistory, guidedCircuits] = await Promise.all([
-      db
-        .select({ slug: seriesTable.slug })
-        .from(seriesTable)
-        .where(eq(seriesTable.isActive, true)),
-      db
-        .select({ slug: racesTable.slug, updatedAt: racesTable.updatedAt })
-        .from(racesTable)
-        .where(
-          and(isNotNull(racesTable.slug), ne(racesTable.status, "cancelled"))
-        ),
-      // Only races with a history record: /races/<slug>/history 404s without one.
-      db
-        .selectDistinct({ slug: racesTable.slug })
-        .from(raceHistoryTable)
-        .innerJoin(racesTable, eq(raceHistoryTable.raceId, racesTable.id)),
-      // Only circuits that actually have a guide get a page worth indexing.
-      db
-        .selectDistinct({ name: circuitsTable.name })
-        .from(circuitsTable)
-        .innerJoin(
-          grandstandsTable,
-          eq(grandstandsTable.circuitId, circuitsTable.id)
-        )
-    ])
+    const [series, races, racesWithHistory, guidedCircuits] = await Promise.all(
+      [
+        db
+          .select({ slug: seriesTable.slug })
+          .from(seriesTable)
+          .where(eq(seriesTable.isActive, true)),
+        db
+          .select({ slug: racesTable.slug, updatedAt: racesTable.updatedAt })
+          .from(racesTable)
+          .where(
+            and(isNotNull(racesTable.slug), ne(racesTable.status, "cancelled"))
+          ),
+        // Only races with a history record: /races/<slug>/history 404s without one.
+        db
+          .selectDistinct({ slug: racesTable.slug })
+          .from(raceHistoryTable)
+          .innerJoin(racesTable, eq(raceHistoryTable.raceId, racesTable.id)),
+        // Only circuits that actually have a guide get a page worth indexing.
+        db
+          .selectDistinct({ name: circuitsTable.name })
+          .from(circuitsTable)
+          .innerJoin(
+            grandstandsTable,
+            eq(grandstandsTable.circuitId, circuitsTable.id)
+          )
+      ]
+    )
 
     return [
       ...staticRoutes,
+      ...guideRoutes,
       ...series.map(s => ({
         url: `${BASE_URL}/series/${s.slug}`,
         changeFrequency: "weekly" as const,
@@ -98,6 +120,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch (error) {
     // A DB outage must not fail the build; serve the static routes at minimum.
     console.error("[sitemap] failed to load dynamic routes:", error)
-    return staticRoutes
+    return [...staticRoutes, ...guideRoutes]
   }
 }

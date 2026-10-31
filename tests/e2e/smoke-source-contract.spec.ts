@@ -6,7 +6,10 @@ const root = process.cwd()
 
 describe("PLT-009 smoke locator and anonymous-boundary source contract", () => {
   it("uses exact accessible headings that exist in the tested routes", () => {
-    const smoke = readFileSync(path.join(root, "tests/e2e/smoke.spec.ts"), "utf8")
+    const smoke = readFileSync(
+      path.join(root, "tests/e2e/smoke.spec.ts"),
+      "utf8"
+    )
     const racesPage = readFileSync(
       path.join(root, "components/races/RacesPage.tsx"),
       "utf8"
@@ -53,7 +56,10 @@ describe("PLT-009 smoke locator and anonymous-boundary source contract", () => {
   })
 
   it("asserts the anonymous /trips 307 without loading Clerk UI or mocking routes", () => {
-    const smoke = readFileSync(path.join(root, "tests/e2e/smoke.spec.ts"), "utf8")
+    const smoke = readFileSync(
+      path.join(root, "tests/e2e/smoke.spec.ts"),
+      "utf8"
+    )
     expect(smoke).toMatch(/maxRedirects\s*:\s*0/)
     expect(smoke).toMatch(/toBe\(307\)/)
     expect(smoke).toMatch(/redirect_url/)
@@ -71,7 +77,10 @@ describe("PLT-009 smoke locator and anonymous-boundary source contract", () => {
       path.join(root, "playwright.config.ts"),
       "utf8"
     )
-    const smoke = readFileSync(path.join(root, "tests/e2e/smoke.spec.ts"), "utf8")
+    const smoke = readFileSync(
+      path.join(root, "tests/e2e/smoke.spec.ts"),
+      "utf8"
+    )
 
     expect(middleware).toMatch(/export default clerkMiddleware\s*\(/)
     expect(middleware).toMatch(/await auth\(\)/)
@@ -81,7 +90,11 @@ describe("PLT-009 smoke locator and anonymous-boundary source contract", () => {
       /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*\]/
     )
     expect(playwright).toMatch(/retries:\s*0/)
-    expect(smoke.match(/test\(/g)?.length).toBe(6)
+    expect(smoke.match(/test\(/g)?.length).toBe(8)
+    expect(smoke).toMatch(/page\.goto\(\s*["']\/guides["']\s*\)/)
+    expect(smoke).toMatch(
+      /page\.goto\(\s*["']\/guides\/which-race-first-2027["']\s*\)/
+    )
     expect(smoke).not.toMatch(/\.(only|skip|fixme|force)\(/)
   })
 
