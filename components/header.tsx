@@ -14,7 +14,7 @@ import {
   SignUpButton,
   UserButton
 } from "@clerk/nextjs"
-import { Flag, Menu, X } from "lucide-react"
+import { Calendar, Flag, Heart, Menu, Wallet, X } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ThemeSwitcher } from "./utilities/theme-switcher"
@@ -27,12 +27,6 @@ const navLinks = [
   // { href: "/meetups", label: "Meetups" },
   // { href: "/experiences", label: "Experiences" },
   { href: "/about", label: "About Us" }
-]
-
-const signedInLinks = [
-  { href: "/trips", label: "My Trips" }
-  // { href: "/bookings", label: "My Bookings" },
-  // { href: "/wishlist", label: "Wishlist" }
 ]
 
 export default function Header({
@@ -99,17 +93,6 @@ export default function Header({
             </Link>
           ))}
 
-          <SignedIn>
-            {signedInLinks.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="whitespace-nowrap rounded-full px-2 py-1 text-sm hover:opacity-80 lg:px-3 lg:text-base"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </SignedIn>
         </nav>
 
         <div className="flex items-center gap-2 lg:gap-4">
@@ -139,7 +122,25 @@ export default function Header({
           </SignedOut>
 
           <SignedIn>
-            <UserButton />
+            <UserButton>
+              <UserButton.MenuItems>
+                <UserButton.Link
+                  label="My Trips"
+                  href="/trips"
+                  labelIcon={<Calendar className="size-4" />}
+                />
+                <UserButton.Link
+                  label="Trip Budget"
+                  href="/budget"
+                  labelIcon={<Wallet className="size-4" />}
+                />
+                <UserButton.Link
+                  label="Saved"
+                  href="/saved"
+                  labelIcon={<Heart className="size-4" />}
+                />
+              </UserButton.MenuItems>
+            </UserButton>
           </SignedIn>
 
           <div className="lg:hidden">
@@ -161,7 +162,7 @@ export default function Header({
       </div>
 
       {isMenuOpen && (
-        <nav className="bg-background/95 fixed inset-0 top-[57px] backdrop-blur-sm md:hidden">
+        <nav className="bg-background/95 fixed inset-0 top-[57px] backdrop-blur-sm lg:hidden">
           <ul className="mx-auto max-w-screen-2xl space-y-4 p-6">
             <li>
               <Link
@@ -183,19 +184,6 @@ export default function Header({
                 </Link>
               </li>
             ))}
-            <SignedIn>
-              {signedInLinks.map(link => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="hover:text-primary/80 block text-lg font-medium"
-                    onClick={toggleMenu}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </SignedIn>
             <SignedOut>
               <li className="pt-4 sm:hidden">
                 <SignInButton>

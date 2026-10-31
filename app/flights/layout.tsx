@@ -16,10 +16,10 @@ export default async function FlightsLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
-        <div className="flex min-h-screen flex-col">
+      <SidebarInset className="min-w-0 overflow-x-clip">
+        <div className="flex min-h-screen min-w-0 flex-col">
           <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b backdrop-blur">
-            <div className="flex h-14 items-center gap-4 px-4">
+            <div className="flex h-14 min-w-0 items-center gap-4 px-4">
               <SidebarTrigger className="-ml-2" />
               <Separator orientation="vertical" className="h-6" />
               <div className="font-medium">Flights</div>
