@@ -15,6 +15,7 @@ import {
 } from "./guides"
 
 const publishedSlugs = [
+  "abu-dhabi-grand-prix-travel-guide",
   "two-races-one-trip-2027",
   "which-race-first-2027"
 ] as const
@@ -65,7 +66,7 @@ function assertBreadcrumbShape(
 }
 
 describe("guide content loader", () => {
-  it("loads the two published guides from content/guides", () => {
+  it("loads the published guides from content/guides", () => {
     const guides = listGuides()
 
     expect(guides.map(guide => guide.slug)).toEqual([...publishedSlugs])
