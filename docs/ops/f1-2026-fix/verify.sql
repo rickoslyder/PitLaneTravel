@@ -56,4 +56,14 @@ SELECT id, name, slug, circuit_id FROM public.races WHERE slug = 'bahrain-grand-
 SELECT id, name, location, country, timezone_id, timezone_name FROM public.circuits WHERE id = '4ee323dd-9649-4bf1-b531-d7ca6445c2bc';
 SELECT id, name, status, round, planned_round, cancellation_reason FROM public.races WHERE id = 'c66d3016-011d-439c-8155-f2953ac7d6f9';
 
+-- 7. Formula E Season 12: the 3 rows apply.sql section G touches (expect status = expected_status, i.e. completed).
+SELECT id, round, name, date, status,
+       (CASE WHEN now() < coalesce(weekend_start, date) THEN 'upcoming' WHEN now() < coalesce(weekend_end, date + interval '24 hours') THEN 'in_progress' ELSE 'completed' END) AS expected_status
+  FROM public.races WHERE id IN ('f13e9208-37a5-4013-bd0f-b00913198376', '2683f6b2-4244-48cc-ae8d-7b4a8cd0aa7c', 'b7538e11-8916-4870-b103-cd81a7490c3d') ORDER BY round;
+
+-- 8. Any FE season-2026 row whose stored status disagrees with deriveRaceStatus (expect 0 rows after apply).
+SELECT id, round, name, date, status FROM public.races
+ WHERE series_id = '46c1e7f7-e53b-4658-bf39-82c6f278fd7a' AND season = 2026 AND status <> 'cancelled'
+   AND status::text <> (CASE WHEN now() < coalesce(weekend_start, date) THEN 'upcoming' WHEN now() < coalesce(weekend_end, date + interval '24 hours') THEN 'in_progress' ELSE 'completed' END);
+
 -- After apply, HTTP checks: / , /races , /races/bahrain-grand-prix-in-malaysia-2026-f1-2026 , /races/las-vegas-grand-prix-2026-f1-2026 all 200.

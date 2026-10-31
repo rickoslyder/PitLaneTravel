@@ -6,22 +6,26 @@
 -- Prod snapshot used to build this file: 2026-10-31 20:37 UTC (1:37 PM PT). See diff.md.
 --
 -- What it does (single transaction, idempotent, keyed on races.id UUIDs):
---  A. 22 existing F1 2026 race rows: set round (rounds 16-22 shift to 17-23), set date to the
---     official race start in UTC, set is_sprint_weekend. Slugs and names are NOT touched,
---     so no URL changes.
---  B. INSERT one new row: Round 16, Bahrain Grand Prix at Sepang (fixed id 5e9a6c2e-1b0f-4d7a-9c3e-16a2026f1016).
---  C. Recompute status for every non-cancelled F1 2026 row from now(), using the same rule as
---     lib/race-status.ts deriveRaceStatus() with weekend_start/weekend_end NULL:
---       now() <  date                -> 'upcoming'
---       now() <  date + 24h          -> 'in_progress'
---       otherwise                    -> 'completed'
---     !!! RUN-DAY CHECK: Mexico City GP (Rd 19) starts 2026-11-01 20:00 UTC (2:00 PM CST, 1:00 PM PT).
---     !!! Run verify.sql step 3 after applying and confirm Mexico City reads 'completed' if you run
---     !!! after 2026-11-02 20:00 UTC, 'in_progress' inside the 24h window, 'upcoming' before the start.
---     !!! Re-check every row whose race falls within 24h of the run time the same way.
---  D. Sepang circuit (shared with MotoGP): fill timezone_id/timezone_name only if still NULL.
---  E. Cancelled Bahrain (April) row: append the relocation note to cancellation_reason.
---     (Choice: drop section E if you want the original reason text kept verbatim.)
+--   A. 22 existing F1 2026 race rows: set round (rounds 16-22 shift to 17-23), set date to the
+--      official race start in UTC, set is_sprint_weekend. Slugs and names are NOT touched,
+--      so no URL changes.
+--   B. INSERT one new row: Round 16, Bahrain Grand Prix at Sepang (fixed id 5e9a6c2e-1b0f-4d7a-9c3e-16a2026f1016).
+--   C. Recompute status for every non-cancelled F1 2026 row from now(), using the same rule as
+--      lib/race-status.ts deriveRaceStatus() with weekend_start/weekend_end NULL:
+--        now() <  date                -> 'upcoming'
+--        now() <  date + 24h          -> 'in_progress'
+--        otherwise                    -> 'completed'
+--      !!! RUN-DAY CHECK: Mexico City GP (Rd 19) starts 2026-11-01 20:00 UTC (2:00 PM CST, 1:00 PM PT).
+--      !!! Run verify.sql step 3 after applying and confirm Mexico City reads 'completed' if you run
+--      !!! after 2026-11-02 20:00 UTC, 'in_progress' inside the 24h window, 'upcoming' before the start.
+--      !!! Re-check every row whose race falls within 24h of the run time the same way.
+--   D. Sepang circuit (shared with MotoGP): fill timezone_id/timezone_name only if still NULL.
+--   E. Cancelled Bahrain (April) row: append the relocation note to cancellation_reason.
+--      (Choice: drop section E if you want the original reason text kept verbatim.)
+--   G. Formula E Season 12 (races.season 2026): 3 stale rows, Tokyo R2 (26 Jul), London R1 (15 Aug) and
+--      London R2 (16 Aug), stored 'upcoming' though past. Status recomputed from now() with the full
+--      deriveRaceStatus rule (coalesce(weekend_start, date) / coalesce(weekend_end, date + 24h); both are NULL
+--      on these rows). Keyed on the 3 ids; own pre- and post-checks. Snapshot: prod-snapshot-fe-s12-2026-10-31.json.
 --
 -- Rd 16 display choice (default chosen here): name 'Bahrain Grand Prix 2026', country 'Malaysia',
 -- circuit = existing 'Petronas Sepang International Circuit' (location 'Sepang'). F1's own data says
@@ -78,8 +82,8 @@ INSERT INTO _f1_2026_target (id, round, date, is_sprint_weekend) VALUES
   ('35f4f68d-9f9a-42af-8ece-a24ae9408813'::uuid, 23, '2026-12-06 13:00:00+00'::timestamptz, false);  -- Abu Dhabi Grand Prix 2026
 
 -- A1. Move rows whose round changes out of the way first. The partial unique index
---    races_series_season_round_active_idx (series_id, season, round) WHERE status <> 'cancelled'
---    is not deferrable, so shifting 16..22 -> 17..23 in one pass can collide mid-statement.
+--     races_series_season_round_active_idx (series_id, season, round) WHERE status <> 'cancelled'
+--     is not deferrable, so shifting 16..22 -> 17..23 in one pass can collide mid-statement.
 UPDATE public.races r SET round = t.round + 100
   FROM _f1_2026_target t
  WHERE r.id = t.id AND r.round <> t.round;
@@ -136,6 +140,49 @@ BEGIN
   END IF;
   IF (SELECT count(*) FROM public.races WHERE series_id = '2f9da9e4-331e-4ab4-b4ed-161e4970b318' AND season = 2026 AND status = 'cancelled') <> 2 THEN
     RAISE EXCEPTION 'cancelled row count changed';
+  END IF;
+END $$;
+
+-- G. Formula E Season 12 stale statuses (3 rows, keyed on id).
+-- G0. Pre-check: the 3 rows exist, are FE season 2026 rounds 15-17, not cancelled, and their race date is past.
+DO $$
+DECLARE n int;
+BEGIN
+  SELECT count(*) INTO n FROM public.races
+   WHERE id IN ('f13e9208-37a5-4013-bd0f-b00913198376', '2683f6b2-4244-48cc-ae8d-7b4a8cd0aa7c', 'b7538e11-8916-4870-b103-cd81a7490c3d')
+     AND series_id = '46c1e7f7-e53b-4658-bf39-82c6f278fd7a' AND season = 2026 AND round IN (15, 16, 17)
+     AND status <> 'cancelled' AND date < now();
+  IF n <> 3 THEN RAISE EXCEPTION 'FE S12 pre-check: expected 3 matching rows (FE 2026 rounds 15-17, past, not cancelled), found %', n; END IF;
+  IF EXISTS (SELECT 1 FROM public.races WHERE id IN ('f13e9208-37a5-4013-bd0f-b00913198376', '2683f6b2-4244-48cc-ae8d-7b4a8cd0aa7c', 'b7538e11-8916-4870-b103-cd81a7490c3d') AND status NOT IN ('upcoming', 'completed')) THEN
+    RAISE EXCEPTION 'FE S12 pre-check: a row has an unexpected status (not upcoming/completed); inspect before running';
+  END IF;
+END $$;
+
+-- G1. Status from the run time (same rule as lib/race-status.ts deriveRaceStatus).
+UPDATE public.races r
+   SET status = s.new_status
+  FROM (
+    SELECT id,
+           (CASE WHEN now() < coalesce(weekend_start, date) THEN 'upcoming'
+                 WHEN now() < coalesce(weekend_end, date + interval '24 hours') THEN 'in_progress'
+                 ELSE 'completed' END)::race_status AS new_status
+      FROM public.races
+     WHERE id IN ('f13e9208-37a5-4013-bd0f-b00913198376', '2683f6b2-4244-48cc-ae8d-7b4a8cd0aa7c', 'b7538e11-8916-4870-b103-cd81a7490c3d')
+  ) s
+ WHERE r.id = s.id AND r.status IS DISTINCT FROM s.new_status;
+
+-- G2. Post-check: all 3 now 'completed', and no other FE season-2026 row disagrees with the rule.
+DO $$
+BEGIN
+  IF (SELECT count(*) FROM public.races WHERE id IN ('f13e9208-37a5-4013-bd0f-b00913198376', '2683f6b2-4244-48cc-ae8d-7b4a8cd0aa7c', 'b7538e11-8916-4870-b103-cd81a7490c3d') AND status = 'completed') <> 3 THEN
+    RAISE EXCEPTION 'FE S12 post-check: not all 3 rows are completed';
+  END IF;
+  IF EXISTS (SELECT 1 FROM public.races
+              WHERE series_id = '46c1e7f7-e53b-4658-bf39-82c6f278fd7a' AND season = 2026 AND status <> 'cancelled'
+                AND status::text <> (CASE WHEN now() < coalesce(weekend_start, date) THEN 'upcoming'
+                 WHEN now() < coalesce(weekend_end, date + interval '24 hours') THEN 'in_progress'
+                 ELSE 'completed' END)) THEN
+    RAISE EXCEPTION 'FE S12 post-check: another FE season-2026 row still disagrees with deriveRaceStatus';
   END IF;
 END $$;
 

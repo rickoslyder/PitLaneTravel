@@ -73,4 +73,21 @@ BEGIN
   IF EXISTS (SELECT 1 FROM public.races WHERE id = '5e9a6c2e-1b0f-4d7a-9c3e-16a2026f1016') THEN RAISE EXCEPTION 'Rd16 row still present'; END IF;
 END $$;
 
+-- 5. Formula E Season 12: restore the 3 statuses captured 2026-10-31 20:55 UTC (all 'upcoming').
+--    Source: prod-snapshot-fe-s12-2026-10-31.json.
+UPDATE public.races r
+   SET status = b.status
+  FROM (VALUES
+    ('f13e9208-37a5-4013-bd0f-b00913198376'::uuid, 'upcoming'::race_status),  -- Tokyo E-Prix 2026 (Race 2)
+    ('2683f6b2-4244-48cc-ae8d-7b4a8cd0aa7c'::uuid, 'upcoming'::race_status),  -- London E-Prix 2026 (Race 1)
+    ('b7538e11-8916-4870-b103-cd81a7490c3d'::uuid, 'upcoming'::race_status)   -- London E-Prix 2026 (Race 2)
+  ) AS b(id, status)
+ WHERE r.id = b.id AND r.status IS DISTINCT FROM b.status;
+
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.races WHERE id IN ('f13e9208-37a5-4013-bd0f-b00913198376', '2683f6b2-4244-48cc-ae8d-7b4a8cd0aa7c', 'b7538e11-8916-4870-b103-cd81a7490c3d') AND status = 'upcoming') <> 3 THEN
+    RAISE EXCEPTION 'undo: FE S12 statuses not restored';
+  END IF;
+END $$;
+
 COMMIT;
