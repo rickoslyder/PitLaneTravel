@@ -51,11 +51,11 @@ export default async function HelpPage() {
     ...route,
     icon:
       route.href === "/races" ? (
-        <Calendar className="size-5 text-[#E10600]" />
+        <Calendar className="size-5 text-foreground" />
       ) : route.href === "/races/compare" ? (
-        <GitCompare className="size-5 text-[#E10600]" />
+        <GitCompare className="size-5 text-foreground" />
       ) : (
-        <MapPin className="size-5 text-[#E10600]" />
+        <MapPin className="size-5 text-foreground" />
       )
   }))
   const resources: GuideProps[] = [
@@ -63,19 +63,19 @@ export default async function HelpPage() {
       title: "FAQs",
       description: copy.helpFaqsDescription,
       href: "/faq",
-      icon: <FileQuestion className="size-5 text-[#E10600]" />
+      icon: <FileQuestion className="size-5 text-foreground" />
     },
     {
       title: "Contact",
       description: copy.helpContactDescription,
       href: "/contact",
-      icon: <MessageCircle className="size-5 text-[#E10600]" />
+      icon: <MessageCircle className="size-5 text-foreground" />
     },
     {
       title: "About Us",
       description: copy.helpAboutDescription,
       href: "/about",
-      icon: <Info className="size-5 text-[#E10600]" />
+      icon: <Info className="size-5 text-foreground" />
     }
   ]
   const policies: GuideProps[] = [
@@ -83,19 +83,19 @@ export default async function HelpPage() {
       title: "Terms of Service",
       description: copy.helpTermsDescription,
       href: "/terms",
-      icon: <ScrollText className="size-5 text-[#E10600]" />
+      icon: <ScrollText className="size-5 text-foreground" />
     },
     {
       title: "Privacy Policy",
       description: "Learn how we handle and protect your information.",
       href: "/privacy",
-      icon: <Book className="size-5 text-[#E10600]" />
+      icon: <Book className="size-5 text-foreground" />
     },
     {
       title: "Cancellation Policy",
       description: copy.helpCancellationDescription,
       href: "/cancellation",
-      icon: <HelpCircle className="size-5 text-[#E10600]" />
+      icon: <HelpCircle className="size-5 text-foreground" />
     }
   ]
 
@@ -104,7 +104,7 @@ export default async function HelpPage() {
       {/* Hero Section */}
       <div className="mb-16 text-center">
         <div className="mb-6 inline-block rounded-full bg-red-100 p-3 dark:bg-red-900/30">
-          <LifeBuoy className="size-6 text-[#E10600]" />
+          <LifeBuoy className="text-foreground size-6" />
         </div>
         <h1 className="mb-4 text-4xl font-bold">Help Center</h1>
         <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
@@ -113,7 +113,7 @@ export default async function HelpPage() {
       </div>
 
       <div className="mx-auto mb-16 flex max-w-3xl flex-wrap justify-center gap-3">
-        <Button asChild className="bg-[#E10600] hover:bg-[#FF0800]">
+        <Button asChild>
           <Link href="/races">
             <Calendar className="mr-2 size-4" />
             Race calendar
@@ -171,7 +171,7 @@ export default async function HelpPage() {
           {copy.helpClosing}
         </p>
         <Link href="/contact">
-          <Button className="bg-[#E10600] hover:bg-[#FF0800]">
+          <Button>
             <MessageCircle className="mr-2 size-4" />
             Open contact form
           </Button>

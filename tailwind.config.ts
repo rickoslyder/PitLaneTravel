@@ -58,6 +58,11 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))"
         },
+        brand: {
+          DEFAULT: "var(--brand)",
+          foreground: "var(--brand-foreground)",
+          hover: "var(--brand-hover)"
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

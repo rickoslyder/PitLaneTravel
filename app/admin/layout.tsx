@@ -4,7 +4,6 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { getProfileAction } from "@/actions/db/profiles-actions"
 import { AdminSidebar } from "./_components/admin-sidebar"
-import PitLaneTravelLogo from "@/logos/PitLaneTravelLogo"
 
 export default async function AdminLayout({
   children

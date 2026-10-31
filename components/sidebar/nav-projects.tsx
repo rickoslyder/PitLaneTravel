@@ -50,22 +50,15 @@ export function NavProjects({ projects }: { projects: QuickAccessItem[] }) {
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton
               asChild
-              className={cn(
-                "relative",
-                item.isNew && "text-[#B17A50] dark:text-[#c19573]"
-              )}
+              className={cn("relative", item.isNew && "text-foreground")}
             >
               <a href={item.url}>
-                <item.icon
-                  className={cn(
-                    item.isNew && "text-[#B17A50] dark:text-[#c19573]"
-                  )}
-                />
+                <item.icon className={cn(item.isNew && "text-foreground")} />
                 <span>{item.name}</span>
                 {item.badge && (
                   <Badge
                     variant="secondary"
-                    className="ml-auto rounded-sm bg-[#2e2c29]/10 px-1 py-0 text-[10px] text-[#2e2c29] dark:bg-[#c19573]/10 dark:text-[#c19573]"
+                    className="bg-foreground/10 text-foreground ml-auto rounded-sm px-1 py-0 text-[10px]"
                   >
                     {item.badge}
                   </Badge>
@@ -73,7 +66,7 @@ export function NavProjects({ projects }: { projects: QuickAccessItem[] }) {
                 {item.isNew && (
                   <Badge
                     variant="secondary"
-                    className="ml-2 rounded-sm bg-[#B17A50]/10 px-1 py-0 text-[10px] text-[#B17A50] dark:bg-[#c19573]/10 dark:text-[#c19573]"
+                    className="bg-foreground/10 text-foreground ml-2 rounded-sm px-1 py-0 text-[10px]"
                   >
                     NEW
                   </Badge>
@@ -97,7 +90,7 @@ export function NavProjects({ projects }: { projects: QuickAccessItem[] }) {
                   <span>Open in New Tab</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-[#B17A50] dark:text-[#c19573]">
+                <DropdownMenuItem className="text-foreground">
                   <Trash2 className="text-current" />
                   <span>Remove from Quick Access</span>
                 </DropdownMenuItem>

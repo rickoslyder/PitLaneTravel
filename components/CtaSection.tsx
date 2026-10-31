@@ -7,7 +7,7 @@ import Link from "next/link"
 
 export default function CtaSection() {
   return (
-    <section className="mt-20 bg-gradient-to-b from-[#E10600] to-[#B30500] py-20 text-white">
+    <section className="bg-foreground text-background mt-20 py-20">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -17,15 +17,14 @@ export default function CtaSection() {
           <h2 className="mb-4 text-center text-4xl font-bold">
             Ready to compare race weekends?
           </h2>
-          <p className="mx-auto mb-12 max-w-2xl text-center text-lg text-white/90">
+          <p className="text-background/90 mx-auto mb-12 max-w-2xl text-center text-lg">
             Open the five-series calendar and start from a real event.
           </p>
           <div className="flex justify-center">
             <Button
               asChild
               size="lg"
-              variant="secondary"
-              className="h-12 bg-white px-8 text-lg font-semibold text-[#E10600] hover:bg-white/90"
+              className="h-12 px-8 text-lg font-semibold"
             >
               <Link href="/races">
                 <FlagIcon className="mr-2 size-5" />

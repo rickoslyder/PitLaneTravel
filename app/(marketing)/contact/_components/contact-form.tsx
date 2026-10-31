@@ -71,7 +71,7 @@ export function ContactForm() {
               placeholder="Your name"
               required
               minLength={2}
-              className="focus-visible:ring-[#E10600]"
+              className="focus-visible:ring-ring"
               disabled={isLoading}
             />
           </div>
@@ -85,7 +85,7 @@ export function ContactForm() {
               placeholder="your@email.com"
               required
               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-              className="focus-visible:ring-[#E10600]"
+              className="focus-visible:ring-ring"
               disabled={isLoading}
             />
           </div>
@@ -95,7 +95,7 @@ export function ContactForm() {
             <select
               id="contactReason"
               name="contactReason"
-              className="bg-background w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#E10600]"
+              className="bg-background focus:ring-ring w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
               required
               disabled={isLoading}
               value={selectedReason}
@@ -120,7 +120,7 @@ export function ContactForm() {
                 required
                 minLength={2}
                 maxLength={100}
-                className="focus-visible:ring-[#E10600]"
+                className="focus-visible:ring-ring"
                 disabled={isLoading}
               />
             </div>
@@ -135,7 +135,7 @@ export function ContactForm() {
               required
               minLength={10}
               rows={5}
-              className="focus-visible:ring-[#E10600]"
+              className="focus-visible:ring-ring"
               disabled={isLoading}
             />
           </div>
@@ -143,7 +143,7 @@ export function ContactForm() {
 
         <Button
           type="submit"
-          className="w-full bg-[#E10600] transition-all duration-200 hover:bg-[#FF0800]"
+          className="w-full transition-all duration-200"
           disabled={isLoading}
         >
           {isLoading ? (
@@ -158,7 +158,10 @@ export function ContactForm() {
 
         <p className="text-muted-foreground text-center text-sm">
           By submitting this form, you agree to our{" "}
-          <a href="/privacy" className="text-[#E10600] hover:underline">
+          <a
+            href="/privacy"
+            className="text-foreground underline underline-offset-4"
+          >
             Privacy Policy
           </a>
         </p>

@@ -35,14 +35,17 @@ export function GrandstandCard({
           )}
         </div>
         {rating > 0 && (
-          <div className="flex items-center gap-0.5" aria-label={`${rating} of 5`}>
+          <div
+            className="flex items-center gap-0.5"
+            aria-label={`${rating} of 5`}
+          >
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
                 className={
                   i < rating
                     ? "size-4 fill-yellow-400 text-yellow-400"
-                    : "size-4 text-muted-foreground/30"
+                    : "text-muted-foreground/30 size-4"
                 }
               />
             ))}
@@ -51,7 +54,9 @@ export function GrandstandCard({
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3 text-sm">
         {grandstand.bestFor && (
-          <p className="font-medium text-primary">Best for {grandstand.bestFor}</p>
+          <p className="text-primary font-medium">
+            Best for {grandstand.bestFor}
+          </p>
         )}
         {grandstand.description && (
           <p className="text-muted-foreground">{grandstand.description}</p>
@@ -67,7 +72,7 @@ export function GrandstandCard({
           </div>
         )}
 
-        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex flex-wrap gap-3 text-xs">
           <span className="inline-flex items-center gap-1">
             {grandstand.covered ? (
               <Umbrella className="size-3.5" />
@@ -102,7 +107,7 @@ export function GrandstandCard({
             <ul className="space-y-1">
               {grandstand.cons?.map(c => (
                 <li key={c} className="flex items-start gap-1">
-                  <X className="mt-0.5 size-3 shrink-0 text-red-500" />
+                  <X className="mt-0.5 size-3 shrink-0 text-[#991b1b]" />
                   <span>{c}</span>
                 </li>
               ))}

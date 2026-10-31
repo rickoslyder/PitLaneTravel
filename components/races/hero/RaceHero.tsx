@@ -76,13 +76,13 @@ export function RaceHero({
   const getStatusColor = (status: RaceWithDetails["status"]) => {
     switch (status) {
       case "in_progress":
-        return "bg-white text-green-600 border-green-100"
+        return "bg-white text-[#166534] border-[#166534]"
       case "upcoming":
-        return "bg-white text-blue-600 border-blue-100"
+        return "bg-white text-foreground border-border"
       case "completed":
-        return "bg-white text-gray-600 border-gray-100"
+        return "bg-white text-foreground border-border"
       case "cancelled":
-        return "bg-white text-red-600 border-red-100"
+        return "bg-white text-[#991b1b] border-[#991b1b]"
       default:
         return "bg-muted text-muted-foreground"
     }

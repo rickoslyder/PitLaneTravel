@@ -33,7 +33,7 @@ import {
   DollarSign,
   LayoutGrid
 } from "lucide-react"
-import PitLaneTravelLogo from "@/logos/PitLaneTravelLogo"
+import { BrandMark } from "@/components/brand-mark"
 
 interface NavSection {
   title: string
@@ -259,7 +259,7 @@ export function AdminSidebar() {
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r bg-white md:block">
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center border-b px-6">
-            <PitLaneTravelLogo className="h-[4vh]" />
+            <BrandMark />
           </div>
           <div className="flex h-16 items-center border-b px-6">
             <h1 className="text-xl font-bold">Admin Panel</h1>

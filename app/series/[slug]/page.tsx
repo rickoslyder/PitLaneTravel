@@ -11,6 +11,7 @@ import { RaceGrid } from "@/components/races/RaceGrid"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { coverageByRaceId } from "@/lib/public-coverage"
 import { withFormulaELondonVenueNote } from "@/config/formula-e-london"
+import { SeriesBadge } from "@/components/series/series-badge"
 
 interface SeriesPageProps {
   params: Promise<{ slug: string }>
@@ -70,20 +71,23 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-4 sm:p-8">
-      <header
-        className="rounded-2xl p-8 text-white"
-        style={{
-          background: `linear-gradient(135deg, ${series.accentColor ?? "#e10600"}, #111)`
-        }}
-      >
-        <p className="text-sm font-medium uppercase tracking-wide opacity-80">
-          {series.seasonLabel ?? series.governingBody}
-        </p>
-        <h1 className="mt-1 text-3xl font-bold sm:text-4xl">
+      <header className="border-border bg-card rounded-2xl border p-8">
+        <div className="flex flex-wrap items-center gap-3">
+          <SeriesBadge
+            label={series.shortName}
+            accentColor={series.accentColor}
+          />
+          <p className="text-muted-foreground text-sm font-medium uppercase tracking-wide">
+            {series.seasonLabel ?? series.governingBody}
+          </p>
+        </div>
+        <h1 className="text-foreground mt-3 text-3xl font-bold sm:text-4xl">
           {series.name} Travel
         </h1>
         {seriesDescription && (
-          <p className="mt-3 max-w-2xl text-white/90">{seriesDescription}</p>
+          <p className="text-muted-foreground mt-3 max-w-2xl">
+            {seriesDescription}
+          </p>
         )}
       </header>
 
@@ -92,7 +96,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
           <h2 className="text-2xl font-bold">
             Upcoming {pluralizeEventNoun(series.eventNoun)}
           </h2>
-          <Link href="/races" className="text-sm text-primary hover:underline">
+          <Link href="/races" className="text-primary text-sm hover:underline">
             View full calendar →
           </Link>
         </div>
@@ -104,7 +108,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
             coverageByRaceId={coverageMap}
           />
         ) : (
-          <div className="rounded-lg border border-dashed p-10 text-center text-muted-foreground">
+          <div className="text-muted-foreground rounded-lg border border-dashed p-10 text-center">
             The {series.name} calendar is being finalised. Check back soon or
             browse the{" "}
             <Link href="/races" className="text-primary hover:underline">

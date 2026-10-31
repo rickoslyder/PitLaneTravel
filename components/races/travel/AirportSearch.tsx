@@ -192,7 +192,7 @@ export function AirportSearch({
             )}
             <CommandEmpty>
               {error ? (
-                <div className="p-4 text-sm text-red-500">{error}</div>
+                <div className="p-4 text-sm text-[#991b1b]">{error}</div>
               ) : loading ? null : (
                 <div className="text-muted-foreground p-4 text-sm">
                   No airports found. Try searching for a different name or code.

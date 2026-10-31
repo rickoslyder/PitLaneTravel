@@ -90,7 +90,7 @@ export function WorldMap({ races, onRaceSelect, className }: WorldMapProps) {
                     <h3 class="font-semibold text-lg mb-2">${race.name}</h3>
                     <div class="space-y-2 text-sm text-muted-foreground">
                         <div class="flex items-center gap-2">
-                            <span class="text-blue-500">
+                            <span class="text-foreground">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
                                     <circle cx="12" cy="10" r="3"></circle>
@@ -99,7 +99,7 @@ export function WorldMap({ races, onRaceSelect, className }: WorldMapProps) {
                             <span>${race.circuit.name}</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-blue-500">
+                            <span class="text-foreground">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                     <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -110,7 +110,7 @@ export function WorldMap({ races, onRaceSelect, className }: WorldMapProps) {
                             <span>${format(new Date(race.date), "MMM d, yyyy")}</span>
                         </div>
                         <div class="flex flex-wrap gap-2 mt-2">
-                            ${race.is_sprint_weekend ? '<span class="inline-flex items-center rounded-full bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-500 ring-1 ring-inset ring-blue-500/20">Sprint Weekend</span>' : ""}
+                            ${race.is_sprint_weekend ? '<span class="inline-flex items-center rounded-full bg-foreground/10 px-2 py-1 text-xs font-medium text-foreground">Sprint Weekend</span>' : ""}
                             ${
                               race.supporting_series
                                 ?.filter(
@@ -122,7 +122,7 @@ export function WorldMap({ races, onRaceSelect, className }: WorldMapProps) {
                                 )
                                 .map(
                                   series =>
-                                    `<span class="inline-flex items-center rounded-full bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-500 ring-1 ring-inset ring-blue-500/20">${series.series}</span>`
+                                    `<span class="inline-flex items-center rounded-full bg-foreground/10 px-2 py-1 text-xs font-medium text-foreground">${series.series}</span>`
                                 )
                                 .join("") || ""
                             }
@@ -130,7 +130,7 @@ export function WorldMap({ races, onRaceSelect, className }: WorldMapProps) {
                     </div>
                     <button 
                         onclick="window.dispatchEvent(new CustomEvent('select-race', { detail: '${race.id}' }))"
-                        class="mt-4 inline-flex w-full items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        class="mt-4 inline-flex w-full items-center justify-center rounded-md bg-brand px-3 py-2 text-sm font-semibold text-brand-foreground shadow-sm hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                     >
                         View Race Details
                     </button>
@@ -144,7 +144,7 @@ export function WorldMap({ races, onRaceSelect, className }: WorldMapProps) {
       }).setHTML(popupContent)
 
       const marker = new mapboxgl.Marker({
-        color: "#E10600"
+        color: "#1c1916"
       })
         .setLngLat([race.circuit.longitude, race.circuit.latitude])
         .setPopup(popup)

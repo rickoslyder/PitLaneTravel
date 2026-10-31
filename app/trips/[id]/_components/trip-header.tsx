@@ -97,15 +97,15 @@ export function TripHeader({
   }
 
   const statusColors = {
-    planning: "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20",
+    planning: "bg-foreground/10 text-foreground hover:bg-foreground/20",
     booked: "bg-green-500/10 text-green-500 hover:bg-green-500/20",
-    completed: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
+    completed: "bg-foreground/10 text-foreground hover:bg-foreground/20"
   } as const
 
   const visibilityColors: Record<TripVisibility, string> = {
-    private: "bg-red-500/10 text-red-500 hover:bg-red-500/20",
+    private: "bg-[#991b1b]/10 text-[#991b1b] hover:bg-[#991b1b]/20",
     public: "bg-green-500/10 text-green-500 hover:bg-green-500/20",
-    shared: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
+    shared: "bg-foreground/10 text-foreground hover:bg-foreground/20"
   } as const
 
   return (

@@ -14,7 +14,7 @@ import {
   SignUpButton,
   UserButton
 } from "@clerk/nextjs"
-import { Menu, X } from "lucide-react"
+import { Flag, Menu, X } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ThemeSwitcher } from "./utilities/theme-switcher"
@@ -73,15 +73,10 @@ export default function Header({
             href="/"
             className="flex min-w-0 items-center gap-2 hover:opacity-80"
           >
-            <span
+            <Flag
               aria-hidden="true"
-              className="border-border grid size-7 shrink-0 grid-cols-2 overflow-hidden rounded-sm border sm:size-8"
-            >
-              <span className="bg-foreground" />
-              <span className="bg-background" />
-              <span className="bg-background" />
-              <span className="bg-foreground" />
-            </span>
+              className="text-foreground size-7 shrink-0 sm:size-8"
+            />
             <span className="flex min-w-0 flex-col leading-tight">
               <span className="truncate text-base font-semibold tracking-tight sm:text-lg">
                 {brand.name}
@@ -135,7 +130,7 @@ export default function Header({
 
             <SignUpButton>
               <Button
-                className="whitespace-nowrap bg-blue-500 text-sm hover:bg-blue-600 lg:text-base"
+                className="bg-foreground text-background hover:bg-foreground/90 hover:text-background whitespace-nowrap text-sm lg:text-base"
                 size="sm"
               >
                 Sign Up

@@ -55,8 +55,8 @@ export default function WhyChooseFeaturesSection({
                   }
                 >
                   <CardHeader>
-                    <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-[#E10600]">
-                      <feature.icon className="size-8 text-white" />
+                    <div className="bg-foreground mb-4 flex size-16 items-center justify-center rounded-full">
+                      <feature.icon className="text-background size-8" />
                     </div>
                     <CardTitle className="text-2xl">{feature.title}</CardTitle>
                   </CardHeader>

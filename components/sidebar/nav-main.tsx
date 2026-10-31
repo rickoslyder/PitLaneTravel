@@ -67,19 +67,17 @@ export function NavMain({ items }: { items: NavItem[] }) {
                     tooltip={item.title}
                     className={cn(
                       "relative",
-                      item.isPremium && "text-[#B17A50] dark:text-[#c19573]"
+                      item.isPremium && "text-foreground"
                     )}
                   >
                     {item.icon && (
                       <item.icon
-                        className={cn(
-                          item.isPremium && "text-[#B17A50] dark:text-[#c19573]"
-                        )}
+                        className={cn(item.isPremium && "text-foreground")}
                       />
                     )}
                     <span>{item.title}</span>
                     {item.isPremium && (
-                      <Sparkles className="ml-2 size-4 text-[#B17A50] dark:text-[#c19573]" />
+                      <Sparkles className="text-foreground ml-2 size-4" />
                     )}
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
@@ -92,8 +90,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                           asChild
                           className={cn(
                             "relative",
-                            subItem.isPrimary &&
-                              "font-medium text-[#2e2c29] dark:text-[#c19573]"
+                            subItem.isPrimary && "text-foreground font-medium"
                           )}
                         >
                           <NavLink href={subItem.url}>
@@ -104,7 +101,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                             {subItem.isNew && (
                               <Badge
                                 variant="secondary"
-                                className="ml-2 rounded-sm bg-[#B17A50]/10 px-1 py-0 text-[10px] text-[#B17A50] dark:bg-[#c19573]/10 dark:text-[#c19573]"
+                                className="bg-foreground/10 text-foreground ml-2 rounded-sm px-1 py-0 text-[10px]"
                               >
                                 NEW
                               </Badge>

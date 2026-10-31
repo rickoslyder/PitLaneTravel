@@ -38,9 +38,7 @@ import {
 import { NavMain } from "./nav-main"
 import { NavProjects } from "./nav-projects"
 import { NavUser } from "./nav-user"
-import { TeamSwitcher } from "./team-switcher"
-import PitLaneTravelLogo from "@/logos/PitLaneTravelLogo"
-import router from "next/router"
+import { BrandMark } from "@/components/brand-mark"
 import Link from "next/link"
 import { bookingsNavItem } from "@/config/sidebar-bookings"
 
@@ -129,8 +127,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <Link href="/races" className="block px-2 py-4">
-          <PitLaneTravelLogo className="h-[34px]" />
+        <Link href="/" className="block min-w-0 px-2 py-4">
+          <BrandMark showTagline />
         </Link>
       </SidebarHeader>
 

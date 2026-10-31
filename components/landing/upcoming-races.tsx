@@ -198,7 +198,7 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
         </div>
 
         <div className="mt-12 text-center">
-          <Button asChild className="bg-[#E10600] hover:bg-[#FF0800]">
+          <Button asChild>
             <Link href="/races">View All Races</Link>
           </Button>
         </div>

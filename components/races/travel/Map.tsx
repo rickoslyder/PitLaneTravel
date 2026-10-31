@@ -56,7 +56,7 @@ export default function Map({ center, airports }: MapProps) {
       const circuitMarker = document.createElement("div")
       circuitMarker.className = "circuit-marker"
       circuitMarker.innerHTML = `
-                <div class="w-8 h-8 bg-[#E10600] rounded-full flex items-center justify-center 
+                <div class="w-8 h-8 bg-[#1c1916] rounded-full flex items-center justify-center 
                            shadow-lg border-2 border-white transform-gpu hover:scale-110 transition-transform">
                     <span class="text-white text-xl">🏁</span>
                 </div>

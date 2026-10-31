@@ -51,7 +51,7 @@ export default function FaqSection({
                 className="border-border overflow-hidden rounded-lg border"
               >
                 <div
-                  className="bg-card hover:bg-accent flex w-full cursor-pointer items-center justify-between p-4 text-left focus:outline-none focus:ring-2 focus:ring-[#E10600]"
+                  className="bg-card hover:bg-accent focus:ring-ring flex w-full cursor-pointer items-center justify-between p-4 text-left focus:outline-none focus:ring-2"
                   onClick={() => toggleFaq(index)}
                   onKeyDown={e => handleKeyDown(e, index)}
                   role="button"
