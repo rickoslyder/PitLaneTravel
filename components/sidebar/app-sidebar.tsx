@@ -104,7 +104,7 @@ const data = {
   ],
   quickAccess: [
     {
-      name: "Saved",
+      name: "Saved Items",
       url: "/saved",
       icon: Heart,
       badge: "3"

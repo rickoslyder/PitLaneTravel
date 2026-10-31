@@ -135,7 +135,7 @@ export default function Header({
                   labelIcon={<Wallet className="size-4" />}
                 />
                 <UserButton.Link
-                  label="Saved"
+                  label="Saved Items"
                   href="/saved"
                   labelIcon={<Heart className="size-4" />}
                 />
