@@ -31,6 +31,24 @@ jobs:
     name: quality
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Disposable Postgres for the status-cron query test only. Trust auth,
+    # loopback, no secret context. Other tests do not read this URL.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: pitlane_ci
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      STATUS_CRON_TEST_DATABASE_URL: postgresql://postgres@127.0.0.1:5432/pitlane_ci
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

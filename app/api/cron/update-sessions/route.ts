@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server"
 import { db } from "@/db/db"
 import { racesTable, seriesTable, supportingSeriesTable } from "@/db/schema"
-import { and, gte, lte, isNotNull, eq, notInArray, sql } from "drizzle-orm"
+import { and, gte, lte, isNotNull, eq } from "drizzle-orm"
+import {
+  racesDueForStatusUpdate,
+  statusCronEmptyEvaluationWarning
+} from "@/lib/race-status-cron"
 import { SupportingSeriesMapper } from "@/services/openf1/supporting-series-mapper"
 import { getProvider } from "@/services/providers"
 import { verifyCronRequest } from "@/lib/cron"
@@ -39,15 +43,7 @@ async function handleUpdateSessions(req: Request) {
       })
       .from(racesTable)
       .leftJoin(seriesTable, eq(racesTable.seriesId, seriesTable.id))
-      .where(
-        and(
-          notInArray(racesTable.status, ["completed", "cancelled"]),
-          lte(
-            sql`coalesce(${racesTable.weekendStart}, ${racesTable.date})`,
-            startHorizon
-          )
-        )
-      )
+      .where(racesDueForStatusUpdate(startHorizon))
 
     // Find active supporting series
     const activeSupportingSeries = await db
@@ -60,6 +56,12 @@ async function handleUpdateSessions(req: Request) {
           isNotNull(supportingSeriesTable.openf1SessionKey)
         )
       )
+
+    const stalenessWarning = statusCronEmptyEvaluationWarning(
+      activeRaces.length,
+      startHorizon
+    )
+    if (stalenessWarning) console.error(stalenessWarning)
 
     const supportingSeriesMapper = new SupportingSeriesMapper()
 
@@ -87,7 +89,8 @@ async function handleUpdateSessions(req: Request) {
     return NextResponse.json({
       success: true,
       updatedRaces: activeRaces.length,
-      updatedSupportingSeries: activeSupportingSeries.length
+      updatedSupportingSeries: activeSupportingSeries.length,
+      ...(stalenessWarning ? { warning: stalenessWarning } : {})
     })
   } catch (error) {
     console.error("Failed to update sessions:", error)
