@@ -30,6 +30,7 @@ import { generateMaskedUrlAction } from "@/actions/db/ticket-redirect-actions"
 import { affiliatePartnerFromUrl } from "@/lib/ticket-affiliate"
 import {
   TICKET_BUY_LABEL,
+  raceDateIsBeforeToday,
   resellerHost,
   ticketAvailabilityLabel,
   ticketShowsBuyButton,
@@ -42,6 +43,7 @@ interface TicketCardProps {
     currentPrice: any
   }
   index: number
+  raceDate?: string | Date | null
 }
 
 function getFeatureIcon(category: string) {
@@ -63,7 +65,7 @@ function getFeatureIcon(category: string) {
   }
 }
 
-export function TicketCard({ ticket, index }: TicketCardProps) {
+export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
   const [selectedCurrency, setSelectedCurrency] = useState(
     ticket.currentPrice?.currency || SUPPORTED_CURRENCIES[0].code
   )
@@ -72,8 +74,11 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
   const [maskedUrl, setMaskedUrl] = useState<string | null>(null)
   const [isLoadingUrl, setIsLoadingUrl] = useState(true)
 
-  const showBuyButton = ticketShowsBuyButton(ticket.availability)
-  const showWaitlist = ticketShowsWaitlist(ticket.availability)
+  const showBuyButton = ticketShowsBuyButton(ticket.availability, raceDate)
+  const showWaitlist = ticketShowsWaitlist(ticket.availability, raceDate)
+  const raceHasPassed = raceDate
+    ? raceDateIsBeforeToday(raceDate, new Date())
+    : false
 
   useEffect(() => {
     if (!showBuyButton) {
@@ -322,6 +327,12 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
               ticketCategoryName={ticket.title}
               disabled={false}
             />
+          ) : raceHasPassed ? (
+            <p className="text-muted-foreground text-sm">
+              This race date has passed.
+            </p>
+          ) : ticket.availability === "not_on_sale" ? (
+            <p className="text-muted-foreground text-sm">Not on sale yet.</p>
           ) : (
             <p className="text-muted-foreground text-sm">
               {affiliatePartner

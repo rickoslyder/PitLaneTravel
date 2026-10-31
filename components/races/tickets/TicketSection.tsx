@@ -98,7 +98,12 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
           <div className="grid gap-6 lg:grid-cols-3">
             <Suspense fallback={<TicketCardSkeleton />}>
               {filteredTickets?.map((ticket: Ticket, index: number) => (
-                <TicketCard key={ticket.id} ticket={ticket} index={index} />
+                <TicketCard
+                  key={ticket.id}
+                  ticket={ticket}
+                  index={index}
+                  raceDate={race.date}
+                />
               ))}
             </Suspense>
           </div>

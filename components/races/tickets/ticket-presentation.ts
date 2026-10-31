@@ -5,8 +5,13 @@
 
 export const TICKET_BUY_LABEL = "Buy from official seller"
 
-/** Race-page button that opens the tickets tab. PitLane does not book the race. */
-export const RACE_TICKETS_CTA = "View official tickets"
+/** Race-page button that scrolls to the tickets tab. PitLane does not book the race. */
+export const RACE_TICKETS_CTA = "Find tickets"
+
+export const NO_TICKET_LINKS_HEADING = "No official ticket links listed yet"
+
+/** Explicit ticket.availability value. Missing rows are not this state. */
+export const NOT_ON_SALE_AVAILABILITY = "not_on_sale"
 
 export function ticketSectionIntro(
   raceName: string,
@@ -26,6 +31,8 @@ export function ticketAvailabilityLabel(availability: string): string {
       return "Limited"
     case "sold_out":
       return "Sold out"
+    case "not_on_sale":
+      return "Not on sale yet"
     default:
       return availability
         .split("_")
@@ -35,29 +42,54 @@ export function ticketAvailabilityLabel(availability: string): string {
   }
 }
 
-/** Buy links stay up for available and limited stock. Sold out has no button. */
-export function ticketShowsBuyButton(availability: string): boolean {
+/** True when the stored race instant falls before 00:00Z of `now`'s UTC day. */
+export function raceDateIsBeforeToday(
+  raceDate: string | Date,
+  now: Date
+): boolean {
+  const instant = new Date(raceDate).getTime()
+  if (Number.isNaN(instant)) return false
+  const startOfTodayUtc = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate()
+  )
+  return instant < startOfTodayUtc
+}
+
+/**
+ * Buy links stay up for available and limited stock on a race that has not
+ * passed. A past race date and an explicit not_on_sale row have no button.
+ */
+export function ticketShowsBuyButton(
+  availability: string,
+  raceDate?: string | Date | null,
+  now: Date = new Date()
+): boolean {
+  if (availability === NOT_ON_SALE_AVAILABILITY) return false
+  if (raceDate && raceDateIsBeforeToday(raceDate, now)) return false
   return availability === "available" || availability === "limited"
 }
 
 /** Waitlist signup is only for states we might restock ourselves. */
-export function ticketShowsWaitlist(availability: string): boolean {
-  return !ticketShowsBuyButton(availability) && availability !== "sold_out"
+export function ticketShowsWaitlist(
+  availability: string,
+  raceDate?: string | Date | null,
+  now: Date = new Date()
+): boolean {
+  if (raceDate && raceDateIsBeforeToday(raceDate, now)) return false
+  return !ticketShowsBuyButton(availability, raceDate, now) &&
+    availability !== "sold_out" &&
+    availability !== NOT_ON_SALE_AVAILABILITY
 }
 
-export function ticketEmptyState(
-  status: string,
-  raceName: string
-): { heading: string; body: string } {
-  if (status === "upcoming") {
-    return {
-      heading: "Not on sale yet",
-      body: `Official tickets for ${raceName} are not on sale yet.`
-    }
-  }
+export function ticketEmptyState(raceName: string): {
+  heading: string
+  body: string
+} {
   return {
-    heading: "Official tickets",
-    body: `No official ticket links for ${raceName} yet.`
+    heading: NO_TICKET_LINKS_HEADING,
+    body: `No official ticket links for ${raceName} are listed yet.`
   }
 }
 

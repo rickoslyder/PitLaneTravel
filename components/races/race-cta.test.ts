@@ -29,6 +29,9 @@ describe("race page CTAs match the about-page limit", () => {
 
   it("opens the tickets tab without a Book Now or purchase CTA", () => {
     expect(hero).toMatch(/RACE_TICKETS_CTA/)
+    expect(read("components/races/tickets/ticket-presentation.ts")).toMatch(
+      /Find tickets/
+    )
     expect(hero).not.toMatch(/Book Now/)
     expect(hero).not.toMatch(/\bpurchase\b/i)
     expect(planner).not.toMatch(/booking integration coming soon/i)

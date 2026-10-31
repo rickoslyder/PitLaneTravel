@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest"
 import {
+  NO_TICKET_LINKS_HEADING,
   RACE_TICKETS_CTA,
   TICKET_BUY_LABEL,
+  raceDateIsBeforeToday,
   resellerHost,
   ticketAvailabilityLabel,
   ticketEmptyState,
@@ -23,7 +25,7 @@ describe("ticket availability states", () => {
     expect(ticketShowsWaitlist("available")).toBe(false)
     expect(ticketShowsWaitlist("limited")).toBe(false)
     expect(TICKET_BUY_LABEL).toBe("Buy from official seller")
-    expect(RACE_TICKETS_CTA).toBe("View official tickets")
+    expect(RACE_TICKETS_CTA).toBe("Find tickets")
     expect(RACE_TICKETS_CTA).not.toMatch(/book|purchase/i)
   })
 
@@ -34,18 +36,41 @@ describe("ticket availability states", () => {
 })
 
 describe("ticket empty state", () => {
-  it("says tickets are not on sale yet for an upcoming race with none", () => {
-    expect(ticketEmptyState("upcoming", "Abu Dhabi Grand Prix 2026")).toEqual({
-      heading: "Not on sale yet",
-      body: "Official tickets for Abu Dhabi Grand Prix 2026 are not on sale yet."
-    })
+  it("does not treat a missing link list as not on sale", () => {
+    const copy = ticketEmptyState("Abu Dhabi Grand Prix 2026")
+    expect(copy.heading).toBe(NO_TICKET_LINKS_HEADING)
+    expect(copy.heading).not.toBe("Not on sale yet")
+    expect(copy.body).toMatch(/Abu Dhabi Grand Prix 2026/)
+    expect(copy.body).not.toMatch(/not on sale/i)
   })
 
-  it("does not call a past race with no links sold out", () => {
-    const copy = ticketEmptyState("completed", "Australian Grand Prix 2026")
-    expect(copy.heading).not.toBe("Not on sale yet")
-    expect(copy.body).not.toMatch(/currently available/i)
-    expect(copy.body).toMatch(/No official ticket links/)
+  it("reserves Not on sale yet for the explicit availability value", () => {
+    expect(ticketAvailabilityLabel("not_on_sale")).toBe("Not on sale yet")
+    expect(ticketShowsBuyButton("not_on_sale")).toBe(false)
+    expect(ticketShowsWaitlist("not_on_sale")).toBe(false)
+  })
+})
+
+describe("past race dates", () => {
+  const now = new Date("2026-10-31T18:00:00.000Z")
+
+  it("hides buy and waitlist when the race date is before today", () => {
+    expect(raceDateIsBeforeToday("2025-03-16T00:00:00.000Z", now)).toBe(true)
+    expect(
+      ticketShowsBuyButton("available", "2025-03-16T00:00:00.000Z", now)
+    ).toBe(false)
+    expect(
+      ticketShowsWaitlist("pending", "2025-03-16T00:00:00.000Z", now)
+    ).toBe(false)
+  })
+
+  it("keeps a buy link for a race later today or in the future", () => {
+    expect(
+      ticketShowsBuyButton("available", "2026-11-22T04:00:00.000Z", now)
+    ).toBe(true)
+    expect(
+      ticketShowsBuyButton("available", "2026-10-31T04:00:00.000Z", now)
+    ).toBe(true)
   })
 })
 
