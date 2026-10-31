@@ -413,7 +413,8 @@ Elements step is also still missing, so booking would 402 regardless.
 
 ## 2026-08-24 — Freeze the Day-70 product contract (PLT-001)
 
-**Canonical contract:** [`docs/product/day-70-contract.md`](docs/product/day-70-contract.md)
+**Superseded 2026-10-31.** The owner rejected the decision-layer, external-supplier handoff, honest-limits, and no-VIP positioning. The contract file was removed. The text below is the historical decision only. It is not a current instruction.
+
 **Issue / conventions:** stable IDs are `PLT-NNN`; GitHub numbers are transport; milestone
 gates are **A–F**. Days 1–70 are sequence windows, not duration estimates. Gates cannot be
 skipped because implementation is fast. Tracker: `days-1-70-issue-tracker.md`.
@@ -422,7 +423,7 @@ skipped because implementation is fast. Tracker: `days-1-70-issue-tracker.md`.
 `days-1-70-issue-tracker.md`, `modern-capabilities-layer-2026-08-24.md`.
 **Restore point before this decision:** `99a5ffb9d28035996c61f95a9dfa316e7b00eed2`.
 
-**Decision.** Freeze the active product contract as:
+**Then decided (no longer current).** The wording frozen on 2026-08-24 was:
 
 > PitLane Travel is the decision layer for self-directed motorsport trips: compare races,
 > choose where to sit, understand the real logistics, build a context-aware plan, then
@@ -480,7 +481,7 @@ baseline is invented.
 
 **Verified current state (observed API, 2026-08-25).** Project `pit-lane-travel` (`prj_sZwimmtV4tilXJkWxiNUvGRfQx73`) on team `team_VEwLT4h3vSdKnitmHWwP2kxv` has `billing.plan = hobby`. No upgrade, domain, environment variable, production setting, or `vercel.json` change was performed.
 
-**Commercial activation block.** Official Hobby terms are free, non-commercial personal use only. Day-70 requires a commercial-use-compatible host before tagged monetisation is intentionally operated. Until Richard later declares the build complete and approves the then-current spend envelope and upgrade action: no paid plan change; no intentional operation or promotion of tagged monetized affiliate paths; PLT-018 and PLT-057 may be built/tested with synthetic or untagged/noncommercial proof but are not commercially activated; no live money movement; preserve the public catalogue.
+**Commercial activation block.** Official Hobby terms are free, non-commercial personal use only. Until Richard later declares the build complete and approves the then-current spend envelope and upgrade action: no paid plan change; no intentional operation or promotion of tagged monetized affiliate paths; PLT-018 and PLT-057 may be built/tested with synthetic or untagged/noncommercial proof but are not commercially activated; no live money movement; preserve the public catalogue.
 
 [`docs/operations/production-baseline.md`](docs/operations/production-baseline.md) records `HOTEL_AFFILIATE_ID` absent and money-moving flags off. That metadata does not by itself disable every existing outbound ticket route.
 

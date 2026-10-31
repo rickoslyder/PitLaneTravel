@@ -438,7 +438,7 @@ Generic untagged external handoff. Not an enabled affiliate partner.
 | Reporting lag | **Blocking unknown** (no affiliate account). | `absent` |
 | Commission / cookie terms | **Blocking unknown** (no affiliate account). Do not invent. | `absent` |
 | Feed / API format | No partner feed. URL builder only (`lib/affiliate.ts`). | `repository-audited` |
-| Disclosure | **Blocking unknown.** Untagged outbound must not be labelled monetised (Day-70 contract). | `repository-audited` / product contract |
+| Disclosure | **Blocking unknown.** Untagged outbound must not be labelled monetised. | `repository-audited` |
 | Contact / renewal | **Blocking unknown.** No affiliate account evidenced in scoped sources. | `absent` |
 | Last verification | 2026-08-27 evidence cut-off — repository + production-baseline (`HOTEL_AFFILIATE_ID` absent); scoped Gmail / Hermes operator vault negative search. | mixed |
 | Blockers / next action | Do not claim Booking.com as a partner. Next: none until an actual affiliate account exists and current terms are read. | — |

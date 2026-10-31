@@ -16,7 +16,7 @@ PitLane should not accumulate generic affiliate programmes. The partner backlog 
 | 3 | Stay22 | Hotels around circuits | Allez supports contextual destination/date links and map embedding; it fits event-led accommodation discovery.[3] | Apply only when circuit/date landing pages are ready; use explicit contextual handoffs, not editorial link rewriting. |
 | 4 | Trainline via Partnerize | European rail | Existing network and race-itinerary deep-link fit.[4] | Check campaign availability and current terms; start with links, not transactional API. |
 | 5 | Mozio, with Holiday Taxis as an Awin hedge | Global airport/circuit transfer coverage | Fills the global transfer gap left by UK-focused minicabit; Mozio supports partner integrations.[5] | Prefer widget/affiliate handoff; avoid acting as booking agent. |
-| 6 | F1 Experiences / Quint reseller-referrer | Official hospitality and ticket+hotel packages | Strong trust rail for premium inventory.[6] | Referral/introducer relationship only; do not imply PitLane is F1-official or become package principal. |
+| 6 | F1 Experiences / Quint reseller-referrer | Official hospitality and ticket+hotel packages | Strong trust rail for premium inventory.[6] | Do not imply PitLane is F1-official. |
 | 7 | Seat Unique via WebGains | Formula E premium/hospitality | Public affiliate path for premium inventory; Formula E is the clearest non-F1 series gap.[7] | Verify current event inventory and terms before any enablement. |
 | 8 | Fever distributor relationship for 2027 | Future official F1 ticketing | Fever has a distributor/API platform, but present-day F1 inventory in the generic partner catalogue is not evidenced.[8] | Revisit when 2027 inventory and account-level rights are concrete; no current F1 claim. |
 | 9 | Bounce | Race-day luggage storage | Useful for travellers arriving before check-in or leaving after the race. | Verify city/location coverage and destination-link quality at target races. |
@@ -49,13 +49,13 @@ PitLane should not accumulate generic affiliate programmes. The partner backlog 
 - StubHub, Viagogo, and unverified secondary inventory: exclude on trust and ticket-validity risk.
 - Generic “F1 TV” or “Formula 1 5–10%” directories without official programme evidence.
 - More merchandise networks as a substitute for ticket/transport coverage.
-- Becoming an OTA, package principal, hospitality agent, insurer, lender, or price-guarantee seller.
+- Insurer, lender, or price-guarantee seller.
 - Ads, pay-to-rank recommendations, user-data sales, or a hollow recurring membership.
 
 ## Owned monetization to preserve
 
 1. **Comparable ticket/hospitality watches:** free, consented alerts first; paid multi-watch/SMS only after reliability and demand are proven.
-2. **One-time cited race brief:** willingness-to-pay test after the planning flow; PitLane produces a decision artifact and supplier handoffs, not bookings.
+2. **One-time cited race brief:** willingness-to-pay test after the planning flow.
 3. **Group-intent introduction:** capture intent only; introduce to bonded operators later with explicit consent.
 4. **Creator distribution kit:** design sub-ID attribution, disclosures, and a ranking firewall before outreach.
 

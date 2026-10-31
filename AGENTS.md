@@ -8,36 +8,26 @@ guessing. Product truth is not here.
 
 When documents disagree, use this order:
 
-1. `docs/product/day-70-contract.md` — live product, commercial, coverage, AI, and stop-rule contract.
-2. This file (`AGENTS.md`) — commands, verification, migrations, and safety.
-3. `DECISIONS.md` — decision log (why a change was made).
-4. `SPEC.md` — historical 2026 revamp record, not live capability.
-5. `README.md` — human onboarding only.
-6. `.cursorrules` — compatibility pointer for Cursor. It must not reintroduce stale template rules.
+1. This file (`AGENTS.md`) — commands, verification, migrations, and safety.
+2. `DECISIONS.md` — decision log (why a change was made).
+3. `SPEC.md` — historical 2026 revamp record, not live capability.
+4. `README.md` — human onboarding only.
+5. `.cursorrules` — compatibility pointer for Cursor. It must not reintroduce stale template rules.
 
 `MASTER_PLAN.md` and older marketing copy are not authorities for live capability.
 
 ## Product / commercial pointer
 
-PitLane Travel is the decision layer for self-directed motorsport trips across
-Formula 1, Formula E, MotoGP, IndyCar, and WEC. Booking and affiliate links are
-monetisation *after* a decision, not the differentiator.
-
-Do not invent live capability. Current vs planned capability, coverage tiers,
-authority split (code / model / human), and stop-rules live only in
-`docs/product/day-70-contract.md`. Until that contract's named gates and a later
-owner decision say otherwise:
+Do not invent live capability. Until a later owner decision says otherwise:
 
 - no sixth series
 - no new community / social product
 - no custom model or LoRA
 - no merchant-of-record flight booking (`FLIGHTS_BOOKING_ENABLED` stays off)
 - no automatic refunds (`RECONCILE_AUTO_REFUND` stays off)
-- no package operation as principal
 - no recurring subscription
 - no generic guide generation
 - no B2B API / widget
-- no unsupported trust, scale, savings, or “constantly updated” claims
 
 Models draft, extract, and explain. They do not become the public record, move
 money, decide event status, or send externally without a human or a deterministic
@@ -52,7 +42,7 @@ verifier.
   primarily through `actions/db/` and the connection in `db/db.ts`.
 - Split migrations in `db/migrations/` — see Migration workflow.
 - Seeds and static data in `data/`. Operational scripts in `scripts/`.
-- Shared types in `types/`. Product contract in `docs/product/`.
+- Shared types in `types/`.
 - Auth: Clerk. Payments: Stripe (money-moving flags off). Analytics: PostHog.
   Hosting: Vercel.
 
@@ -149,7 +139,7 @@ agent scope.
 
 ## Change / verification workflow
 
-1. Read the Day-70 contract and this file. Do not follow stale README / SPEC claims.
+1. Read this file. Do not follow stale README / SPEC claims.
 2. Make the smallest complete change that the issue names. No drive-by edits.
 3. If the change touches schema, include a migration (see below). Do not skip
    `db/migrations`.
@@ -214,8 +204,7 @@ Drafting is fine. Execution is gated.
 - A compile that dies in page-data collection is not a green build.
 - Schema rollback is an additive inverse migration, not `db:drop` / `db:push`.
 - Do not report live capability, traffic, revenue, or inventory freshness unless
-  the Day-70 contract already records it or a fresh production check was actually
-  performed.
+  a fresh production check was actually performed.
 - Destructive rollback remains outside agent scope even if a human could do it.
 
 ## Local conventions that do not override the above

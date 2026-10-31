@@ -83,7 +83,7 @@ Stay Hobby until Richard's explicit go-ahead. At that point re-read current pric
 
 Before intentionally launching / operating for users and monetization, re-evaluate the then-current Vercel commercial-use requirement and obtain the hosting go-ahead. Do not claim “zero users” can be permanently guaranteed; record it as the owner's present operational context.
 
-The Day-70 contract still requires a commercial-use-compatible host before tagged monetisation is *intentionally operated*. Remaining on Hobby is a deliberate pause on the paid plan change, not a freeze on building commercial capability, and not permission to intentionally operate commercially on Hobby.
+Remaining on Hobby is a deliberate pause on the paid plan change, not a freeze on building commercial capability, and not permission to intentionally operate commercially on Hobby.
 
 ## Exact unapproved Pro envelope
 

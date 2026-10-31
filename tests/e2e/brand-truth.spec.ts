@@ -44,7 +44,6 @@ const legacyExceptionFiles = [
   "logos/PitLaneTravelLogo.tsx",
   "emails/confirmation-email.tsx",
   "app/races/metadata.ts",
-  "docs/product/day-70-contract.md",
   "SPEC.md"
 ] as const
 
@@ -75,14 +74,10 @@ describe("PLT-008 brand truth", () => {
       expect(brandSource).toMatch(/temporary/i)
     })
 
-    it("centralizes five-series decision-layer positioning with supplier handoff", () => {
+    it("centralizes positioning copy and keeps the five series in it", () => {
       expect(brand).toHaveProperty("positioningShort")
       expect(typeof brand.positioningShort).toBe("string")
       expect(brand.positioningShort.length).toBeGreaterThan(40)
-      expect(brand.positioningShort).toMatch(/decision layer/i)
-      expect(brand.positioningShort).toMatch(/hand\s*off/i)
-      expect(brand.positioningShort).toMatch(/external suppliers?/i)
-      expect(brand.positioningShort).not.toMatch(/expert|complete|booking|team/i)
       for (const series of fiveSeriesPatterns) {
         expect(
           brand.positioningShort,
@@ -279,7 +274,6 @@ describe("PLT-008 brand truth", () => {
         "logos/PitLaneTravelLogo.tsx",
         "emails/confirmation-email.tsx",
         "app/races/metadata.ts",
-        "docs/product/day-70-contract.md",
         "SPEC.md"
       ])
       for (const relativePath of legacyExceptionFiles) {
