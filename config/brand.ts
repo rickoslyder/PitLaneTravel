@@ -88,3 +88,8 @@ export function brandCopy(live: boolean): BrandCopy {
     seriesKeywords: brandPackagesLive.seriesKeywords
   }
 }
+
+/** Named partners already on the page. Wording stays definite; the short line stays conditional. */
+export function affiliateDisclosurePartner(names: string): string {
+  return `Links to ${names} are affiliate links. They may pay ${brand.name} a commission. Provider terms apply.`
+}

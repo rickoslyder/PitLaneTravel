@@ -1,4 +1,4 @@
-import { brand } from "@/config/brand"
+import { affiliateDisclosurePartner, brand } from "@/config/brand"
 
 /**
  * Shown only when an affiliate link is actually on the page (issue #39).
@@ -16,8 +16,8 @@ export function affiliateDisclosureCopy(partners: readonly string[] = []): {
       ? partners[0]
       : `${partners.slice(0, -1).join(", ")} and ${partners[partners.length - 1]}`
   return {
-    lead: `Links to ${names} are affiliate links.`,
-    detail: `They may pay ${brand.name} a commission. Provider terms apply.`
+    lead: affiliateDisclosurePartner(names),
+    detail: null
   }
 }
 
