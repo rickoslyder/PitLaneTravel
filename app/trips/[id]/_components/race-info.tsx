@@ -21,7 +21,13 @@ export function RaceInfo({ race }: RaceInfoProps) {
       <div className="flex items-center gap-2">
         <Calendar className="text-primary size-5" />
         <span>
-          {race.date ? formatRaceCalendarDate(race.date) : "TBD"}
+          {race.date
+            ? formatRaceCalendarDate(
+                race.date,
+                undefined,
+                race.circuit?.timezone_id
+              )
+            : "TBD"}
         </span>
       </div>
       <div className="flex items-center gap-2">

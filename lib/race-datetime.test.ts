@@ -3,81 +3,98 @@ import path from "node:path"
 import { describe, expect, it } from "vitest"
 import {
   formatRaceCalendarDate,
-  formatRaceSessionDateTime,
-  formatSessionClock
+  formatSessionClock,
+  raceTimeZoneLabel
 } from "./race-datetime"
 
-const NEAR_MIDNIGHT_UTC = "2026-12-06T00:30:00.000Z"
-const ABU_DHABI_DATE = "2026-12-06T00:00:00.000Z"
+const VEGAS = "2026-11-22T04:00:00.000Z"
+const ABU_DHABI = "2026-12-06T13:00:00.000Z"
+const DATE_ONLY = "2026-12-06T00:00:00.000Z"
+const HOST_ZONES = ["America/Los_Angeles", "America/New_York", "UTC"] as const
+
+function calendarInHostZone(hostZone: string) {
+  const source = `
+    import { formatRaceCalendarDate } from ${JSON.stringify(path.join(process.cwd(), "lib/race-datetime.ts"))}
+    const vegas = formatRaceCalendarDate(${JSON.stringify(VEGAS)}, undefined, "America/Los_Angeles")
+    const abuDhabi = formatRaceCalendarDate(${JSON.stringify(ABU_DHABI)}, undefined, "Asia/Dubai")
+    const dateOnly = formatRaceCalendarDate(${JSON.stringify(DATE_ONLY)}, undefined, "America/Los_Angeles")
+    const localDateOnly = new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    }).format(new Date(${JSON.stringify(DATE_ONLY)}))
+    process.stdout.write(JSON.stringify({
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      vegas,
+      abuDhabi,
+      dateOnly,
+      localDateOnly
+    }))
+  `
+  const result = spawnSync(
+    process.execPath,
+    ["--experimental-strip-types", "--input-type=module", "--eval", source],
+    {
+      cwd: process.cwd(),
+      env: { ...process.env, TZ: hostZone },
+      encoding: "utf8"
+    }
+  )
+  expect(result.status, result.stderr).toBe(0)
+  return JSON.parse(result.stdout) as {
+    tz: string
+    vegas: string
+    abuDhabi: string
+    dateOnly: string
+    localDateOnly: string
+  }
+}
 
 describe("formatRaceCalendarDate", () => {
-  it("keeps a date near UTC midnight on that calendar day under TZ=America/Los_Angeles", () => {
-    const source = `
-      import { formatRaceCalendarDate } from ${JSON.stringify(path.join(process.cwd(), "lib/race-datetime.ts"))}
-      const nearMidnight = ${JSON.stringify(NEAR_MIDNIGHT_UTC)}
-      const abuDhabi = ${JSON.stringify(ABU_DHABI_DATE)}
-      const local = new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric"
-      })
-      const payload = {
-        tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        nearMidnight: formatRaceCalendarDate(nearMidnight),
-        abuDhabi: formatRaceCalendarDate(abuDhabi),
-        localNearMidnight: local.format(new Date(nearMidnight)),
-        localAbuDhabi: local.format(new Date(abuDhabi))
-      }
-      process.stdout.write(JSON.stringify(payload))
-    `
-    const result = spawnSync(
-      process.execPath,
-      ["--experimental-strip-types", "--input-type=module", "--eval", source],
-      {
-        cwd: process.cwd(),
-        env: { ...process.env, TZ: "America/Los_Angeles" },
-        encoding: "utf8"
-      }
-    )
-
-    expect(result.status, result.stderr).toBe(0)
-    const payload = JSON.parse(result.stdout) as {
-      tz: string
-      nearMidnight: string
-      abuDhabi: string
-      localNearMidnight: string
-      localAbuDhabi: string
+  it("agrees for Vegas, Abu Dhabi, and a date-only row in LA, New York, and UTC", () => {
+    const payloads = HOST_ZONES.map(calendarInHostZone)
+    for (const payload of payloads) {
+      expect(payload.vegas).toBe("Nov 21, 2026")
+      expect(payload.abuDhabi).toBe("Dec 6, 2026")
+      expect(payload.dateOnly).toBe("Dec 6, 2026")
     }
-    expect(payload.tz).toBe("America/Los_Angeles")
-    expect(payload.localNearMidnight).toBe("Dec 5, 2026")
-    expect(payload.localAbuDhabi).toBe("Dec 5, 2026")
-    expect(payload.nearMidnight).toBe("Dec 6, 2026")
-    expect(payload.abuDhabi).toBe("Dec 6, 2026")
+    expect(payloads.map(payload => payload.tz)).toEqual([...HOST_ZONES])
+    expect(payloads[0]?.localDateOnly).toBe("Dec 5, 2026")
+    expect(new Set(payloads.map(payload => payload.vegas)).size).toBe(1)
+    expect(new Set(payloads.map(payload => payload.abuDhabi)).size).toBe(1)
+    expect(new Set(payloads.map(payload => payload.dateOnly)).size).toBe(1)
   })
 
-  it("matches the Los Angeles child from the current process as well", () => {
-    expect(formatRaceCalendarDate(NEAR_MIDNIGHT_UTC)).toBe("Dec 6, 2026")
-    expect(formatRaceCalendarDate(ABU_DHABI_DATE)).toBe("Dec 6, 2026")
+  it("keeps the same labels in the current process", () => {
     expect(
-      formatRaceCalendarDate(ABU_DHABI_DATE, {
-        weekday: "long",
-        month: "long",
-        day: "numeric"
-      })
-    ).toBe("Sunday, December 6")
+      formatRaceCalendarDate(VEGAS, undefined, "America/Los_Angeles")
+    ).toBe("Nov 21, 2026")
+    expect(formatRaceCalendarDate(ABU_DHABI, undefined, "Asia/Dubai")).toBe(
+      "Dec 6, 2026"
+    )
+    expect(
+      formatRaceCalendarDate(DATE_ONLY, undefined, "America/Los_Angeles")
+    ).toBe("Dec 6, 2026")
+    expect(formatRaceCalendarDate(VEGAS)).toBe("Nov 22, 2026")
   })
 })
 
-describe("session times", () => {
-  it("labels clocks with an explicit zone instead of the host zone", () => {
-    expect(formatSessionClock("15:00", null)).toBe("15:00 UTC")
-    expect(formatSessionClock("13:30", "Asia/Dubai")).toBe("13:30 GMT+4")
-    const labeled = formatRaceSessionDateTime(
-      "2026-12-06T13:00:00.000Z",
-      "Asia/Dubai"
+describe("session time zone labels", () => {
+  it("uses the session date, so winter labels are not the June abbreviations", () => {
+    expect(
+      raceTimeZoneLabel("America/Los_Angeles", "2026-11-22T04:00:00.000Z")
+    ).toBe("PST")
+    expect(raceTimeZoneLabel("Europe/London", "2026-01-18T14:00:00.000Z")).toBe(
+      "GMT"
     )
-    expect(labeled).toContain("GMT+4")
-    expect(labeled).toContain("Dec 6, 2026")
-    expect(labeled).not.toMatch(/AM|PM/)
+    expect(raceTimeZoneLabel("Europe/Paris", "2026-01-18T14:00:00.000Z")).toBe(
+      "CET"
+    )
+    expect(formatSessionClock("20:00", "America/Los_Angeles", VEGAS)).toBe(
+      "20:00 PST"
+    )
+    expect(
+      raceTimeZoneLabel("America/Los_Angeles", "2026-06-15T12:00:00.000Z")
+    ).toBe("PDT")
   })
 })

@@ -161,11 +161,15 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
                         {race.circuit?.location}
                       </p>
                       <p className="text-sm">
-                        {formatRaceCalendarDate(race.date, {
-                          weekday: "long",
-                          month: "long",
-                          day: "numeric"
-                        })}
+                        {formatRaceCalendarDate(
+                          race.date,
+                          {
+                            weekday: "long",
+                            month: "long",
+                            day: "numeric"
+                          },
+                          race.circuit?.timezone_id
+                        )}
                       </p>
                     </CardContent>
                     <CardFooter className="p-4 pt-0">

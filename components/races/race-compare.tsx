@@ -38,11 +38,15 @@ export function RaceCompare({
     {
       label: "Date",
       render: r =>
-        formatRaceCalendarDate(r.date, {
-          day: "numeric",
-          month: "short",
-          year: "numeric"
-        })
+        formatRaceCalendarDate(
+          r.date,
+          {
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+          },
+          r.circuit?.timezone_id
+        )
     },
     { label: "Circuit", render: r => r.circuit?.name ?? "—" },
     {
@@ -86,10 +90,14 @@ export function RaceCompare({
               >
                 <span>{r.name}</span>
                 <span className="text-muted-foreground">
-                  {formatRaceCalendarDate(r.date, {
-                    day: "numeric",
-                    month: "short"
-                  })}
+                  {formatRaceCalendarDate(
+                    r.date,
+                    {
+                      day: "numeric",
+                      month: "short"
+                    },
+                    r.circuit?.timezone_id
+                  )}
                 </span>
               </button>
             ))}

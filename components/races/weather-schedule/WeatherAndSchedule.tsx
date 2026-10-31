@@ -147,13 +147,21 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
                 >
                   <div className="text-center">
                     <div className="text-muted-foreground text-sm">
-                      {formatRaceCalendarDate(day.date, { weekday: "long" })}
+                      {formatRaceCalendarDate(
+                        day.date,
+                        { weekday: "long" },
+                        race.circuit?.timezone_id
+                      )}
                     </div>
                     <div className="font-medium">
-                      {formatRaceCalendarDate(day.date, {
-                        month: "short",
-                        day: "numeric"
-                      })}
+                      {formatRaceCalendarDate(
+                        day.date,
+                        {
+                          month: "short",
+                          day: "numeric"
+                        },
+                        race.circuit?.timezone_id
+                      )}
                     </div>
                   </div>
 
@@ -214,11 +222,15 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
             <div key={session.description} className="flex items-center gap-2">
               <div className="bg-primary/10 size-2 rounded-full" />
               <span>
-                {formatRaceCalendarDate(session.date, {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric"
-                })}
+                {formatRaceCalendarDate(
+                  session.date,
+                  {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric"
+                  },
+                  race.circuit?.timezone_id
+                )}
               </span>
               <span>-</span>
               <span>{session.description}</span>

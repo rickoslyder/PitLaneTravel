@@ -107,7 +107,7 @@ export function WorldMap({ races, onRaceSelect, className }: WorldMapProps) {
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                 </svg>
                             </span>
-                            <span>${formatRaceCalendarDate(race.date)}</span>
+                            <span>${formatRaceCalendarDate(race.date, undefined, race.circuit?.timezone_id)}</span>
                         </div>
                         <div class="flex flex-wrap gap-2 mt-2">
                             ${race.is_sprint_weekend ? '<span class="inline-flex items-center rounded-full bg-foreground/10 px-2 py-1 text-xs font-medium text-foreground">Sprint Weekend</span>' : ""}
@@ -223,7 +223,11 @@ export function WorldMap({ races, onRaceSelect, className }: WorldMapProps) {
               >
                 <div className="font-medium">{race.name}</div>
                 <div className="text-muted-foreground text-sm">
-                  {formatRaceCalendarDate(race.date)}
+                  {formatRaceCalendarDate(
+                    race.date,
+                    undefined,
+                    race.circuit?.timezone_id
+                  )}
                 </div>
               </button>
             ))}

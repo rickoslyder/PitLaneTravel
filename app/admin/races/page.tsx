@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/db/db"
-import { circuitsTable, racesTable } from "@/db/schema"
+import { circuitsTable, racesTable, seriesTable } from "@/db/schema"
 import { RacesTable } from "./_components/races-table"
 import { desc, eq } from "drizzle-orm"
 
@@ -28,6 +28,9 @@ export default async function RacesPage() {
       createdAt: racesTable.createdAt,
       updatedAt: racesTable.updatedAt,
       slug: racesTable.slug,
+      series: {
+        slug: seriesTable.slug
+      },
       circuit: {
         id: circuitsTable.id,
         name: circuitsTable.name,
@@ -45,6 +48,7 @@ export default async function RacesPage() {
     })
     .from(racesTable)
     .leftJoin(circuitsTable, eq(racesTable.circuitId, circuitsTable.id))
+    .leftJoin(seriesTable, eq(racesTable.seriesId, seriesTable.id))
     .orderBy(desc(racesTable.date))
 
   return (

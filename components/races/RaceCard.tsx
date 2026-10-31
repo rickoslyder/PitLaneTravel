@@ -39,7 +39,11 @@ export function RaceCard({
   onClick,
   coverage
 }: RaceCardProps) {
-  const raceDateLabel = formatRaceCalendarDate(race.date)
+  const raceDateLabel = formatRaceCalendarDate(
+    race.date,
+    undefined,
+    race.circuit?.timezone_id
+  )
   const isCancelled = race.status === "cancelled"
 
   if (variant === "list") {

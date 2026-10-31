@@ -114,7 +114,7 @@ export function RaceHero({
   const handleShare = async () => {
     const shareData = {
       title: race.name,
-      text: `Check out the ${race.name} on ${formatRaceCalendarDate(raceDate)}`,
+      text: `Check out the ${race.name} on ${formatRaceCalendarDate(raceDate, undefined, race.circuit?.timezone_id)}`,
       url: window.location.href
     }
 
@@ -208,11 +208,19 @@ export function RaceHero({
               <CalendarDays className="size-3 sm:size-4" />
               <span>
                 {weekendStart && weekendEnd
-                  ? `${formatRaceCalendarDate(weekendStart, {
-                      month: "short",
-                      day: "numeric"
-                    })} - ${formatRaceCalendarDate(weekendEnd)}`
-                  : formatRaceCalendarDate(raceDate)}
+                  ? `${formatRaceCalendarDate(
+                      weekendStart,
+                      {
+                        month: "short",
+                        day: "numeric"
+                      },
+                      race.circuit?.timezone_id
+                    )} - ${formatRaceCalendarDate(weekendEnd, undefined, race.circuit?.timezone_id)}`
+                  : formatRaceCalendarDate(
+                      raceDate,
+                      undefined,
+                      race.circuit?.timezone_id
+                    )}
               </span>
             </div>
           </div>
