@@ -2,12 +2,13 @@ import { RaceWithDetails } from "@/types/race"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  format,
   differenceInDays,
   differenceInHours,
   differenceInMinutes,
   differenceInSeconds
 } from "date-fns"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
+import { RaceCircuitImage } from "@/components/races/race-circuit-image"
 import { CalendarDays, MapPin, Share2, Timer } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
@@ -113,7 +114,7 @@ export function RaceHero({
   const handleShare = async () => {
     const shareData = {
       title: race.name,
-      text: `Check out the ${race.name} on ${format(raceDate, "MMM d, yyyy")}`,
+      text: `Check out the ${race.name} on ${formatRaceCalendarDate(raceDate)}`,
       url: window.location.href
     }
 
@@ -134,7 +135,7 @@ export function RaceHero({
     <div className="relative h-[75vh] min-h-[500px] w-full min-w-0 overflow-hidden">
       {race.circuit?.image_url ? (
         <div className="absolute inset-0">
-          <img
+          <RaceCircuitImage
             src={race.circuit.image_url}
             alt={race.name}
             className="size-full object-cover"
@@ -207,11 +208,11 @@ export function RaceHero({
               <CalendarDays className="size-3 sm:size-4" />
               <span>
                 {weekendStart && weekendEnd
-                  ? `${format(weekendStart, "MMM d")} - ${format(
-                      weekendEnd,
-                      "MMM d, yyyy"
-                    )}`
-                  : format(raceDate, "MMM d, yyyy")}
+                  ? `${formatRaceCalendarDate(weekendStart, {
+                      month: "short",
+                      day: "numeric"
+                    })} - ${formatRaceCalendarDate(weekendEnd)}`
+                  : formatRaceCalendarDate(raceDate)}
               </span>
             </div>
           </div>

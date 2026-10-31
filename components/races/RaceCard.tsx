@@ -3,9 +3,10 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { RaceWithCircuitAndSeries } from "@/types/database"
-import { format } from "date-fns"
-import { CalendarDays, Flag, MapPin } from "lucide-react"
+import { CalendarDays, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
+import { RaceCircuitImage } from "@/components/races/race-circuit-image"
 import { CoverageBadge } from "@/components/coverage/coverage-badge"
 import { SeriesBadge } from "@/components/series/series-badge"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
@@ -38,7 +39,7 @@ export function RaceCard({
   onClick,
   coverage
 }: RaceCardProps) {
-  const raceDate = new Date(race.date)
+  const raceDateLabel = formatRaceCalendarDate(race.date)
   const isCancelled = race.status === "cancelled"
 
   if (variant === "list") {
@@ -54,17 +55,11 @@ export function RaceCard({
         <div className="flex flex-col sm:flex-row sm:items-center sm:gap-6">
           <CardHeader className="shrink-0 pb-2 pt-6 sm:pb-6">
             <div className="relative size-20 overflow-hidden rounded-lg">
-              {race.circuit?.image_url ? (
-                <img
-                  src={race.circuit.image_url}
-                  alt={race.name}
-                  className="size-full object-cover"
-                />
-              ) : (
-                <div className="bg-muted flex size-full items-center justify-center">
-                  <Flag className="text-muted-foreground size-8" />
-                </div>
-              )}
+              <RaceCircuitImage
+                src={race.circuit?.image_url}
+                alt={race.name}
+                className="size-full object-cover"
+              />
             </div>
           </CardHeader>
           <CardContent className="pb-2 pt-0 sm:py-6">
@@ -96,7 +91,7 @@ export function RaceCard({
                 </div>
                 <div className="flex items-center gap-1">
                   <CalendarDays className="size-3.5" />
-                  <span>{format(raceDate, "MMM d, yyyy")}</span>
+                  <span>{raceDateLabel}</span>
                 </div>
               </div>
               {isCancelled && race.cancellation_reason && (
@@ -134,17 +129,11 @@ export function RaceCard({
             ) : null}
             {isCancelled && <CancelledBadge />}
           </div>
-          {race.circuit?.image_url ? (
-            <img
-              src={race.circuit.image_url}
-              alt={race.name}
-              className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-          ) : (
-            <div className="bg-muted flex size-full items-center justify-center">
-              <Flag className="text-muted-foreground size-12" />
-            </div>
-          )}
+          <RaceCircuitImage
+            src={race.circuit?.image_url}
+            alt={race.name}
+            className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
         </div>
       </CardHeader>
       <CardContent className="space-y-2.5">
@@ -166,7 +155,7 @@ export function RaceCard({
           </div>
           <div className="flex items-center gap-1">
             <CalendarDays className="size-3.5" />
-            <span>{format(raceDate, "MMM d, yyyy")}</span>
+            <span>{raceDateLabel}</span>
           </div>
           {isCancelled && race.cancellation_reason && (
             <p className="text-xs text-red-600 dark:text-red-400">

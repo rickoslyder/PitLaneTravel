@@ -34,7 +34,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import dynamic from "next/dynamic"
-import { format } from "date-fns"
+import { formatRaceCalendarInput } from "@/lib/race-datetime"
 
 const MDEditor = dynamic(
   () => import("@uiw/react-md-editor").then(mod => mod.default),
@@ -92,7 +92,7 @@ export function EditRaceDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: race.name,
-      date: format(new Date(race.date), "yyyy-MM-dd"),
+      date: formatRaceCalendarInput(race.date),
       season: race.season,
       round: race.round,
       plannedRound: race.plannedRound != null ? String(race.plannedRound) : "",
@@ -100,10 +100,10 @@ export function EditRaceDialog({
       description: race.description || "",
       cancellationReason: race.cancellationReason || "",
       weekendStart: race.weekendStart
-        ? format(new Date(race.weekendStart), "yyyy-MM-dd")
+        ? formatRaceCalendarInput(race.weekendStart)
         : "",
       weekendEnd: race.weekendEnd
-        ? format(new Date(race.weekendEnd), "yyyy-MM-dd")
+        ? formatRaceCalendarInput(race.weekendEnd)
         : "",
       status: race.status,
       isSprintWeekend: race.isSprintWeekend,
@@ -114,7 +114,7 @@ export function EditRaceDialog({
   useEffect(() => {
     form.reset({
       name: race.name,
-      date: format(new Date(race.date), "yyyy-MM-dd"),
+      date: formatRaceCalendarInput(race.date),
       season: race.season,
       round: race.round,
       plannedRound: race.plannedRound != null ? String(race.plannedRound) : "",
@@ -122,10 +122,10 @@ export function EditRaceDialog({
       description: race.description || "",
       cancellationReason: race.cancellationReason || "",
       weekendStart: race.weekendStart
-        ? format(new Date(race.weekendStart), "yyyy-MM-dd")
+        ? formatRaceCalendarInput(race.weekendStart)
         : "",
       weekendEnd: race.weekendEnd
-        ? format(new Date(race.weekendEnd), "yyyy-MM-dd")
+        ? formatRaceCalendarInput(race.weekendEnd)
         : "",
       status: race.status,
       isSprintWeekend: race.isSprintWeekend,

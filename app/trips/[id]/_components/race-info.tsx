@@ -2,7 +2,7 @@
 
 import { RaceWithDetails } from "@/types/race"
 import { Calendar, MapPin, Timer } from "lucide-react"
-import { format } from "date-fns"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { motion } from "framer-motion"
 import { TimezoneInfo } from "./timezone-info"
 
@@ -21,7 +21,7 @@ export function RaceInfo({ race }: RaceInfoProps) {
       <div className="flex items-center gap-2">
         <Calendar className="text-primary size-5" />
         <span>
-          {race.date ? format(new Date(race.date), "MMM d, yyyy") : "TBD"}
+          {race.date ? formatRaceCalendarDate(race.date) : "TBD"}
         </span>
       </div>
       <div className="flex items-center gap-2">

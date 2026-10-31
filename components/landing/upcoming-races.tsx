@@ -5,10 +5,10 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import { motion } from "framer-motion"
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { useState, useSyncExternalStore } from "react"
 import { cn } from "@/lib/utils"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { CoverageBadge } from "@/components/coverage/coverage-badge"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import {
@@ -161,7 +161,7 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
                         {race.circuit?.location}
                       </p>
                       <p className="text-sm">
-                        {new Date(race.date).toLocaleDateString("en-US", {
+                        {formatRaceCalendarDate(race.date, {
                           weekday: "long",
                           month: "long",
                           day: "numeric"

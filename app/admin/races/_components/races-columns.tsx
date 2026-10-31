@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { SelectRace } from "@/db/schema"
 import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -44,7 +44,11 @@ export const racesColumns: ColumnDef<SelectRace>[] = [
     },
     cell: ({ row }) => (
       <div className="min-w-[150px]">
-        {format(new Date(row.getValue("date")), "PPP")}
+        {formatRaceCalendarDate(row.getValue("date"), {
+          month: "long",
+          day: "numeric",
+          year: "numeric"
+        })}
       </div>
     )
   },

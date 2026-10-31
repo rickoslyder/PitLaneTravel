@@ -15,7 +15,7 @@ import { EditPackageDialog } from "./edit-package-dialog"
 import { DeletePackageDialog } from "./delete-package-dialog"
 import { ManagePackageTicketsDialog } from "./manage-package-tickets-dialog"
 import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
 
 interface PackageWithRace extends SelectTicketPackage {
   race: {
@@ -40,7 +40,7 @@ export const columns: ColumnDef<PackageWithRace>[] = [
     accessorKey: "race.date",
     header: "Race Date",
     cell: ({ row }) =>
-      format(new Date(row.getValue("race.date")), "MMM d, yyyy")
+      formatRaceCalendarDate(row.getValue("race.date"))
   },
   {
     accessorKey: "packageType",

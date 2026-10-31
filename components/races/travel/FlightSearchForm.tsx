@@ -13,7 +13,8 @@ import {
 import { DatePicker } from "@/components/ui/date-picker"
 import { AirportSearch } from "./AirportSearch"
 import { Airport, RaceWithDetails } from "@/types/race"
-import { addDays, subDays, format } from "date-fns"
+import { addDays, subDays } from "date-fns"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Info } from "lucide-react"
 
@@ -90,7 +91,7 @@ export function FlightSearchForm({
         missingEvents.push(WEEKEND_SCHEDULE.saturday)
 
       setDateWarning(
-        `Late arrival - you'll miss: ${missingEvents.join(", ")}. Consider arriving on ${format(recommendedArrivalStart, "EEEE")} (${format(recommendedArrivalStart, "MMM d")})`
+        `Late arrival - you'll miss: ${missingEvents.join(", ")}. Consider arriving on ${formatRaceCalendarDate(recommendedArrivalStart, { weekday: "long" })} (${formatRaceCalendarDate(recommendedArrivalStart, { month: "short", day: "numeric" })})`
       )
       return
     }
@@ -98,7 +99,7 @@ export function FlightSearchForm({
     // Check if arriving too early
     if (departure < subDays(recommendedArrivalStart, 2)) {
       setDateWarning(
-        `Consider arriving closer to the race weekend. Recommended arrival is ${format(recommendedArrivalStart, "EEEE")} (${format(recommendedArrivalStart, "MMM d")})`
+        `Consider arriving closer to the race weekend. Recommended arrival is ${formatRaceCalendarDate(recommendedArrivalStart, { weekday: "long" })} (${formatRaceCalendarDate(recommendedArrivalStart, { month: "short", day: "numeric" })})`
       )
       return
     }
@@ -122,7 +123,7 @@ export function FlightSearchForm({
       // Check if staying too long
       if (return_ > recommendedDepartureEnd) {
         setDateWarning(
-          `Consider departing closer to the race. Recommended departure is ${format(recommendedDepartureEnd, "EEEE")} (${format(recommendedDepartureEnd, "MMM d")})`
+          `Consider departing closer to the race. Recommended departure is ${formatRaceCalendarDate(recommendedDepartureEnd, { weekday: "long" })} (${formatRaceCalendarDate(recommendedDepartureEnd, { month: "short", day: "numeric" })})`
         )
         return
       }

@@ -45,6 +45,7 @@ import {
   Loader2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { RaceWithDetails } from "@/types/race"
 import { toast } from "sonner"
 
@@ -438,7 +439,7 @@ Where would you like to go?`
                       <div className="flex items-center gap-2">
                         <Calendar className="text-muted-foreground size-4" />
                         <span>
-                          {new Date(tripDetails.race.date).toLocaleDateString()}
+                          {formatRaceCalendarDate(tripDetails.race.date)}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
