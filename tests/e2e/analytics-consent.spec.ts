@@ -351,78 +351,39 @@ async function assertEqualActionProminence(page: Page): Promise<void> {
   await expect(reject).toBeFocused()
 }
 
-function boxesOverlap(
-  a: { x: number; y: number; width: number; height: number },
-  b: { x: number; y: number; width: number; height: number }
-): boolean {
-  return (
-    a.x < b.x + b.width &&
-    a.x + a.width > b.x &&
-    a.y < b.y + b.height &&
-    a.y + a.height > b.y
-  )
-}
-
-async function assertProgressierBadgeDoesNotCoverConsentActions(
-  page: Page
-): Promise<void> {
-  const accept = page.getByRole("button", {
-    name: "Accept analytics",
-    exact: true
-  })
-  const reject = page.getByRole("button", {
-    name: "Reject non-essential",
-    exact: true
-  })
-  const acceptBox = await accept.boundingBox()
-  const rejectBox = await reject.boundingBox()
-  expect(acceptBox, "Accept analytics geometry").toBeTruthy()
-  expect(rejectBox, "Reject non-essential geometry").toBeTruthy()
-
-  const badgeBox = await page.evaluate(() => {
-    const boxes: Array<{ x: number; y: number; width: number; height: number }> =
-      []
+async function assertProgressierChromeIsAbsent(page: Page): Promise<void> {
+  const hits = await page.evaluate(() => {
+    const found: string[] = []
     const visit = (root: Document | ShadowRoot) => {
       const nodes = Array.from(root.querySelectorAll("*"))
       for (const node of nodes) {
         if (node instanceof HTMLElement && node.shadowRoot) {
           visit(node.shadowRoot)
         }
-        const text = (node.textContent ?? "").replace(/\s+/g, " ").trim()
-        if (!/powered by progressier/i.test(text) || text.length > 80) {
-          continue
+        const className = typeof node.className === "string" ? node.className : ""
+        if (/progressier/i.test(className) || /progressier/i.test(node.id)) {
+          found.push(`${node.tagName} ${className} ${node.id}`.trim())
         }
-        const rect = node.getBoundingClientRect()
-        if (rect.width >= 8 && rect.height >= 8) {
-          boxes.push({
-            x: rect.x,
-            y: rect.y,
-            width: rect.width,
-            height: rect.height
-          })
+        if (node instanceof HTMLImageElement && /progressier/i.test(node.alt)) {
+          found.push(`img alt=${node.alt}`)
+        }
+        if (node instanceof HTMLScriptElement && /progressier\.app/i.test(node.src)) {
+          found.push(`script ${node.src}`)
+        }
+        if (node instanceof HTMLLinkElement && /progressier\.app/i.test(node.href)) {
+          found.push(`link ${node.href}`)
+        }
+        const text = (node.textContent ?? "").replace(/\s+/g, " ").trim()
+        if (/powered by progressier/i.test(text) && text.length <= 80) {
+          found.push(`text ${text}`)
         }
       }
     }
     visit(document)
-    if (boxes.length === 0) {
-      return null
-    }
-    boxes.sort((left, right) => left.width * left.height - right.width * right.height)
-    return boxes[0] ?? null
+    return found
   })
 
-  if (!badgeBox) {
-    return
-  }
-
-  expect(
-    boxesOverlap(badgeBox, acceptBox!),
-    "Progressier badge intersects Accept analytics"
-  ).toBe(false)
-  expect(
-    boxesOverlap(badgeBox, rejectBox!),
-    "Progressier badge intersects Reject non-essential"
-  ).toBe(false)
+  expect(hits, "Progressier badge or install chrome").toEqual([])
 }
 
 async function assertFirstVisitBanner(page: Page): Promise<void> {
@@ -631,7 +592,7 @@ test.describe("analytics consent", () => {
 
     await assertFirstVisitBanner(page)
     await assertEqualActionProminence(page)
-    await assertProgressierBadgeDoesNotCoverConsentActions(page)
+    await assertProgressierChromeIsAbsent(page)
     expect(await readConsentRaw(page)).toBeNull()
     await assertNoVendorSurface(page, requests, "first visit desktop")
     await assertNoHorizontalOverflow(page, "desktop 1440x1000")
@@ -653,7 +614,7 @@ test.describe("analytics consent", () => {
     await page.setViewportSize(MOBILE)
     await assertFirstVisitBanner(page)
     await assertEqualActionProminence(page)
-    await assertProgressierBadgeDoesNotCoverConsentActions(page)
+    await assertProgressierChromeIsAbsent(page)
     expect(await readConsentRaw(page)).toBeNull()
     await assertNoVendorSurface(page, requests, "first visit mobile")
     await assertNoHorizontalOverflow(page, "mobile 390x844")

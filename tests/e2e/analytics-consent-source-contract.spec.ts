@@ -308,18 +308,14 @@ describe("PLT-016 analytics consent browser source contract", () => {
     expect(banner).not.toMatch(/progressier/i)
   })
 
-  it("asserts Progressier badge geometry does not cover consent actions when present", () => {
+  it("asserts the Progressier badge and install chrome are absent", () => {
     const spec = read("tests/e2e/analytics-consent.spec.ts")
-    expect(spec).toMatch(/function boxesOverlap/)
-    expect(spec).toMatch(/assertProgressierBadgeDoesNotCoverConsentActions/)
+    expect(spec).toMatch(/assertProgressierChromeIsAbsent/)
     expect(spec).toMatch(/powered by progressier/i)
-    expect(spec).toMatch(/getBoundingClientRect/)
-    expect(spec).toMatch(/Progressier badge intersects Accept analytics/)
-    expect(spec).toMatch(/Progressier badge intersects Reject non-essential/)
-    expect(
-      spec.match(/assertProgressierBadgeDoesNotCoverConsentActions/g)?.length
-    ).toBeGreaterThanOrEqual(3)
+    expect(spec).toMatch(/progressier\\.app/)
+    expect(spec).toMatch(/Progressier badge or install chrome/)
+    expect(spec.match(/assertProgressierChromeIsAbsent/g)?.length).toBeGreaterThanOrEqual(3)
     expect(spec).not.toMatch(/display:\s*["']none["']/)
-    expect(spec).not.toMatch(/remove\(\)|removeChild/)
+    expect(spec).not.toMatch(/\.remove\(\)|removeChild/)
   })
 })

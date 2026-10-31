@@ -82,10 +82,6 @@ export default async function RootLayout({
   return (
     <ClerkProvider>
       <link
-        rel="manifest"
-        href="https://progressier.app/fCbsNMgvDZeSMoERSrZK/progressier.json"
-      />
-      <link
         rel="apple-touch-icon"
         sizes="180x180"
         href="/apple-touch-icon.png"
@@ -103,11 +99,6 @@ export default async function RootLayout({
         href="/favicon-16x16.png"
       />
       <link rel="manifest" href="/site.webmanifest" />
-      <script
-        defer
-        async={true}
-        src="https://progressier.app/fCbsNMgvDZeSMoERSrZK/script.js"
-      ></script>
       <html lang="en" suppressHydrationWarning>
         <body
           className={cn(
