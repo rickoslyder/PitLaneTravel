@@ -13,6 +13,7 @@ import LocalAttractions from "@/components/races/LocalAttractions"
 import { RaceWithDetails } from "@/types/race"
 import { getRaceHistoryAction } from "@/actions/db/race-history-actions"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
+import { buildRacePageMetadata } from "@/lib/race-page-metadata"
 import { Metadata } from "next"
 
 interface RacePageProps {
@@ -67,18 +68,18 @@ export async function generateMetadata({
     return {
       title: "Race Details | PitLane Travel",
       description:
-        "Get comprehensive information about this Formula 1 race weekend, including circuit details, local attractions, and travel tips."
+        "Get comprehensive information about this race weekend, including circuit details, local attractions, and travel tips."
     }
   }
 
   const { race, circuit } = data
-  const circuitName = circuit?.name || "the circuit"
-  const locationInfo = circuit?.location ? ` in ${circuit.location}` : ""
 
-  return {
-    title: `${race.name} | F1 Race Weekend Guide | PitLane Travel`,
-    description: `Plan your ${race.name} experience at ${circuitName}${locationInfo}. Get tickets, find flights & accommodation, and discover local attractions for an unforgettable F1 weekend.`
-  }
+  return buildRacePageMetadata({
+    raceName: race.name,
+    series: race.series,
+    circuitName: circuit?.name,
+    location: circuit?.location
+  })
 }
 
 export default async function RacePage({ params }: RacePageProps) {
@@ -116,7 +117,7 @@ export default async function RacePage({ params }: RacePageProps) {
     raceResult.data.id
   ])
   const coverage = coverageResult.isSuccess
-    ? coverageResult.data[0] ?? null
+    ? (coverageResult.data[0] ?? null)
     : null
 
   // Get user's existing trip for this race if they're logged in

@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Compare F1 Race Weekends | Event Comparison Tool | PitLane Travel",
+  title: "Compare Race Weekends | PitLane Travel",
   description:
-    "Make informed decisions by comparing Formula 1 race weekends side by side. Compare costs, weather, accommodation options, and fan experiences across different Grand Prix events."
+    "Compare race weekends side by side — dates, circuits, countries and series — to decide which trip to book across F1, MotoGP, Formula E, IndyCar and WEC."
 }

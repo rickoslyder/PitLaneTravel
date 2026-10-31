@@ -1,5 +1,7 @@
 "use client"
 
+import { raceHistoryIntro } from "@/lib/race-page-metadata"
+import { seriesPageLabel } from "@/lib/series"
 import { RaceWithDetails } from "@/types/race"
 import { SelectRaceHistory } from "@/db/schema/race-history-schema"
 import { Button } from "@/components/ui/button"
@@ -29,8 +31,7 @@ export function RaceHistoryPage({ race, history }: RaceHistoryPageProps) {
         <div>
           <h1 className="text-4xl font-bold">{race.name}: A Rich History</h1>
           <p className="text-muted-foreground mt-2">
-            Explore the fascinating history and memorable moments of this iconic
-            Formula 1 race.
+            {raceHistoryIntro(seriesPageLabel(race.series))}
           </p>
         </div>
 

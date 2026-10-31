@@ -1,8 +1,7 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title:
-    "F1 Race Locations Map 2025 | Interactive Circuit Guide | PitLane Travel",
+  title: "Race Locations | PitLane Travel",
   description:
-    "Explore Formula 1 circuits worldwide with our interactive map. Discover race locations, track details, and plan your F1 journey across the globe."
+    "Explore Formula 1, Formula E, MotoGP, IndyCar and WEC circuits on an interactive map. Discover race locations, track details, and plan the trip."
 }

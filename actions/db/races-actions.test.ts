@@ -21,7 +21,12 @@ function createSelectChain(result: unknown[] | Error): SelectChain {
     return result
   })
   const where = vi.fn(() => ({ limit }))
-  const leftJoin = vi.fn(() => ({ where }))
+  const joined: { leftJoin: ReturnType<typeof vi.fn>; where: typeof where } = {
+    leftJoin: vi.fn(),
+    where
+  }
+  joined.leftJoin.mockReturnValue(joined)
+  const leftJoin = joined.leftJoin
   const from = vi.fn(() => ({ leftJoin }))
   const select = vi.fn(() => ({ from }))
   return { select, from, leftJoin, where, limit }

@@ -29,6 +29,35 @@ function isUniqueViolation(error: unknown): boolean {
   )
 }
 
+function presentSeries(
+  series: {
+    id: string | null
+    name: string | null
+    short_name: string | null
+    slug: string | null
+    event_noun: string | null
+    accent_color: string | null
+  } | null
+): RaceWithCircuitAndSeries["series"] {
+  if (
+    !series?.id ||
+    !series.name ||
+    !series.short_name ||
+    !series.slug ||
+    !series.event_noun
+  ) {
+    return null
+  }
+  return {
+    id: series.id,
+    name: series.name,
+    short_name: series.short_name,
+    slug: series.slug,
+    event_noun: series.event_noun,
+    accent_color: series.accent_color
+  }
+}
+
 function projectRaceReadStatus(
   race: {
     status: RaceStatusValue
@@ -191,6 +220,7 @@ export async function getRacesAction(filters?: {
         weekend_start: race.weekend_start?.toISOString() || null,
         weekend_end: race.weekend_end?.toISOString() || null,
         status: projectRaceReadStatus(race, now),
+        series: presentSeries(race.series),
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),
@@ -239,6 +269,15 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
         openf1_session_key: racesTable.openf1SessionKey,
         created_at: racesTable.createdAt,
         updated_at: racesTable.updatedAt,
+        series_id: racesTable.seriesId,
+        series: {
+          id: seriesTable.id,
+          name: seriesTable.name,
+          short_name: seriesTable.shortName,
+          slug: seriesTable.slug,
+          event_noun: seriesTable.eventNoun,
+          accent_color: seriesTable.accentColor
+        },
         circuit: {
           id: circuitsTable.id,
           name: circuitsTable.name,
@@ -259,6 +298,7 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
       })
       .from(racesTable)
       .leftJoin(circuitsTable, eq(racesTable.circuitId, circuitsTable.id))
+      .leftJoin(seriesTable, eq(racesTable.seriesId, seriesTable.id))
       .where(eq(racesTable.id, id))
       .limit(1)
 
@@ -291,6 +331,7 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
         weekend_start: race.weekend_start?.toISOString() || null,
         weekend_end: race.weekend_end?.toISOString() || null,
         status: projectRaceReadStatus(race, now),
+        series: presentSeries(race.series),
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),
@@ -477,6 +518,15 @@ export async function getRaceBySlugAction(slug: string): Promise<ActionState<Rac
         openf1_session_key: racesTable.openf1SessionKey,
         created_at: racesTable.createdAt,
         updated_at: racesTable.updatedAt,
+        series_id: racesTable.seriesId,
+        series: {
+          id: seriesTable.id,
+          name: seriesTable.name,
+          short_name: seriesTable.shortName,
+          slug: seriesTable.slug,
+          event_noun: seriesTable.eventNoun,
+          accent_color: seriesTable.accentColor
+        },
         circuit: {
           id: circuitsTable.id,
           name: circuitsTable.name,
@@ -497,6 +547,7 @@ export async function getRaceBySlugAction(slug: string): Promise<ActionState<Rac
       })
       .from(racesTable)
       .leftJoin(circuitsTable, eq(racesTable.circuitId, circuitsTable.id))
+      .leftJoin(seriesTable, eq(racesTable.seriesId, seriesTable.id))
       .where(eq(racesTable.slug, slug))
       .limit(1)
 
@@ -529,6 +580,7 @@ export async function getRaceBySlugAction(slug: string): Promise<ActionState<Rac
         weekend_start: race.weekend_start?.toISOString() || null,
         weekend_end: race.weekend_end?.toISOString() || null,
         status: projectRaceReadStatus(race, now),
+        series: presentSeries(race.series),
         circuit: race.circuit ? {
           ...race.circuit,
           latitude: Number(race.circuit.latitude),

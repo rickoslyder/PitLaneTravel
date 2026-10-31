@@ -8,6 +8,8 @@ import {
 import { getRaceHistoryAction } from "@/actions/db/race-history-actions"
 import { notFound } from "next/navigation"
 import { RaceHistoryPage } from "@/components/races/RaceHistoryPage"
+import { raceHistoryIntro } from "@/lib/race-page-metadata"
+import { seriesPageLabel } from "@/lib/series"
 import { Metadata } from "next"
 
 interface RaceHistoryPageProps {
@@ -57,8 +59,7 @@ export async function generateMetadata({
   if (!data) {
     return {
       title: "Race History | PitLane Travel",
-      description:
-        "Explore the history and memorable moments of this Formula 1 race"
+      description: "Explore the history and memorable moments of this race."
     }
   }
 
@@ -67,7 +68,7 @@ export async function generateMetadata({
       data.history.metaTitle || `${data.race.name} History | PitLane Travel`,
     description:
       data.history.metaDescription ||
-      `Discover the rich history, memorable moments, and fascinating facts about the ${data.race.name}. Explore past winners, records, and iconic moments.`
+      raceHistoryIntro(seriesPageLabel(data.race.series))
   }
 }
 
