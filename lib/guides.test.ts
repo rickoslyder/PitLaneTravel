@@ -15,6 +15,7 @@ import {
 } from "./guides"
 
 const publishedSlugs = [
+  "abu-dhabi-grand-prix-travel-guide",
   "two-races-one-trip-2027",
   "which-race-first-2027"
 ] as const
@@ -65,7 +66,7 @@ function assertBreadcrumbShape(
 }
 
 describe("guide content loader", () => {
-  it("loads the two published guides from content/guides", () => {
+  it("loads the published guides from content/guides", () => {
     const guides = listGuides()
 
     expect(guides.map(guide => guide.slug)).toEqual([...publishedSlugs])
@@ -142,6 +143,29 @@ describe("guide content loader", () => {
       expect(source).not.toContain("word_count")
       expect(source).not.toContain("meta_option_2")
     }
+  })
+
+  it("refuses to publish a guide that contains HOLD or TODO", () => {
+    const source = `---
+title: "Hello"
+description: "A short dek."
+slug: hello-guide
+publishedAt: 2026-10-31
+updatedAt: 2026-10-31
+author: PitLane Travel
+---
+
+# Hello
+
+TODO: finish this.
+`
+    expect(() => parseGuideSource(source, "hello-guide.mdx")).toThrow(/TODO/)
+    expect(() =>
+      parseGuideSource(
+        source.replace("TODO: finish this.", "HOLD this."),
+        "hello-guide.mdx"
+      )
+    ).toThrow(/HOLD/)
   })
 
   it("rejects frontmatter that does not match the filename", () => {

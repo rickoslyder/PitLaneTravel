@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import dynamic from "next/dynamic"
 import { RaceWithDetails } from "@/types/race"
@@ -34,6 +35,7 @@ import { useAnnouncer } from "./use-announcer"
 import { CoverageBadge } from "@/components/coverage/coverage-badge"
 import { FreshnessNote } from "@/components/coverage/freshness-note"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
+import { guideSlugForRace } from "@/lib/race-guide-links"
 
 // Create a loading component
 function TabLoadingSpinner() {
@@ -155,6 +157,7 @@ export function RaceDetailsPage({
   })
   const [isScrolled, setIsScrolled] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
+  const guideSlug = guideSlugForRace(race.slug)
 
   // Handle scroll events
   useEffect(() => {
@@ -318,6 +321,17 @@ export function RaceDetailsPage({
             <CoverageBadge summary={coverage} />
             <FreshnessNote summary={coverage} />
           </div>
+        </div>
+      )}
+
+      {guideSlug && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+          <Link
+            href={`/guides/${guideSlug}`}
+            className="text-sm font-medium underline underline-offset-4"
+          >
+            Read the guide
+          </Link>
         </div>
       )}
 
