@@ -43,6 +43,7 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
     return matchesSearch && matchesType
   })
 
+  const catalogueAffiliates = affiliatePartnersOnPage(data?.tickets ?? [])
   const affiliatePartners = affiliatePartnersOnPage(filteredTickets ?? [])
 
   if (loading) {
@@ -68,8 +69,12 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
   return (
     <div className="space-y-8">
       <div className="prose prose-gray dark:prose-invert max-w-none">
-        <h2>Official tickets</h2>
-        <p>{ticketSectionIntro(race.name)}</p>
+        <h2>
+          {catalogueAffiliates.length > 0 ? "Tickets" : "Official tickets"}
+        </h2>
+        <p>
+          {ticketSectionIntro(race.name, catalogueAffiliates.length > 0)}
+        </p>
       </div>
 
       {affiliatePartners.length > 0 && (

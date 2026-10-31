@@ -61,4 +61,20 @@ describe("official seller copy", () => {
     ).toBe("tickets.formula1.com")
     expect(resellerHost("not a url")).toBeNull()
   })
+
+  it("does not claim every link is a direct organizer purchase when a seller is listed", () => {
+    const intro = ticketSectionIntro("24 Hours of Le Mans 2026", true)
+    expect(intro).toMatch(/ticket seller/)
+    expect(intro).toMatch(/does not sell tickets/)
+    expect(intro).not.toMatch(/buy directly from the series/i)
+  })
+
+  it("names the Partnerize destination instead of the tracking host", () => {
+    expect(
+      resellerHost(
+        "https://p1travel.prf.hn/click/camref:abc/destination:https%3A%2F%2Fwww.p1travel.com%2Ff1"
+      )
+    ).toBe("p1travel.com")
+    expect(resellerHost("https://p1travel.prf.hn/click/camref:abc")).toBeNull()
+  })
 })

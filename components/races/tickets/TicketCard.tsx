@@ -27,6 +27,7 @@ import { SelectTicket } from "@/db/schema"
 import { SUPPORTED_CURRENCIES } from "@/config/currencies"
 import { convertPriceAction } from "@/actions/db/currency-actions"
 import { generateMaskedUrlAction } from "@/actions/db/ticket-redirect-actions"
+import { affiliatePartnerFromUrl } from "@/lib/ticket-affiliate"
 import {
   TICKET_BUY_LABEL,
   resellerHost,
@@ -143,6 +144,15 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
   }
 
   const sellerHost = resellerHost(ticket.resellerUrl)
+  const affiliatePartner = affiliatePartnerFromUrl(ticket.resellerUrl)
+  const buyLabel = affiliatePartner
+    ? `Buy from ${affiliatePartner}`
+    : TICKET_BUY_LABEL
+  const linkCaption = sellerHost
+    ? `Opens ${sellerHost}`
+    : affiliatePartner
+      ? `Opens ${affiliatePartner}`
+      : "Opens the official seller's site"
 
   return (
     <motion.div
@@ -298,13 +308,11 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
                 )}
               >
                 <Button className="w-full" size="lg" disabled={isLoadingUrl}>
-                  {isLoadingUrl ? "Loading..." : TICKET_BUY_LABEL}
+                  {isLoadingUrl ? "Loading..." : buyLabel}
                 </Button>
               </a>
               <p className="text-muted-foreground text-center text-xs">
-                {sellerHost
-                  ? `Opens ${sellerHost}`
-                  : "Opens the official seller's site"}
+                {linkCaption}
               </p>
             </div>
           ) : showWaitlist ? (
@@ -316,7 +324,9 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
             />
           ) : (
             <p className="text-muted-foreground text-sm">
-              Sold out at the official seller.
+              {affiliatePartner
+                ? `Sold out at ${affiliatePartner}.`
+                : "Sold out at the official seller."}
             </p>
           )}
         </CardContent>

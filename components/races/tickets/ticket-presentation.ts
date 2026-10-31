@@ -5,7 +5,13 @@
 
 export const TICKET_BUY_LABEL = "Buy from official seller"
 
-export function ticketSectionIntro(raceName: string): string {
+export function ticketSectionIntro(
+  raceName: string,
+  includesAffiliate = false
+): string {
+  if (includesAffiliate) {
+    return `Tickets for ${raceName}. Some links open the series, promoter or circuit. Others open a ticket seller. Pit Lane does not sell tickets.`
+  }
   return `Official tickets for ${raceName}. You buy directly from the series, promoter or circuit. Pit Lane does not sell tickets.`
 }
 
@@ -52,10 +58,54 @@ export function ticketEmptyState(
   }
 }
 
-export function resellerHost(url: string): string | null {
+const TRACKING_HOST = /(^|\.)prf\.hn$|(^|\.)partnerize\.com$/i
+
+function bareHost(url: URL): string {
+  return url.hostname.replace(/^www\./, "")
+}
+
+function httpUrl(value: string | null | undefined): URL | null {
+  if (!value) return null
+  let decoded = value
   try {
-    return new URL(url).hostname.replace(/^www\./, "")
+    decoded = decodeURIComponent(value)
+    if (decoded.includes("%")) decoded = decodeURIComponent(decoded)
+  } catch {
+    decoded = value
+  }
+  try {
+    const url = new URL(decoded)
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null
+    return url
   } catch {
     return null
   }
+}
+
+/** Partnerize click URLs store the merchant in a `destination:` path segment. */
+function partnerizeDestination(page: URL): URL | null {
+  const fromQuery = httpUrl(page.searchParams.get("destination"))
+  if (fromQuery) return fromQuery
+
+  const marker = "destination:"
+  const index = page.pathname.toLowerCase().indexOf(marker)
+  if (index === -1) return null
+  const raw = page.pathname.slice(index + marker.length).split("/")[0]
+  return httpUrl(raw)
+}
+
+export function resellerHost(url: string): string | null {
+  let parsed: URL
+  try {
+    parsed = new URL(url)
+  } catch {
+    return null
+  }
+
+  const destination = partnerizeDestination(parsed)
+  if (destination) return bareHost(destination)
+
+  const host = bareHost(parsed)
+  if (TRACKING_HOST.test(host)) return null
+  return host
 }
