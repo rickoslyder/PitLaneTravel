@@ -63,6 +63,19 @@ function coverageBadgeFor(page: Page, name: string) {
     .locator("xpath=following-sibling::*[@data-coverage-badge]")
 }
 
+const UPCOMING_COVERAGE_CASES = PUBLIC_COVERAGE_TIER_CASES.filter(
+  race => race.name !== E2E_RACE_COMPLETED_NAME
+)
+const PAST_COVERAGE_CASES = PUBLIC_COVERAGE_TIER_CASES.filter(
+  race => race.name === E2E_RACE_COMPLETED_NAME
+)
+
+async function selectRaceTiming(page: Page, name: "Upcoming" | "Past") {
+  const button = page.getByRole("button", { name, exact: true })
+  await button.click()
+  await expect(button).toHaveAttribute("aria-pressed", "true")
+}
+
 async function filterPublicCoverageCards(page: Page): Promise<void> {
   const response = await page.goto("/races")
   expect(response, "/races should return a response").toBeTruthy()
@@ -71,14 +84,28 @@ async function filterPublicCoverageCards(page: Page): Promise<void> {
   await expect(
     page.getByRole("heading", { name: "Race Calendar", exact: true })
   ).toBeVisible()
+  await expect(
+    page.getByRole("button", { name: "Upcoming", exact: true })
+  ).toHaveAttribute("aria-pressed", "true")
 
   await page.getByRole("searchbox").fill(PUBLIC_COVERAGE_SEARCH_QUERY)
 
-  for (const race of PUBLIC_COVERAGE_TIER_CASES) {
+  for (const race of UPCOMING_COVERAGE_CASES) {
     await expect(
       page.getByRole("heading", { name: race.name, exact: true })
     ).toBeVisible()
   }
+  await expect(
+    page.getByRole("heading", { name: E2E_RACE_COMPLETED_NAME, exact: true })
+  ).toHaveCount(0)
+
+  await selectRaceTiming(page, "Past")
+  for (const race of PAST_COVERAGE_CASES) {
+    await expect(
+      page.getByRole("heading", { name: race.name, exact: true })
+    ).toBeVisible()
+  }
+  await selectRaceTiming(page, "Upcoming")
 }
 
 function assertNoSecretLeakage(html: string): void {
@@ -98,13 +125,19 @@ test.describe("public coverage honesty", () => {
       ...SIX_DEPTH_LABELS
     ])
 
-    for (const race of PUBLIC_COVERAGE_TIER_CASES) {
+    for (const race of UPCOMING_COVERAGE_CASES) {
       const badge = coverageBadgeFor(page, race.name)
       await expect(badge).toBeVisible()
-      await expect(badge.getByText(race.depthLabel, { exact: true })).toBeVisible()
-      await expect(badge.getByText(race.offerLabel, { exact: true })).toBeVisible()
+      await expect(
+        badge.getByText(race.depthLabel, { exact: true })
+      ).toBeVisible()
+      await expect(
+        badge.getByText(race.offerLabel, { exact: true })
+      ).toBeVisible()
       await expect(badge).toHaveAttribute("data-coverage-tone", race.tone)
-      await expect(badge.getByText("full guide", { exact: false })).toHaveCount(0)
+      await expect(badge.getByText("full guide", { exact: false })).toHaveCount(
+        0
+      )
 
       if (race.offerLabel === "No current offers") {
         await expect(
@@ -112,6 +145,20 @@ test.describe("public coverage honesty", () => {
         ).toHaveCount(0)
       }
     }
+
+    await selectRaceTiming(page, "Past")
+    for (const race of PAST_COVERAGE_CASES) {
+      const badge = coverageBadgeFor(page, race.name)
+      await expect(badge).toBeVisible()
+      await expect(
+        badge.getByText(race.depthLabel, { exact: true })
+      ).toBeVisible()
+      await expect(
+        badge.getByText(race.offerLabel, { exact: true })
+      ).toBeVisible()
+      await expect(badge).toHaveAttribute("data-coverage-tone", race.tone)
+    }
+    await selectRaceTiming(page, "Upcoming")
 
     const mutedCases = PUBLIC_COVERAGE_TIER_CASES.filter(
       race => race.tone === "muted"
@@ -133,10 +180,20 @@ test.describe("public coverage honesty", () => {
     })
 
     await page.setViewportSize({ width: 390, height: 844 })
-    for (const race of PUBLIC_COVERAGE_TIER_CASES) {
+    for (const race of UPCOMING_COVERAGE_CASES) {
       const badge = coverageBadgeFor(page, race.name)
       await expect(badge).toBeVisible()
-      await expect(badge.getByText(race.depthLabel, { exact: true })).toBeVisible()
+      await expect(
+        badge.getByText(race.depthLabel, { exact: true })
+      ).toBeVisible()
+    }
+    await selectRaceTiming(page, "Past")
+    for (const race of PAST_COVERAGE_CASES) {
+      const badge = coverageBadgeFor(page, race.name)
+      await expect(badge).toBeVisible()
+      await expect(
+        badge.getByText(race.depthLabel, { exact: true })
+      ).toBeVisible()
     }
     await assertDocumentDoesNotHorizontallyOverflow(page, "mobile 390x844")
 
@@ -156,8 +213,14 @@ test.describe("public coverage honesty", () => {
     page
   }) => {
     const expired = await page.goto(`/races/${E2E_RACE_COMPLETED_SLUG}`)
-    expect(expired, "expired-offer detail should return a response").toBeTruthy()
-    expect(expired!.ok(), "expired-offer detail should be HTTP success").toBeTruthy()
+    expect(
+      expired,
+      "expired-offer detail should return a response"
+    ).toBeTruthy()
+    expect(
+      expired!.ok(),
+      "expired-offer detail should be HTTP success"
+    ).toBeTruthy()
 
     const expiredBadge = page.locator("[data-coverage-badge]").first()
     const freshness = page.locator("[data-freshness-note]").first()
@@ -188,8 +251,14 @@ test.describe("public coverage honesty", () => {
     assertNoSecretLeakage(await page.content())
 
     const current = await page.goto(`/races/${E2E_RACE_SLUG}`)
-    expect(current, "current-offer detail should return a response").toBeTruthy()
-    expect(current!.ok(), "current-offer detail should be HTTP success").toBeTruthy()
+    expect(
+      current,
+      "current-offer detail should return a response"
+    ).toBeTruthy()
+    expect(
+      current!.ok(),
+      "current-offer detail should be HTTP success"
+    ).toBeTruthy()
 
     const currentBadge = page.locator("[data-coverage-badge]").first()
     await expect(
