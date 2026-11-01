@@ -19,6 +19,7 @@ import {
   RACE_PAGE_NOT_FOUND_DESCRIPTION,
   RACE_PAGE_NOT_FOUND_TITLE
 } from "@/lib/race-page-metadata"
+import { raceHasFinished } from "@/lib/finished-race"
 
 interface RacePageProps {
   params: Promise<{
@@ -83,13 +84,23 @@ export async function generateMetadata({
     circuitLocation: circuit?.location
   })
 
+  const finished = raceHasFinished(
+    {
+      status: race.status,
+      date: race.date,
+      weekend_end: race.weekend_end
+    },
+    new Date()
+  )
+
   return {
     title: copy.title,
     description: copy.description,
     openGraph: {
       title: copy.openGraph.title,
       description: copy.openGraph.description
-    }
+    },
+    ...(finished ? { robots: { index: false, follow: true } } : {})
   }
 }
 
@@ -128,7 +139,7 @@ export default async function RacePage({ params }: RacePageProps) {
     raceResult.data.id
   ])
   const coverage = coverageResult.isSuccess
-    ? coverageResult.data[0] ?? null
+    ? (coverageResult.data[0] ?? null)
     : null
 
   // Get user's existing trip for this race if they're logged in
