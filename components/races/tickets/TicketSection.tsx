@@ -16,14 +16,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TicketCard } from "./TicketCard"
 import { PackageCard } from "./PackageCard"
 import { TicketCardSkeleton } from "./TicketCardSkeleton"
-import { useTickets } from "./use-tickets"
+import { TicketsEmptyState } from "./TicketsEmptyState"
+import { hasTicketListings } from "./ticket-availability"
+import { type TicketData } from "./use-tickets"
 
 type Ticket = SelectTicket & { features: any[]; currentPrice: any }
 
-export function TicketSection({ race }: { race: RaceWithDetails }) {
+export function TicketSection({
+  race,
+  data,
+  loading
+}: {
+  race: RaceWithDetails
+  data: TicketData | null
+  loading: boolean
+}) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedType, setSelectedType] = useState<string>("all")
-  const { data, loading } = useTickets(race.id)
 
   const filteredTickets = data?.tickets?.filter((ticket: Ticket) => {
     const matchesSearch =
@@ -54,15 +63,8 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
     )
   }
 
-  if (!data?.tickets?.length && !data?.packages?.length) {
-    return (
-      <div className="space-y-8">
-        <div className="prose prose-gray dark:prose-invert max-w-none">
-          <h2>Race Tickets</h2>
-          <p>No tickets are currently available for {race.name}.</p>
-        </div>
-      </div>
-    )
+  if (!hasTicketListings(data)) {
+    return <TicketsEmptyState raceName={race.name} />
   }
 
   return (

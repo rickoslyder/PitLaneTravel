@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, LucideIcon } from "lucide-react"
 import { RaceHero } from "./hero/RaceHero"
+import { useTickets } from "./tickets/use-tickets"
+import { ticketListingState } from "./tickets/ticket-availability"
 import { SelectRaceHistory } from "@/db/schema/race-history-schema"
 import { captureAnalyticsEvent } from "@/lib/analytics/capture"
 import { useAnalyticsConsent } from "@/lib/analytics-consent"
@@ -156,6 +158,8 @@ export function RaceDetailsPage({
       ? tabFromUrl
       : "info"
   })
+  const { data: ticketData, loading: ticketsLoading } = useTickets(race.id)
+  const ticketListings = ticketListingState(ticketsLoading, ticketData)
   const [isScrolled, setIsScrolled] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
 
@@ -313,6 +317,7 @@ export function RaceDetailsPage({
         userId={userId}
         existingTripId={existingTripId}
         onTabChange={handleTabChange}
+        ticketListings={ticketListings}
       />
 
       {coverage && (
@@ -439,7 +444,11 @@ export function RaceDetailsPage({
                       className="text-muted-foreground"
                     />
                   ) : (
-                    <TicketSection race={race} />
+                    <TicketSection
+                      race={race}
+                      data={ticketData}
+                      loading={ticketsLoading}
+                    />
                   )}
                 </TabsContent>
               </TabContent>
