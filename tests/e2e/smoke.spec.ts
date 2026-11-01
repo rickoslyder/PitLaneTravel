@@ -51,6 +51,27 @@ test.describe("production smoke", () => {
     await expect(page.getByText("E2E Fixture City")).toBeVisible()
   })
 
+  test("race page does not scroll sideways at 375 or 768", async ({ page }) => {
+    for (const width of [375, 768]) {
+      await page.setViewportSize({ width, height: 900 })
+      const response = await page.goto(`/races/${E2E_RACE_SLUG}`)
+      expect(response, "race detail should return a response").toBeTruthy()
+      expect(response!.ok(), "race detail should be HTTP success").toBeTruthy()
+      await expect(
+        page.getByRole("heading", { name: E2E_RACE_NAME, exact: true })
+      ).toBeVisible()
+
+      const metrics = await page.evaluate(() => ({
+        innerWidth: window.innerWidth,
+        documentScrollWidth: document.documentElement.scrollWidth
+      }))
+      expect(
+        metrics.documentScrollWidth,
+        `${width}px documentElement.scrollWidth ${metrics.documentScrollWidth} > innerWidth ${metrics.innerWidth}`
+      ).toBeLessThanOrEqual(metrics.innerWidth)
+    }
+  })
+
   test("grandstand guides is served and shows the seeded circuit", async ({
     page
   }) => {

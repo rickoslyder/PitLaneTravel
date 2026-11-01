@@ -6,7 +6,9 @@ Hook to check if the user is on a mobile device.
 
 import * as React from "react"
 
-const MOBILE_BREAKPOINT = 768
+// Match Tailwind `lg`. Below this the sidebar is an offcanvas sheet so
+// race pages do not keep a 16rem column at tablet width.
+const MOBILE_BREAKPOINT = 1024
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)

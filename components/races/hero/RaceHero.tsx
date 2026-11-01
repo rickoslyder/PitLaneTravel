@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { TripPlannerButton } from "@/components/trip-planner-button"
 import { seriesDisplayName } from "@/lib/series"
+import { raceHasFinished } from "@/lib/finished-race"
+import { FinishedRaceNotice } from "@/components/races/finished-race-notice"
 import { useEffect, useState, useMemo } from "react"
 
 interface RaceHeroProps {
@@ -102,6 +104,7 @@ export function RaceHero({
   }
 
   const seriesHeading = seriesDisplayName(race.series)
+  const finished = raceHasFinished(race, new Date())
 
   const handleShare = async () => {
     const shareData = {
@@ -124,7 +127,7 @@ export function RaceHero({
   }
 
   return (
-    <div className="relative h-[75vh] min-h-[500px] w-full overflow-hidden">
+    <div className="relative h-[75vh] min-h-[500px] w-full min-w-0 overflow-hidden">
       {race.circuit?.image_url ? (
         <div className="absolute inset-0">
           <img
@@ -136,14 +139,24 @@ export function RaceHero({
           <div className="absolute inset-0 bg-black/30" />
         </div>
       ) : (
-        <div className="from-primary/20 to-background absolute inset-0 bg-gradient-to-b" />
+        <div className="absolute inset-0" data-race-hero-fallback="">
+          <img
+            src="/assets/placeholder.jpg"
+            alt=""
+            className="size-full object-cover"
+          />
+          <div
+            className="absolute inset-0 bg-black/70"
+            data-race-hero-scrim=""
+          />
+        </div>
       )}
 
       <div className="absolute inset-0 -z-10 size-full bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]">
         <div className="bg-primary absolute inset-x-0 top-0 -z-10 m-auto size-[310px] rounded-full opacity-20 blur-[100px]" />
       </div>
 
-      <div className="container relative flex h-full flex-col items-center justify-center gap-6 px-4 sm:px-6 lg:px-8">
+      <div className="container relative flex h-full min-w-0 max-w-full flex-col items-center justify-center gap-6 px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -232,23 +245,27 @@ export function RaceHero({
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:mt-8 sm:gap-4"
           >
-            {race.status !== "cancelled" && (
-              <>
-                <Button
-                  size="lg"
-                  className="group relative bg-[#E10600] px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-105 hover:bg-[#FF0800] hover:shadow-[0_0_30px_rgba(225,6,0,0.4)] sm:p-6 sm:text-base"
-                  onClick={() => onTabChange("tickets")}
-                >
-                  <div className="absolute inset-0 rounded-md bg-gradient-to-r from-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <Ticket className="mr-2 size-4 sm:size-5" />
-                  Book Now
-                </Button>
-                <TripPlannerButton
-                  race={race}
-                  userId={userId}
-                  existingTripId={existingTripId}
-                />
-              </>
+            {finished ? (
+              <FinishedRaceNotice series={race.series} className="text-white" />
+            ) : (
+              race.status !== "cancelled" && (
+                <>
+                  <Button
+                    size="lg"
+                    className="group relative bg-[#E10600] px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-105 hover:bg-[#FF0800] hover:shadow-[0_0_30px_rgba(225,6,0,0.4)] sm:p-6 sm:text-base"
+                    onClick={() => onTabChange("tickets")}
+                  >
+                    <div className="absolute inset-0 rounded-md bg-gradient-to-r from-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <Ticket className="mr-2 size-4 sm:size-5" />
+                    Book Now
+                  </Button>
+                  <TripPlannerButton
+                    race={race}
+                    userId={userId}
+                    existingTripId={existingTripId}
+                  />
+                </>
+              )
             )}
             <Button
               size="lg"
@@ -269,7 +286,7 @@ export function RaceHero({
 
 function CountdownUnit({ value, label }: { value: number; label: string }) {
   return (
-    <div className="flex min-w-[60px] flex-col items-center sm:min-w-[80px]">
+    <div className="flex min-w-0 flex-col items-center sm:min-w-[80px]">
       <motion.div
         key={value}
         initial={{ scale: 1.1 }}

@@ -92,9 +92,9 @@ export function RacesBreadcrumb() {
   }
 
   return (
-    <div className="flex size-full items-center justify-between">
-      <Breadcrumb>
-        <BreadcrumbList>
+    <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+      <Breadcrumb className="min-w-0">
+        <BreadcrumbList className="min-w-0">
           <BreadcrumbItem>
             <BreadcrumbLink href="/races">Race Calendar</BreadcrumbLink>
           </BreadcrumbItem>

@@ -34,6 +34,8 @@ import { useAnnouncer } from "./use-announcer"
 import { CoverageBadge } from "@/components/coverage/coverage-badge"
 import { FreshnessNote } from "@/components/coverage/freshness-note"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
+import { raceHasFinished } from "@/lib/finished-race"
+import { FinishedRaceNotice } from "@/components/races/finished-race-notice"
 
 // Create a loading component
 function TabLoadingSpinner() {
@@ -147,6 +149,7 @@ export function RaceDetailsPage({
   const searchParams = useSearchParams()
   const { announce, Announcer } = useAnnouncer()
   const consent = useAnalyticsConsent()
+  const finished = raceHasFinished(race, new Date())
   const [activeTab, setActiveTab] = useState(() => {
     const tabFromUrl = searchParams.get("tab")
     return tabFromUrl && TAB_OPTIONS.some(tab => tab.value === tabFromUrl)
@@ -340,9 +343,9 @@ export function RaceDetailsPage({
         <Tabs
           value={activeTab}
           onValueChange={handleTabChange}
-          className="space-y-6 sm:space-y-8"
+          className="min-w-0 space-y-6 sm:space-y-8"
         >
-          <div className="sticky top-[3.5rem] z-50">
+          <div className="sticky top-[3.5rem] z-50 min-w-0">
             <div
               className={cn(
                 "bg-background/95 supports-[backdrop-filter]:bg-background/60 -mx-4 border-b backdrop-blur-md transition-shadow duration-200 sm:-mx-6 lg:-mx-8",
@@ -351,7 +354,7 @@ export function RaceDetailsPage({
               role="navigation"
               aria-label="Race details navigation"
             >
-              <div className="mx-auto max-w-7xl px-4 py-1.5 sm:px-6 sm:py-2 lg:px-8">
+              <div className="mx-auto min-w-0 max-w-7xl px-4 py-1.5 sm:px-6 sm:py-2 lg:px-8">
                 {/* Mobile Dropdown */}
                 <div className="w-full sm:hidden">
                   <DropdownMenu>
@@ -390,7 +393,7 @@ export function RaceDetailsPage({
 
                 {/* Desktop Tabs */}
                 <TabsList
-                  className="hidden w-full flex-nowrap overflow-x-auto sm:flex"
+                  className="hidden w-full min-w-0 flex-nowrap overflow-x-auto sm:flex"
                   aria-label="Race details tabs"
                 >
                   {TAB_OPTIONS.map((tab: TabOption) => (
@@ -410,7 +413,7 @@ export function RaceDetailsPage({
 
           <div
             id="tab-content"
-            className="relative min-h-[500px] touch-pan-y"
+            className="relative min-h-[500px] min-w-0 touch-pan-y"
             role="tabpanel"
             aria-label={`${activeTabOption?.label} content`}
           >
@@ -429,6 +432,11 @@ export function RaceDetailsPage({
                     <CancelledTabNotice
                       what="Tickets are not on sale"
                       reason={race.cancellation_reason}
+                    />
+                  ) : finished ? (
+                    <FinishedRaceNotice
+                      series={race.series}
+                      className="text-muted-foreground"
                     />
                   ) : (
                     <TicketSection race={race} />
