@@ -52,6 +52,64 @@ SET is_admin = false
 WHERE user_id = '<richard-new-clerk-user-id>';
 ```
 
+## Re-key Richard's old test rows
+
+Approved by Richard under his PitLane risk rule.
+
+After Richard's new prod profile exists, run one pre-check `SELECT` for
+each table. Each must match exactly 1 row where
+`user_id = 'user_2qf9oR94QeVLf8Wf4T0tPRljN3P'`. Stop if any result is not
+exactly one row.
+
+```sql
+SELECT * FROM trips
+WHERE user_id = 'user_2qf9oR94QeVLf8Wf4T0tPRljN3P';
+
+SELECT * FROM flight_bookings
+WHERE user_id = 'user_2qf9oR94QeVLf8Wf4T0tPRljN3P';
+
+SELECT * FROM admin_activities
+WHERE user_id = 'user_2qf9oR94QeVLf8Wf4T0tPRljN3P';
+```
+
+Write an audit log entry first. Record the date, the three pre-check
+results, and the three updates below. Then run these one-row updates.
+`<NEW_PROD_USER_ID>` is Richard's new production Clerk user id. Confirm
+each statement updates one row.
+
+```sql
+UPDATE trips
+SET user_id = '<NEW_PROD_USER_ID>'
+WHERE user_id = 'user_2qf9oR94QeVLf8Wf4T0tPRljN3P';
+
+UPDATE flight_bookings
+SET user_id = '<NEW_PROD_USER_ID>'
+WHERE user_id = 'user_2qf9oR94QeVLf8Wf4T0tPRljN3P';
+
+UPDATE admin_activities
+SET user_id = '<NEW_PROD_USER_ID>'
+WHERE user_id = 'user_2qf9oR94QeVLf8Wf4T0tPRljN3P';
+```
+
+Undo is the same three updates with the ids swapped:
+
+```sql
+UPDATE trips
+SET user_id = 'user_2qf9oR94QeVLf8Wf4T0tPRljN3P'
+WHERE user_id = '<NEW_PROD_USER_ID>';
+
+UPDATE flight_bookings
+SET user_id = 'user_2qf9oR94QeVLf8Wf4T0tPRljN3P'
+WHERE user_id = '<NEW_PROD_USER_ID>';
+
+UPDATE admin_activities
+SET user_id = 'user_2qf9oR94QeVLf8Wf4T0tPRljN3P'
+WHERE user_id = '<NEW_PROD_USER_ID>';
+```
+
+Leave the old `profiles` row alone. Leave the seed user `'1'`
+`saved_itineraries` rows alone.
+
 ## Apple sign-in
 
 Apple sign-in setup is done by Richard himself in Clerk. Keep the `.p8`
