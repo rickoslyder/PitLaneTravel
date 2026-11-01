@@ -9,25 +9,39 @@ import {
   plainOfficialTicketHref
 } from "./ticket-availability"
 
-export const OFFICIAL_SELLER_LINE =
-  "PitLane Travel doesn't sell tickets. This link opens the official seller."
+export function OfficialTicketLink({
+  href,
+  label,
+  note
+}: {
+  href: string
+  label: string
+  note: string
+}) {
+  const safeHref = plainOfficialTicketHref(href)
+  if (!safeHref) return null
 
-export function officialTicketStoreLabel(seriesName: string): string {
-  return `Official ${seriesName} ticket store`
+  return (
+    <div className="space-y-2" data-official-ticket-store="">
+      <a href={safeHref} target="_blank" rel="noopener noreferrer">
+        {label}
+      </a>
+      <p className="max-w-md text-sm leading-6 text-muted-foreground">{note}</p>
+    </div>
+  )
 }
 
 export function TicketsEmptyState({
   raceName,
   officialTicketUrl,
-  seriesName
+  officialLinkLabel,
+  officialLinkNote
 }: {
   raceName: string
   officialTicketUrl?: string | null
-  seriesName?: string | null
+  officialLinkLabel?: string | null
+  officialLinkNote?: string | null
 }) {
-  const officialHref = plainOfficialTicketHref(officialTicketUrl)
-  const seriesLabel = seriesName?.trim() || "series"
-
   return (
     <div className="flex min-h-[280px] flex-col items-center justify-center space-y-4 rounded-lg border border-dashed p-8 text-center">
       <div className="bg-muted rounded-full p-3">
@@ -36,15 +50,12 @@ export function TicketsEmptyState({
       <p className="max-w-md text-sm leading-6 text-muted-foreground">
         {emptyTicketsMessage(raceName)}
       </p>
-      {officialHref ? (
-        <div className="space-y-2">
-          <a href={officialHref} rel="noopener noreferrer">
-            {officialTicketStoreLabel(seriesLabel)}
-          </a>
-          <p className="max-w-md text-sm leading-6 text-muted-foreground">
-            {OFFICIAL_SELLER_LINE}
-          </p>
-        </div>
+      {officialTicketUrl && officialLinkLabel && officialLinkNote ? (
+        <OfficialTicketLink
+          href={officialTicketUrl}
+          label={officialLinkLabel}
+          note={officialLinkNote}
+        />
       ) : null}
       <Button asChild variant="outline">
         <Link href={EMPTY_TICKETS_BUTTON_HREF}>

@@ -1,11 +1,7 @@
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
-import {
-  OFFICIAL_SELLER_LINE,
-  TicketsEmptyState,
-  officialTicketStoreLabel
-} from "./TicketsEmptyState"
+import { TicketsEmptyState } from "./TicketsEmptyState"
 import {
   EMPTY_TICKETS_BUTTON_HREF,
   EMPTY_TICKETS_BUTTON_LABEL,
@@ -80,18 +76,21 @@ describe("zero ticket listings", () => {
     const withOfficial = renderToStaticMarkup(
       createElement(TicketsEmptyState, {
         raceName: RACE_NAME,
-        seriesName: "Formula 1",
-        officialTicketUrl: "https://tickets.example.com/race"
+        officialTicketUrl: "https://tickets.example.com/race",
+        officialLinkLabel: "Buy from the official F1® Ticket Store",
+        officialLinkNote:
+          "Official series ticket store. Not an affiliate link; Pit Lane Travel earns nothing from this purchase."
       })
     )
     const text = withOfficial.replace(/&#x27;/g, "'")
     expect(text).toContain(emptyTicketsMessage(RACE_NAME))
     expect(text).toContain(EMPTY_TICKETS_BUTTON_LABEL)
     expect(text).toContain('href="https://tickets.example.com/race"')
-    expect(text).toContain(officialTicketStoreLabel("Formula 1"))
-    expect(text).toContain(OFFICIAL_SELLER_LINE)
+    expect(text).toContain('target="_blank"')
+    expect(text).toContain('rel="noopener noreferrer"')
+    expect(text).toContain("Buy from the official F1® Ticket Store")
+    expect(text).toContain("Pit Lane Travel earns nothing from this purchase.")
     expect(text).not.toContain('rel="sponsored')
     expect(text).not.toContain("/api/redirect")
-    expect(text).not.toContain("tickets.formula1.com")
   })
 })

@@ -16,9 +16,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TicketCard } from "./TicketCard"
 import { PackageCard } from "./PackageCard"
 import { TicketCardSkeleton } from "./TicketCardSkeleton"
-import { officialTicketSellerUrl } from "@/config/official-ticket-sellers"
+import { officialTicketOffer } from "@/config/official-ticket-sellers"
+import { raceHasFinished } from "@/lib/finished-race"
 import { hasTicketListings } from "./ticket-availability"
-import { TicketsEmptyState } from "./TicketsEmptyState"
+import { OfficialTicketLink, TicketsEmptyState } from "./TicketsEmptyState"
 import { useTickets } from "./use-tickets"
 import { ticketSectionIntro, ticketShowsBuyButton } from "./ticket-presentation"
 import { affiliatePartnersOnPage } from "@/lib/ticket-affiliate"
@@ -43,6 +44,21 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
 
     return matchesSearch && matchesType
   })
+
+  const finished = raceHasFinished(
+    {
+      status: race.status,
+      date: race.date,
+      weekend_end: race.weekend_end
+    },
+    new Date()
+  )
+  const officialOffer = finished
+    ? null
+    : officialTicketOffer({
+        seriesSlug: race.series?.slug,
+        season: race.season
+      })
 
   const catalogueAffiliates = affiliatePartnersOnPage(data?.tickets ?? [])
   const affiliatePartners = affiliatePartnersOnPage(
@@ -71,8 +87,9 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
     return (
       <TicketsEmptyState
         raceName={race.name}
-        seriesName={race.series?.name ?? race.series?.short_name}
-        officialTicketUrl={officialTicketSellerUrl(race.series?.slug)}
+        officialTicketUrl={officialOffer?.href}
+        officialLinkLabel={officialOffer?.label}
+        officialLinkNote={officialOffer?.note}
       />
     )
   }
@@ -85,6 +102,14 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
         </h2>
         <p>{ticketSectionIntro(race.name, catalogueAffiliates.length > 0)}</p>
       </div>
+
+      {officialOffer ? (
+        <OfficialTicketLink
+          href={officialOffer.href}
+          label={officialOffer.label}
+          note={officialOffer.note}
+        />
+      ) : null}
 
       {affiliatePartners.length > 0 && (
         <AffiliateDisclosure partners={affiliatePartners} />
