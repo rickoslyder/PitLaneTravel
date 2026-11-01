@@ -20,9 +20,13 @@ describe("PLT-009 browser network isolation", () => {
     expect(classifyBrowserRequest("http://localhost:3100/favicon-32x32.png")).toBe(
       "allow"
     )
+    expect(classifyBrowserRequest("http://localhost:3100/progressier.js")).toBe("allow")
+    expect(classifyBrowserRequest("http://localhost:3100/site.webmanifest")).toBe(
+      "allow"
+    )
   })
 
-  it("suppresses known telemetry, PWA, Speed Insights, and remote-image transport", () => {
+  it("suppresses known telemetry, Speed Insights, and remote-image transport", () => {
     expect(
       classifyBrowserRequest("https://www.googletagmanager.com/gtm.js?id=GTM-PF957G29")
     ).toBe("suppress")
@@ -30,14 +34,6 @@ describe("PLT-009 browser network isolation", () => {
       classifyBrowserRequest(
         "https://server-side-tagging-kes574yyaa-uc.a.run.app/g/collect?v=2"
       )
-    ).toBe("suppress")
-    expect(
-      classifyBrowserRequest(
-        "https://progressier.app/fCbsNMgvDZeSMoERSrZK/script.js"
-      )
-    ).toBe("suppress")
-    expect(
-      classifyBrowserRequest("https://progressier.app/fCbsNMgvDZeSMoERSrZK/progressier.json")
     ).toBe("suppress")
     expect(
       classifyBrowserRequest("http://localhost:3100/_vercel/speed-insights/script.js")
@@ -98,6 +94,15 @@ describe("PLT-009 browser network isolation", () => {
 
   it("denies other external hosts so they cannot succeed", () => {
     expect(classifyBrowserRequest("https://ci.invalid/v1/client")).toBe("deny")
+    expect(
+      classifyBrowserRequest("https://progressier.app/fCbsNMgvDZeSMoERSrZK/script.js")
+    ).toBe("deny")
+    expect(
+      classifyBrowserRequest("https://progressier.app/fCbsNMgvDZeSMoERSrZK/progressier.json")
+    ).toBe("deny")
+    expect(
+      classifyBrowserRequest("https://progressier.app/fCbsNMgvDZeSMoERSrZK/sw.js")
+    ).toBe("deny")
     expect(classifyBrowserRequest("https://clerk.invalid/npm/@clerk")).toBe(
       "deny"
     )
@@ -268,7 +273,11 @@ describe("PLT-009 browser network isolation", () => {
     expect(layout).not.toMatch(/GoogleTagManager/)
     expect(controller).toMatch(/GoogleTagManager/)
     expect(controller).toMatch(/SpeedInsights/)
-    expect(layout).toMatch(/progressier\.app/)
+    expect(layout).not.toMatch(/progressier/i)
+    expect(middleware).not.toMatch(/progressier/i)
+    const worker = readFileSync(path.join(root, "public/progressier.js"), "utf8")
+    expect(worker).toMatch(/self\.registration\.unregister/)
+    expect(worker).not.toMatch(/importScripts|progressier\.app/)
     expect(middleware).not.toMatch(/process\.env\.(NODE_ENV|CI|PLAYWRIGHT)/)
   })
 })
