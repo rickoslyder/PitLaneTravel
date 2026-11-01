@@ -2,9 +2,14 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
+import type { Metadata } from "next"
 import { FlightSearchContainer } from "./_components/flight-search-container"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { isActiveRaceStatus } from "@/lib/race-status"
+
+export const metadata: Metadata = {
+  title: "Flight search | PitLane Travel"
+}
 
 export default async function FlightsPage() {
   const { userId } = await auth()
@@ -24,9 +29,9 @@ export default async function FlightsPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">Flight Search</h1>
         <p className="text-muted-foreground">
-          Search flight options for a race weekend. PitLane does not book, sell,
-          or issue flights. Results are a planning affordance with an external
-          provider handoff.
+          {
+            "Search flights for a race weekend. These prices are here to help you plan. PitLane doesn't sell flights, so you book with the airline or a travel site."
+          }
         </p>
       </div>
 
