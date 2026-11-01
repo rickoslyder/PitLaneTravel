@@ -11,15 +11,23 @@ import { EmptyState } from "./EmptyState"
 import { HeroSection } from "./HeroSection"
 import { ViewSwitcher } from "./ViewSwitcher"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
+import { racesForTiming, type RaceTiming } from "@/lib/race-calendar-window"
 
 interface RacesPageProps {
   initialRaces: RaceWithCircuitAndSeries[]
   coverageByRaceId?: Record<string, PublicCoverageSummary>
+  /** UTC start of the current day. Upcoming is date >= this instant. */
+  asOfIso: string
 }
 
-export function RacesPage({ initialRaces, coverageByRaceId }: RacesPageProps) {
+export function RacesPage({
+  initialRaces,
+  coverageByRaceId,
+  asOfIso
+}: RacesPageProps) {
   const router = useRouter()
   const [races] = useState<RaceWithCircuitAndSeries[]>(initialRaces)
+  const [timing, setTiming] = useState<RaceTiming>("upcoming")
   const [viewType, setViewType] = useState<"grid" | "list">("grid")
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [filters, setFilters] = useState({
@@ -48,7 +56,9 @@ export function RacesPage({ initialRaces, coverageByRaceId }: RacesPageProps) {
     ).values()
   )
 
-  const filteredRaces = races.filter(race => {
+  const timedRaces = racesForTiming(races, timing, asOfIso)
+
+  const filteredRaces = timedRaces.filter(race => {
     const raceSeriesSlug = race.series?.slug ?? "f1"
     const matchesSeries = !seriesFilter || raceSeriesSlug === seriesFilter
     if (!matchesSeries) return false
@@ -133,6 +143,33 @@ export function RacesPage({ initialRaces, coverageByRaceId }: RacesPageProps) {
       <div className="bg-card mx-auto max-w-7xl rounded-lg p-6 shadow">
         <h1 className="mb-6 text-center text-2xl font-bold">Race Calendar</h1>
 
+        <div
+          className="mb-6 flex flex-wrap justify-center gap-2"
+          role="group"
+          aria-label="Race timing"
+        >
+          {(
+            [
+              ["upcoming", "Upcoming"],
+              ["past", "Past"]
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={timing === value}
+              onClick={() => setTiming(value)}
+              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                timing === value
+                  ? "bg-primary text-primary-foreground border-transparent"
+                  : "bg-background hover:bg-muted"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         {availableSeries.length > 1 && (
           <div className="mb-6 flex flex-wrap justify-center gap-2">
             <button
@@ -158,7 +195,10 @@ export function RacesPage({ initialRaces, coverageByRaceId }: RacesPageProps) {
                 }`}
                 style={
                   seriesFilter === s.slug && s.accent_color
-                    ? { backgroundColor: s.accent_color, borderColor: s.accent_color }
+                    ? {
+                        backgroundColor: s.accent_color,
+                        borderColor: s.accent_color
+                      }
                     : undefined
                 }
               >
@@ -180,7 +220,7 @@ export function RacesPage({ initialRaces, coverageByRaceId }: RacesPageProps) {
           </div>
 
           <ResultsSummary
-            totalRaces={races.length}
+            totalRaces={timedRaces.length}
             shownRaces={filteredRaces.length}
             viewType={viewType}
             searchQuery={filters.search}
@@ -206,7 +246,7 @@ export function RacesPage({ initialRaces, coverageByRaceId }: RacesPageProps) {
       <FilterSheet
         open={isFilterOpen}
         onOpenChange={setIsFilterOpen}
-        races={races}
+        races={timedRaces}
         filters={filters}
         onFilterChange={handleFilterChange}
         onClearFilters={handleClearFilters}

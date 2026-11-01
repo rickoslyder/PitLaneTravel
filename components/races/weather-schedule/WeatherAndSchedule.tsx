@@ -2,20 +2,10 @@
 
 import { RaceWithDetails } from "@/types/race"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { format, addDays, setHours, setMinutes } from "date-fns"
-import {
-  Cloud,
-  CloudRain,
-  CloudSun,
-  Flag,
-  Sun,
-  Timer,
-  Umbrella,
-  Wind
-} from "lucide-react"
+import { format } from "date-fns"
+import { raceWeekendSessions } from "@/lib/race-weekend-sessions"
+import { Cloud, CloudRain, CloudSun, Sun, Umbrella, Wind } from "lucide-react"
 import { motion } from "framer-motion"
-import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
 import { raceWeatherTable } from "@/db/schema"
 import { getRaceWeatherAction } from "@/actions/db/race-weather-actions"
@@ -28,139 +18,6 @@ interface WeatherAndScheduleProps {
 interface WeatherData {
   metric: (typeof raceWeatherTable.$inferSelect)[]
   us: (typeof raceWeatherTable.$inferSelect)[]
-}
-
-interface Event {
-  time: string
-  name: string
-  duration: string
-  type:
-    | "practice"
-    | "qualifying"
-    | "sprint_qualifying"
-    | "sprint"
-    | "race"
-    | "other"
-}
-
-interface EventSchedule {
-  day: string
-  date: Date
-  events: Event[]
-}
-
-function generateSchedule(
-  weekendStart: Date,
-  isSprintWeekend: boolean
-): EventSchedule[] {
-  const friday = weekendStart
-  const saturday = addDays(weekendStart, 1)
-  const sunday = addDays(weekendStart, 2)
-
-  if (isSprintWeekend) {
-    return [
-      {
-        day: "Friday",
-        date: friday,
-        events: [
-          {
-            time: "13:30",
-            name: "Practice 1",
-            duration: "1h",
-            type: "practice"
-          },
-          {
-            time: "17:00",
-            name: "Sprint Qualifying",
-            duration: "1h",
-            type: "sprint_qualifying"
-          }
-        ]
-      },
-      {
-        day: "Saturday",
-        date: saturday,
-        events: [
-          {
-            time: "12:30",
-            name: "Sprint Race",
-            duration: "30m",
-            type: "sprint"
-          },
-          {
-            time: "16:00",
-            name: "Qualifying",
-            duration: "1h",
-            type: "qualifying"
-          }
-        ]
-      },
-      {
-        day: "Sunday",
-        date: sunday,
-        events: [
-          {
-            time: "15:00",
-            name: "Race",
-            duration: "2h",
-            type: "race"
-          }
-        ]
-      }
-    ]
-  }
-
-  // Standard race weekend
-  return [
-    {
-      day: "Friday",
-      date: friday,
-      events: [
-        {
-          time: "13:30",
-          name: "Practice 1",
-          duration: "1h",
-          type: "practice"
-        },
-        {
-          time: "17:00",
-          name: "Practice 2",
-          duration: "1h",
-          type: "practice"
-        }
-      ]
-    },
-    {
-      day: "Saturday",
-      date: saturday,
-      events: [
-        {
-          time: "12:30",
-          name: "Practice 3",
-          duration: "1h",
-          type: "practice"
-        },
-        {
-          time: "16:00",
-          name: "Qualifying",
-          duration: "1h",
-          type: "qualifying"
-        }
-      ]
-    },
-    {
-      day: "Sunday",
-      date: sunday,
-      events: [
-        {
-          time: "15:00",
-          name: "Race",
-          duration: "2h",
-          type: "race"
-        }
-      ]
-    }
-  ]
 }
 
 const getWeatherIcon = (conditions: string) => {
@@ -185,23 +42,6 @@ const getWeatherIcon = (conditions: string) => {
     return <CloudRain className="size-6" />
   }
   return <Sun className="size-6" />
-}
-
-const getEventColor = (type: Event["type"]) => {
-  switch (type) {
-    case "practice":
-      return "bg-blue-500/10 text-blue-500"
-    case "qualifying":
-      return "bg-purple-500/10 text-purple-500"
-    case "sprint_qualifying":
-      return "bg-orange-500/10 text-orange-500"
-    case "sprint":
-      return "bg-orange-500/10 text-orange-500"
-    case "race":
-      return "bg-red-500/10 text-red-500"
-    default:
-      return "bg-gray-500/10 text-gray-500"
-  }
 }
 
 export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
@@ -261,56 +101,41 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
   // Get the weather data for the current unit system
   const currentWeather = useFahrenheit ? weather.us : weather.metric
 
-  // Generate schedule based on race weekend dates
-  const schedule = race.weekend_start
-    ? generateSchedule(
-        new Date(race.weekend_start),
-        race.is_sprint_weekend || false
-      )
-    : []
+  const sessions = raceWeekendSessions(new Date(race.date))
+  const showWeather = !loading && !error && currentWeather.length > 0
 
   return (
     <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Weather Forecast</CardTitle>
-            <div className="flex items-center gap-4">
-              <Toggle
-                pressed={useFahrenheit}
-                onPressedChange={setUseFahrenheit}
-                aria-label="Toggle temperature unit"
-                className="hover:border-primary data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground border-2"
-              >
-                <span className="font-medium">
-                  °{useFahrenheit ? "F" : "C"}
-                </span>
-              </Toggle>
-              <Toggle
-                pressed={useMiles}
-                onPressedChange={setUseMiles}
-                aria-label="Toggle distance unit"
-                className="hover:border-primary data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground border-2"
-              >
-                <span className="font-medium">{useMiles ? "mph" : "km/h"}</span>
-              </Toggle>
+      {showWeather && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Weather Forecast</CardTitle>
+              <div className="flex items-center gap-4">
+                <Toggle
+                  pressed={useFahrenheit}
+                  onPressedChange={setUseFahrenheit}
+                  aria-label="Toggle temperature unit"
+                  className="hover:border-primary data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground border-2"
+                >
+                  <span className="font-medium">
+                    °{useFahrenheit ? "F" : "C"}
+                  </span>
+                </Toggle>
+                <Toggle
+                  pressed={useMiles}
+                  onPressedChange={setUseMiles}
+                  aria-label="Toggle distance unit"
+                  className="hover:border-primary data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground border-2"
+                >
+                  <span className="font-medium">
+                    {useMiles ? "mph" : "km/h"}
+                  </span>
+                </Toggle>
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {loading && (
-            <div className="flex items-center justify-center py-8">
-              Loading weather data...
-            </div>
-          )}
-
-          {error && !loading && (
-            <div className="flex items-center justify-center py-8 text-red-500">
-              {error}
-            </div>
-          )}
-
-          {!loading && !error && currentWeather.length > 0 && (
+          </CardHeader>
+          <CardContent>
             <div className="grid gap-6 md:grid-cols-4">
               {currentWeather.map((day, index) => (
                 <motion.div
@@ -373,114 +198,23 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
                 </motion.div>
               ))}
             </div>
-          )}
-
-          {!loading && !error && currentWeather.length === 0 && (
-            <div className="text-muted-foreground flex items-center justify-center py-8">
-              No weather data available
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Race Weekend Schedule</CardTitle>
-            {race.is_sprint_weekend && (
-              <div className="text-sm font-medium text-orange-500">
-                Sprint Weekend
-              </div>
-            )}
-          </div>
+          <CardTitle>Race Weekend Schedule</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="timeline" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="timeline">Timeline</TabsTrigger>
-              <TabsTrigger value="daily">Daily View</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="timeline" className="space-y-8">
-              {schedule.map((day: EventSchedule, dayIndex: number) => (
-                <div key={day.day} className="relative">
-                  {dayIndex < schedule.length - 1 && (
-                    <div className="bg-muted absolute left-[19px] top-[40px] h-[calc(100%+2rem)] w-[2px]" />
-                  )}
-                  <div className="mb-4">
-                    <div className="font-medium">{day.day}</div>
-                    <div className="text-muted-foreground text-sm">
-                      {format(day.date, "MMMM d, yyyy")}
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    {day.events.map((event: Event, eventIndex: number) => (
-                      <motion.div
-                        key={event.time}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{
-                          delay:
-                            (dayIndex * day.events.length + eventIndex) * 0.1
-                        }}
-                        className="flex gap-4"
-                      >
-                        <div className="relative">
-                          <div
-                            className={cn(
-                              "border-background size-10 rounded-full border-4",
-                              getEventColor(event.type)
-                            )}
-                          />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <div className="flex items-center justify-between">
-                            <div className="font-medium">{event.name}</div>
-                            <div className="text-muted-foreground flex items-center gap-1 text-sm">
-                              <Timer className="size-4" />
-                              {event.duration}
-                            </div>
-                          </div>
-                          <div className="text-muted-foreground text-sm">
-                            {event.time}
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </TabsContent>
-
-            <TabsContent value="daily">
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {schedule.map((day: EventSchedule) => (
-                  <Card key={day.day}>
-                    <CardHeader>
-                      <CardTitle className="text-lg">{day.day}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {day.events.map((event: Event) => (
-                        <div
-                          key={event.time}
-                          className={cn(
-                            "rounded-lg p-3",
-                            getEventColor(event.type)
-                          )}
-                        >
-                          <div className="font-medium">{event.name}</div>
-                          <div className="mt-1 flex items-center justify-between text-sm">
-                            <span>{event.time}</span>
-                            <span>{event.duration}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
+        <CardContent className="space-y-3">
+          {sessions.map(session => (
+            <div key={session.description} className="flex items-center gap-2">
+              <div className="bg-primary/10 size-2 rounded-full" />
+              <span>{format(session.date, "EEE, MMM d")}</span>
+              <span>-</span>
+              <span>{session.description}</span>
+            </div>
+          ))}
         </CardContent>
       </Card>
     </div>

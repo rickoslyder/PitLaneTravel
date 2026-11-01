@@ -7,6 +7,7 @@ import { getRacesAction } from "@/actions/db/races-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { coverageByRaceId } from "@/lib/public-coverage"
+import { startOfUtcDay } from "@/lib/race-calendar-window"
 
 export default async function RacesServerPage() {
   const { userId } = await auth()
@@ -32,6 +33,7 @@ export default async function RacesServerPage() {
       <RacesPage
         initialRaces={races ?? []}
         coverageByRaceId={coverageMap}
+        asOfIso={startOfUtcDay(new Date()).toISOString()}
       />
     </div>
   )

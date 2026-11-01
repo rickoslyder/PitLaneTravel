@@ -21,7 +21,7 @@ that status is not this workflow.
 - **Stripe / suppliers (Duffel, Google Maps, Gemini, Mapbox, Visual Crossing)** — CI uses `.invalid` hosts or `*_ci_invalid` tokens. Payment links and `HOTEL_AFFILIATE_ID` are blank. Vercel Preview may later use test-mode / sandbox credentials, never live money-moving keys.
 - **Supabase** — CI uses `https://ci.invalid` and project id `ci-invalid`. Do not copy a real project id into CI.
 - **Cron** — CI `CRON_SECRET` is a stub. Cron routes are not invoked by this workflow.
-- **Flags** — `FLIGHTS_BOOKING_ENABLED`, `RECONCILE_AUTO_REFUND`, and `AI_PLANNER_PRO_GATE` are `false` in CI. Fee variables are `0`. Same default-off contract as Day-70.
+- **Flags** — `FLIGHTS_BOOKING_ENABLED`, `RECONCILE_AUTO_REFUND`, and `AI_PLANNER_PRO_GATE` are `false` in CI. Fee variables are `0`.
 
 GitHub Actions is stub/disposable and secret-free. Vercel Preview is allowed to use Preview-scoped non-production credentials configured only in Vercel. Production values must not appear in pull-request jobs.
 

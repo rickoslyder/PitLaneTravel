@@ -36,6 +36,7 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip"
 import { subDays, addDays } from "date-fns"
+import { raceWeekendSessions } from "@/lib/race-weekend-sessions"
 import {
   Select,
   SelectContent,
@@ -77,18 +78,7 @@ export function FlightSearch({
   const earliestDepartureDate = subDays(raceDate, 14) // 2 weeks before race
   const latestReturnDate = addDays(raceDate, 14) // 2 weeks after race
 
-  // Calculate race weekend dates
-  const thursdayDate = subDays(raceDate, 3)
-  const fridayDate = subDays(raceDate, 2)
-  const saturdayDate = subDays(raceDate, 1)
-
-  // Important dates for calendar highlighting
-  const raceWeekendDates = [
-    { date: thursdayDate, description: "Thursday session — check organizer" },
-    { date: fridayDate, description: "Practice Sessions" },
-    { date: saturdayDate, description: "Qualifying/Sprint" },
-    { date: raceDate, description: "Race Day" }
-  ]
+  const raceWeekendDates = raceWeekendSessions(raceDate)
 
   async function handleSyncAirports() {
     const result = await syncAirportCoordinatesAction()

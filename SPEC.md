@@ -1,7 +1,6 @@
 # Pit Lane Travel — Revamp & Multi-Series Expansion Spec
 
-- **Record class:** historical implementation record — **not** the active product contract.
-- **Canonical contract:** [`docs/product/day-70-contract.md`](docs/product/day-70-contract.md) (frozen 2026-08-24, PLT-001).
+- **Record class:** historical implementation record. It is not a live product or marketing contract.
 - **Owner:** Richard Bankole.
 - **Originally written:** 2026-07-09 for the `revamp/multi-series` line.
 - **Classified historical:** 2026-08-24. Repository baseline at classification: `99a5ffb9d28035996c61f95a9dfa316e7b00eed2`.
@@ -11,11 +10,10 @@ codebase, (2) the architecture used to expand from F1-only to a multi-series mot
 travel hub (F1, Formula E, MotoGP, IndyCar, WEC), and (3) the then-intended completion of
 half-built features. Phases A–E below are the 2026-07 engineering sequence. They are
 completed-implementation notes and contemporaneous remaining-work lists, not a live
-capability statement and not the Days 1–70 business contract.
+capability statement.
 
 Do not read checkmarks, “applied to production,” or remaining-owner-decision items in
-this file as current product truth. Live-versus-planned capability, commercial stop
-rules, coverage tiers and AI authority live only in the Day-70 contract.
+this file as current product truth.
 
 ---
 
@@ -291,9 +289,8 @@ Each stub becomes real, series-agnostic, and monetisable where applicable.
 
 *Historical 2026-07 sequencing view. Phase E’s “in progress” line is the original
 status, not a current branch state. The 2026-07-26 snapshot below later recorded
-migrations, calendars and DNS as applied; the 2026-08-24 contract then separated
-those implementation notes from live capability. Feature-completion “done” means
-the listed surfaces were built in code — not that they meet the Day-70 contract.*
+migrations, calendars and DNS as applied. Feature-completion “done” means
+the listed surfaces were built in code.*
 
 | Phase | Scope | Status (as recorded 2026-07) |
 |-------|-------|--------|
@@ -301,7 +298,7 @@ the listed surfaces were built in code — not that they meet the Day-70 contrac
 | B | Repo hygiene | ✅ done |
 | C | Multi-series foundation | ✅ done (schema, providers, naming, series filter, landing pages, de-brand of key SEO) |
 | D | Feature completion | ✅ done as implementation (grandstands, budget, transport, packages, planner, hotels, compare) — not a live decision-grade / commercial claim |
-| E | Data + launch | Originally 🔧 in progress (seeds authored; migrations not yet run). Superseded as a status line by the 2026-07-26 snapshot below; superseded as live truth by `docs/product/day-70-contract.md`. |
+| E | Data + launch | Originally 🔧 in progress (seeds authored; migrations not yet run). Superseded as a status line by the 2026-07-26 snapshot below. |
 
 ### Applied to production — 2026-07-26 implementation snapshot
 
@@ -311,8 +308,7 @@ the listed surfaces were built in code — not that they meet the Day-70 contrac
 derived from dates, so nothing goes stale” (series pages labelled past events
 Upcoming). Sitemap URL counts in this snapshot (267) were later revised in
 `DECISIONS.md` (179) and again observed live as 179 on 2026-08-24. Treat numbers
-and “verified live” sentences here as dated notes. Current contract:
-`docs/product/day-70-contract.md`.*
+and “verified live” sentences here as dated notes.*
 
 **Then recorded** at `https://www.pitlanetravel.com` — the 2026-07-26 note claimed
 every route below returned 200; that claim is **not** live-verified as of 2026-08-24.
@@ -341,13 +337,11 @@ every route below returned 200; that claim is **not** live-verified as of 2026-0
 ### Remaining — owner decisions and business development
 
 *2026-07-26 remaining-work list, preserved as history. Item 1 (enable merchant
-flight booking this cycle) is **superseded as an in-cycle goal** by the Day-70
-contract: `FLIGHTS_BOOKING_ENABLED` stays off through Gate F. Ticket-inventory
-and Formula E Season 13 notes remain operational facts, not permission to add a
-sixth series or to treat 2026-07 inventory as current. See
-`docs/product/day-70-contract.md` §§5–6.*
+flight booking this cycle) moves real money. `FLIGHTS_BOOKING_ENABLED` stays off
+until an owner turns it on. Ticket-inventory and Formula E Season 13 notes remain
+operational facts, not permission to treat 2026-07 inventory as current.*
 
-1. **Turn on flight booking** *(owner call — moves real money; **not** a Days 1–70 goal)*. The server flow is done.
+1. **Turn on flight booking** *(owner call — moves real money)*. The server flow is done.
    Before flipping `FLIGHTS_BOOKING_ENABLED`: run a Stripe test-mode booking end-to-end,
    **set `FLIGHT_SERVICE_FEE_PERCENT`** — at the 0% default you *lose* money on every
    booking (Stripe processing + FX come out of a charge equal to the offer total), and

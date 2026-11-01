@@ -33,7 +33,6 @@ const SUPPRESS_HOST_PATTERNS: RegExp[] = [
   /(^|\.)googlesyndication\.com$/i,
   /server-side-tagging/i,
   /(^|\.)a\.run\.app$/i,
-  /(^|\.)progressier\.app$/i,
   /(^|\.)posthog\.invalid$/i,
   /(^|\.)posthog\.com$/i,
   /(^|\.)i\.posthog\.com$/i,
@@ -72,7 +71,6 @@ function isLocalSupportPath(url: URL): boolean {
     url.pathname.startsWith("/_vercel/speed-insights") ||
     url.pathname.startsWith("/_vercel/insights") ||
     isPostHogIngestPath(url) ||
-    url.pathname.includes("progressier") ||
     optimizesExternalImage
   )
 }
