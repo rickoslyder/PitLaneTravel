@@ -183,7 +183,7 @@ export function TripInfoTab({ race, description }: TripInfoTabProps) {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="border-border rounded-lg border p-4">
                         <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
-                          <AlertTriangle className="size-4 text-yellow-500" />
+                          <AlertTriangle className="text-foreground size-4" />
                           Voltage
                         </h4>
                         <p className="text-primary text-2xl font-bold">

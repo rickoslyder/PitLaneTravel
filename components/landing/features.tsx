@@ -51,7 +51,7 @@ const FeatureCard = ({ title, description, icon: Icon }: FeatureProps) => (
   >
     <Card className="group h-full transition-shadow duration-200 hover:shadow-lg">
       <CardHeader>
-        <Icon className="mb-2 size-12 text-[#E10600]" />
+        <Icon className="text-foreground mb-2 size-12" />
         <CardTitle className="text-xl">{title}</CardTitle>
         <CardDescription className="text-base">{description}</CardDescription>
       </CardHeader>

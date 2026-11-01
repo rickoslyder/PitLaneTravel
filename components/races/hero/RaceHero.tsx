@@ -76,13 +76,13 @@ export function RaceHero({
   const getStatusColor = (status: RaceWithDetails["status"]) => {
     switch (status) {
       case "in_progress":
-        return "bg-white text-green-600 border-green-100"
+        return "bg-white text-[#166534] border-[#166534]"
       case "upcoming":
-        return "bg-white text-blue-600 border-blue-100"
+        return "bg-white text-foreground border-border"
       case "completed":
-        return "bg-white text-gray-600 border-gray-100"
+        return "bg-white text-foreground border-border"
       case "cancelled":
-        return "bg-white text-red-600 border-red-100"
+        return "bg-white text-[#991b1b] border-[#991b1b]"
       default:
         return "bg-muted text-muted-foreground"
     }
@@ -252,7 +252,7 @@ export function RaceHero({
                 <>
                   <Button
                     size="lg"
-                    className="group relative bg-[#E10600] px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-105 hover:bg-[#FF0800] hover:shadow-[0_0_30px_rgba(225,6,0,0.4)] sm:p-6 sm:text-base"
+                    className="group relative bg-[#E10600] px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-105 hover:bg-[#b50500] hover:shadow-[0_0_30px_rgba(225,6,0,0.4)] sm:p-6 sm:text-base"
                     onClick={() => onTabChange("tickets")}
                   >
                     <div className="absolute inset-0 rounded-md bg-gradient-to-r from-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

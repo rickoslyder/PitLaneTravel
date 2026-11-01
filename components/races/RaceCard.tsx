@@ -7,6 +7,7 @@ import { format } from "date-fns"
 import { CalendarDays, Flag, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CoverageBadge } from "@/components/coverage/coverage-badge"
+import { SeriesBadge } from "@/components/series/series-badge"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 
 interface RaceCardProps {
@@ -20,28 +21,6 @@ interface RaceCardProps {
   onClick?: () => void
   /** Safe public coverage summary for this race */
   coverage?: PublicCoverageSummary
-}
-
-function SeriesBadge({
-  race,
-  className
-}: {
-  race: RaceWithCircuitAndSeries
-  className?: string
-}) {
-  const series = race.series
-  if (!series) return null
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold text-white shadow-sm",
-        className
-      )}
-      style={{ backgroundColor: series.accent_color || "#e10600" }}
-    >
-      {series.short_name}
-    </span>
-  )
 }
 
 function CancelledBadge() {
@@ -91,7 +70,12 @@ export function RaceCard({
           <CardContent className="pb-2 pt-0 sm:py-6">
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2">
-                <SeriesBadge race={race} />
+                {race.series ? (
+                  <SeriesBadge
+                    label={race.series.short_name}
+                    accentColor={race.series.accent_color}
+                  />
+                ) : null}
                 {isCancelled && <CancelledBadge />}
                 {coverage && <CoverageBadge summary={coverage} compact />}
                 <h3
@@ -142,7 +126,12 @@ export function RaceCard({
       <CardHeader className="pb-4">
         <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
           <div className="absolute left-2 top-2 z-10 flex gap-1.5">
-            {race.series && <SeriesBadge race={race} />}
+            {race.series ? (
+              <SeriesBadge
+                label={race.series.short_name}
+                accentColor={race.series.accent_color}
+              />
+            ) : null}
             {isCancelled && <CancelledBadge />}
           </div>
           {race.circuit?.image_url ? (

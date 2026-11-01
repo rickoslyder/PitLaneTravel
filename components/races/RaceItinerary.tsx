@@ -342,7 +342,7 @@ export function RaceItinerary({ race }: RaceItineraryProps) {
                   {activity.booking_required && (
                     <Badge
                       variant="outline"
-                      className="bg-yellow-500/10 text-yellow-500"
+                      className="bg-foreground/10 text-foreground"
                     >
                       Booking Required
                     </Badge>
@@ -352,7 +352,7 @@ export function RaceItinerary({ race }: RaceItineraryProps) {
                       <Badge
                         key={index}
                         variant="outline"
-                        className="bg-blue-500/10 text-blue-500"
+                        className="bg-foreground/10 text-foreground"
                       >
                         {time}
                       </Badge>

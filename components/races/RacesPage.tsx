@@ -190,17 +190,9 @@ export function RacesPage({
                 }
                 className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
                   seriesFilter === s.slug
-                    ? "text-white"
-                    : "bg-background hover:bg-muted"
+                    ? "bg-foreground text-background border-transparent"
+                    : "bg-background text-foreground hover:bg-muted"
                 }`}
-                style={
-                  seriesFilter === s.slug && s.accent_color
-                    ? {
-                        backgroundColor: s.accent_color,
-                        borderColor: s.accent_color
-                      }
-                    : undefined
-                }
               >
                 {s.short_name}
               </button>

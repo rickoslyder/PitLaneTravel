@@ -30,9 +30,9 @@ interface TripCardProps {
 
 export function TripCard({ trip }: TripCardProps) {
   const statusColors = {
-    planning: "bg-yellow-500/10 text-yellow-500",
+    planning: "bg-foreground/10 text-foreground",
     booked: "bg-green-500/10 text-green-500",
-    completed: "bg-blue-500/10 text-blue-500"
+    completed: "bg-foreground/10 text-foreground"
   } as const
 
   const VisibilityIcon = trip.visibility === "private" ? EyeOff : Eye

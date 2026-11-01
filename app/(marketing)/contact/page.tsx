@@ -16,7 +16,7 @@ export default async function ContactPage() {
       <div className="mx-auto max-w-4xl">
         <div className="mb-12 text-center">
           <div className="mb-6 inline-block rounded-full bg-red-100 p-3 dark:bg-red-900/30">
-            <Mail className="size-6 text-[#E10600]" />
+            <Mail className="text-foreground size-6" />
           </div>
           <h1 className="mb-4 text-4xl font-bold">Contact Us</h1>
           <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
@@ -33,13 +33,13 @@ export default async function ContactPage() {
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="rounded-full bg-red-100 p-2 dark:bg-red-900/30">
-                    <Mail className="size-5 text-[#E10600]" />
+                    <Mail className="text-foreground size-5" />
                   </div>
                   <div>
                     <h3 className="font-medium">Email</h3>
                     <a
                       href="mailto:support@pitlanetravel.com"
-                      className="text-muted-foreground transition-colors hover:text-[#E10600]"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
                     >
                       support@pitlanetravel.com
                     </a>

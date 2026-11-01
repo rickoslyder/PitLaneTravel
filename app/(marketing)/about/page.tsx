@@ -29,9 +29,7 @@ export default async function AboutPage() {
             : "The best race weekends go to people who've done it before. They know which stand has the view, which hotel isn't stuck in race traffic and when to leave the circuit. PitLane Travel puts that know-how on the race page for Formula 1, MotoGP, IndyCar, WEC and Formula E, so you can pick your race, your seat and your ticket knowing what you're getting."}
         </p>
         <Link href="/races">
-          <Button className="bg-[#E10600] hover:bg-[#FF0800]">
-            Find your race
-          </Button>
+          <Button>Find your race</Button>
         </Link>
       </div>
 
@@ -49,7 +47,7 @@ export default async function AboutPage() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <Card className="text-center">
             <CardContent className="pt-6">
-              <Search className="mx-auto mb-4 size-8 text-[#E10600]" />
+              <Search className="text-foreground mx-auto mb-4 size-8" />
               <h3 className="mb-2 text-xl font-semibold">Fans first</h3>
               <p className="text-muted-foreground">
                 Written for the person in the grandstand, not the brochure.
@@ -59,7 +57,7 @@ export default async function AboutPage() {
 
           <Card className="text-center">
             <CardContent className="pt-6">
-              <Heart className="mx-auto mb-4 size-8 text-[#E10600]" />
+              <Heart className="text-foreground mx-auto mb-4 size-8" />
               <h3 className="mb-2 text-xl font-semibold">Five series</h3>
               <p className="text-muted-foreground">
                 F1, MotoGP, IndyCar, WEC and Formula E, side by side.
@@ -69,7 +67,7 @@ export default async function AboutPage() {
 
           <Card className="text-center">
             <CardContent className="pt-6">
-              <Users className="mx-auto mb-4 size-8 text-[#E10600]" />
+              <Users className="text-foreground mx-auto mb-4 size-8" />
               <h3 className="mb-2 text-xl font-semibold">Know before you go</h3>
               <p className="text-muted-foreground">
                 Dated, sourced detail on seats, rules and getting home.
@@ -79,7 +77,7 @@ export default async function AboutPage() {
 
           <Card className="text-center">
             <CardContent className="pt-6">
-              <Flag className="mx-auto mb-4 size-8 text-[#E10600]" />
+              <Flag className="text-foreground mx-auto mb-4 size-8" />
               <h3 className="mb-2 text-xl font-semibold">{copy.aboutBudget.title}</h3>
               <p className="text-muted-foreground">{copy.aboutBudget.description}</p>
             </CardContent>
@@ -128,7 +126,7 @@ export default async function AboutPage() {
         <h2 className="mb-4 text-2xl font-bold">Ready to go?</h2>
         <div className="flex justify-center gap-4">
           <Link href="/races">
-            <Button className="bg-[#E10600] hover:bg-[#FF0800]">
+            <Button>
               <Flag className="mr-2 size-4" />
               Find your race
             </Button>

@@ -146,7 +146,7 @@ export const HeroSection = ({
               <h1 className="text-4xl font-bold tracking-tighter text-white drop-shadow-2xl [text-shadow:_0_4px_24px_rgba(0,0,0,0.3)] sm:text-5xl md:text-6xl lg:text-7xl">
                 Monaco. Le Mans. The Indy 500.
                 <br />
-                <span className="text-red-500 drop-shadow-lg [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
+                <span className="text-white drop-shadow-lg [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
                   Go like you&apos;ve been before.
                 </span>
               </h1>
@@ -280,7 +280,7 @@ export const HeroSection = ({
                 <Button
                   asChild
                   size="lg"
-                  className="bg-red-600 px-6 py-5 text-base text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-red-700 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
+                  className="bg-brand text-brand-foreground hover:bg-brand-hover px-6 py-5 text-base shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
                 >
                   <Link
                     href="/races"
@@ -336,7 +336,7 @@ export const HeroSection = ({
           className="container mx-auto grid grid-cols-1 gap-8 md:grid-cols-3"
         >
           <div className="flex flex-col items-center gap-2">
-            <Calendar className="size-8 text-[#E10600]" />
+            <Calendar className="text-foreground size-8" />
             <h3 className="text-lg font-semibold">Every race, one calendar</h3>
             <p className="text-muted-foreground text-center">
               Five series, this season and next.
@@ -344,7 +344,7 @@ export const HeroSection = ({
           </div>
 
           <div className="flex flex-col items-center gap-2">
-            <MapPin className="size-8 text-[#E10600]" />
+            <MapPin className="text-foreground size-8" />
             <h3 className="text-lg font-semibold">Know your seat</h3>
             <p className="text-muted-foreground text-center">
               What each grandstand looks onto, before you buy.
@@ -352,7 +352,7 @@ export const HeroSection = ({
           </div>
 
           <div className="flex flex-col items-center gap-2">
-            <Star className="size-8 text-[#E10600]" />
+            <Star className="text-foreground size-8" />
             <h3 className="text-lg font-semibold">Get out on time</h3>
             <p className="text-muted-foreground text-center">
               The quickest way back after the flag, from fans who queued for

@@ -53,8 +53,8 @@ export default function TestimonialSection() {
                 <Link href={item.href} className="block h-full">
                   <Card className="group h-full transition-shadow duration-200 hover:shadow-lg">
                     <CardHeader className="flex flex-col items-center">
-                      <div className="mb-4 flex size-20 items-center justify-center rounded-full bg-[#E10600]">
-                        <item.icon className="size-8 text-white" />
+                      <div className="bg-foreground mb-4 flex size-20 items-center justify-center rounded-full">
+                        <item.icon className="text-background size-8" />
                       </div>
                       <CardTitle className="text-xl">{item.title}</CardTitle>
                     </CardHeader>
