@@ -28,6 +28,7 @@ import Image from "next/image"
 import { useState } from "react"
 import { useScroll, useTransform } from "framer-motion"
 import { useNextRace } from "@/hooks/useNextRace"
+import { siteCopy } from "@/config/site-copy"
 
 const HOME_HERO_SRC = "/images/home-hero.jpg"
 const HOME_HERO_ALT =
@@ -71,7 +72,12 @@ function HeroImage() {
   )
 }
 
-export const HeroSection = () => {
+export const HeroSection = ({
+  packagesLive = false
+}: {
+  packagesLive?: boolean
+}) => {
+  const copy = siteCopy(packagesLive)
   const { scrollY } = useScroll()
   const opacity = useTransform(scrollY, [0, 300], [1, 0])
   const scale = useTransform(scrollY, [0, 300], [1, 0.95])
@@ -138,10 +144,10 @@ export const HeroSection = () => {
               className="mb-4 sm:mb-6"
             >
               <h1 className="text-4xl font-bold tracking-tighter text-white drop-shadow-2xl [text-shadow:_0_4px_24px_rgba(0,0,0,0.3)] sm:text-5xl md:text-6xl lg:text-7xl">
-                Choose the race,
+                Monaco. Le Mans. The Indy 500.
                 <br />
                 <span className="text-red-500 drop-shadow-lg [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
-                  then plan the trip
+                  Go like you&apos;ve been before.
                 </span>
               </h1>
             </motion.div>
@@ -154,10 +160,7 @@ export const HeroSection = () => {
               className="mb-6 max-w-2xl px-4 sm:mb-8 sm:px-0"
             >
               <p className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-base leading-relaxed text-white/90 shadow-xl backdrop-blur-md sm:px-6 sm:py-4 sm:text-lg md:text-xl">
-                Compare and understand race weekends across Formula 1, Formula
-                E, MotoGP, IndyCar and WEC. Browse the calendar, open race and
-                circuit pages where coverage exists, then hand off to external
-                suppliers.
+                {copy.heroSubline}
               </p>
             </motion.div>
 
@@ -288,7 +291,7 @@ export const HeroSection = () => {
                     }
                   >
                     <FlagIcon className="mr-2 size-4 sm:size-5" />
-                    View Race Calendar
+                    Find your race
                   </Link>
                 </Button>
                 <Button
@@ -298,7 +301,7 @@ export const HeroSection = () => {
                   className="border-white/20 bg-white/10 px-6 py-5 text-base text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
                 >
                   <Link
-                    href="/races/compare"
+                    href={packagesLive ? "/packages" : "/races/compare"}
                     onClick={() =>
                       captureAnalyticsEvent({
                         event: "hero compare CTA clicked"
@@ -306,7 +309,7 @@ export const HeroSection = () => {
                     }
                   >
                     <StarIcon className="mr-2 size-4 sm:size-5" />
-                    Compare Races
+                    {copy.heroSecondaryCta.label}
                   </Link>
                 </Button>
               </motion.div>
@@ -334,25 +337,26 @@ export const HeroSection = () => {
         >
           <div className="flex flex-col items-center gap-2">
             <Calendar className="size-8 text-[#E10600]" />
-            <h3 className="text-lg font-semibold">Five-series calendar</h3>
+            <h3 className="text-lg font-semibold">Every race, one calendar</h3>
             <p className="text-muted-foreground text-center">
-              Browse Formula 1, Formula E, MotoGP, IndyCar and WEC events
+              Five series, this season and next.
             </p>
           </div>
 
           <div className="flex flex-col items-center gap-2">
             <MapPin className="size-8 text-[#E10600]" />
-            <h3 className="text-lg font-semibold">Circuit pages</h3>
+            <h3 className="text-lg font-semibold">Know your seat</h3>
             <p className="text-muted-foreground text-center">
-              Open race and circuit pages where coverage exists
+              What each grandstand looks onto, before you buy.
             </p>
           </div>
 
           <div className="flex flex-col items-center gap-2">
             <Star className="size-8 text-[#E10600]" />
-            <h3 className="text-lg font-semibold">Planning tools</h3>
+            <h3 className="text-lg font-semibold">Get out on time</h3>
             <p className="text-muted-foreground text-center">
-              Compare events, then follow labelled external search handoffs
+              The quickest way back after the flag, from fans who queued for
+              it.
             </p>
           </div>
         </motion.div>

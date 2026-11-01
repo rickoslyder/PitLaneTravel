@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs"
 import path from "node:path"
 import { describe, expect, it } from "vitest"
-import { brand } from "@/config/brand"
+import { brand, brandCopy } from "@/config/brand"
+import { siteCopy } from "@/config/site-copy"
 
 const root = process.cwd()
 
@@ -111,14 +112,17 @@ describe("PLT-008 brand truth", () => {
     const layout = readSource("app/layout.tsx")
     const home = readSource("app/(marketing)/page.tsx")
 
-    it("sources root and homepage metadata from brand.name and brand descriptions", () => {
+    it("sources root and homepage metadata from generateMetadata and brandCopy", () => {
       expect(layout).toMatch(/from ["']@\/config\/brand["']/)
+      expect(layout).toMatch(/generateMetadata/)
+      expect(layout).toMatch(/brandCopy\(/)
       expect(layout).toMatch(/title:\s*brand\.name/)
-      expect(layout).toMatch(/description:\s*brand\.description/)
+      expect(layout).toMatch(/description:\s*copy\.description/)
       expect(home).toMatch(/from ["']@\/config\/brand["']/)
-      expect(home).toMatch(/brand\.name/)
-      expect(home).toMatch(/brand\.description/)
-      expect(home).toMatch(/brand\.shortDescription/)
+      expect(home).toMatch(/generateMetadata/)
+      expect(home).toMatch(/brandCopy\(/)
+      expect(home).toMatch(/\$\{copy\.homeTitleTerms\} \| \$\{brand\.name\}/)
+      expect(home).not.toContain("${brand.name} | ${brand.tagline}")
     })
 
     it("does not hardcode a competing brand spelling in primary metadata files", () => {
@@ -197,8 +201,8 @@ describe("PLT-008 brand truth", () => {
         expect(source, `${relativePath} must render About {brand.name}`).toMatch(
           /About \{brand\.name\}/
         )
-        expect(source, `${relativePath} must render brand.positioningShort`).toContain(
-          "{brand.positioningShort}"
+        expect(source, `${relativePath} must render positioningShort via brandCopy`).toMatch(
+          /brandCopy\([\s\S]*positioningShort/
         )
         expect(source, `${relativePath} must render copyright brand.name`).toContain(
           "{brand.name}"
@@ -280,5 +284,193 @@ describe("PLT-008 brand truth", () => {
         expect(primaryChromeFiles).not.toContain(relativePath)
       }
     })
+  })
+})
+
+describe("#23 Go like you've been before copy", () => {
+  it("sets the shipped tagline", () => {
+    expect(brand.tagline).toBe("Go like you've been before.")
+  })
+
+  it("renders the tagline from the legacy footer", () => {
+    const footer = readSource("components/Footer.tsx")
+    expect(footer).toContain("{brand.tagline}")
+    expect(footer).not.toContain("Your ultimate motorsport travel companion")
+  })
+
+  it("ships the hero headline, calendar label, and the first two strips", () => {
+    const hero = readSource("components/landing/hero.tsx")
+    expect(hero).toContain("Monaco. Le Mans. The Indy 500.")
+    expect(hero).toContain("Find your race")
+    expect(hero).toContain("Every race, one calendar")
+    expect(hero).toContain("Five series, this season and next.")
+    expect(hero).toContain("Know your seat")
+    expect(hero).toContain("What each grandstand looks onto, before you buy.")
+  })
+
+  it("ships the features heading and Find tickets cards", () => {
+    const features = readSource("components/landing/features.tsx")
+    const none = siteCopy(false)
+    expect(features).toContain("Know before you go")
+    expect(features).toContain("been would tell you, before you book.")
+    expect(features).not.toContain("Honest limits")
+    expect(none.featureCards.map(card => card.title)).toContain("Find tickets")
+    expect(none.featureCards.map(card => card.title)).not.toContain("Get tickets")
+    expect(none.featureCards[4]?.description).toBe(
+      "Straight to tickets for your race and your stand."
+    )
+  })
+
+  it("ships the 404 copy and keeps the 404 heading", () => {
+    const notFound = readSource("app/_components/not-found-content.tsx")
+    expect(notFound).toContain(">404<")
+    expect(notFound).toContain("Page not found")
+    expect(notFound).toContain("That page has moved or doesn")
+    expect(notFound).toContain("the racing.")
+    expect(notFound).toContain("Back to home")
+    expect(notFound).not.toContain("Page Not Found")
+    expect(notFound).not.toContain("Return Home")
+  })
+
+  it("ships the non-hold about headings, cards, and call to action", () => {
+    const about = readSource("app/(marketing)/about/page.tsx")
+    expect(about).toContain("About PitLane Travel")
+    expect(about).toContain("Find your race")
+    expect(about).toContain("What we do")
+    expect(about).toContain("What we care about")
+    expect(about).toContain("Fans first")
+    expect(about).toContain(
+      "Written for the person in the grandstand, not the brochure."
+    )
+    expect(about).toContain("Five series")
+    expect(about).toContain("F1, MotoGP, IndyCar, WEC and Formula E, side by side.")
+    expect(about).toContain("Dated, sourced detail on seats, rules and getting home.")
+    expect(about).toContain("What you can do here")
+    expect(about).toContain("Find tickets")
+    expect(about).not.toContain("Get tickets")
+    expect(about).toContain("Ready to go?")
+    expect(about).toContain("Contact Us")
+    expect(about).not.toContain("Open the five-series calendar and plan the trip yourself.")
+  })
+
+  it("ships the home FAQ heading and the non-hold answers", () => {
+    const faq = readSource("components/FaqSection.tsx")
+    const none = siteCopy(false)
+    expect(faq).toContain("Frequently asked questions")
+    expect(faq).toContain("What fans ask before a race weekend.")
+    expect(none.homeFaqs.map(item => item.question)).toEqual(
+      expect.arrayContaining([
+        "Can I see what a grandstand is like before I buy?",
+        "Is my ticket real?",
+        "What if the race is moved or cancelled?",
+        "How do I sort flights and a hotel?"
+      ])
+    )
+    expect(none.homeFaqs.map(item => item.question)).not.toContain(
+      "Can I book a race package or VIP hospitality?"
+    )
+  })
+
+  it("ships the /faq heading and drops the worldwide question", () => {
+    const faq = readSource("app/(marketing)/faq/page.tsx")
+    expect(faq).toContain("Frequently Asked Questions")
+    expect(siteCopy(false).faqSubtitle).toBe("Common questions before a race weekend.")
+    expect(faq).not.toContain("Do you cover every circuit or series worldwide?")
+  })
+
+  it("ships the non-hold help copy", () => {
+    const help = readSource("app/(marketing)/help/page.tsx")
+    const none = siteCopy(false)
+    expect(none.helpSubtitle).toBe(
+      "How to find your race and plan the weekend with PitLane Travel."
+    )
+    expect(help).toContain("Plan your weekend")
+    expect(none.helpRoutes.map(route => route.title)).toEqual([
+      "Race calendar",
+      "Compare races",
+      "Hotels"
+    ])
+    expect(help).toContain("Open contact form")
+    expect(help).toContain("Race calendar")
+    expect(help).toContain("Flight search")
+    expect(help).toContain("Hotel search")
+  })
+
+  it("ships the circuit explorer line and grandstand metadata", () => {
+    const explorer = readSource("components/_components/circuit-explorer-header.tsx")
+    const grandstands = readSource("app/circuits/grandstands/page.tsx")
+    expect(explorer).toContain("Explore Iconic Circuits")
+    expect(explorer).toContain(
+      "Open a circuit to see the track, the grandstands and how to get there."
+    )
+    expect(grandstands).toContain("Grandstand Guides | PitLane Travel")
+    expect(grandstands).toContain(">Grandstand Guides<")
+    expect(grandstands).toContain(
+      "Grandstand guides for F1, MotoGP, IndyCar, WEC and Formula E circuits: the view, the shade, the price and what fans who sat there say."
+    )
+    expect(grandstands).toContain("Seat guides for this circuit are on the way.")
+    expect(grandstands).toContain("browse the race calendar")
+    expect(grandstands).toContain('href="/races"')
+  })
+
+  it("hides the testimonial section and keeps Why Choose", () => {
+    const home = readSource("app/(marketing)/page.tsx")
+    expect(home).not.toMatch(/TestimonialSection/)
+    expect(home).not.toContain("[REAL REVIEW SLOT]")
+    expect(home).toContain("<WhyChooseFeaturesSection")
+  })
+
+  it("keeps old positioning and protection wording out of the shipped copy files", () => {
+    const copyFiles = [
+      "config/brand.ts",
+      "config/site-copy.ts",
+      "app/(marketing)/page.tsx",
+      "app/layout.tsx",
+      "components/header.tsx",
+      "app/(marketing)/layout.tsx",
+      "app/not-found.tsx",
+      "components/Footer.tsx",
+      "app/_components/not-found-content.tsx",
+      "components/landing/hero.tsx",
+      "components/landing/features.tsx",
+      "app/(marketing)/about/page.tsx",
+      "components/WhyChooseFeaturesSection.tsx",
+      "components/FaqSection.tsx",
+      "app/(marketing)/faq/page.tsx",
+      "app/(marketing)/help/page.tsx",
+      "app/packages/page.tsx",
+      "components/_components/circuit-explorer-header.tsx",
+      "app/circuits/grandstands/page.tsx"
+    ]
+    const banned = [
+      /decision layer/i,
+      /self-directed/i,
+      /hand off/i,
+      /handoff/i,
+      /where coverage exists/i,
+      /Honest limits/i,
+      /paddock tour/i,
+      /Paddock Club/i,
+      /Go racing/i,
+      /Your F1 Travel Companion/i,
+      /ultimate/i,
+      /\(Ad\)/,
+      /ATOL/i,
+      /ABTOT/i,
+      /Grand Prix Grand Tours/i
+    ]
+
+    for (const relativePath of copyFiles) {
+      const source = stripComments(readSource(relativePath))
+      for (const pattern of banned) {
+        expect(source, `${relativePath} matches ${pattern}`).not.toMatch(pattern)
+      }
+      expect(source, `${relativePath} card title`).not.toMatch(
+        /title:\s*["']Get tickets["']/
+      )
+    }
+
+    const hero = readSource("components/landing/hero.tsx")
+    expect(hero).not.toContain("The right airport")
   })
 })

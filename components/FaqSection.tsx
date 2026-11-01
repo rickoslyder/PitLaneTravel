@@ -3,31 +3,14 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown } from "lucide-react"
+import { siteCopy } from "@/config/site-copy"
 
-const faqs = [
-  {
-    question: "Which championships does PitLane Travel cover?",
-    answer:
-      "The public catalogue is Formula 1, Formula E, MotoGP, IndyCar and WEC. Depth varies: some races have circuit pages, others are calendar-only."
-  },
-  {
-    question: "Can I get information about specific grandstands and viewing areas?",
-    answer:
-      "Race and circuit pages include grandstand notes where coverage exists. If a viewing area is not documented, that gap is left unknown."
-  },
-  {
-    question: "Does PitLane Travel offer package deals for races?",
-    answer:
-      "PitLane Travel does not currently sell race-weekend packages. It is a decision layer for self-directed travellers, not a package principal or travel agency."
-  },
-  {
-    question: "Do you book flights or verify hotels?",
-    answer:
-      "Flight search is a planning affordance with an external provider handoff. PitLane does not book, sell, or issue flights. Hotel links open a generic Booking.com city search. Confirm distance and terms on the provider."
-  }
-]
-
-export default function FaqSection() {
+export default function FaqSection({
+  packagesLive = false
+}: {
+  packagesLive?: boolean
+}) {
+  const faqs = siteCopy(packagesLive).homeFaqs
   const [activeIndex, setActiveIndex] = useState<number | null>(0)
 
   const toggleFaq = (index: number) => {
@@ -53,10 +36,10 @@ export default function FaqSection() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <h2 id="faq-title" className="mb-4 text-center text-4xl font-bold">
-            Frequently Asked Questions
+            Frequently asked questions
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            Answers about the five-series catalogue and planning tools.
+            What fans ask before a race weekend.
           </p>
           <div className="mx-auto max-w-4xl space-y-4">
             {faqs.map((faq, index) => (

@@ -2,17 +2,23 @@ import { Binoculars } from "lucide-react"
 import { Metadata } from "next"
 import Link from "next/link"
 import { getCircuitsWithGrandstandsAction } from "@/actions/db/grandstands-actions"
+import { siteCopy } from "@/config/site-copy"
+import { getPackagesAvailability } from "@/lib/packages-availability"
 import { slugify } from "@/lib/series"
 
 export const metadata: Metadata = {
   title: "Grandstand Guides | PitLane Travel",
   description:
-    "Compare stored grandstand notes for Formula 1, MotoGP, Formula E, IndyCar and WEC where coverage exists. Coverage varies by circuit; missing stands stay unknown."
+    "Grandstand guides for F1, MotoGP, IndyCar, WEC and Formula E circuits: the view, the shade, the price and what fans who sat there say."
 }
 
 export default async function GrandstandsPage() {
-  const { data: circuits } = await getCircuitsWithGrandstandsAction()
+  const [{ data: circuits }, availability] = await Promise.all([
+    getCircuitsWithGrandstandsAction(),
+    getPackagesAvailability()
+  ])
   const hasContent = circuits && circuits.length > 0
+  const copy = siteCopy(availability.siteWide)
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 p-4 sm:p-8">
@@ -20,9 +26,7 @@ export default async function GrandstandsPage() {
         <Binoculars className="mx-auto size-12 text-primary" />
         <h1 className="text-4xl font-bold tracking-tight">Grandstand Guides</h1>
         <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-          Compare stored grandstand notes where they exist — view rating, price
-          tier, shade and what a stand overlooks. Coverage varies by circuit.
-          Missing stands stay unknown.
+          {copy.grandstandLede}
         </p>
       </header>
 
@@ -52,15 +56,14 @@ export default async function GrandstandsPage() {
       ) : (
         <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
           <p className="text-lg font-medium">
-            No stored grandstand notes are published yet.
+            Seat guides for this circuit are on the way.
           </p>
           <p className="mt-2">
-            Coverage varies. Missing stands stay unknown rather than being
-            filled in. Browse{" "}
+            In the meantime,{" "}
             <Link href="/races" className="text-primary hover:underline">
-              the race calendar
-            </Link>{" "}
-            to continue planning.
+              browse the race calendar
+            </Link>
+            .
           </p>
         </div>
       )}

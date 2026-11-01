@@ -10,16 +10,20 @@ import Header from "@/components/header"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import { SERIES } from "@/config/series"
-import { brand } from "@/config/brand"
+import { brand, brandCopy } from "@/config/brand"
+import { getPackagesAvailability } from "@/lib/packages-availability"
 
 export default async function MarketingLayout({
   children
 }: {
   children: React.ReactNode
 }) {
+  const { siteWide } = await getPackagesAvailability()
+  const copy = brandCopy(siteWide)
+
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <Header showPackagesLink={siteWide} />
 
       <div className="flex-1">{children}</div>
 
@@ -29,7 +33,7 @@ export default async function MarketingLayout({
             <div>
               <h3 className="text-lg font-semibold">About {brand.name}</h3>
               <p className="text-muted-foreground mt-4 text-sm">
-                {brand.positioningShort}
+                {copy.positioningShort}
               </p>
             </div>
 

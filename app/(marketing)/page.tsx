@@ -12,32 +12,35 @@ import { isActiveRaceStatus } from "@/lib/race-status"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { coverageByRaceId } from "@/lib/public-coverage"
 import WhyChooseFeaturesSection from "@/components/WhyChooseFeaturesSection"
-import TestimonialSection from "@/components/TestimonialSection"
 import FaqSection from "@/components/FaqSection"
 import CtaSection from "@/components/CtaSection"
 import dynamic from "next/dynamic"
 import CircuitExplorerSkeleton from "@/components/skeletons/circuit-explorer-skeleton"
-import TestimonialSectionSkeleton from "@/components/skeletons/testimonial-section-skeleton"
 import { Metadata } from "next"
-import { brand } from "@/config/brand"
+import { brand, brandCopy } from "@/config/brand"
+import { getPackagesAvailability } from "@/lib/packages-availability"
 
-const homeTitle = `${brand.name} | ${brand.tagline}`
+export async function generateMetadata(): Promise<Metadata> {
+  const availability = await getPackagesAvailability()
+  const copy = brandCopy(availability.siteWide)
+  const homeTitle = `${copy.homeTitleTerms} | ${brand.name}`
 
-export const metadata: Metadata = {
-  title: homeTitle,
-  description: brand.description,
-  keywords: brand.seriesKeywords.join(", "),
-  openGraph: {
+  return {
     title: homeTitle,
-    description: brand.shortDescription,
-    type: "website",
-    locale: "en_US",
-    siteName: brand.name
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: homeTitle,
-    description: brand.shortDescription
+    description: copy.description,
+    keywords: copy.seriesKeywords.join(", "),
+    openGraph: {
+      title: homeTitle,
+      description: copy.shortDescription,
+      type: "website",
+      locale: "en_US",
+      siteName: brand.name
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: homeTitle,
+      description: copy.shortDescription
+    }
   }
 }
 
@@ -52,6 +55,7 @@ export default async function HomePage() {
   const coverageMap = coverageResult.isSuccess
     ? coverageByRaceId(coverageResult.data)
     : {}
+  const { siteWide } = await getPackagesAvailability()
 
   // Dynamically import components that are not needed for initial render
   const DynamicCircuitExplorer = dynamic(
@@ -61,25 +65,17 @@ export default async function HomePage() {
     }
   )
 
-  const DynamicTestimonialSection = dynamic(
-    () => import("@/components/TestimonialSection"),
-    {
-      loading: () => <TestimonialSectionSkeleton />
-    }
-  )
-
   return (
     <div className="pb-20">
-      <HeroSection />
+      <HeroSection packagesLive={siteWide} />
       <UpcomingRaces
         races={upcomingRaces || []}
         coverageByRaceId={coverageMap}
       />
-      <WhyChooseFeaturesSection />
+      <WhyChooseFeaturesSection packagesLive={siteWide} />
       <DynamicCircuitExplorer />
-      <FeaturesSection />
-      <DynamicTestimonialSection />
-      <FaqSection />
+      <FeaturesSection packagesLive={siteWide} />
+      <FaqSection packagesLive={siteWide} />
       <CtaSection />
     </div>
   )

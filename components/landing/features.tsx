@@ -13,16 +13,17 @@ import {
   CardTitle
 } from "@/components/ui/card"
 import { motion } from "framer-motion"
+import { siteCopy } from "@/config/site-copy"
 import {
   Calendar,
-  CircleOff,
   Flag,
   GitCompare,
   Info,
   LucideIcon,
   MapPin,
   Plane,
-  Search
+  Search,
+  Shield
 } from "lucide-react"
 
 interface FeatureProps {
@@ -31,55 +32,15 @@ interface FeatureProps {
   icon: LucideIcon
 }
 
-const features: FeatureProps[] = [
-  {
-    title: "Race calendar",
-    description:
-      "Browse the public catalogue for Formula 1, Formula E, MotoGP, IndyCar and WEC",
-    icon: Search
-  },
-  {
-    title: "Compare races",
-    description:
-      "Compare events on travel-decision dimensions, with missing values left unknown",
-    icon: GitCompare
-  },
-  {
-    title: "Circuit pages",
-    description:
-      "Open circuit pages, track maps and grandstand notes where coverage exists",
-    icon: Info
-  },
-  {
-    title: "Race pages",
-    description:
-      "Open supported race pages for dates, circuit context and planning entry points",
-    icon: Flag
-  },
-  {
-    title: "Flight search",
-    description:
-      "Search flight options as a planning affordance with an external provider handoff",
-    icon: Plane
-  },
-  {
-    title: "Hotel city search",
-    description:
-      "Open a generic Booking.com city search. Confirm distance and terms on the provider",
-    icon: MapPin
-  },
-  {
-    title: "Planning tools",
-    description:
-      "Use compare and trip-planning tools to assemble a self-directed weekend",
-    icon: Calendar
-  },
-  {
-    title: "Honest limits",
-    description:
-      "Unavailable packages, unknown coverage and empty states stay labelled as such",
-    icon: CircleOff
-  }
+const featureIcons: LucideIcon[] = [
+  Calendar,
+  GitCompare,
+  Flag,
+  Info,
+  Search,
+  MapPin,
+  Shield,
+  Plane
 ]
 
 const FeatureCard = ({ title, description, icon: Icon }: FeatureProps) => (
@@ -98,7 +59,18 @@ const FeatureCard = ({ title, description, icon: Icon }: FeatureProps) => (
   </motion.div>
 )
 
-export const FeaturesSection = () => {
+export const FeaturesSection = ({
+  packagesLive = false
+}: {
+  packagesLive?: boolean
+}) => {
+  const features: FeatureProps[] = siteCopy(packagesLive).featureCards.map(
+    (feature, index) => ({
+      ...feature,
+      icon: featureIcons[index] ?? Info
+    })
+  )
+
   return (
     <section className="mt-20 bg-gradient-to-b from-gray-50 to-white py-20 dark:from-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4">
@@ -108,15 +80,14 @@ export const FeaturesSection = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <h2 className="mb-4 text-center text-4xl font-bold">
-            Tools for choosing a race weekend
+            Know before you go
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            A five-series calendar, race and circuit pages, compare tools,
-            and labelled external search.
+            What fans who&apos;ve been would tell you, before you book.
           </p>
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             {features.map((feature, index) => (
-              <FeatureCard key={index} {...feature} />
+              <FeatureCard key={feature.title} {...feature} />
             ))}
           </div>
         </motion.div>

@@ -48,7 +48,7 @@ describe("PLT-017 typed analytics browser source contract", () => {
     expect(spec).toMatch(/isAppOriginConsoleError/)
     expect(spec).toMatch(/Accept analytics/)
     expect(spec).toMatch(/Usage analytics/)
-    expect(spec).toMatch(/View Race Calendar/)
+    expect(spec).toMatch(/Find your race/)
     expect(spec).toMatch(/page viewed|\$pageview/)
     expect(spec).toMatch(/hero calendar CTA clicked|hero_calendar_cta_clicked/)
     expect(spec).toMatch(/schema_version/)
@@ -76,10 +76,10 @@ describe("PLT-017 typed analytics browser source contract", () => {
       'await page.getByRole("button", { name: "Accept analytics", exact: true }).click()'
     )
     const ctaClick = spec.indexOf(
-      '.getByRole("link", { name: "View Race Calendar" })'
+      '.getByRole("link", { name: "Find your race" })'
     )
     expect(acceptClick, "Accept analytics click").toBeGreaterThanOrEqual(0)
-    expect(ctaClick, "View Race Calendar click").toBeGreaterThan(acceptClick)
+    expect(ctaClick, "Find your race click").toBeGreaterThan(acceptClick)
     expect(spec.slice(ctaClick, ctaClick + 140)).toMatch(/\.first\(\)[\s\S]*\.click\(\)/)
 
     const betweenGrantAndCta = spec.slice(acceptClick, ctaClick)

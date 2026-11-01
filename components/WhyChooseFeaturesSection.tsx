@@ -10,35 +10,20 @@ import {
 } from "@/components/ui/card"
 import { Calendar, GitCompare, MapPin } from "lucide-react"
 import { motion } from "framer-motion"
+import { siteCopy } from "@/config/site-copy"
 
-const features = [
-  {
-    title: "Five-series calendar",
-    description:
-      "Browse Formula 1, Formula E, MotoGP, IndyCar and WEC events on the public race calendar.",
-    icon: Calendar,
-    details:
-      "The catalogue stays those five series. Depth varies by event: some races have circuit pages, others are calendar-only."
-  },
-  {
-    title: "Circuit and race pages",
-    description:
-      "Open race and circuit pages where coverage exists, including grandstand notes when they are published.",
-    icon: MapPin,
-    details:
-      "Coverage is labelled by what is on the page. Missing logistics or viewing notes stay unknown instead of being filled in."
-  },
-  {
-    title: "Compare and planning tools",
-    description:
-      "Compare events and use planning tools, then follow labelled external search handoffs for flights and stays.",
-    icon: GitCompare,
-    details:
-      "Flight search is a planning affordance with an external provider handoff. Hotel links open a generic Booking.com city search. PitLane does not book flights or sell packages."
-  }
-]
+const featureIcons = [Calendar, MapPin, GitCompare]
 
-export default function WhyChooseFeaturesSection() {
+export default function WhyChooseFeaturesSection({
+  packagesLive = false
+}: {
+  packagesLive?: boolean
+}) {
+  const section = siteCopy(packagesLive).whyChoose
+  const features = section.cards.map((card, index) => ({
+    ...card,
+    icon: featureIcons[index] ?? Calendar
+  }))
   const [activeFeature, setActiveFeature] = useState<number | null>(null)
 
   return (
@@ -50,11 +35,10 @@ export default function WhyChooseFeaturesSection() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <h2 className="mb-4 text-center text-4xl font-bold">
-            Why use PitLane Travel?
+            {section.heading}
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            Inspectable tools for choosing a race and planning the trip
-            yourself.
+            {section.intro}
           </p>
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-3">
             {features.map((feature, index) => (

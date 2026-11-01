@@ -59,10 +59,12 @@ describe("PLT-006 public marketing truth", () => {
   })
 
   describe("route limitations are explicit", () => {
-    it("presents flights as a search affordance with an external provider", () => {
+    it("presents flights as a search you book with the airline or a travel site", () => {
       const flights = readPublicSource("app/flights/page.tsx")
-      expect(flights).toMatch(/Search flight options/)
-      expect(flights).toMatch(/external|provider/i)
+      expect(flights).toContain(
+        "Search flights for a race weekend. These prices are here to help you plan. PitLane doesn't sell flights, so you book with the airline or a travel site."
+      )
+      expect(flights).toContain("Flight search | PitLane Travel")
     })
 
     it("labels hotels as a generic external Booking.com city search", () => {

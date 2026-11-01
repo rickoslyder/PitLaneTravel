@@ -14,15 +14,15 @@ export default function NotFoundContent() {
     >
       <h1 className="text-4xl font-bold tracking-tight">404</h1>
       <h2 className="text-muted-foreground text-2xl font-semibold">
-        Page Not Found
+        Page not found
       </h2>
       <p className="text-muted-foreground mx-auto max-w-[500px]">
-        Oops! The page you're looking for doesn't exist or has been moved. Let's
-        get you back on track.
+        That page has moved or doesn&apos;t exist. Let&apos;s get you back to
+        the racing.
       </p>
 
       <Button asChild className="mt-8">
-        <Link href="/">Return Home</Link>
+        <Link href="/">Back to home</Link>
       </Button>
     </motion.div>
   )
