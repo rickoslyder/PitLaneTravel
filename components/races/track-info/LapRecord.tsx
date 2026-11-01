@@ -6,8 +6,16 @@ interface LapRecordProps {
   circuit: NonNullable<RaceWithDetails["circuit"]>
 }
 
+export function lapRecordHasData(
+  details: NonNullable<RaceWithDetails["circuit"]>["details"]
+): boolean {
+  if (!details) return false
+  return Boolean(details.lap_record_time || details.lap_record_driver)
+}
+
 export function LapRecord({ circuit }: LapRecordProps) {
-  if (!circuit.details) return null
+  if (!lapRecordHasData(circuit.details)) return null
+  const details = circuit.details!
 
   return (
     <Card className="overflow-hidden">
@@ -22,56 +30,17 @@ export function LapRecord({ circuit }: LapRecordProps) {
             <Trophy className="text-primary size-5 sm:size-6 lg:size-8" />
           </div>
           <div>
-            <div className="text-base font-bold sm:text-lg lg:text-2xl">
-              {circuit.details.lap_record_time}
-            </div>
-            <div className="text-muted-foreground text-xs sm:text-sm">
-              {circuit.details.lap_record_driver} (
-              {circuit.details.lap_record_year})
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-2 sm:space-y-3 lg:space-y-4">
-          <div className="space-y-1 sm:space-y-1.5 lg:space-y-2">
-            <div className="text-muted-foreground text-xs sm:text-sm">
-              Sector Times
-            </div>
-            <div className="grid grid-cols-3 gap-1 sm:gap-1.5 lg:gap-2">
-              <div className="space-y-1">
-                <div className="h-1 rounded-full bg-purple-500/20" />
-                <div className="text-center text-[10px] sm:text-xs">
-                  Sector 1
-                </div>
+            {details.lap_record_time && (
+              <div className="text-base font-bold sm:text-lg lg:text-2xl">
+                {details.lap_record_time}
               </div>
-              <div className="space-y-1">
-                <div className="h-1 rounded-full bg-green-500/20" />
-                <div className="text-center text-[10px] sm:text-xs">
-                  Sector 2
-                </div>
+            )}
+            {(details.lap_record_driver || details.lap_record_year) && (
+              <div className="text-muted-foreground text-xs sm:text-sm">
+                {details.lap_record_driver}
+                {details.lap_record_year ? ` (${details.lap_record_year})` : ""}
               </div>
-              <div className="space-y-1">
-                <div className="h-1 rounded-full bg-yellow-500/20" />
-                <div className="text-center text-[10px] sm:text-xs">
-                  Sector 3
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-1 sm:space-y-1.5 lg:space-y-2">
-            <div className="text-muted-foreground text-xs sm:text-sm">
-              Speed Zones
-            </div>
-            <div className="relative h-5 rounded-lg border sm:h-6 lg:h-8">
-              <div className="bg-primary/20 absolute inset-y-0 left-0 w-[70%] rounded-l-lg" />
-              <div className="bg-primary/10 absolute inset-y-0 right-0 w-[30%] rounded-r-lg" />
-            </div>
-            <div className="flex justify-between text-[10px] sm:text-xs">
-              <span>High Speed</span>
-              <span>Medium Speed</span>
-              <span>Low Speed</span>
-            </div>
+            )}
           </div>
         </div>
       </CardContent>

@@ -20,6 +20,42 @@ import {
   upcomingRacesVisibleCount
 } from "@/components/landing/upcoming-races-visible-count"
 
+const CIRCUIT_PLACEHOLDER_SRC = "/assets/placeholder.jpg"
+
+function UpcomingRaceImage({ src, alt }: { src?: string | null; alt: string }) {
+  const [current, setCurrent] = useState(src || CIRCUIT_PLACEHOLDER_SRC)
+  const [hidden, setHidden] = useState(false)
+
+  if (hidden) {
+    return (
+      <div
+        className="flex size-full items-center justify-center bg-[#14161a]"
+        data-race-image-fallback=""
+        aria-hidden="true"
+      >
+        <Flag className="size-8 text-white/70" />
+      </div>
+    )
+  }
+
+  return (
+    <Image
+      key={current}
+      src={current}
+      alt={alt}
+      className="object-cover transition-transform duration-300 group-hover:scale-105"
+      fill
+      onError={() => {
+        if (current !== CIRCUIT_PLACEHOLDER_SRC) {
+          setCurrent(CIRCUIT_PLACEHOLDER_SRC)
+          return
+        }
+        setHidden(true)
+      }}
+    />
+  )
+}
+
 interface UpcomingRacesProps {
   races: RaceWithCircuitAndSeries[]
   coverageByRaceId?: Record<string, PublicCoverageSummary>
@@ -104,13 +140,9 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
                 >
                   <Card className="group h-full overflow-hidden">
                     <div className="relative aspect-[16/9]">
-                      <Image
-                        src={
-                          race.circuit?.image_url || "/assets/placeholder.jpg"
-                        }
+                      <UpcomingRaceImage
+                        src={race.circuit?.image_url}
                         alt={race.circuit?.name || "Race circuit"}
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        fill
                       />
                     </div>
                     <CardContent className="p-4">
