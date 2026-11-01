@@ -51,7 +51,7 @@ const features: FeatureProps[] = [
     icon: Info
   },
   {
-    title: "Get tickets",
+    title: "Find tickets",
     description: "Straight to tickets for your race and your stand.",
     icon: Search
   },

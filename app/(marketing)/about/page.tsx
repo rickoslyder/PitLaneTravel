@@ -116,7 +116,7 @@ export default async function AboutPage() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-xl font-semibold">Get tickets</h3>
+            <h3 className="mb-4 text-xl font-semibold">Find tickets</h3>
             <p className="text-muted-foreground">
               Straight to tickets for your race and your stand.
             </p>
