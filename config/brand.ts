@@ -11,7 +11,7 @@ const temporaryDisplayName = "PitLane Travel"
 
 export const brand = {
   name: temporaryDisplayName,
-  tagline: "Decision layer for self-directed motorsport trips",
+  tagline: "Go like you've been before.",
   positioningShort:
     "A decision layer for self-directed travellers. Compare races across Formula 1, Formula E, MotoGP, IndyCar and WEC, then hand off to external suppliers.",
   affiliateDisclosureShort: `Some external supplier links may be affiliate links and may pay ${temporaryDisplayName} a commission. Provider terms apply.`,

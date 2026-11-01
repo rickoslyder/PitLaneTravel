@@ -282,3 +282,139 @@ describe("PLT-008 brand truth", () => {
     })
   })
 })
+
+describe("#23 Go like you've been before copy", () => {
+  it("sets the shipped tagline", () => {
+    expect(brand.tagline).toBe("Go like you've been before.")
+  })
+
+  it("renders the tagline from the legacy footer", () => {
+    const footer = readSource("components/Footer.tsx")
+    expect(footer).toContain("{brand.tagline}")
+    expect(footer).not.toContain("Your ultimate motorsport travel companion")
+  })
+
+  it("ships the hero headline, calendar label, and the first two strips", () => {
+    const hero = readSource("components/landing/hero.tsx")
+    expect(hero).toContain("Monaco. Le Mans. The Indy 500.")
+    expect(hero).toContain("Find your race")
+    expect(hero).toContain("Every race, one calendar")
+    expect(hero).toContain("Five series, this season and next.")
+    expect(hero).toContain("Know your seat")
+    expect(hero).toContain("What each grandstand looks onto, before you buy.")
+  })
+
+  it("ships the features heading, intro, and the non-hold cards", () => {
+    const features = readSource("components/landing/features.tsx")
+    expect(features).toContain("Know before you go")
+    expect(features).toContain("been would tell you, before you book.")
+    expect(features).toContain("Compare weekends")
+    expect(features).toContain("Dates, cost, weather and travel, side by side.")
+    expect(features).toContain("Two races, one trip")
+    expect(features).toContain("Get tickets")
+    expect(features).toContain("Straight to tickets for your race and your stand.")
+    expect(features).toContain("Getting there and back")
+    expect(features).not.toContain("Honest limits")
+    expect(features).not.toContain("What you can bring")
+    expect(features).not.toContain("Buy tickets safely")
+  })
+
+  it("ships the 404 copy and keeps the 404 heading", () => {
+    const notFound = readSource("app/_components/not-found-content.tsx")
+    expect(notFound).toContain(">404<")
+    expect(notFound).toContain("Page not found")
+    expect(notFound).toContain("That page has moved or doesn")
+    expect(notFound).toContain("the racing.")
+    expect(notFound).toContain("Back to home")
+    expect(notFound).not.toContain("Page Not Found")
+    expect(notFound).not.toContain("Return Home")
+  })
+
+  it("ships the non-hold about headings, cards, and call to action", () => {
+    const about = readSource("app/(marketing)/about/page.tsx")
+    expect(about).toContain("About PitLane Travel")
+    expect(about).toContain("Find your race")
+    expect(about).toContain("What we do")
+    expect(about).toContain("What we care about")
+    expect(about).toContain("Fans first")
+    expect(about).toContain(
+      "Written for the person in the grandstand, not the brochure."
+    )
+    expect(about).toContain("Five series")
+    expect(about).toContain("F1, MotoGP, IndyCar, WEC and Formula E, side by side.")
+    expect(about).toContain("Dated, sourced detail on seats, rules and getting home.")
+    expect(about).toContain("What you can do here")
+    expect(about).toContain("Ready to go?")
+    expect(about).toContain("Contact Us")
+    expect(about).not.toContain("Open the five-series calendar and plan the trip yourself.")
+  })
+
+  it("ships the home FAQ heading and the non-hold answers", () => {
+    const faq = readSource("components/FaqSection.tsx")
+    expect(faq).toContain("Frequently asked questions")
+    expect(faq).toContain("What fans ask before a race weekend.")
+    expect(faq).toContain("Can I see what a grandstand is like before I buy?")
+    expect(faq).toContain("Is my ticket real?")
+    expect(faq).toContain("What if the race is moved or cancelled?")
+    expect(faq).toContain("How do I sort flights and a hotel?")
+    expect(faq).toContain("check who's selling before you pay.")
+  })
+
+  it("ships the /faq heading, grandstand answer, and contact answer", () => {
+    const faq = readSource("app/(marketing)/faq/page.tsx")
+    expect(faq).toContain("Frequently Asked Questions")
+    expect(faq).toContain("Common questions before a race weekend.")
+    expect(faq).toContain("Can I see what a grandstand is like before I buy?")
+    expect(faq).toContain("Is my ticket real?")
+    expect(faq).toContain("What if the race is moved or cancelled?")
+    expect(faq).toContain(
+      "Use the contact form and tell us which race you're asking about."
+    )
+    expect(faq).not.toContain("Do you cover every circuit or series worldwide?")
+  })
+
+  it("ships the non-hold help copy", () => {
+    const help = readSource("app/(marketing)/help/page.tsx")
+    expect(help).toContain(
+      "How to find your race and plan the weekend with PitLane Travel."
+    )
+    expect(help).toContain("Plan your weekend")
+    expect(help).toContain(
+      "Dates and venues for every Formula 1, MotoGP, IndyCar, WEC and Formula E race."
+    )
+    expect(help).toContain(
+      "Put race weekends side by side on dates, cost, weather and travel."
+    )
+    expect(help).toContain('title: "Hotels"')
+    expect(help).toContain("Questions about a race? Send us a message.")
+    expect(help).toContain("Who we are and what we do.")
+    expect(help).toContain("which race you")
+    expect(help).toContain("Open contact form")
+    expect(help).toContain("Race calendar")
+    expect(help).toContain("Flight search")
+    expect(help).toContain("Hotel search")
+  })
+
+  it("ships the circuit explorer line and grandstand metadata", () => {
+    const explorer = readSource("components/_components/circuit-explorer-header.tsx")
+    const grandstands = readSource("app/circuits/grandstands/page.tsx")
+    expect(explorer).toContain("Explore Iconic Circuits")
+    expect(explorer).toContain(
+      "Open a circuit to see the track, the grandstands and how to get there."
+    )
+    expect(grandstands).toContain("Grandstand Guides | PitLane Travel")
+    expect(grandstands).toContain(">Grandstand Guides<")
+    expect(grandstands).toContain(
+      "Grandstand guides for F1, MotoGP, IndyCar, WEC and Formula E circuits: the view, the shade, the price and what fans who sat there say."
+    )
+    expect(grandstands).toContain("Seat guides for this circuit are on the way.")
+    expect(grandstands).toContain("browse the race calendar")
+    expect(grandstands).toContain('href="/races"')
+  })
+
+  it("hides the testimonial section on the homepage", () => {
+    const home = readSource("app/(marketing)/page.tsx")
+    expect(home).not.toMatch(/TestimonialSection/)
+    expect(home).not.toContain("[REAL REVIEW SLOT]")
+  })
+})

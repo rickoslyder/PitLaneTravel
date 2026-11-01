@@ -10,8 +10,7 @@ export function CircuitExplorerHeader() {
         Explore Iconic Circuits
       </h2>
       <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-        Open a featured circuit page where coverage exists, then continue
-        into race and planning tools.
+        Open a circuit to see the track, the grandstands and how to get there.
       </p>
     </>
   )

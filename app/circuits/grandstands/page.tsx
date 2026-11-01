@@ -7,7 +7,7 @@ import { slugify } from "@/lib/series"
 export const metadata: Metadata = {
   title: "Grandstand Guides | PitLane Travel",
   description:
-    "Compare stored grandstand notes for Formula 1, MotoGP, Formula E, IndyCar and WEC where coverage exists. Coverage varies by circuit; missing stands stay unknown."
+    "Grandstand guides for F1, MotoGP, IndyCar, WEC and Formula E circuits: the view, the shade, the price and what fans who sat there say."
 }
 
 export default async function GrandstandsPage() {
@@ -52,15 +52,14 @@ export default async function GrandstandsPage() {
       ) : (
         <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
           <p className="text-lg font-medium">
-            No stored grandstand notes are published yet.
+            Seat guides for this circuit are on the way.
           </p>
           <p className="mt-2">
-            Coverage varies. Missing stands stay unknown rather than being
-            filled in. Browse{" "}
+            In the meantime,{" "}
             <Link href="/races" className="text-primary hover:underline">
-              the race calendar
-            </Link>{" "}
-            to continue planning.
+              browse the race calendar
+            </Link>
+            .
           </p>
         </div>
       )}

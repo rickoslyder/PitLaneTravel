@@ -12,12 +12,10 @@ import { isActiveRaceStatus } from "@/lib/race-status"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { coverageByRaceId } from "@/lib/public-coverage"
 import WhyChooseFeaturesSection from "@/components/WhyChooseFeaturesSection"
-import TestimonialSection from "@/components/TestimonialSection"
 import FaqSection from "@/components/FaqSection"
 import CtaSection from "@/components/CtaSection"
 import dynamic from "next/dynamic"
 import CircuitExplorerSkeleton from "@/components/skeletons/circuit-explorer-skeleton"
-import TestimonialSectionSkeleton from "@/components/skeletons/testimonial-section-skeleton"
 import { Metadata } from "next"
 import { brand } from "@/config/brand"
 
@@ -61,13 +59,6 @@ export default async function HomePage() {
     }
   )
 
-  const DynamicTestimonialSection = dynamic(
-    () => import("@/components/TestimonialSection"),
-    {
-      loading: () => <TestimonialSectionSkeleton />
-    }
-  )
-
   return (
     <div className="pb-20">
       <HeroSection />
@@ -78,7 +69,6 @@ export default async function HomePage() {
       <WhyChooseFeaturesSection />
       <DynamicCircuitExplorer />
       <FeaturesSection />
-      <DynamicTestimonialSection />
       <FaqSection />
       <CtaSection />
     </div>

@@ -26,14 +26,14 @@ export default async function AboutPage() {
         </p>
         <Link href="/races">
           <Button className="bg-[#E10600] hover:bg-[#FF0800]">
-            View Race Calendar
+            Find your race
           </Button>
         </Link>
       </div>
 
       {/* Mission Section */}
       <div className="mb-16">
-        <h2 className="mb-8 text-center text-3xl font-bold">Our Mission</h2>
+        <h2 className="mb-8 text-center text-3xl font-bold">What we do</h2>
         <div className="text-muted-foreground mx-auto max-w-3xl text-center text-lg leading-relaxed">
           <p>
             <b>
@@ -48,15 +48,14 @@ export default async function AboutPage() {
 
       {/* Values Section */}
       <div className="mb-16">
-        <h2 className="mb-8 text-center text-3xl font-bold">Our Values</h2>
+        <h2 className="mb-8 text-center text-3xl font-bold">What we care about</h2>
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <Card className="text-center">
             <CardContent className="pt-6">
               <Search className="mx-auto mb-4 size-8 text-[#E10600]" />
-              <h3 className="mb-2 text-xl font-semibold">Inspectable tools</h3>
+              <h3 className="mb-2 text-xl font-semibold">Fans first</h3>
               <p className="text-muted-foreground">
-                Calendar, race pages, circuit pages and compare tools you can
-                open yourself
+                Written for the person in the grandstand, not the brochure.
               </p>
             </CardContent>
           </Card>
@@ -64,10 +63,9 @@ export default async function AboutPage() {
           <Card className="text-center">
             <CardContent className="pt-6">
               <Heart className="mx-auto mb-4 size-8 text-[#E10600]" />
-              <h3 className="mb-2 text-xl font-semibold">Five-series scope</h3>
+              <h3 className="mb-2 text-xl font-semibold">Five series</h3>
               <p className="text-muted-foreground">
-                Public catalogue stays Formula 1, Formula E, MotoGP, IndyCar and
-                WEC
+                F1, MotoGP, IndyCar, WEC and Formula E, side by side.
               </p>
             </CardContent>
           </Card>
@@ -75,10 +73,9 @@ export default async function AboutPage() {
           <Card className="text-center">
             <CardContent className="pt-6">
               <Users className="mx-auto mb-4 size-8 text-[#E10600]" />
-              <h3 className="mb-2 text-xl font-semibold">Unknown stays unknown</h3>
+              <h3 className="mb-2 text-xl font-semibold">Know before you go</h3>
               <p className="text-muted-foreground">
-                Coverage depth is labelled. Missing logistics or viewing notes
-                are left unknown
+                Dated, sourced detail on seats, rules and getting home.
               </p>
             </CardContent>
           </Card>
@@ -99,32 +96,29 @@ export default async function AboutPage() {
       {/* Why Choose Us Section */}
       <div className="mb-16">
         <h2 className="mb-8 text-center text-3xl font-bold">
-          Why Use PitLane Travel
+          What you can do here
         </h2>
         <div className="grid gap-8 md:grid-cols-2">
           <div>
-            <h3 className="mb-4 text-xl font-semibold">Race calendar</h3>
-            <p className="text-muted-foreground">
-              Browse events across the five named series. Every supported event
-              stays discoverable.
-            </p>
-          </div>
-
-          <div>
             <h3 className="mb-4 text-xl font-semibold">
-              Race and circuit pages
+              Every race, one calendar
             </h3>
             <p className="text-muted-foreground">
-              Open pages where coverage exists, including grandstand notes when
-              they are published. Missing depth stays unknown.
+              Five series, this season and next.
             </p>
           </div>
 
           <div>
-            <h3 className="mb-4 text-xl font-semibold">Planning tools</h3>
+            <h3 className="mb-4 text-xl font-semibold">Know your seat</h3>
             <p className="text-muted-foreground">
-              Compare events and assemble a self-directed weekend, then follow
-              labelled external search handoffs.
+              What each grandstand looks onto, before you buy.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-xl font-semibold">Get tickets</h3>
+            <p className="text-muted-foreground">
+              Straight to tickets for your race and your stand.
             </p>
           </div>
 
@@ -140,15 +134,12 @@ export default async function AboutPage() {
 
       {/* CTA Section */}
       <div className="rounded-lg bg-gradient-to-r from-gray-50 to-white p-8 text-center dark:from-gray-800 dark:to-gray-900">
-        <h2 className="mb-4 text-2xl font-bold">Start from a real event</h2>
-        <p className="text-muted-foreground mx-auto mb-6 max-w-2xl">
-          Open the five-series calendar and plan the trip yourself.
-        </p>
+        <h2 className="mb-4 text-2xl font-bold">Ready to go?</h2>
         <div className="flex justify-center gap-4">
           <Link href="/races">
             <Button className="bg-[#E10600] hover:bg-[#FF0800]">
               <Flag className="mr-2 size-4" />
-              Explore Races
+              Find your race
             </Button>
           </Link>
           <Link href="/contact">

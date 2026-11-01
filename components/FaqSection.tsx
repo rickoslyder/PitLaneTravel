@@ -11,9 +11,9 @@ const faqs = [
       "The public catalogue is Formula 1, Formula E, MotoGP, IndyCar and WEC. Depth varies: some races have circuit pages, others are calendar-only."
   },
   {
-    question: "Can I get information about specific grandstands and viewing areas?",
+    question: "Can I see what a grandstand is like before I buy?",
     answer:
-      "Race and circuit pages include grandstand notes where coverage exists. If a viewing area is not documented, that gap is left unknown."
+      "Yes. Our grandstand guides show the view, the shade and what each stand looks onto, plus what fans who sat there said."
   },
   {
     question: "Does PitLane Travel offer package deals for races?",
@@ -21,9 +21,19 @@ const faqs = [
       "PitLane Travel does not currently sell race-weekend packages. It is a decision layer for self-directed travellers, not a package principal or travel agency."
   },
   {
-    question: "Do you book flights or verify hotels?",
+    question: "Is my ticket real?",
     answer:
-      "Flight search is a planning affordance with an external provider handoff. PitLane does not book, sell, or issue flights. Hotel links open a generic Booking.com city search. Confirm distance and terms on the provider."
+      "Buy from the official seller or an authorised agent. Resale tickets can be cancelled or swapped, so check who's selling before you pay."
+  },
+  {
+    question: "What if the race is moved or cancelled?",
+    answer:
+      "Race dates follow the official calendar for each series. If a race moves or is cancelled, your ticket or package terms decide the refund, so check them before you pay."
+  },
+  {
+    question: "How do I sort flights and a hotel?",
+    answer:
+      "Search flights to the right airport from the race page, and find hotels in the circuit's town or city. Check the distance to the track, and book refundable where you can: race-week hotel bookings sometimes get cancelled."
   }
 ]
 
@@ -53,10 +63,10 @@ export default function FaqSection() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <h2 id="faq-title" className="mb-4 text-center text-4xl font-bold">
-            Frequently Asked Questions
+            Frequently asked questions
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            Answers about the five-series catalogue and planning tools.
+            What fans ask before a race weekend.
           </p>
           <div className="mx-auto max-w-4xl space-y-4">
             {faqs.map((faq, index) => (

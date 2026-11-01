@@ -28,21 +28,21 @@ const routes: GuideProps[] = [
   {
     title: "Race calendar",
     description:
-      "Compare dates and locations across Formula 1, Formula E, MotoGP, IndyCar and WEC.",
+      "Dates and venues for every Formula 1, MotoGP, IndyCar, WEC and Formula E race.",
     href: "/races",
     icon: <Calendar className="size-5 text-[#E10600]" />
   },
   {
     title: "Compare races",
     description:
-      "Open the compare tool. Missing travel-decision values stay unknown.",
+      "Put race weekends side by side on dates, cost, weather and travel.",
     href: "/races/compare",
     icon: <GitCompare className="size-5 text-[#E10600]" />
   },
   {
-    title: "Hotel city search",
+    title: "Hotels",
     description:
-      "Open a generic Booking.com city search. Confirm distance and terms on the provider.",
+      "Find somewhere to stay in the circuit's town or city. Check the distance to the track and book refundable where you can.",
     href: "/hotels",
     icon: <MapPin className="size-5 text-[#E10600]" />
   }
@@ -58,14 +58,14 @@ const resources: GuideProps[] = [
   },
   {
     title: "Contact",
-    description: "Use the contact form for platform-related questions.",
+    description: "Questions about a race? Send us a message.",
     href: "/contact",
     icon: <MessageCircle className="size-5 text-[#E10600]" />
   },
   {
     title: "About Us",
     description:
-      "What PitLane Travel is and what it does not sell or operate.",
+      "Who we are and what we do.",
     href: "/about",
     icon: <Info className="size-5 text-[#E10600]" />
   }
@@ -120,8 +120,7 @@ export default async function HelpPage() {
         </div>
         <h1 className="mb-4 text-4xl font-bold">Help Center</h1>
         <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-          Live routes and current limits for planning a self-directed race
-          weekend
+          How to find your race and plan the weekend with PitLane Travel.
         </p>
       </div>
 
@@ -147,7 +146,7 @@ export default async function HelpPage() {
       </div>
 
       <div className="mb-16">
-        <h2 className="mb-8 text-2xl font-bold">Planning routes</h2>
+        <h2 className="mb-8 text-2xl font-bold">Plan your weekend</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {routes.map((route, index) => (
             <GuideCard key={index} {...route} />
@@ -176,8 +175,7 @@ export default async function HelpPage() {
       <div className="rounded-lg bg-gradient-to-r from-gray-50 to-white p-8 text-center dark:from-gray-800 dark:to-gray-900">
         <h2 className="mb-4 text-2xl font-bold">Still have a question?</h2>
         <p className="text-muted-foreground mx-auto mb-6 max-w-2xl">
-          Use the contact form for platform-related questions. There is no
-          claimed support desk or race-weekend hotline.
+          Send us a message and tell us which race you&apos;re asking about.
         </p>
         <Link href="/contact">
           <Button className="bg-[#E10600] hover:bg-[#FF0800]">

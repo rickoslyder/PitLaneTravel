@@ -15,12 +15,10 @@ import {
 import { motion } from "framer-motion"
 import {
   Calendar,
-  CircleOff,
   Flag,
   GitCompare,
   Info,
   LucideIcon,
-  MapPin,
   Plane,
   Search
 } from "lucide-react"
@@ -33,52 +31,35 @@ interface FeatureProps {
 
 const features: FeatureProps[] = [
   {
-    title: "Race calendar",
-    description:
-      "Browse the public catalogue for Formula 1, Formula E, MotoGP, IndyCar and WEC",
-    icon: Search
-  },
-  {
-    title: "Compare races",
-    description:
-      "Compare events on travel-decision dimensions, with missing values left unknown",
-    icon: GitCompare
-  },
-  {
-    title: "Circuit pages",
-    description:
-      "Open circuit pages, track maps and grandstand notes where coverage exists",
-    icon: Info
-  },
-  {
-    title: "Race pages",
-    description:
-      "Open supported race pages for dates, circuit context and planning entry points",
-    icon: Flag
-  },
-  {
-    title: "Flight search",
-    description:
-      "Search flight options as a planning affordance with an external provider handoff",
-    icon: Plane
-  },
-  {
-    title: "Hotel city search",
-    description:
-      "Open a generic Booking.com city search. Confirm distance and terms on the provider",
-    icon: MapPin
-  },
-  {
-    title: "Planning tools",
-    description:
-      "Use compare and trip-planning tools to assemble a self-directed weekend",
+    title: "Every race, one calendar",
+    description: "Five series, this season and next.",
     icon: Calendar
   },
   {
-    title: "Honest limits",
+    title: "Compare weekends",
+    description: "Dates, cost, weather and travel, side by side.",
+    icon: GitCompare
+  },
+  {
+    title: "Two races, one trip",
+    description: "See which weekends across series fit together.",
+    icon: Flag
+  },
+  {
+    title: "Know your seat",
+    description: "What each grandstand looks onto, before you buy.",
+    icon: Info
+  },
+  {
+    title: "Get tickets",
+    description: "Straight to tickets for your race and your stand.",
+    icon: Search
+  },
+  {
+    title: "Getting there and back",
     description:
-      "Unavailable packages, unknown coverage and empty states stay labelled as such",
-    icon: CircleOff
+      "The right airport, the right town, and the quickest way out after the flag.",
+    icon: Plane
   }
 ]
 
@@ -108,11 +89,10 @@ export const FeaturesSection = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <h2 className="mb-4 text-center text-4xl font-bold">
-            Tools for choosing a race weekend
+            Know before you go
           </h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-center text-lg">
-            A five-series calendar, race and circuit pages, compare tools,
-            and labelled external search.
+            What fans who&apos;ve been would tell you, before you book.
           </p>
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             {features.map((feature, index) => (

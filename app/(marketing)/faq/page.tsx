@@ -18,14 +18,9 @@ const faqs = [
           "The public catalogue is Formula 1, Formula E, MotoGP, IndyCar and WEC. Every supported event stays discoverable. Depth varies: some races have circuit pages, others are calendar-only."
       },
       {
-        question: "Do you cover every circuit or series worldwide?",
+        question: "Can I see what a grandstand is like before I buy?",
         answer:
-          "No. Coverage is those five series only. A race without a guide is still listed; missing logistics or viewing notes stay unknown."
-      },
-      {
-        question: "Can I get information about specific grandstands?",
-        answer:
-          "Race and circuit pages include grandstand notes where coverage exists. If a viewing area is not documented, that gap is left unknown."
+          "Yes. Our grandstand guides show the view, the shade and what each stand looks onto, plus what fans who sat there said."
       }
     ]
   },
@@ -43,9 +38,19 @@ const faqs = [
           "PitLane is not a ticket seller or travel agency. Any ticket inventory, if present, is labelled as such. There is no digital ticket-delivery product here."
       },
       {
+        question: "Is my ticket real?",
+        answer:
+          "Buy from the official seller or an authorised agent. Resale tickets can be cancelled or swapped, so check who's selling before you pay."
+      },
+      {
+        question: "What if the race is moved or cancelled?",
+        answer:
+          "Race dates follow the official calendar for each series. If a race moves or is cancelled, your ticket or package terms decide the refund, so check them before you pay."
+      },
+      {
         question: "How do I contact someone?",
         answer:
-          "Use the contact form. There is no claimed support desk or race-weekend hotline."
+          "Use the contact form and tell us which race you're asking about."
       }
     ]
   },
@@ -77,7 +82,7 @@ export default async function FAQPage() {
       <div className="mb-12 text-center">
         <h1 className="mb-4 text-4xl font-bold">Frequently Asked Questions</h1>
         <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-          Limits and live routes for planning a self-directed race weekend
+          Common questions before a race weekend.
         </p>
       </div>
 

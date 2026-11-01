@@ -236,7 +236,7 @@ test.describe("typed analytics", () => {
       .toBe(true)
 
     await page
-      .getByRole("link", { name: "View Race Calendar" })
+      .getByRole("link", { name: "Find your race" })
       .first()
       .click()
 
