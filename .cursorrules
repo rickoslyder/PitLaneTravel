@@ -1,9 +1,8 @@
 # PitLane Travel — Cursor compatibility
 
 `AGENTS.md` is the authoritative repository agent / runbook.
-`docs/product/day-70-contract.md` is the product, commercial, and stop-rule contract.
 
-If this file conflicts with either of those, those win. Do not revive older
+If this file conflicts with that runbook, the runbook wins. Do not revive older
 template rules that told agents to skip or ignore migration files.
 
 ## Hard rules

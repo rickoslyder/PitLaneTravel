@@ -1,19 +1,10 @@
 # PitLane Travel
 
-Decision layer for self-directed motorsport trips: compare races, choose where
-to sit, understand the real logistics, build a context-aware plan, then hand
-off to trusted suppliers.
+Public catalogue: Formula 1, Formula E, MotoGP, IndyCar, and WEC.
 
-Public catalogue: Formula 1, Formula E, MotoGP, IndyCar, and WEC. Depth is a
-labelled coverage tier, not a hidden subset. This is not a miniature OTA, a
-travel agency, a generic AI itinerary generator, a ticket directory, or a
-community platform.
-
-Live versus planned capability, commercial stop-rules, and the Days 1–70
-contract are in `docs/product/day-70-contract.md`. `SPEC.md` is a historical
-implementation record. `DECISIONS.md` is the decision log. `AGENTS.md` is the
-command and safety runbook. `MASTER_PLAN.md` is not an authority for live
-capability.
+`SPEC.md` is a historical implementation record. `DECISIONS.md` is the decision
+log. `AGENTS.md` is the command and safety runbook. `MASTER_PLAN.md` is not an
+authority for live capability.
 
 ## Stack
 
@@ -70,9 +61,7 @@ See `.env.example`. Never copy real credentials into docs, commits, or chat.
 ## Contributing
 
 1. Branch from current `main`.
-2. Follow `AGENTS.md` and the Day-70 contract.
+2. Follow `AGENTS.md`.
 3. Run `npm run check` before review.
 4. Open a pull request. Vercel preview deploys on push; there is no repository
    CI yet.
-
-Do not add unsupported live capability claims.

@@ -22,7 +22,7 @@ export const features = {
   aiPlannerProGate: flag("AI_PLANNER_PRO_GATE", false),
   /**
    * Recurring subscriptions stay off until a genuinely gated repeated-use
-   * product exists (Day-70). Literal false — not env-toggleable.
+   * product exists. Literal false — not env-toggleable.
    */
   subscriptionsEnabled: false
 } as const
