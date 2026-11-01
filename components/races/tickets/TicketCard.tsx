@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useCallback, type MouseEvent } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -72,44 +72,37 @@ export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
   )
   const [convertedPrice, setConvertedPrice] = useState<number | null>(null)
   const [conversionRate, setConversionRate] = useState<number | null>(null)
-  const [maskedUrl, setMaskedUrl] = useState<string | null>(null)
-  const [isLoadingUrl, setIsLoadingUrl] = useState(true)
-
   const showBuyButton = ticketShowsBuyButton(ticket.availability, raceDate)
   const showWaitlist = ticketShowsWaitlist(ticket.availability, raceDate)
   const raceHasPassed = raceDate
     ? raceDateIsBeforeToday(raceDate, new Date())
     : false
 
-  useEffect(() => {
-    if (!showBuyButton) {
-      setMaskedUrl(null)
-      setIsLoadingUrl(false)
-      return
-    }
-
-    async function generateUrl() {
-      try {
-        setIsLoadingUrl(true)
-        const result = await generateMaskedUrlAction(
-          ticket.id,
-          ticket.resellerUrl
-        )
-        if (result.isSuccess) {
-          setMaskedUrl(result.data)
-        } else {
-          // Fallback to original URL if masking fails
-          setMaskedUrl(ticket.resellerUrl)
-        }
-      } catch (error) {
-        console.error("Error generating masked URL:", error)
-        setMaskedUrl(ticket.resellerUrl)
-      } finally {
-        setIsLoadingUrl(false)
-      }
-    }
-    generateUrl()
-  }, [showBuyButton, ticket.id, ticket.resellerUrl])
+  const openBuyLink = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault()
+      const opened = window.open("", "_blank", "noopener,noreferrer")
+      void generateMaskedUrlAction(ticket.id, ticket.resellerUrl)
+        .then(result => {
+          const next =
+            result.isSuccess && result.data ? result.data : ticket.resellerUrl
+          if (opened) {
+            opened.location.href = next
+            return
+          }
+          window.location.assign(next)
+        })
+        .catch(error => {
+          console.error("Error generating masked URL:", error)
+          if (opened) {
+            opened.location.href = ticket.resellerUrl
+            return
+          }
+          window.location.assign(ticket.resellerUrl)
+        })
+    },
+    [ticket.id, ticket.resellerUrl]
+  )
 
   const handleCurrencyChange = useCallback(
     async (currency: string) => {
@@ -302,27 +295,28 @@ export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
           </div>
 
           {showBuyButton ? (
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center gap-2">
-                <a
-                  href={maskedUrl || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    (!maskedUrl || isLoadingUrl) &&
-                      "pointer-events-none opacity-50",
-                    "block min-w-0 flex-1"
-                  )}
-                >
-                  <Button className="w-full" size="lg" disabled={isLoadingUrl}>
-                    {isLoadingUrl ? "Loading..." : buyLabel}
-                  </Button>
-                </a>
-                {affiliatePartner ? <AffiliateAdTag /> : null}
+            <div className="mt-4 flex items-start gap-2">
+              <div className="min-w-0 flex-1 space-y-2">
+                <Button asChild className="w-full" size="lg">
+                  <a
+                    href={ticket.resellerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-describedby={
+                      affiliatePartner ? `affiliate-ad-${ticket.id}` : undefined
+                    }
+                    onClick={openBuyLink}
+                  >
+                    {buyLabel}
+                  </a>
+                </Button>
+                <p className="text-muted-foreground text-center text-xs">
+                  {linkCaption}
+                </p>
               </div>
-              <p className="text-muted-foreground text-center text-xs">
-                {linkCaption}
-              </p>
+              {affiliatePartner ? (
+                <AffiliateAdTag id={`affiliate-ad-${ticket.id}`} />
+              ) : null}
             </div>
           ) : showWaitlist ? (
             <WaitlistForm

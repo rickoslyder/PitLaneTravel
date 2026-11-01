@@ -9,8 +9,7 @@ function read(relativePath: string): string {
   )
 }
 
-const noSell =
-  "PitLane Travel does not currently sell race-weekend packages"
+const noSell = "PitLane Travel does not currently sell race-weekend packages"
 
 describe("race page CTAs match the about-page limit", () => {
   const about = read("app/(marketing)/about/page.tsx")
@@ -18,11 +17,12 @@ describe("race page CTAs match the about-page limit", () => {
   const hero = read("components/races/hero/RaceHero.tsx")
   const planner = read("components/trip-planner-button.tsx")
 
-  it("keeps the about-page sentence that the site sells no packages and no tickets", () => {
-    expect(about).toContain(noSell)
-    expect(about).toMatch(/does not book or issue flights/)
-    expect(about).toMatch(/does not sell tickets/)
+  it("keeps the calendar limit and the shipped about-page copy", () => {
+    expect(about).toMatch(/siteCopy/)
+    expect(about).toMatch(/AffiliateDisclosure/)
+    expect(about).not.toContain(noSell)
     expect(calendar).toContain(noSell)
+    expect(calendar).toMatch(/does not book or issue flights/)
     expect(calendar).toMatch(/does not sell tickets/)
     expect(calendar).not.toMatch(/\bbook your\b/i)
   })

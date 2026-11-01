@@ -47,7 +47,9 @@ export default async function AboutPage() {
 
       {/* Values Section */}
       <div className="mb-16">
-        <h2 className="mb-8 text-center text-3xl font-bold">What we care about</h2>
+        <h2 className="mb-8 text-center text-3xl font-bold">
+          What we care about
+        </h2>
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <Card className="text-center">
             <CardContent className="pt-6">
@@ -119,8 +121,12 @@ export default async function AboutPage() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-xl font-semibold">{copy.aboutDoCard.title}</h3>
-            <p className="text-muted-foreground">{copy.aboutDoCard.description}</p>
+            <h3 className="mb-4 text-xl font-semibold">
+              {copy.aboutDoCard.title}
+            </h3>
+            <p className="text-muted-foreground">
+              {copy.aboutDoCard.description}
+            </p>
           </div>
         </div>
       </div>

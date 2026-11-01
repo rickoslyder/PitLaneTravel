@@ -59,12 +59,17 @@ export default async function HotelsPage() {
                       })}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-describedby={
+                        hotelAffiliate ? `hotel-ad-${circuit.id}` : undefined
+                      }
                     >
                       Search on Booking.com
                       <ExternalLink className="ml-2 size-4" />
                     </a>
                   </Button>
-                  {hotelAffiliate ? <AffiliateAdTag /> : null}
+                  {hotelAffiliate ? (
+                    <AffiliateAdTag id={`hotel-ad-${circuit.id}`} />
+                  ) : null}
                 </div>
               </CardContent>
             </Card>

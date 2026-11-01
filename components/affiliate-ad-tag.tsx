@@ -11,13 +11,15 @@ export const affiliateAdColors = {
   darkBackground: "#0A0A0A"
 } as const
 
-export function AffiliateAdTag() {
+export function AffiliateAdTag({ id }: { id?: string }) {
   return createElement(
     "span",
     {
+      id,
       className:
         "shrink-0 text-xs font-medium leading-none text-[#575757] dark:text-[#9C9C9C]"
     },
-    "Ad"
+    "Ad",
+    createElement("span", { className: "sr-only" }, " (affiliate link)")
   )
 }

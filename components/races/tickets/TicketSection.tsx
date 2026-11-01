@@ -19,7 +19,10 @@ import { TicketCardSkeleton } from "./TicketCardSkeleton"
 import { TicketsEmptyState } from "./TicketsEmptyState"
 import { hasTicketListings } from "./ticket-availability"
 import { useTickets } from "./use-tickets"
-import { ticketSectionIntro } from "./ticket-presentation"
+import {
+  ticketSectionIntro,
+  ticketShowsBuyButton
+} from "./ticket-presentation"
 import { affiliatePartnersOnPage } from "@/lib/ticket-affiliate"
 import { AffiliateDisclosure } from "@/components/partners/affiliate-disclosure"
 
@@ -44,7 +47,11 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
   })
 
   const catalogueAffiliates = affiliatePartnersOnPage(data?.tickets ?? [])
-  const affiliatePartners = affiliatePartnersOnPage(filteredTickets ?? [])
+  const affiliatePartners = affiliatePartnersOnPage(
+    (filteredTickets ?? []).filter(ticket =>
+      ticketShowsBuyButton(ticket.availability, race.date)
+    )
+  )
 
   if (loading) {
     return (
@@ -72,9 +79,7 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
         <h2>
           {catalogueAffiliates.length > 0 ? "Tickets" : "Official tickets"}
         </h2>
-        <p>
-          {ticketSectionIntro(race.name, catalogueAffiliates.length > 0)}
-        </p>
+        <p>{ticketSectionIntro(race.name, catalogueAffiliates.length > 0)}</p>
       </div>
 
       {affiliatePartners.length > 0 && (

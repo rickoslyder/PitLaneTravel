@@ -103,6 +103,8 @@ describe("official seller copy", () => {
         "https://p1travel.prf.hn/click/camref:abc/destination:https%3A%2F%2Fwww.p1travel.com%2Ff1"
       )
     ).toBe("p1travel.com")
-    expect(resellerHost("https://p1travel.prf.hn/click/camref:abc")).toBeNull()
+    expect(resellerHost("https://p1travel.prf.hn/click/camref:abc")).toBe(
+      "p1travel.com"
+    )
   })
 })

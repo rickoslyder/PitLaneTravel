@@ -33,7 +33,9 @@ function contrast(foreground: string, background: string): number {
 describe("AffiliateAdTag", () => {
   it("renders a visible Ad label that screen readers can announce", () => {
     const html = renderToStaticMarkup(createElement(AffiliateAdTag))
-    expect(html).toContain(">Ad<")
+    expect(html).toContain(">Ad<span")
+    expect(html).toContain(" (affiliate link)")
+    expect(html).toContain("sr-only")
     expect(html).not.toContain("(Ad)")
     expect(html).not.toContain("aria-hidden")
   })
@@ -54,7 +56,11 @@ describe("affiliate Ad call sites", () => {
       path.join(process.cwd(), "components/races/tickets/TicketCard.tsx"),
       "utf8"
     )
-    expect(source).toMatch(/affiliatePartner \? <AffiliateAdTag \/> : null/)
+    expect(source).toMatch(
+      /AffiliateAdTag id=\{`affiliate-ad-\$\{ticket.id\}`\}/
+    )
+    expect(source).toMatch(/aria-describedby=\{/)
+    expect(source).toMatch(/Button asChild/)
     expect(source).not.toMatch(/Find tickets/)
   })
 
@@ -72,6 +78,7 @@ describe("affiliate Ad call sites", () => {
       "utf8"
     )
     expect(source).toMatch(/isHotelAffiliateConfigured\(\)/)
-    expect(source).toMatch(/hotelAffiliate \? <AffiliateAdTag \/> : null/)
+    expect(source).toMatch(/AffiliateAdTag id=\{`hotel-ad-\$\{circuit.id\}`\}/)
+    expect(source).toMatch(/aria-describedby=\{/)
   })
 })

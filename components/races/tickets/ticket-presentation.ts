@@ -78,9 +78,11 @@ export function ticketShowsWaitlist(
   now: Date = new Date()
 ): boolean {
   if (raceDate && raceDateIsBeforeToday(raceDate, now)) return false
-  return !ticketShowsBuyButton(availability, raceDate, now) &&
+  return (
+    !ticketShowsBuyButton(availability, raceDate, now) &&
     availability !== "sold_out" &&
     availability !== NOT_ON_SALE_AVAILABILITY
+  )
 }
 
 export function ticketEmptyState(raceName: string): {
@@ -141,6 +143,7 @@ export function resellerHost(url: string): string | null {
   if (destination) return bareHost(destination)
 
   const host = bareHost(parsed)
+  if (host === "p1travel.prf.hn") return "p1travel.com"
   if (TRACKING_HOST.test(host)) return null
   return host
 }
