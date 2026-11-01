@@ -19,9 +19,9 @@ export function HeroSection() {
               Motorsport Race Calendar
             </h1>
             <p className="text-muted-foreground mt-6 text-lg leading-8">
-              Find and book your next race experience. Browse through
-              our selection of races, filter by date and location, and get all
-              the information you need to plan your trip.
+              Compare race weekends and plan the trip yourself. PitLane
+              Travel does not currently sell race-weekend packages. It does
+              not book or issue flights, and it does not sell tickets.
             </p>
           </motion.div>
         </div>

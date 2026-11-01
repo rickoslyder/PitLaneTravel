@@ -1,11 +1,22 @@
 import { NextResponse } from "next/server"
 import { db } from "@/db/db"
-import { racesTable } from "@/db/schema"
+import { racesTable, seriesTable } from "@/db/schema"
+import { eq } from "drizzle-orm"
+import { raceRowWithSeries } from "@/lib/race-api-row"
 
 export async function GET() {
   try {
-    const allRaces = await db.select().from(racesTable)
-    return NextResponse.json({ data: allRaces })
+    const rows = await db
+      .select({
+        race: racesTable,
+        seriesSlug: seriesTable.slug
+      })
+      .from(racesTable)
+      .leftJoin(seriesTable, eq(racesTable.seriesId, seriesTable.id))
+
+    return NextResponse.json({
+      data: rows.map(row => raceRowWithSeries(row.race, row.seriesSlug))
+    })
   } catch (error) {
     console.error("Error fetching races:", error)
     return NextResponse.json(

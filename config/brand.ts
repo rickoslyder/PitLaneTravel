@@ -88,3 +88,14 @@ export function brandCopy(live: boolean): BrandCopy {
     seriesKeywords: brandPackagesLive.seriesKeywords
   }
 }
+
+/** Named partners already on the page. The short line stays the conditional sentence. */
+export function affiliateDisclosurePartner(names: string): {
+  lead: string
+  detail: string
+} {
+  return {
+    lead: `Links to ${names} are affiliate links.`,
+    detail: `If you book or buy through them, ${brand.name} may earn a commission at no extra cost to you. It never changes what we recommend.`
+  }
+}

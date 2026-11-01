@@ -19,6 +19,12 @@ import { TicketCardSkeleton } from "./TicketCardSkeleton"
 import { TicketsEmptyState } from "./TicketsEmptyState"
 import { hasTicketListings } from "./ticket-availability"
 import { useTickets } from "./use-tickets"
+import {
+  ticketSectionIntro,
+  ticketShowsBuyButton
+} from "./ticket-presentation"
+import { affiliatePartnersOnPage } from "@/lib/ticket-affiliate"
+import { AffiliateDisclosure } from "@/components/partners/affiliate-disclosure"
 
 type Ticket = SelectTicket & { features: any[]; currentPrice: any }
 
@@ -39,6 +45,13 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
 
     return matchesSearch && matchesType
   })
+
+  const catalogueAffiliates = affiliatePartnersOnPage(data?.tickets ?? [])
+  const affiliatePartners = affiliatePartnersOnPage(
+    (filteredTickets ?? []).filter(ticket =>
+      ticketShowsBuyButton(ticket.availability, race.date)
+    )
+  )
 
   if (loading) {
     return (
@@ -63,12 +76,15 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
   return (
     <div className="space-y-8">
       <div className="prose prose-gray dark:prose-invert max-w-none">
-        <h2>Race Tickets</h2>
-        <p>
-          Choose from our selection of tickets for the {race.name}. All tickets
-          include access to the circuit for the entire race weekend.
-        </p>
+        <h2>
+          {catalogueAffiliates.length > 0 ? "Tickets" : "Official tickets"}
+        </h2>
+        <p>{ticketSectionIntro(race.name, catalogueAffiliates.length > 0)}</p>
       </div>
+
+      {affiliatePartners.length > 0 && (
+        <AffiliateDisclosure partners={affiliatePartners} />
+      )}
 
       <TicketFilters
         searchQuery={searchQuery}
@@ -87,7 +103,12 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
           <div className="grid gap-6 lg:grid-cols-3">
             <Suspense fallback={<TicketCardSkeleton />}>
               {filteredTickets?.map((ticket: Ticket, index: number) => (
-                <TicketCard key={ticket.id} ticket={ticket} index={index} />
+                <TicketCard
+                  key={ticket.id}
+                  ticket={ticket}
+                  index={index}
+                  raceDate={race.date}
+                />
               ))}
             </Suspense>
           </div>
@@ -147,6 +168,7 @@ function TicketFilters({
           <SelectItem value="general_admission">General Admission</SelectItem>
           <SelectItem value="grandstand">Grandstand</SelectItem>
           <SelectItem value="vip">VIP</SelectItem>
+          <SelectItem value="official_store">Official store</SelectItem>
         </SelectContent>
       </Select>
     </div>

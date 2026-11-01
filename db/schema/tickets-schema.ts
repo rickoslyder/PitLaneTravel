@@ -17,10 +17,14 @@ import {
 import { racesTable } from "./races-schema"
 import { profilesTable } from "./profiles-schema"
 
+// Migrations store ticket_type as text, and production does too. official_store
+// is an app value so a series shop is not hidden by the General Admission
+// filter. It does not need an enum migration.
 export const ticketTypeEnum = pgEnum("ticket_type", [
   "general_admission",
   "grandstand",
-  "vip"
+  "vip",
+  "official_store"
 ])
 
 export const ticketsTable = pgTable("tickets", {

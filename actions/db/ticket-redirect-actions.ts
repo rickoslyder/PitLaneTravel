@@ -13,8 +13,9 @@ export async function generateMaskedUrlAction(
   destinationUrl: string
 ): Promise<ActionState<string>> {
   try {
-    // Intentionally public: TicketCard calls this for anonymous visitors to build the
-    // affiliate link. Guarding it would break ticket links for every logged-out user.
+    // Intentionally public: the buy link calls this on click for anonymous visitors.
+    // Do not call it while rendering or on page load. A view must not insert a row.
+    // Guarding it would break ticket links for every logged-out user.
     const headersList = await headers()
     const host = headersList.get("host") || ""
     const protocol = process.env.NODE_ENV === "development" ? "http" : "https"
@@ -62,4 +63,4 @@ export async function generateMaskedUrlAction(
       message: "Failed to generate masked URL"
     }
   }
-} 
+}

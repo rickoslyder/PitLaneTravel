@@ -30,7 +30,7 @@ import {
 import { VisibilityState } from "@tanstack/react-table"
 
 interface RacesTableProps {
-  data: SelectRace[]
+  data: (SelectRace & { series?: { slug: string | null } | null })[]
 }
 
 const defaultVisibility: VisibilityState = {

@@ -4,11 +4,22 @@ import {
   slugify,
   buildRaceSlug,
   extractSeasonFromSlug,
+  formatFormulaESeason,
   pluralizeEventNoun
 } from "./series"
 
-const f1 = { name: "Formula 1", shortName: "F1", slug: "f1", eventNoun: "Grand Prix" }
-const fe = { name: "Formula E", shortName: "FE", slug: "formula-e", eventNoun: "E-Prix" }
+const f1 = {
+  name: "Formula 1",
+  shortName: "F1",
+  slug: "f1",
+  eventNoun: "Grand Prix"
+}
+const fe = {
+  name: "Formula E",
+  shortName: "FE",
+  slug: "formula-e",
+  eventNoun: "E-Prix"
+}
 
 describe("formatEventName", () => {
   it("passes through an explicit race name", () => {
@@ -38,9 +49,9 @@ describe("slugify", () => {
 
 describe("buildRaceSlug", () => {
   it("includes series slug and season", () => {
-    expect(
-      buildRaceSlug(f1, { country: "Monaco", season: 2026 })
-    ).toBe("monaco-grand-prix-f1-2026")
+    expect(buildRaceSlug(f1, { country: "Monaco", season: 2026 })).toBe(
+      "monaco-grand-prix-f1-2026"
+    )
   })
 })
 
@@ -51,6 +62,13 @@ describe("extractSeasonFromSlug", () => {
   })
   it("returns null when no year present", () => {
     expect(extractSeasonFromSlug("monaco-grand-prix")).toBeNull()
+  })
+})
+
+describe("formatFormulaESeason", () => {
+  it("reads the stored end year as the season number", () => {
+    expect(formatFormulaESeason(2027)).toBe("Season 13 (2026-27)")
+    expect(formatFormulaESeason(2026)).toBe("Season 12 (2025-26)")
   })
 })
 

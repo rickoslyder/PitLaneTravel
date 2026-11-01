@@ -1,5 +1,7 @@
 "use server"
 
+import { AffiliateDisclosure } from "@/components/partners/affiliate-disclosure"
+
 export default async function TermsPage() {
   return (
     <div className="container mx-auto px-4 py-20">
@@ -11,6 +13,9 @@ export default async function TermsPage() {
           connecting you with official event tickets, travel, and accommodation
           providers.
         </p>
+
+        <h2>Affiliate links</h2>
+        <AffiliateDisclosure />
 
         <h2>1. Platform Role</h2>
         <div className="rounded-lg border-l-4 border-yellow-500 bg-yellow-50 p-4 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">

@@ -455,7 +455,7 @@ export function RaceDetailsPage({
                 <TabsContent value="travel" className="mt-4">
                   {race.status === "cancelled" ? (
                     <CancelledTabNotice
-                      what="Travel booking is unavailable"
+                      what="Travel search is unavailable"
                       reason={race.cancellation_reason}
                     />
                   ) : (

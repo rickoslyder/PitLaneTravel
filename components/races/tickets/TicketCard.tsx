@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useCallback, type MouseEvent } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -21,12 +21,23 @@ import {
   Wifi,
   Ticket
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatTicketType } from "@/lib/utils"
 import { WaitlistForm } from "./WaitlistForm"
 import { SelectTicket } from "@/db/schema"
 import { SUPPORTED_CURRENCIES } from "@/config/currencies"
 import { convertPriceAction } from "@/actions/db/currency-actions"
 import { generateMaskedUrlAction } from "@/actions/db/ticket-redirect-actions"
+import { maskedBuyUrl, openUrlInNewTab } from "./open-buy-link"
+import { AffiliateAdTag } from "@/components/affiliate-ad-tag"
+import { affiliatePartnerFromUrl } from "@/lib/ticket-affiliate"
+import {
+  TICKET_BUY_LABEL,
+  raceDateIsBeforeToday,
+  resellerHost,
+  ticketAvailabilityLabel,
+  ticketShowsBuyButton,
+  ticketShowsWaitlist
+} from "./ticket-presentation"
 
 interface TicketCardProps {
   ticket: SelectTicket & {
@@ -34,6 +45,7 @@ interface TicketCardProps {
     currentPrice: any
   }
   index: number
+  raceDate?: string | Date | null
 }
 
 function getFeatureIcon(category: string) {
@@ -55,38 +67,28 @@ function getFeatureIcon(category: string) {
   }
 }
 
-export function TicketCard({ ticket, index }: TicketCardProps) {
+export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
   const [selectedCurrency, setSelectedCurrency] = useState(
     ticket.currentPrice?.currency || SUPPORTED_CURRENCIES[0].code
   )
   const [convertedPrice, setConvertedPrice] = useState<number | null>(null)
   const [conversionRate, setConversionRate] = useState<number | null>(null)
-  const [maskedUrl, setMaskedUrl] = useState<string | null>(null)
-  const [isLoadingUrl, setIsLoadingUrl] = useState(true)
+  const showBuyButton = ticketShowsBuyButton(ticket.availability, raceDate)
+  const showWaitlist = ticketShowsWaitlist(ticket.availability, raceDate)
+  const raceHasPassed = raceDate
+    ? raceDateIsBeforeToday(raceDate, new Date())
+    : false
 
-  useEffect(() => {
-    async function generateUrl() {
-      try {
-        setIsLoadingUrl(true)
-        const result = await generateMaskedUrlAction(
-          ticket.id,
-          ticket.resellerUrl
-        )
-        if (result.isSuccess) {
-          setMaskedUrl(result.data)
-        } else {
-          // Fallback to original URL if masking fails
-          setMaskedUrl(ticket.resellerUrl)
-        }
-      } catch (error) {
-        console.error("Error generating masked URL:", error)
-        setMaskedUrl(ticket.resellerUrl)
-      } finally {
-        setIsLoadingUrl(false)
-      }
-    }
-    generateUrl()
-  }, [ticket.id, ticket.resellerUrl])
+  const openBuyLink = useCallback(
+    async (event: MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault()
+      const next = await maskedBuyUrl(ticket.resellerUrl, () =>
+        generateMaskedUrlAction(ticket.id, ticket.resellerUrl)
+      )
+      openUrlInNewTab(next)
+    },
+    [ticket.id, ticket.resellerUrl]
+  )
 
   const handleCurrencyChange = useCallback(
     async (currency: string) => {
@@ -126,21 +128,16 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
     })
   }
 
-  const formatTicketType = (type: string) => {
-    switch (type) {
-      case "general_admission":
-        return "General Admission"
-      case "grandstand":
-        return "Grandstand"
-      case "vip":
-        return "VIP"
-      default:
-        return type
-          .split("_")
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ")
-    }
-  }
+  const sellerHost = resellerHost(ticket.resellerUrl)
+  const affiliatePartner = affiliatePartnerFromUrl(ticket.resellerUrl)
+  const buyLabel = affiliatePartner
+    ? `Buy from ${affiliatePartner}`
+    : TICKET_BUY_LABEL
+  const linkCaption = sellerHost
+    ? `Opens ${sellerHost}`
+    : affiliatePartner
+      ? `Opens ${affiliatePartner}`
+      : "Opens the official seller's site"
 
   return (
     <motion.div
@@ -184,8 +181,7 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
                       : "bg-red-500/10 text-red-500"
                 )}
               >
-                {ticket.availability.charAt(0).toUpperCase() +
-                  ticket.availability.slice(1)}
+                {ticketAvailabilityLabel(ticket.availability)}
               </Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -284,28 +280,49 @@ export function TicketCard({ ticket, index }: TicketCardProps) {
             </div>
           </div>
 
-          {ticket.availability === "available" ? (
-            <a
-              href={maskedUrl || "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                (!maskedUrl || isLoadingUrl) &&
-                  "pointer-events-none opacity-50",
-                "mt-4 block"
-              )}
-            >
-              <Button className="w-full" size="lg" disabled={isLoadingUrl}>
-                {isLoadingUrl ? "Loading..." : "Purchase Tickets"}
-              </Button>
-            </a>
-          ) : (
+          {showBuyButton ? (
+            <div className="mt-4 flex items-start gap-2">
+              <div className="min-w-0 flex-1 space-y-2">
+                <Button asChild className="w-full" size="lg">
+                  <a
+                    href={ticket.resellerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-describedby={
+                      affiliatePartner ? `affiliate-ad-${ticket.id}` : undefined
+                    }
+                    onClick={openBuyLink}
+                  >
+                    {buyLabel}
+                  </a>
+                </Button>
+                <p className="text-muted-foreground text-center text-xs">
+                  {linkCaption}
+                </p>
+              </div>
+              {affiliatePartner ? (
+                <AffiliateAdTag id={`affiliate-ad-${ticket.id}`} />
+              ) : null}
+            </div>
+          ) : showWaitlist ? (
             <WaitlistForm
               raceId={ticket.raceId}
               ticketCategoryId={String(ticket.id)}
               ticketCategoryName={ticket.title}
-              disabled={ticket.availability === "available"}
+              disabled={false}
             />
+          ) : raceHasPassed ? (
+            <p className="text-muted-foreground text-sm">
+              This race date has passed.
+            </p>
+          ) : ticket.availability === "not_on_sale" ? (
+            <p className="text-muted-foreground text-sm">Not on sale yet.</p>
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              {affiliatePartner
+                ? `Sold out at ${affiliatePartner}.`
+                : "Sold out at the official seller."}
+            </p>
           )}
         </CardContent>
       </Card>
