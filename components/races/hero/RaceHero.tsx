@@ -8,7 +8,7 @@ import {
   differenceInMinutes,
   differenceInSeconds
 } from "date-fns"
-import { CalendarDays, MapPin, Share2, Ticket, Timer } from "lucide-react"
+import { CalendarDays, MapPin, Share2, Timer } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -17,19 +17,23 @@ import { seriesDisplayName } from "@/lib/series"
 import { raceHasFinished } from "@/lib/finished-race"
 import { FinishedRaceNotice } from "@/components/races/finished-race-notice"
 import { useEffect, useState, useMemo } from "react"
+import type { TicketListingState } from "@/components/races/tickets/ticket-availability"
+import { HeroTicketCta } from "./HeroTicketCta"
 
 interface RaceHeroProps {
   race: RaceWithDetails
   userId?: string | null
   existingTripId?: string
   onTabChange: (tab: string) => void
+  ticketListings?: TicketListingState
 }
 
 export function RaceHero({
   race,
   userId,
   existingTripId,
-  onTabChange
+  onTabChange,
+  ticketListings = "listed"
 }: RaceHeroProps) {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -250,15 +254,10 @@ export function RaceHero({
             ) : (
               race.status !== "cancelled" && (
                 <>
-                  <Button
-                    size="lg"
-                    className="group relative bg-[#E10600] px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-105 hover:bg-[#b50500] hover:shadow-[0_0_30px_rgba(225,6,0,0.4)] sm:p-6 sm:text-base"
-                    onClick={() => onTabChange("tickets")}
-                  >
-                    <div className="absolute inset-0 rounded-md bg-gradient-to-r from-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    <Ticket className="mr-2 size-4 sm:size-5" />
-                    Book Now
-                  </Button>
+                  <HeroTicketCta
+                    listingState={ticketListings}
+                    onTabChange={onTabChange}
+                  />
                   <TripPlannerButton
                     race={race}
                     userId={userId}

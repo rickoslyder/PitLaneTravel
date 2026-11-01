@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { SelectTicket, SelectTicketPackage } from "@/db/schema"
 
-interface TicketData {
+export interface TicketData {
   tickets: (SelectTicket & { features: any[]; currentPrice: any })[]
   packages: (SelectTicketPackage & { tickets: any[] })[]
 }

@@ -125,8 +125,10 @@ describe("editorial contrast", () => {
     expect(sidebar).toContain("<BrandMark />")
     expect(sidebar).not.toContain("showTagline")
     expect(sidebar).not.toContain("PitLaneTravelLogo")
-    expect(hero).toContain("Book Now")
-    expect(hero).toContain("hover:bg-[#b50500]")
+    const ticketCta = readSource("components/races/hero/HeroTicketCta.tsx")
+    expect(ticketCta).toContain("Book Now")
+    expect(ticketCta).toContain("hover:bg-[#b50500]")
+    expect(ticketCta).not.toContain("#FF0800")
     expect(hero).not.toContain("#FF0800")
     expect(readSource("components/sidebar/nav-main.tsx")).not.toContain(
       "#B17A50"

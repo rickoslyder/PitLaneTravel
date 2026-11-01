@@ -16,6 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TicketCard } from "./TicketCard"
 import { PackageCard } from "./PackageCard"
 import { TicketCardSkeleton } from "./TicketCardSkeleton"
+import { TicketsEmptyState } from "./TicketsEmptyState"
+import { hasTicketListings } from "./ticket-availability"
 import { useTickets } from "./use-tickets"
 
 type Ticket = SelectTicket & { features: any[]; currentPrice: any }
@@ -54,15 +56,8 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
     )
   }
 
-  if (!data?.tickets?.length && !data?.packages?.length) {
-    return (
-      <div className="space-y-8">
-        <div className="prose prose-gray dark:prose-invert max-w-none">
-          <h2>Race Tickets</h2>
-          <p>No tickets are currently available for {race.name}.</p>
-        </div>
-      </div>
-    )
+  if (!hasTicketListings(data)) {
+    return <TicketsEmptyState raceName={race.name} />
   }
 
   return (
