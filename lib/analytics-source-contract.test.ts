@@ -348,7 +348,7 @@ describe("PLT-017 typed analytics source contract", () => {
     expect(hero).not.toMatch(/handleGetStartedClick/)
     expect(hero).not.toMatch(/hero get started clicked/)
     expect(hero).toMatch(/href=["']\/races["']/)
-    expect(hero).toMatch(/href=["']\/races\/compare["']/)
+    expect(hero).toMatch(/packagesLive \? ["']\/packages["'] : ["']\/races\/compare["']/)
     expect(hero).toMatch(/hero calendar CTA clicked/)
     expect(hero).toMatch(/hero compare CTA clicked/)
   })

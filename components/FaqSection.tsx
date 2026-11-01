@@ -3,41 +3,14 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown } from "lucide-react"
+import { siteCopy } from "@/config/site-copy"
 
-const faqs = [
-  {
-    question: "Which championships does PitLane Travel cover?",
-    answer:
-      "The public catalogue is Formula 1, Formula E, MotoGP, IndyCar and WEC. Depth varies: some races have circuit pages, others are calendar-only."
-  },
-  {
-    question: "Can I see what a grandstand is like before I buy?",
-    answer:
-      "Yes. Our grandstand guides show the view, the shade and what each stand looks onto, plus what fans who sat there said."
-  },
-  {
-    question: "Does PitLane Travel offer package deals for races?",
-    answer:
-      "PitLane Travel does not currently sell race-weekend packages. It is a decision layer for self-directed travellers, not a package principal or travel agency."
-  },
-  {
-    question: "Is my ticket real?",
-    answer:
-      "Buy from the official seller or an authorised agent. Resale tickets can be cancelled or swapped, so check who's selling before you pay."
-  },
-  {
-    question: "What if the race is moved or cancelled?",
-    answer:
-      "Race dates follow the official calendar for each series. If a race moves or is cancelled, your ticket or package terms decide the refund, so check them before you pay."
-  },
-  {
-    question: "How do I sort flights and a hotel?",
-    answer:
-      "Search flights to the right airport from the race page, and find hotels in the circuit's town or city. Check the distance to the track, and book refundable where you can: race-week hotel bookings sometimes get cancelled."
-  }
-]
-
-export default function FaqSection() {
+export default function FaqSection({
+  packagesLive = false
+}: {
+  packagesLive?: boolean
+}) {
+  const faqs = siteCopy(packagesLive).homeFaqs
   const [activeIndex, setActiveIndex] = useState<number | null>(0)
 
   const toggleFaq = (index: number) => {

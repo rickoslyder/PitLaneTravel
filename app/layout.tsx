@@ -15,7 +15,8 @@ import { PostHogUserIdentify } from "@/components/utilities/posthog/posthog-user
 import { Providers } from "@/components/utilities/providers"
 import { TailwindIndicator } from "@/components/utilities/tailwind-indicator"
 import { cn } from "@/lib/utils"
-import { brand } from "@/config/brand"
+import { brand, brandCopy } from "@/config/brand"
+import { getPackagesAvailability } from "@/lib/packages-availability"
 import { ClerkProvider } from "@clerk/nextjs"
 import { auth } from "@clerk/nextjs/server"
 import type { Metadata } from "next"
@@ -24,12 +25,17 @@ import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
-  title: brand.name,
-  description: brand.description,
-  applicationName: brand.name,
-  creator: brand.name,
-  publisher: brand.name
+export async function generateMetadata(): Promise<Metadata> {
+  const availability = await getPackagesAvailability()
+  const copy = brandCopy(availability.siteWide)
+
+  return {
+    title: brand.name,
+    description: copy.description,
+    applicationName: brand.name,
+    creator: brand.name,
+    publisher: brand.name
+  }
 }
 
 export default async function RootLayout({

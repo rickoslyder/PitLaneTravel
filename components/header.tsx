@@ -35,7 +35,14 @@ const signedInLinks = [
   // { href: "/wishlist", label: "Wishlist" }
 ]
 
-export default function Header() {
+export default function Header({
+  showPackagesLink = false
+}: {
+  showPackagesLink?: boolean
+}) {
+  const links = navLinks.filter(
+    link => showPackagesLink || link.href !== "/packages"
+  )
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
@@ -87,7 +94,7 @@ export default function Header() {
         </div>
 
         <nav className="absolute left-1/2 hidden -translate-x-1/2 space-x-1 font-semibold lg:flex lg:space-x-2">
-          {navLinks.map(link => (
+          {links.map(link => (
             <Link
               key={link.href}
               href={link.href}
@@ -170,7 +177,7 @@ export default function Header() {
                 Home
               </Link>
             </li>
-            {navLinks.map(link => (
+            {links.map(link => (
               <li key={link.href}>
                 <Link
                   href={link.href}

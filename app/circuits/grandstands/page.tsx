@@ -2,6 +2,8 @@ import { Binoculars } from "lucide-react"
 import { Metadata } from "next"
 import Link from "next/link"
 import { getCircuitsWithGrandstandsAction } from "@/actions/db/grandstands-actions"
+import { siteCopy } from "@/config/site-copy"
+import { getPackagesAvailability } from "@/lib/packages-availability"
 import { slugify } from "@/lib/series"
 
 export const metadata: Metadata = {
@@ -11,8 +13,12 @@ export const metadata: Metadata = {
 }
 
 export default async function GrandstandsPage() {
-  const { data: circuits } = await getCircuitsWithGrandstandsAction()
+  const [{ data: circuits }, availability] = await Promise.all([
+    getCircuitsWithGrandstandsAction(),
+    getPackagesAvailability()
+  ])
   const hasContent = circuits && circuits.length > 0
+  const copy = siteCopy(availability.siteWide)
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 p-4 sm:p-8">
@@ -20,9 +26,7 @@ export default async function GrandstandsPage() {
         <Binoculars className="mx-auto size-12 text-primary" />
         <h1 className="text-4xl font-bold tracking-tight">Grandstand Guides</h1>
         <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-          Compare stored grandstand notes where they exist — view rating, price
-          tier, shade and what a stand overlooks. Coverage varies by circuit.
-          Missing stands stay unknown.
+          {copy.grandstandLede}
         </p>
       </header>
 

@@ -8,10 +8,14 @@ This server page returns a simple "About Page" component as a (marketing) route.
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { siteCopy } from "@/config/site-copy"
+import { getPackagesAvailability } from "@/lib/packages-availability"
 import { Flag, Heart, MapPin, Search, Users } from "lucide-react"
 import Link from "next/link"
 
 export default async function AboutPage() {
+  const { siteWide } = await getPackagesAvailability()
+  const copy = siteCopy(siteWide)
   return (
     <div className="container mx-auto px-4 py-16">
       {/* Hero Section */}
@@ -20,9 +24,9 @@ export default async function AboutPage() {
           About PitLane Travel
         </h1>
         <p className="text-muted-foreground mx-auto mb-8 max-w-2xl text-lg">
-          A decision layer for self-directed travellers. Compare race weekends
-          across Formula 1, Formula E, MotoGP, IndyCar and WEC, then hand off to
-          external suppliers.
+          {siteWide
+            ? "The best race weekends go to people who've done it before. They know which stand has the view, which hotel isn't stuck in race traffic and when to leave the circuit. PitLane Travel puts that know-how on the race page for Formula 1, MotoGP, IndyCar, WEC and Formula E. Then get the ticket to match or, for F1 and MotoGP, book a race package or VIP hospitality through PitLane, flights included if you want them."
+            : "The best race weekends go to people who've done it before. They know which stand has the view, which hotel isn't stuck in race traffic and when to leave the circuit. PitLane Travel puts that know-how on the race page for Formula 1, MotoGP, IndyCar, WEC and Formula E, so you can pick your race, your seat and your ticket knowing what you're getting."}
         </p>
         <Link href="/races">
           <Button className="bg-[#E10600] hover:bg-[#FF0800]">
@@ -35,14 +39,7 @@ export default async function AboutPage() {
       <div className="mb-16">
         <h2 className="mb-8 text-center text-3xl font-bold">What we do</h2>
         <div className="text-muted-foreground mx-auto max-w-3xl text-center text-lg leading-relaxed">
-          <p>
-            <b>
-              PitLane Travel helps travellers choose which race to attend and
-              assemble the trip themselves.
-            </b>{" "}
-            It is not an OTA, travel agency, package principal, or community
-            platform. Coverage depth varies; missing facts stay unknown.
-          </p>
+          <p>{copy.aboutMission}</p>
         </div>
       </div>
 
@@ -83,11 +80,8 @@ export default async function AboutPage() {
           <Card className="text-center">
             <CardContent className="pt-6">
               <Flag className="mx-auto mb-4 size-8 text-[#E10600]" />
-              <h3 className="mb-2 text-xl font-semibold">Labelled handoffs</h3>
-              <p className="text-muted-foreground">
-                External flight and hotel search is labelled. Confirm terms on
-                the provider
-              </p>
+              <h3 className="mb-2 text-xl font-semibold">{copy.aboutBudget.title}</h3>
+              <p className="text-muted-foreground">{copy.aboutBudget.description}</p>
             </CardContent>
           </Card>
         </div>
@@ -123,11 +117,8 @@ export default async function AboutPage() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-xl font-semibold">Flights and packages</h3>
-            <p className="text-muted-foreground">
-              PitLane Travel does not currently sell race-weekend packages. It
-              does not book or issue flights.
-            </p>
+            <h3 className="mb-4 text-xl font-semibold">{copy.aboutDoCard.title}</h3>
+            <p className="text-muted-foreground">{copy.aboutDoCard.description}</p>
           </div>
         </div>
       </div>
