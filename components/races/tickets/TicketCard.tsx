@@ -27,6 +27,7 @@ import { SelectTicket } from "@/db/schema"
 import { SUPPORTED_CURRENCIES } from "@/config/currencies"
 import { convertPriceAction } from "@/actions/db/currency-actions"
 import { generateMaskedUrlAction } from "@/actions/db/ticket-redirect-actions"
+import { maskedBuyUrl, openUrlInNewTab } from "./open-buy-link"
 import { AffiliateAdTag } from "@/components/affiliate-ad-tag"
 import { affiliatePartnerFromUrl } from "@/lib/ticket-affiliate"
 import {
@@ -79,27 +80,12 @@ export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
     : false
 
   const openBuyLink = useCallback(
-    (event: MouseEvent<HTMLAnchorElement>) => {
+    async (event: MouseEvent<HTMLAnchorElement>) => {
       event.preventDefault()
-      const opened = window.open("", "_blank", "noopener,noreferrer")
-      void generateMaskedUrlAction(ticket.id, ticket.resellerUrl)
-        .then(result => {
-          const next =
-            result.isSuccess && result.data ? result.data : ticket.resellerUrl
-          if (opened) {
-            opened.location.href = next
-            return
-          }
-          window.location.assign(next)
-        })
-        .catch(error => {
-          console.error("Error generating masked URL:", error)
-          if (opened) {
-            opened.location.href = ticket.resellerUrl
-            return
-          }
-          window.location.assign(ticket.resellerUrl)
-        })
+      const next = await maskedBuyUrl(ticket.resellerUrl, () =>
+        generateMaskedUrlAction(ticket.id, ticket.resellerUrl)
+      )
+      openUrlInNewTab(next)
     },
     [ticket.id, ticket.resellerUrl]
   )
