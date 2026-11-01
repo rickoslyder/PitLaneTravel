@@ -301,7 +301,7 @@ export function RaceDetailsPage({
 
   return (
     <div
-      className="min-h-screen w-full"
+      className="min-h-screen w-full min-w-0 overflow-x-clip"
       role="region"
       aria-label={`${race.name} details`}
     >

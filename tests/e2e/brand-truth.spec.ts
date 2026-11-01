@@ -192,7 +192,7 @@ describe("PLT-008 brand truth", () => {
   })
 
   describe("active marketing and 404 footers use centralized copy", () => {
-    const footerFiles = ["app/(marketing)/layout.tsx", "app/not-found.tsx"] as const
+    const footerFiles = ["components/site-footer.tsx"] as const
 
     it("imports brand and renders About {brand.name}, positioningShort, and copyright brand.name", () => {
       for (const relativePath of footerFiles) {
@@ -207,6 +207,17 @@ describe("PLT-008 brand truth", () => {
         expect(source, `${relativePath} must render copyright brand.name`).toContain(
           "{brand.name}"
         )
+      }
+    })
+
+    it("mounts that single footer on the marketing layout and the 404 page", () => {
+      for (const relativePath of [
+        "app/(marketing)/layout.tsx",
+        "app/not-found.tsx"
+      ]) {
+        const source = readSource(relativePath)
+        expect(source).toContain("<PublicShell")
+        expect(source).not.toContain("{brand.positioningShort}")
       }
     })
 
