@@ -34,6 +34,13 @@ export function isAffiliateTicketUrl(url: string): boolean {
   return affiliatePartnerFromUrl(url) !== null
 }
 
+/** rel for a ticket outbound link. Affiliate rows are sponsored and nofollow. */
+export function ticketOutboundRel(affiliatePartner: string | null): string {
+  return affiliatePartner
+    ? "sponsored nofollow noopener noreferrer"
+    : "noopener noreferrer"
+}
+
 export function affiliatePartnersOnPage(
   tickets: readonly { resellerUrl: string }[]
 ): string[] {

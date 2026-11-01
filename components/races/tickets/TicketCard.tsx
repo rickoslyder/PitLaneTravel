@@ -29,7 +29,10 @@ import { convertPriceAction } from "@/actions/db/currency-actions"
 import { generateMaskedUrlAction } from "@/actions/db/ticket-redirect-actions"
 import { maskedBuyUrl, openUrlInNewTab } from "./open-buy-link"
 import { AffiliateAdTag } from "@/components/affiliate-ad-tag"
-import { affiliatePartnerFromUrl } from "@/lib/ticket-affiliate"
+import {
+  affiliatePartnerFromUrl,
+  ticketOutboundRel
+} from "@/lib/ticket-affiliate"
 import {
   TICKET_BUY_LABEL,
   raceDateIsBeforeToday,
@@ -287,7 +290,7 @@ export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
                   <a
                     href={ticket.resellerUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel={ticketOutboundRel(affiliatePartner)}
                     aria-describedby={
                       affiliatePartner ? `affiliate-ad-${ticket.id}` : undefined
                     }
