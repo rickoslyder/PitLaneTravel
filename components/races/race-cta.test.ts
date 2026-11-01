@@ -27,13 +27,14 @@ describe("race page CTAs match the about-page limit", () => {
     expect(calendar).not.toMatch(/\bbook your\b/i)
   })
 
-  it("opens the tickets tab without a Book Now or purchase CTA", () => {
-    expect(hero).toMatch(/RACE_TICKETS_CTA/)
-    expect(read("components/races/tickets/ticket-presentation.ts")).toMatch(
-      /Find tickets/
-    )
+  it("keeps the listing-aware hero CTA and hides it when the race has finished", () => {
+    const ticketCta = read("components/races/hero/HeroTicketCta.tsx")
+    expect(hero).toMatch(/HeroTicketCta/)
+    expect(hero).toMatch(/FinishedRaceNotice/)
     expect(hero).not.toMatch(/Book Now/)
     expect(hero).not.toMatch(/\bpurchase\b/i)
+    expect(ticketCta).toMatch(/SEE_TRAVEL_OPTIONS_LABEL/)
+    expect(ticketCta).toMatch(/Book Now/)
     expect(planner).not.toMatch(/booking integration coming soon/i)
     expect(planner).toMatch(/does not book or issue flights/)
     expect(planner).toMatch(/does not sell/)
