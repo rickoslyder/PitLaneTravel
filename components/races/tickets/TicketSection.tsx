@@ -16,13 +16,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TicketCard } from "./TicketCard"
 import { PackageCard } from "./PackageCard"
 import { TicketCardSkeleton } from "./TicketCardSkeleton"
+import { officialTicketSellerUrl } from "@/config/official-ticket-sellers"
 import { hasTicketListings } from "./ticket-availability"
+import { TicketsEmptyState } from "./TicketsEmptyState"
 import { useTickets } from "./use-tickets"
-import {
-  officialTicketFallback,
-  ticketSectionIntro,
-  ticketShowsBuyButton
-} from "./ticket-presentation"
+import { ticketSectionIntro, ticketShowsBuyButton } from "./ticket-presentation"
 import { affiliatePartnersOnPage } from "@/lib/ticket-affiliate"
 import { AffiliateDisclosure } from "@/components/partners/affiliate-disclosure"
 
@@ -70,29 +68,12 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
   }
 
   if (!hasTicketListings(data)) {
-    const fallback = officialTicketFallback({
-      seriesSlug: race.series?.slug,
-      seriesName: race.series?.name ?? race.series?.short_name,
-      storedSellerUrl: race.circuit?.website_url
-    })
     return (
-      <div className="space-y-4">
-        <div className="prose prose-gray dark:prose-invert max-w-none">
-          <h2>Tickets</h2>
-          {fallback.href && fallback.linkLabel ? (
-            <p>
-              <a
-                href={fallback.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {fallback.linkLabel}
-              </a>
-            </p>
-          ) : null}
-          <p>{fallback.disclosure}</p>
-        </div>
-      </div>
+      <TicketsEmptyState
+        raceName={race.name}
+        seriesName={race.series?.name ?? race.series?.short_name}
+        officialTicketUrl={officialTicketSellerUrl(race.series?.slug)}
+      />
     )
   }
 

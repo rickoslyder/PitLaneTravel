@@ -8,10 +8,6 @@ export const TICKET_BUY_LABEL = "Buy from official seller"
 /** Race-page button that scrolls to the tickets tab. PitLane does not book the race. */
 export const RACE_TICKETS_CTA = "Find tickets"
 
-export const F1_OFFICIAL_TICKET_STORE = "https://tickets.formula1.com"
-
-const BARE_UNAVAILABLE = /no tickets are currently available/i
-
 /** Explicit ticket.availability value. Missing rows are not this state. */
 export const NOT_ON_SALE_AVAILABILITY = "not_on_sale"
 
@@ -85,81 +81,6 @@ export function ticketShowsWaitlist(
     availability !== "sold_out" &&
     availability !== NOT_ON_SALE_AVAILABILITY
   )
-}
-
-export interface OfficialTicketFallback {
-  href: string | null
-  linkLabel: string | null
-  disclosure: string
-}
-
-function httpSellerUrl(value: string | null | undefined): string | null {
-  const trimmed = value?.trim()
-  if (!trimmed) return null
-  try {
-    const url = new URL(trimmed)
-    if (url.protocol !== "http:" && url.protocol !== "https:") return null
-    return url.toString()
-  } catch {
-    return null
-  }
-}
-
-function looksLikeTicketUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url)
-    const host = parsed.hostname.toLowerCase()
-    return host.includes("ticket") || parsed.pathname.toLowerCase().includes("ticket")
-  } catch {
-    return false
-  }
-}
-
-/**
- * What the tickets tab shows when the race has no stored listings.
- * F1 falls back to the official ticket store. Other series only link a site
- * the data already has. Never the bare "no tickets are currently available" line.
- */
-export function officialTicketFallback(input: {
-  seriesSlug?: string | null
-  seriesName?: string | null
-  /** Circuit or seller URL already stored for this race. */
-  storedSellerUrl?: string | null
-}): OfficialTicketFallback {
-  const stored = httpSellerUrl(input.storedSellerUrl)
-  const slug = input.seriesSlug?.trim().toLowerCase()
-  const isF1 = slug === "f1" || input.seriesName?.trim() === "Formula 1"
-  const seriesName = input.seriesName?.trim() || "this series"
-  const ticketUrl = stored && looksLikeTicketUrl(stored) ? stored : null
-
-  if (isF1) {
-    const href = ticketUrl ?? F1_OFFICIAL_TICKET_STORE
-    return {
-      href,
-      linkLabel: "Official F1 ticket store",
-      disclosure:
-        "PitLane Travel does not sell tickets. This link opens the official seller."
-    }
-  }
-
-  if (stored) {
-    return {
-      href: stored,
-      linkLabel: `Official ${seriesName} ticket site`,
-      disclosure:
-        "PitLane Travel does not sell tickets. This link opens the official seller."
-    }
-  }
-
-  return {
-    href: null,
-    linkLabel: null,
-    disclosure: `No official ticket site is listed for ${seriesName}. PitLane Travel does not sell tickets.`
-  }
-}
-
-export function officialTicketCopyIsBareUnavailable(text: string): boolean {
-  return BARE_UNAVAILABLE.test(text)
 }
 
 const TRACKING_HOST = /(^|\.)prf\.hn$|(^|\.)partnerize\.com$/i

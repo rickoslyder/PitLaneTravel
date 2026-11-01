@@ -1,7 +1,11 @@
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
-import { TicketsEmptyState } from "./TicketsEmptyState"
+import {
+  OFFICIAL_SELLER_LINE,
+  TicketsEmptyState,
+  officialTicketStoreLabel
+} from "./TicketsEmptyState"
 import {
   EMPTY_TICKETS_BUTTON_HREF,
   EMPTY_TICKETS_BUTTON_LABEL,
@@ -76,11 +80,18 @@ describe("zero ticket listings", () => {
     const withOfficial = renderToStaticMarkup(
       createElement(TicketsEmptyState, {
         raceName: RACE_NAME,
+        seriesName: "Formula 1",
         officialTicketUrl: "https://tickets.example.com/race"
       })
     )
-    expect(withOfficial).toContain('href="https://tickets.example.com/race"')
-    expect(withOfficial).not.toContain('rel="sponsored')
-    expect(withOfficial).not.toContain("/api/redirect")
+    const text = withOfficial.replace(/&#x27;/g, "'")
+    expect(text).toContain(emptyTicketsMessage(RACE_NAME))
+    expect(text).toContain(EMPTY_TICKETS_BUTTON_LABEL)
+    expect(text).toContain('href="https://tickets.example.com/race"')
+    expect(text).toContain(officialTicketStoreLabel("Formula 1"))
+    expect(text).toContain(OFFICIAL_SELLER_LINE)
+    expect(text).not.toContain('rel="sponsored')
+    expect(text).not.toContain("/api/redirect")
+    expect(text).not.toContain("tickets.formula1.com")
   })
 })
