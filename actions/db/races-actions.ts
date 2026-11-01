@@ -294,15 +294,6 @@ export async function getRaceByIdAction(id: string): Promise<ActionState<RaceWit
           website_url: circuitsTable.websiteUrl,
           created_at: circuitsTable.createdAt,
           updated_at: circuitsTable.updatedAt
-        },
-        series_id: racesTable.seriesId,
-        series: {
-          id: seriesTable.id,
-          name: seriesTable.name,
-          short_name: seriesTable.shortName,
-          slug: seriesTable.slug,
-          event_noun: seriesTable.eventNoun,
-          accent_color: seriesTable.accentColor
         }
       })
       .from(racesTable)
@@ -552,15 +543,6 @@ export async function getRaceBySlugAction(slug: string): Promise<ActionState<Rac
           website_url: circuitsTable.websiteUrl,
           created_at: circuitsTable.createdAt,
           updated_at: circuitsTable.updatedAt
-        },
-        series_id: racesTable.seriesId,
-        series: {
-          id: seriesTable.id,
-          name: seriesTable.name,
-          short_name: seriesTable.shortName,
-          slug: seriesTable.slug,
-          event_noun: seriesTable.eventNoun,
-          accent_color: seriesTable.accentColor
         }
       })
       .from(racesTable)
