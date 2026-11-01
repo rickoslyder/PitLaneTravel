@@ -6,6 +6,7 @@ Contains middleware for protecting routes, checking user authentication, and red
 
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import { parseClerkAuthorizedParties } from "@/lib/clerk-authorized-parties"
 import { clerkMiddlewareNetworklessOptions } from "@/lib/clerk-middleware-options"
 
 // Routes that require an authenticated session. Server actions and route handlers
@@ -17,16 +18,28 @@ const isProtectedRoute = createRouteMatcher([
   "/budget(.*)"
 ])
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    const { userId } = await auth()
-    if (!userId) {
-      const signIn = new URL("/login", req.url)
-      signIn.searchParams.set("redirect_url", req.nextUrl.pathname)
-      return NextResponse.redirect(signIn)
+// Direct process.env read so the middleware bundle keeps this variable.
+// Undefined when unset or empty: do not pass authorizedParties at all.
+const authorizedParties = parseClerkAuthorizedParties(
+  process.env.CLERK_AUTHORIZED_PARTIES
+)
+
+export default clerkMiddleware(
+  async (auth, req) => {
+    if (isProtectedRoute(req)) {
+      const { userId } = await auth()
+      if (!userId) {
+        const signIn = new URL("/login", req.url)
+        signIn.searchParams.set("redirect_url", req.nextUrl.pathname)
+        return NextResponse.redirect(signIn)
+      }
     }
+  },
+  {
+    ...clerkMiddlewareNetworklessOptions(),
+    ...(authorizedParties ? { authorizedParties } : {})
   }
-}, clerkMiddlewareNetworklessOptions())
+)
 
 // Keep the matcher pattern for static assets
 export const config = {

@@ -20,7 +20,15 @@ interface FeatureMap {
   [key: string]: number // Maps feature name to feature ID
 }
 
-const ADMIN_USER_ID = "user_2qf9oR94QeVLf8Wf4T0tPRljN3P"
+function requireAdminUserId(): string {
+  const adminUserId = process.env.ADMIN_USER_ID?.trim()
+  if (!adminUserId) {
+    throw new Error(
+      "ADMIN_USER_ID is required. Set it to the Clerk user id before running scripts/insert-parsed-data.ts."
+    )
+  }
+  return adminUserId
+}
 
 // Helper function to determine if a package should be featured based on its features
 function shouldFeaturePackage(tickets: ParsedTicket[]): boolean {
@@ -150,7 +158,7 @@ async function ensureFeaturesExist(tickets: ParsedTicket[]): Promise<FeatureMap>
           description: featureInfo.name,
           category: featureInfo.category,
           isActive: true,
-          updatedBy: ADMIN_USER_ID
+          updatedBy: requireAdminUserId()
         })
         .returning()
 
@@ -179,7 +187,7 @@ async function createTicketWithFeatures(
         daysIncluded: ticket.daysIncluded,
         isChildTicket: ticket.isChildTicket,
         resellerUrl: ticket.resellerUrl,
-        updatedBy: ADMIN_USER_ID
+        updatedBy: requireAdminUserId()
       },
       {
         price: ticket.pricing.price,
@@ -283,6 +291,7 @@ async function createPackageWithTickets(
 
 export async function insertParsedData(tickets: ParsedTicket[]): Promise<void> {
   try {
+    requireAdminUserId()
     console.log("Starting data insertion process...")
 
     // Step 1: Ensure all features exist
@@ -322,7 +331,7 @@ export async function insertParsedData(tickets: ParsedTicket[]): Promise<void> {
     // Step 4: Create packages and their relationships
     console.log("Creating packages...")
     for (const [_, group] of packageGroups) {
-      await createPackageWithTickets(group, group.tickets, ADMIN_USER_ID, ticketIds)
+      await createPackageWithTickets(group, group.tickets, requireAdminUserId(), ticketIds)
     }
     console.log(`Created ${packageGroups.size} packages`)
 
@@ -336,6 +345,13 @@ export async function insertParsedData(tickets: ParsedTicket[]): Promise<void> {
 // Add main entry point
 async function main() {
   try {
+    try {
+      requireAdminUserId()
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error)
+      process.exit(1)
+    }
+
     // Get the JSON file path from command line arguments
     const jsonFilePath = process.argv[2]
     if (!jsonFilePath) {
