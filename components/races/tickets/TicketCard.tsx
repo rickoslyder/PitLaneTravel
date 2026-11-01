@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, type MouseEvent } from "react"
+import { useState, useCallback } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -26,13 +26,12 @@ import { WaitlistForm } from "./WaitlistForm"
 import { SelectTicket } from "@/db/schema"
 import { SUPPORTED_CURRENCIES } from "@/config/currencies"
 import { convertPriceAction } from "@/actions/db/currency-actions"
-import { generateMaskedUrlAction } from "@/actions/db/ticket-redirect-actions"
-import { maskedBuyUrl, openUrlInNewTab } from "./open-buy-link"
 import { AffiliateAdTag } from "@/components/affiliate-ad-tag"
 import {
   affiliatePartnerFromUrl,
   ticketOutboundRel
 } from "@/lib/ticket-affiliate"
+import { ticketGoHref } from "@/lib/ticket-go"
 import {
   TICKET_BUY_LABEL,
   raceDateIsBeforeToday,
@@ -81,17 +80,6 @@ export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
   const raceHasPassed = raceDate
     ? raceDateIsBeforeToday(raceDate, new Date())
     : false
-
-  const openBuyLink = useCallback(
-    async (event: MouseEvent<HTMLAnchorElement>) => {
-      event.preventDefault()
-      const next = await maskedBuyUrl(ticket.resellerUrl, () =>
-        generateMaskedUrlAction(ticket.id, ticket.resellerUrl)
-      )
-      openUrlInNewTab(next)
-    },
-    [ticket.id, ticket.resellerUrl]
-  )
 
   const handleCurrencyChange = useCallback(
     async (currency: string) => {
@@ -288,13 +276,12 @@ export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
               <div className="min-w-0 flex-1 space-y-2">
                 <Button asChild className="w-full" size="lg">
                   <a
-                    href={ticket.resellerUrl}
+                    href={ticketGoHref(ticket.id)}
                     target="_blank"
                     rel={ticketOutboundRel(affiliatePartner)}
                     aria-describedby={
                       affiliatePartner ? `affiliate-ad-${ticket.id}` : undefined
                     }
-                    onClick={openBuyLink}
                   >
                     {buyLabel}
                   </a>

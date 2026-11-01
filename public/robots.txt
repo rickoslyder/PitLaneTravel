@@ -23,5 +23,8 @@ Disallow: /bookings/
 # Prevent access to API routes
 Disallow: /api/
 
+# Ticket seller hop. It writes a redirect row and must not be indexed.
+Disallow: /go/
+
 # Sitemap
 Sitemap: https://www.pitlanetravel.com/sitemap.xml 
