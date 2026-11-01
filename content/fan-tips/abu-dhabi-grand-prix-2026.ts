@@ -3,8 +3,9 @@ import type { FanTipsBox } from "./types"
 export const abuDhabiGrandPrix2026FanTips: FanTipsBox = {
   raceSlug: "abu-dhabi-grand-prix-2026-f1-2026",
   heading: "What fans wish they'd known: Abu Dhabi Grand Prix",
+  calendarVerifiedOn: "2026-10-31",
   statusLine:
-    "On the official F1 calendar as of [publish date]. F1 has said it is monitoring the regional situation, so check formula1.com before booking non-refundable travel.",
+    "F1 has said it is monitoring the regional situation, so check formula1.com before booking non-refundable travel.",
   leads: [],
   slots: [
     {

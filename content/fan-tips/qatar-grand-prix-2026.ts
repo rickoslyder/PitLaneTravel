@@ -3,8 +3,9 @@ import type { FanTipsBox } from "./types"
 export const qatarGrandPrix2026FanTips: FanTipsBox = {
   raceSlug: "qatar-grand-prix-2026-f1-2026",
   heading: "What fans wish they'd known: Qatar Grand Prix",
+  calendarVerifiedOn: "2026-10-31",
   statusLine:
-    "On the official F1 calendar as of [publish date]. F1 has said it is monitoring the regional situation, so check formula1.com before booking non-refundable travel.",
+    "F1 has said it is monitoring the regional situation, so check formula1.com before booking non-refundable travel.",
   leads: [
     "Book refundable rooms if you can. In 2025 one fan's five-star Doha hotel booking was cancelled a week before the race, and the same fan passed on reports of another hotel doing the same. (2025; fan report, r/GrandPrixTravel, Nov 2025) [15][16]"
   ],

@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
 import {
   fanTipsForRaceSlug,
+  fanTipsStatusText,
   visibleFanTipSlots,
   type FanTipsBox
 } from "@/content/fan-tips"
@@ -25,6 +26,7 @@ describe("fan tips slots", () => {
     const tips: FanTipsBox = {
       raceSlug: "example-grand-prix",
       heading: "What fans wish they'd known: Example Grand Prix",
+      calendarVerifiedOn: "2026-10-31",
       statusLine: "Status line stays.",
       leads: [],
       slots: [
@@ -86,9 +88,9 @@ describe("fan tips on race pages", () => {
       expect(visibleFanTipSlots(tips.slots)).toHaveLength(7)
       const html = markup(tips)
       expect(html).toContain(`>${tips.heading}<`)
-      expect(html).toContain(tips.statusLine)
+      expect(html).toContain(fanTipsStatusText(tips))
+      expect(html).toContain("On the official F1 calendar as of Oct 31, 2026.")
       expect(html).toContain(tips.footer)
-      expect(html).toContain("[publish date]")
       expect(html).not.toContain("sponsored")
       expect(html).not.toContain("/api/redirect")
       for (const source of tips.sources) {
@@ -114,5 +116,19 @@ describe("fan tips on race pages", () => {
       "Based on reports from 13 fans on r/GrandPrixTravel, Dec 2024–Feb 2026. Last checked 31 Oct 2026."
     )
     expect(abuDhabiHtml).not.toContain("Book refundable rooms if you can.")
+  })
+
+  it("does not render a bracketed placeholder", () => {
+    const publishDate = "[" + "publish date" + "]"
+    const boxes = [
+      fanTipsForRaceSlug(QATAR_SLUG),
+      fanTipsForRaceSlug(ABU_DHABI_SLUG)
+    ]
+    for (const tips of boxes) {
+      const text = markup(tips!).replace(/<[^>]+>/g, " ")
+      expect(text).not.toContain(publishDate)
+      expect(text).not.toMatch(/\[[^\]]*[A-Za-z][^\]]*\]/)
+      expect(text).toContain("Oct 31, 2026")
+    }
   })
 })

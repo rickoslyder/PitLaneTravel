@@ -1,6 +1,7 @@
 import React from "react"
 import {
   fanTipsForRaceSlug,
+  fanTipsStatusText,
   visibleFanTipSlots,
   type FanTipsBox
 } from "@/content/fan-tips"
@@ -31,11 +32,9 @@ export function FanTipsBoxView({ tips }: { tips: FanTipsBox }) {
         <h2 id={headingId} className="text-xl font-semibold tracking-tight">
           {tips.heading}
         </h2>
-        {tips.statusLine ? (
-          <p className="text-muted-foreground mt-3 text-sm italic leading-6">
-            {tips.statusLine}
-          </p>
-        ) : null}
+        <p className="text-muted-foreground mt-3 text-sm italic leading-6">
+          {fanTipsStatusText(tips)}
+        </p>
         {tips.leads.map(lead => (
           <p key={lead} className="mt-3 text-sm italic leading-6">
             {lead}

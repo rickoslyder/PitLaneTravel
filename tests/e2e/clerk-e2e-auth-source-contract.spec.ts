@@ -64,9 +64,7 @@ describe("PLT-014 Packet B ephemeral Clerk e2e source contract", () => {
     expect(middleware).not.toMatch(/PLAYWRIGHT/)
     expect(auth).toMatch(/export async function requireAdmin/)
     expect(action).toMatch(/await requireAdmin\(\)/)
-    expect(action).not.toMatch(
-      /process\.env\.(NODE_ENV|VERCEL_ENV|CI|PLAYWRIGHT)\b/
-    )
+    expect(action).not.toMatch(/process\.env\.(NODE_ENV|VERCEL_ENV|CI|PLAYWRIGHT)\b/)
     expect(fixtures).toMatch(/PLAYWRIGHT_E2E_CLERK_SESSION_ADMIN/)
     expect(fixtures).toMatch(/PLAYWRIGHT_E2E_CLERK_SESSION_NONADMIN/)
     expect(fixtures).toMatch(/PLAYWRIGHT_E2E_CLERK_CLIENT_UAT/)
@@ -86,8 +84,6 @@ describe("PLT-014 Packet B ephemeral Clerk e2e source contract", () => {
     expect(spec).not.toMatch(/\.(only|skip|fixme)\(/)
     expect(spec).not.toMatch(/waitForTimeout|test\.retry|force:/)
     expect(spec).toMatch(/applyEphemeralClerkSession/)
-    expect(spec).not.toMatch(
-      /console\.(log|info|debug)\([^)]*(session|token|jwtKey)/i
-    )
+    expect(spec).not.toMatch(/console\.(log|info|debug)\([^)]*(session|token|jwtKey)/i)
   })
 })

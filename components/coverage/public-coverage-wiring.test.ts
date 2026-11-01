@@ -30,9 +30,9 @@ const CLIENT_SURFACES = [
 
 describe("public coverage wiring source contract", () => {
   it("creates the public coverage components", () => {
-    expect(
-      existsSync(path.join(ROOT, "components/coverage/coverage-badge.tsx"))
-    ).toBe(true)
+    expect(existsSync(path.join(ROOT, "components/coverage/coverage-badge.tsx"))).toBe(
+      true
+    )
     expect(
       existsSync(path.join(ROOT, "components/coverage/freshness-note.tsx"))
     ).toBe(true)
@@ -45,9 +45,7 @@ describe("public coverage wiring source contract", () => {
       expect(source, rel).not.toMatch(/getCoverageMatrixAction/)
       expect(source, rel).not.toMatch(/from\s+["']@\/db\/db["']/)
       expect(source, rel).not.toMatch(/\bdb\s*\.\s*select\b/)
-      expect(source, rel).not.toMatch(
-        /sourceUrl|source_url|DATABASE_URL|CLERK_/
-      )
+      expect(source, rel).not.toMatch(/sourceUrl|source_url|DATABASE_URL|CLERK_/)
     }
 
     const races = read("app/races/page.tsx")
@@ -158,9 +156,7 @@ describe("card and detail markup wiring", () => {
       createElement(CoverageBadge, { summary: coverage, compact: true })
     )
     const detailHtml =
-      renderToStaticMarkup(
-        createElement(CoverageBadge, { summary: coverage })
-      ) +
+      renderToStaticMarkup(createElement(CoverageBadge, { summary: coverage })) +
       renderToStaticMarkup(createElement(FreshnessNote, { summary: coverage }))
 
     expect(cardHtml).toContain("Decision guide")

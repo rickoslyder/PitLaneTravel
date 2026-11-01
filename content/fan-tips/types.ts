@@ -28,7 +28,13 @@ export type FanTipSlot = {
 export type FanTipsBox = {
   raceSlug: string
   heading: string
-  statusLine?: string
+  /** ISO date Scout last verified the race on the official calendar. */
+  calendarVerifiedOn: string
+  /**
+   * The status sentence after "On the official F1 calendar as of <date>."
+   * The date is formatted at render time from `calendarVerifiedOn`.
+   */
+  statusLine: string
   leads: string[]
   slots: FanTipSlot[]
   footer: string
