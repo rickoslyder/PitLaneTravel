@@ -27,6 +27,7 @@ import { SelectTicket } from "@/db/schema"
 import { SUPPORTED_CURRENCIES } from "@/config/currencies"
 import { convertPriceAction } from "@/actions/db/currency-actions"
 import { generateMaskedUrlAction } from "@/actions/db/ticket-redirect-actions"
+import { AffiliateAdTag } from "@/components/affiliate-ad-tag"
 import { affiliatePartnerFromUrl } from "@/lib/ticket-affiliate"
 import {
   TICKET_BUY_LABEL,
@@ -302,20 +303,23 @@ export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
 
           {showBuyButton ? (
             <div className="mt-4 space-y-2">
-              <a
-                href={maskedUrl || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  (!maskedUrl || isLoadingUrl) &&
-                    "pointer-events-none opacity-50",
-                  "block"
-                )}
-              >
-                <Button className="w-full" size="lg" disabled={isLoadingUrl}>
-                  {isLoadingUrl ? "Loading..." : buyLabel}
-                </Button>
-              </a>
+              <div className="flex items-center gap-2">
+                <a
+                  href={maskedUrl || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    (!maskedUrl || isLoadingUrl) &&
+                      "pointer-events-none opacity-50",
+                    "block min-w-0 flex-1"
+                  )}
+                >
+                  <Button className="w-full" size="lg" disabled={isLoadingUrl}>
+                    {isLoadingUrl ? "Loading..." : buyLabel}
+                  </Button>
+                </a>
+                {affiliatePartner ? <AffiliateAdTag /> : null}
+              </div>
               <p className="text-muted-foreground text-center text-xs">
                 {linkCaption}
               </p>

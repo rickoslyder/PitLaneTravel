@@ -10,6 +10,12 @@ tickets: outbound links to a partner, tagged with our affiliate id. Set the id v
  * Build a Booking.com search URL for accommodation near a circuit. Uses the circuit's
  * city/country as the search string and tags the partner affiliate id when configured.
  */
+export function isHotelAffiliateConfigured(
+  affiliateId: string | undefined = process.env.HOTEL_AFFILIATE_ID
+): boolean {
+  return Boolean(affiliateId?.trim())
+}
+
 export function buildHotelSearchUrl(params: {
   location: string
   country: string

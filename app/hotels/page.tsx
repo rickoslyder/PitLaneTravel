@@ -1,7 +1,11 @@
 import { Metadata } from "next"
 import { Building2, ExternalLink, MapPin } from "lucide-react"
 import { getCircuitsAction } from "@/actions/db/circuits-actions"
-import { buildHotelSearchUrl } from "@/lib/affiliate"
+import { AffiliateAdTag } from "@/components/affiliate-ad-tag"
+import {
+  buildHotelSearchUrl,
+  isHotelAffiliateConfigured
+} from "@/lib/affiliate"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
@@ -12,6 +16,7 @@ export const metadata: Metadata = {
 }
 
 export default async function HotelsPage() {
+  const hotelAffiliate = isHotelAffiliateConfigured()
   const { data: circuits } = await getCircuitsAction()
   const sorted = (circuits ?? [])
     .slice()
@@ -41,19 +46,26 @@ export default async function HotelsPage() {
                 </p>
               </CardHeader>
               <CardContent className="mt-auto">
-                <Button asChild variant="outline" className="w-full">
-                  <a
-                    href={buildHotelSearchUrl({
-                      location: circuit.location,
-                      country: circuit.country
-                    })}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <div className="flex items-center gap-2">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full min-w-0 flex-1"
                   >
-                    Search on Booking.com
-                    <ExternalLink className="ml-2 size-4" />
-                  </a>
-                </Button>
+                    <a
+                      href={buildHotelSearchUrl({
+                        location: circuit.location,
+                        country: circuit.country
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Search on Booking.com
+                      <ExternalLink className="ml-2 size-4" />
+                    </a>
+                  </Button>
+                  {hotelAffiliate ? <AffiliateAdTag /> : null}
+                </div>
               </CardContent>
             </Card>
           ))}
