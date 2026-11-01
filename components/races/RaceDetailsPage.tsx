@@ -23,8 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, LucideIcon } from "lucide-react"
 import { RaceHero } from "./hero/RaceHero"
-import { useTickets } from "./tickets/use-tickets"
-import { ticketListingState } from "./tickets/ticket-availability"
+import type { TicketListingState } from "./tickets/ticket-availability"
 import { SelectRaceHistory } from "@/db/schema/race-history-schema"
 import { captureAnalyticsEvent } from "@/lib/analytics/capture"
 import { useAnalyticsConsent } from "@/lib/analytics-consent"
@@ -88,6 +87,8 @@ interface RaceDetailsPageProps {
   history?: SelectRaceHistory
   /** Safe public coverage summary for this race */
   coverage?: PublicCoverageSummary | null
+  /** Server-known ticket or package rows. Unknown stays "listed" so Book Now is not hidden by a failed lookup. */
+  ticketListings?: TicketListingState
 }
 
 interface TabOption {
@@ -145,7 +146,8 @@ export function RaceDetailsPage({
   existingTripId,
   userId,
   history,
-  coverage
+  coverage,
+  ticketListings = "listed"
 }: RaceDetailsPageProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -158,8 +160,6 @@ export function RaceDetailsPage({
       ? tabFromUrl
       : "info"
   })
-  const { data: ticketData, loading: ticketsLoading } = useTickets(race.id)
-  const ticketListings = ticketListingState(ticketsLoading, ticketData)
   const [isScrolled, setIsScrolled] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
 
@@ -444,11 +444,7 @@ export function RaceDetailsPage({
                       className="text-muted-foreground"
                     />
                   ) : (
-                    <TicketSection
-                      race={race}
-                      data={ticketData}
-                      loading={ticketsLoading}
-                    />
+                    <TicketSection race={race} />
                   )}
                 </TabsContent>
               </TabContent>

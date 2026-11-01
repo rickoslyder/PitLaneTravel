@@ -18,21 +18,14 @@ import { PackageCard } from "./PackageCard"
 import { TicketCardSkeleton } from "./TicketCardSkeleton"
 import { TicketsEmptyState } from "./TicketsEmptyState"
 import { hasTicketListings } from "./ticket-availability"
-import { type TicketData } from "./use-tickets"
+import { useTickets } from "./use-tickets"
 
 type Ticket = SelectTicket & { features: any[]; currentPrice: any }
 
-export function TicketSection({
-  race,
-  data,
-  loading
-}: {
-  race: RaceWithDetails
-  data: TicketData | null
-  loading: boolean
-}) {
+export function TicketSection({ race }: { race: RaceWithDetails }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedType, setSelectedType] = useState<string>("all")
+  const { data, loading } = useTickets(race.id)
 
   const filteredTickets = data?.tickets?.filter((ticket: Ticket) => {
     const matchesSearch =

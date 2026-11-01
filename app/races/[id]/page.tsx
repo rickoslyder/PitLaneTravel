@@ -20,6 +20,7 @@ import {
   RACE_PAGE_NOT_FOUND_TITLE
 } from "@/lib/race-page-metadata"
 import { raceHasFinished } from "@/lib/finished-race"
+import { raceHasTicketListingsAction } from "@/actions/db/ticket-listing-actions"
 
 interface RacePageProps {
   params: Promise<{
@@ -236,6 +237,10 @@ export default async function RacePage({ params }: RacePageProps) {
       : null
   }
 
+  const ticketListings = (await raceHasTicketListingsAction(raceResult.data.id))
+    ? "listed"
+    : "empty"
+
   return (
     <div className="space-y-8 sm:container sm:py-8">
       <RaceDetailsPage
@@ -244,6 +249,7 @@ export default async function RacePage({ params }: RacePageProps) {
         existingTripId={existingTripId}
         history={historyResult.isSuccess ? historyResult.data : undefined}
         coverage={coverage}
+        ticketListings={ticketListings}
       />
       {/* <LocalAttractions circuit={circuitResult.data} /> */}
     </div>
