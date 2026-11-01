@@ -42,6 +42,9 @@ import { TeamSwitcher } from "./team-switcher"
 import PitLaneTravelLogo from "@/logos/PitLaneTravelLogo"
 import router from "next/router"
 import Link from "next/link"
+import { bookingsNavItem } from "@/config/sidebar-bookings"
+
+const bookingsItem = bookingsNavItem()
 
 const data = {
   user: {
@@ -83,7 +86,7 @@ const data = {
         { title: "Flight Search", url: "/flights", isPrimary: true },
         { title: "Hotels", url: "/hotels", icon: Hotel },
         { title: "Transport", url: "/transport", icon: Car },
-        { title: "My Bookings", url: "/bookings", icon: Ticket }
+        ...(bookingsItem ? [{ ...bookingsItem, icon: Ticket }] : [])
       ]
     },
     {
