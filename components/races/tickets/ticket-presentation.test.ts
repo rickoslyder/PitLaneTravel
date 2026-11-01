@@ -1,12 +1,10 @@
 import { describe, expect, it } from "vitest"
 import {
-  NO_TICKET_LINKS_HEADING,
   RACE_TICKETS_CTA,
   TICKET_BUY_LABEL,
   raceDateIsBeforeToday,
   resellerHost,
   ticketAvailabilityLabel,
-  ticketEmptyState,
   ticketSectionIntro,
   ticketShowsBuyButton,
   ticketShowsWaitlist
@@ -35,15 +33,7 @@ describe("ticket availability states", () => {
   })
 })
 
-describe("ticket empty state", () => {
-  it("does not treat a missing link list as not on sale", () => {
-    const copy = ticketEmptyState("Abu Dhabi Grand Prix 2026")
-    expect(copy.heading).toBe(NO_TICKET_LINKS_HEADING)
-    expect(copy.heading).not.toBe("Not on sale yet")
-    expect(copy.body).toMatch(/Abu Dhabi Grand Prix 2026/)
-    expect(copy.body).not.toMatch(/not on sale/i)
-  })
-
+describe("ticket tab when nothing is listed", () => {
   it("reserves Not on sale yet for the explicit availability value", () => {
     expect(ticketAvailabilityLabel("not_on_sale")).toBe("Not on sale yet")
     expect(ticketShowsBuyButton("not_on_sale")).toBe(false)

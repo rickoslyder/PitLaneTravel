@@ -8,8 +8,6 @@ export const TICKET_BUY_LABEL = "Buy from official seller"
 /** Race-page button that scrolls to the tickets tab. PitLane does not book the race. */
 export const RACE_TICKETS_CTA = "Find tickets"
 
-export const NO_TICKET_LINKS_HEADING = "No official ticket links listed yet"
-
 /** Explicit ticket.availability value. Missing rows are not this state. */
 export const NOT_ON_SALE_AVAILABILITY = "not_on_sale"
 
@@ -83,16 +81,6 @@ export function ticketShowsWaitlist(
     availability !== "sold_out" &&
     availability !== NOT_ON_SALE_AVAILABILITY
   )
-}
-
-export function ticketEmptyState(raceName: string): {
-  heading: string
-  body: string
-} {
-  return {
-    heading: NO_TICKET_LINKS_HEADING,
-    body: `No official ticket links for ${raceName} are listed yet.`
-  }
 }
 
 const TRACKING_HOST = /(^|\.)prf\.hn$|(^|\.)partnerize\.com$/i

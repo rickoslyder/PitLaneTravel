@@ -16,13 +16,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TicketCard } from "./TicketCard"
 import { PackageCard } from "./PackageCard"
 import { TicketCardSkeleton } from "./TicketCardSkeleton"
-import { TicketsEmptyState } from "./TicketsEmptyState"
+import { officialTicketOffer } from "@/config/official-ticket-sellers"
+import { raceHasFinished } from "@/lib/finished-race"
 import { hasTicketListings } from "./ticket-availability"
+import { OfficialTicketLink, TicketsEmptyState } from "./TicketsEmptyState"
 import { useTickets } from "./use-tickets"
-import {
-  ticketSectionIntro,
-  ticketShowsBuyButton
-} from "./ticket-presentation"
+import { ticketSectionIntro, ticketShowsBuyButton } from "./ticket-presentation"
 import { affiliatePartnersOnPage } from "@/lib/ticket-affiliate"
 import { AffiliateDisclosure } from "@/components/partners/affiliate-disclosure"
 
@@ -45,6 +44,21 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
 
     return matchesSearch && matchesType
   })
+
+  const finished = raceHasFinished(
+    {
+      status: race.status,
+      date: race.date,
+      weekend_end: race.weekend_end
+    },
+    new Date()
+  )
+  const officialOffer = finished
+    ? null
+    : officialTicketOffer({
+        seriesSlug: race.series?.slug,
+        season: race.season
+      })
 
   const catalogueAffiliates = affiliatePartnersOnPage(data?.tickets ?? [])
   const affiliatePartners = affiliatePartnersOnPage(
@@ -70,7 +84,14 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
   }
 
   if (!hasTicketListings(data)) {
-    return <TicketsEmptyState raceName={race.name} />
+    return (
+      <TicketsEmptyState
+        raceName={race.name}
+        officialTicketUrl={officialOffer?.href}
+        officialLinkLabel={officialOffer?.label}
+        officialLinkNote={officialOffer?.note}
+      />
+    )
   }
 
   return (
@@ -81,6 +102,14 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
         </h2>
         <p>{ticketSectionIntro(race.name, catalogueAffiliates.length > 0)}</p>
       </div>
+
+      {officialOffer ? (
+        <OfficialTicketLink
+          href={officialOffer.href}
+          label={officialOffer.label}
+          note={officialOffer.note}
+        />
+      ) : null}
 
       {affiliatePartners.length > 0 && (
         <AffiliateDisclosure partners={affiliatePartners} />
@@ -102,6 +131,11 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
         <TabsContent value="individual">
           <div className="grid gap-6 lg:grid-cols-3">
             <Suspense fallback={<TicketCardSkeleton />}>
+              {filteredTickets?.length ? null : (
+                <p className="text-muted-foreground text-sm">
+                  No listings match this search.
+                </p>
+              )}
               {filteredTickets?.map((ticket: Ticket, index: number) => (
                 <TicketCard
                   key={ticket.id}

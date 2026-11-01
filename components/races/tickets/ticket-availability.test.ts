@@ -76,11 +76,21 @@ describe("zero ticket listings", () => {
     const withOfficial = renderToStaticMarkup(
       createElement(TicketsEmptyState, {
         raceName: RACE_NAME,
-        officialTicketUrl: "https://tickets.example.com/race"
+        officialTicketUrl: "https://tickets.example.com/race",
+        officialLinkLabel: "Buy from the official F1® Ticket Store",
+        officialLinkNote:
+          "Official series ticket store. Not an affiliate link; Pit Lane Travel earns nothing from this purchase."
       })
     )
-    expect(withOfficial).toContain('href="https://tickets.example.com/race"')
-    expect(withOfficial).not.toContain('rel="sponsored')
-    expect(withOfficial).not.toContain("/api/redirect")
+    const text = withOfficial.replace(/&#x27;/g, "'")
+    expect(text).toContain(emptyTicketsMessage(RACE_NAME))
+    expect(text).toContain(EMPTY_TICKETS_BUTTON_LABEL)
+    expect(text).toContain('href="https://tickets.example.com/race"')
+    expect(text).toContain('target="_blank"')
+    expect(text).toContain('rel="noopener noreferrer"')
+    expect(text).toContain("Buy from the official F1® Ticket Store")
+    expect(text).toContain("Pit Lane Travel earns nothing from this purchase.")
+    expect(text).not.toContain('rel="sponsored')
+    expect(text).not.toContain("/api/redirect")
   })
 })
