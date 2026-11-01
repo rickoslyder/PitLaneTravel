@@ -11,7 +11,7 @@ function read(rel: string): string {
 }
 
 const PLAYWRIGHT_TEST_MATCH =
-  /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*\]/
+  /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*,\s*["']fan-tips\.spec\.ts["']\s*\]/
 
 const SIX_DEPTH_LABELS = [
   "No verified coverage",
@@ -131,7 +131,9 @@ describe("PLT-015 public coverage browser source contract", () => {
     expect(playwright).toMatch(/retries:\s*0/)
     expect(spec).not.toMatch(/\.(only|skip|fixme)\(/)
     expect(spec).not.toMatch(/waitForTimeout|test\.retry|force:/)
-    expect(spec).not.toMatch(/process\.env\.(NODE_ENV|VERCEL_ENV|CI|PLAYWRIGHT)\b/)
+    expect(spec).not.toMatch(
+      /process\.env\.(NODE_ENV|VERCEL_ENV|CI|PLAYWRIGHT)\b/
+    )
     expect(spec).not.toMatch(/overflow:\s*hidden|overflow-x:\s*hidden/)
     expect(spec).not.toMatch(/applyEphemeralClerkSession/)
     expect(spec).not.toMatch(/BEGIN (RSA )?PRIVATE KEY/)

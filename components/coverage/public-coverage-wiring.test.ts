@@ -30,9 +30,9 @@ const CLIENT_SURFACES = [
 
 describe("public coverage wiring source contract", () => {
   it("creates the public coverage components", () => {
-    expect(existsSync(path.join(ROOT, "components/coverage/coverage-badge.tsx"))).toBe(
-      true
-    )
+    expect(
+      existsSync(path.join(ROOT, "components/coverage/coverage-badge.tsx"))
+    ).toBe(true)
     expect(
       existsSync(path.join(ROOT, "components/coverage/freshness-note.tsx"))
     ).toBe(true)
@@ -45,7 +45,9 @@ describe("public coverage wiring source contract", () => {
       expect(source, rel).not.toMatch(/getCoverageMatrixAction/)
       expect(source, rel).not.toMatch(/from\s+["']@\/db\/db["']/)
       expect(source, rel).not.toMatch(/\bdb\s*\.\s*select\b/)
-      expect(source, rel).not.toMatch(/sourceUrl|source_url|DATABASE_URL|CLERK_/)
+      expect(source, rel).not.toMatch(
+        /sourceUrl|source_url|DATABASE_URL|CLERK_/
+      )
     }
 
     const races = read("app/races/page.tsx")
@@ -109,7 +111,7 @@ describe("public coverage wiring source contract", () => {
     const playwright = read("playwright.config.ts")
     const middleware = read("middleware.ts")
     expect(playwright).toMatch(
-      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*\]/
+      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*,\s*["']fan-tips\.spec\.ts["']\s*\]/
     )
     expect(playwright).toMatch(/retries:\s*0/)
     expect(middleware).toMatch(/export default clerkMiddleware\s*\(/)
@@ -156,7 +158,9 @@ describe("card and detail markup wiring", () => {
       createElement(CoverageBadge, { summary: coverage, compact: true })
     )
     const detailHtml =
-      renderToStaticMarkup(createElement(CoverageBadge, { summary: coverage })) +
+      renderToStaticMarkup(
+        createElement(CoverageBadge, { summary: coverage })
+      ) +
       renderToStaticMarkup(createElement(FreshnessNote, { summary: coverage }))
 
     expect(cardHtml).toContain("Decision guide")

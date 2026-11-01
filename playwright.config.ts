@@ -6,9 +6,17 @@ export default defineConfig({
   testDir: "tests/e2e",
   // Other *.spec.ts in this dir are Vitest; Playwright selects only the
   // production smoke, catalogue-matrix, admin-coverage, public-coverage,
-  // analytics-consent, and typed-analytics browser suites.
+  // analytics-consent, typed-analytics, and fan-tips browser suites.
   // https://playwright.dev/docs/test-configuration#filtering-tests
-  testMatch: ["smoke.spec.ts", "catalogue-matrix.spec.ts", "admin-coverage.spec.ts", "public-coverage.spec.ts", "analytics-consent.spec.ts", "typed-analytics.spec.ts"],
+  testMatch: [
+    "smoke.spec.ts",
+    "catalogue-matrix.spec.ts",
+    "admin-coverage.spec.ts",
+    "public-coverage.spec.ts",
+    "analytics-consent.spec.ts",
+    "typed-analytics.spec.ts",
+    "fan-tips.spec.ts"
+  ],
   forbidOnly: !!process.env.CI,
   retries: 0,
   // Official CI guidance: one worker for stability/reproducibility.

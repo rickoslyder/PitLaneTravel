@@ -39,10 +39,10 @@ describe("PLT-014 Packet B ephemeral Clerk e2e source contract", () => {
     expect(ci).not.toMatch(/BEGIN (RSA )?PRIVATE KEY/)
   })
 
-  it("selects exactly the six production Playwright suites", () => {
+  it("selects exactly the seven production Playwright suites", () => {
     const playwright = read("playwright.config.ts")
     expect(playwright).toMatch(
-      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*\]/
+      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*,\s*["']fan-tips\.spec\.ts["']\s*\]/
     )
     expect(playwright).toMatch(/retries:\s*0/)
     expect(playwright).toMatch(/localhost:3100/)
@@ -64,7 +64,9 @@ describe("PLT-014 Packet B ephemeral Clerk e2e source contract", () => {
     expect(middleware).not.toMatch(/PLAYWRIGHT/)
     expect(auth).toMatch(/export async function requireAdmin/)
     expect(action).toMatch(/await requireAdmin\(\)/)
-    expect(action).not.toMatch(/process\.env\.(NODE_ENV|VERCEL_ENV|CI|PLAYWRIGHT)\b/)
+    expect(action).not.toMatch(
+      /process\.env\.(NODE_ENV|VERCEL_ENV|CI|PLAYWRIGHT)\b/
+    )
     expect(fixtures).toMatch(/PLAYWRIGHT_E2E_CLERK_SESSION_ADMIN/)
     expect(fixtures).toMatch(/PLAYWRIGHT_E2E_CLERK_SESSION_NONADMIN/)
     expect(fixtures).toMatch(/PLAYWRIGHT_E2E_CLERK_CLIENT_UAT/)
@@ -84,6 +86,8 @@ describe("PLT-014 Packet B ephemeral Clerk e2e source contract", () => {
     expect(spec).not.toMatch(/\.(only|skip|fixme)\(/)
     expect(spec).not.toMatch(/waitForTimeout|test\.retry|force:/)
     expect(spec).toMatch(/applyEphemeralClerkSession/)
-    expect(spec).not.toMatch(/console\.(log|info|debug)\([^)]*(session|token|jwtKey)/i)
+    expect(spec).not.toMatch(
+      /console\.(log|info|debug)\([^)]*(session|token|jwtKey)/i
+    )
   })
 })

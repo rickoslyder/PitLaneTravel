@@ -11,7 +11,7 @@ function read(rel: string): string {
 }
 
 const PLAYWRIGHT_TEST_MATCH =
-  /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*\]/
+  /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*,\s*["']fan-tips\.spec\.ts["']\s*\]/
 
 describe("PLT-016 analytics consent browser source contract", () => {
   it("selects analytics-consent.spec.ts in Playwright and excludes it from Vitest", () => {
@@ -48,7 +48,7 @@ describe("PLT-016 analytics consent browser source contract", () => {
     expect(publicCoverage).toMatch(/analytics-consent/)
     expect(clerk).toMatch(/analytics-consent/)
     expect(wiring).toMatch(/analytics-consent/)
-    expect(clerk).toMatch(/exactly the six production Playwright suites/)
+    expect(clerk).toMatch(/exactly the seven production Playwright suites/)
   })
 
   it("covers first-visit, reject, accept, withdraw, cross-tab, and damaged-storage scenarios", () => {
@@ -128,22 +128,24 @@ describe("PLT-016 analytics consent browser source contract", () => {
     expect(existsSync(helperPath), `missing ${helperRel}`).toBe(true)
     const helper = read(helperRel)
 
-    expect(spec).toMatch(
-      /from\s+["']\.\/analytics-consent-automation["']/
-    )
+    expect(spec).toMatch(/from\s+["']\.\/analytics-consent-automation["']/)
     expect(spec).toMatch(
       /test\.beforeEach\(\s*async\s*\(\s*\{\s*page\s*\}\s*\)\s*=>\s*\{[\s\S]*installAutomationMarkerNormalization\(\s*page\s*\)/
     )
     expect(spec).toMatch(
       /async function openSecondPage[\s\S]*installAutomationMarkerNormalization\(\s*page\s*\)/
     )
-    expect(spec.match(/installAutomationMarkerNormalization/g)?.length).toBeGreaterThanOrEqual(
-      3
-    )
+    expect(
+      spec.match(/installAutomationMarkerNormalization/g)?.length
+    ).toBeGreaterThanOrEqual(3)
 
-    expect(helper).toMatch(/export async function installAutomationMarkerNormalization/)
+    expect(helper).toMatch(
+      /export async function installAutomationMarkerNormalization/
+    )
     expect(helper).toMatch(/addInitScript/)
-    expect(helper).toMatch(/Object\.defineProperty\(\s*navigator\s*,\s*["']webdriver["']/)
+    expect(helper).toMatch(
+      /Object\.defineProperty\(\s*navigator\s*,\s*["']webdriver["']/
+    )
     expect(helper).toMatch(/return false/)
     expect(helper).toMatch(/userAgentData/)
     expect(helper).toMatch(/new Proxy\(/)
@@ -167,7 +169,7 @@ describe("PLT-016 analytics consent browser source contract", () => {
     )
     expect(
       defineAt,
-      "init script must defineProperty(navigator, \"userAgent\")"
+      'init script must defineProperty(navigator, "userAgent")'
     ).toBeGreaterThanOrEqual(0)
 
     const earlyReturnAt = helper.search(/if\s*\(\s*!original\s*\)/)
@@ -210,9 +212,7 @@ describe("PLT-016 analytics consent browser source contract", () => {
     expect(spec).toMatch(
       /observer\.observe\(\s*document\s*,\s*\{\s*childList:\s*true\s*,\s*subtree:\s*true\s*\}/
     )
-    expect(spec).not.toMatch(
-      /observer\.observe\(\s*document\.documentElement/
-    )
+    expect(spec).not.toMatch(/observer\.observe\(\s*document\.documentElement/)
   })
 
   it("does not mention navigator.webdriver or disable PostHog bot filtering in product analytics", () => {
@@ -314,7 +314,9 @@ describe("PLT-016 analytics consent browser source contract", () => {
     expect(spec).toMatch(/powered by progressier/i)
     expect(spec).toMatch(/progressier\\.app/)
     expect(spec).toMatch(/Progressier badge or install chrome/)
-    expect(spec.match(/assertProgressierChromeIsAbsent/g)?.length).toBeGreaterThanOrEqual(3)
+    expect(
+      spec.match(/assertProgressierChromeIsAbsent/g)?.length
+    ).toBeGreaterThanOrEqual(3)
     expect(spec).not.toMatch(/display:\s*["']none["']/)
     expect(spec).not.toMatch(/\.remove\(\)|removeChild/)
   })
