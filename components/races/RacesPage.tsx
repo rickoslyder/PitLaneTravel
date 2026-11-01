@@ -12,6 +12,7 @@ import { HeroSection } from "./HeroSection"
 import { ViewSwitcher } from "./ViewSwitcher"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import { racesForTiming, type RaceTiming } from "@/lib/race-calendar-window"
+import { formatRaceCalendarMonth } from "@/lib/race-datetime"
 
 interface RacesPageProps {
   initialRaces: RaceWithCircuitAndSeries[]
@@ -81,7 +82,7 @@ export function RacesPage({
     const matchesMonth =
       filters.month.length === 0 ||
       filters.month.includes(
-        new Date(race.date).toLocaleString("default", { month: "long" })
+        formatRaceCalendarMonth(race.date)
       )
 
     const matchesCountry =

@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { RaceWithCircuit } from "@/types/database"
+import { formatRaceCalendarMonth } from "@/lib/race-datetime"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 
@@ -66,9 +67,7 @@ export function FilterSheet({
       field: "month",
       options: Array.from(
         new Set(
-          races.map(race =>
-            new Date(race.date).toLocaleString("default", { month: "long" })
-          )
+          races.map(race => formatRaceCalendarMonth(race.date))
         )
       )
         .sort((a, b) => {
@@ -191,10 +190,8 @@ export function FilterSheet({
                             races.filter(race => {
                               if (group.field === "month") {
                                 return (
-                                  new Date(race.date).toLocaleString(
-                                    "default",
-                                    { month: "long" }
-                                  ) === option.value
+                                  formatRaceCalendarMonth(race.date) ===
+                                  option.value
                                 )
                               }
                               if (group.field === "availability") {

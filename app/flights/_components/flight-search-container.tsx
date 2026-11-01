@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { SelectCircuitLocation } from "@/db/schema"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
 
 interface FlightSearchContainerProps {
   races: RaceWithCircuitAndSeries[]
@@ -89,7 +90,7 @@ export function FlightSearchContainer({
           <SelectContent>
             {races.map(race => (
               <SelectItem key={race.id} value={race.id}>
-                {race.name} - {new Date(race.date).toLocaleDateString()}
+                {race.name} - {formatRaceCalendarDate(race.date)}
               </SelectItem>
             ))}
           </SelectContent>

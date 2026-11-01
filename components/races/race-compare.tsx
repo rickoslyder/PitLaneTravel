@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { format } from "date-fns"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { X, Plus } from "lucide-react"
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import { Button } from "@/components/ui/button"
@@ -37,7 +37,16 @@ export function RaceCompare({
     { label: "Series", render: r => r.series?.name ?? "Formula 1" },
     {
       label: "Date",
-      render: r => format(new Date(r.date), "d MMM yyyy")
+      render: r =>
+        formatRaceCalendarDate(
+          r.date,
+          {
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+          },
+          r.circuit?.timezone_id
+        )
     },
     { label: "Circuit", render: r => r.circuit?.name ?? "—" },
     {
@@ -81,7 +90,14 @@ export function RaceCompare({
               >
                 <span>{r.name}</span>
                 <span className="text-muted-foreground">
-                  {format(new Date(r.date), "d MMM")}
+                  {formatRaceCalendarDate(
+                    r.date,
+                    {
+                      day: "numeric",
+                      month: "short"
+                    },
+                    r.circuit?.timezone_id
+                  )}
                 </span>
               </button>
             ))}

@@ -12,6 +12,7 @@ import {
 import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import {
   CalendarIcon,
   Plane,
@@ -348,7 +349,13 @@ export function FlightSearch({
               {raceWeekendDates.map((date, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <div className="bg-primary/10 size-2 rounded-full" />
-                  <span>{format(date.date, "EEE, MMM d")}</span>
+                  <span>
+                    {formatRaceCalendarDate(date.date, {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric"
+                    })}
+                  </span>
                   <span>-</span>
                   <span>{date.description}</span>
                 </div>

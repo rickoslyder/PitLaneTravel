@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Calendar, MapPin, Users, Eye, EyeOff, Clock } from "lucide-react"
 import { SelectTrip } from "@/db/schema"
 import { formatDate } from "@/lib/utils"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
 
 interface TripCardProps {
   trip: SelectTrip & {
@@ -57,7 +58,7 @@ export function TripCard({ trip }: TripCardProps) {
       <CardContent className="space-y-2">
         <div className="text-muted-foreground flex items-center gap-2 text-sm">
           <Calendar className="size-4" />
-          <span>{formatDate(trip.race.date.toISOString())}</span>
+          <span>{formatRaceCalendarDate(trip.race.date)}</span>
         </div>
 
         <div className="text-muted-foreground flex items-center gap-2 text-sm">

@@ -2,7 +2,7 @@
 
 import { RaceWithDetails } from "@/types/race"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { format } from "date-fns"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { raceWeekendSessions } from "@/lib/race-weekend-sessions"
 import { Cloud, CloudRain, CloudSun, Sun, Umbrella, Wind } from "lucide-react"
 import { motion } from "framer-motion"
@@ -147,10 +147,21 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
                 >
                   <div className="text-center">
                     <div className="text-muted-foreground text-sm">
-                      {format(new Date(day.date), "EEEE")}
+                      {formatRaceCalendarDate(
+                        day.date,
+                        { weekday: "long" },
+                        race.circuit?.timezone_id
+                      )}
                     </div>
                     <div className="font-medium">
-                      {format(new Date(day.date), "MMM d")}
+                      {formatRaceCalendarDate(
+                        day.date,
+                        {
+                          month: "short",
+                          day: "numeric"
+                        },
+                        race.circuit?.timezone_id
+                      )}
                     </div>
                   </div>
 
@@ -210,7 +221,17 @@ export function WeatherAndSchedule({ race }: WeatherAndScheduleProps) {
           {sessions.map(session => (
             <div key={session.description} className="flex items-center gap-2">
               <div className="bg-primary/10 size-2 rounded-full" />
-              <span>{format(session.date, "EEE, MMM d")}</span>
+              <span>
+                {formatRaceCalendarDate(
+                  session.date,
+                  {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric"
+                  },
+                  race.circuit?.timezone_id
+                )}
+              </span>
               <span>-</span>
               <span>{session.description}</span>
             </div>

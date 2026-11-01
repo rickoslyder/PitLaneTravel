@@ -4,7 +4,10 @@ import { useEffect, useState } from "react"
 import { RaceWithDetails } from "@/types/race"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, Info, MapPin, Plug, AlertTriangle, X } from "lucide-react"
-import { format, addDays } from "date-fns"
+import {
+  addRaceCalendarDays,
+  formatRaceCalendarDate
+} from "@/lib/race-datetime"
 import { motion } from "framer-motion"
 import { getPlugsByCountryAction } from "@/actions/db/world-plugs-actions"
 import Image from "next/image"
@@ -39,10 +42,9 @@ export function TripInfoTab({ race, description }: TripInfoTabProps) {
   const [isLoadingPlugs, setIsLoadingPlugs] = useState(true)
   const [selectedPlug, setSelectedPlug] = useState<PlugInfo | null>(null)
 
-  // Convert UTC dates to local dates for display
-  const practiceDate = race.weekend_start ? new Date(race.weekend_start) : null
-  const qualifyingDate = race.date ? addDays(new Date(race.date), -1) : null
-  const raceDate = race.date ? new Date(race.date) : null
+  const practiceDate = race.weekend_start
+  const qualifyingDate = addRaceCalendarDays(race.date, -1)
+  const raceDate = race.date
 
   useEffect(() => {
     const fetchPlugs = async () => {
@@ -89,7 +91,7 @@ export function TripInfoTab({ race, description }: TripInfoTabProps) {
                     <span className="text-muted-foreground">Practice:</span>
                     <span>
                       {practiceDate
-                        ? format(practiceDate, "MMM d, yyyy")
+                        ? formatRaceCalendarDate(practiceDate)
                         : "TBD"}
                     </span>
                   </div>
@@ -97,14 +99,14 @@ export function TripInfoTab({ race, description }: TripInfoTabProps) {
                     <span className="text-muted-foreground">Qualifying:</span>
                     <span>
                       {qualifyingDate
-                        ? format(qualifyingDate, "MMM d, yyyy")
+                        ? formatRaceCalendarDate(qualifyingDate)
                         : "TBD"}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Race Day:</span>
                     <span className="text-primary font-medium">
-                      {raceDate ? format(raceDate, "MMM d, yyyy") : "TBD"}
+                      {raceDate ? formatRaceCalendarDate(raceDate) : "TBD"}
                     </span>
                   </div>
                 </div>

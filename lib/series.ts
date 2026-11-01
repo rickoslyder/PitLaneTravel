@@ -136,6 +136,22 @@ export function toSeriesLike(series: SelectSeries): SeriesLike {
 }
 
 /**
+ * Formula E stores the season's end year on the race (2027 means Season 13,
+ * which runs 2026-27). Season 1 ended in 2015, so the number is endYear - 2014.
+ */
+export function formatFormulaESeason(endYear: number): string {
+  if (!Number.isInteger(endYear)) {
+    throw new Error(
+      `Formula E season end year must be an integer, got ${endYear}`
+    )
+  }
+  const seasonNumber = endYear - 2014
+  const startYear = endYear - 1
+  const endShort = String(endYear).slice(-2)
+  return `Season ${seasonNumber} (${startYear}-${endShort})`
+}
+
+/**
  * Plural of a series' event noun. Motorsport nouns don't take a naive "+s":
  * the plural of "Grand Prix" is "Grands Prix", and "E-Prix" is invariant.
  */

@@ -3,11 +3,17 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { SelectRace } from "@/db/schema"
 import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
+import { formatRaceCalendarDate } from "@/lib/race-datetime"
+import { formatFormulaESeason } from "@/lib/series"
 import { ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export const racesColumns: ColumnDef<SelectRace>[] = [
+type RaceRow = SelectRace & {
+  series?: { slug: string | null } | null
+  circuit?: { timezoneId?: string | null } | null
+}
+
+export const racesColumns: ColumnDef<RaceRow>[] = [
   {
     id: "name",
     accessorKey: "name",
@@ -44,7 +50,15 @@ export const racesColumns: ColumnDef<SelectRace>[] = [
     },
     cell: ({ row }) => (
       <div className="min-w-[150px]">
-        {format(new Date(row.getValue("date")), "PPP")}
+        {formatRaceCalendarDate(
+          row.getValue("date"),
+          {
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+          },
+          row.original.circuit?.timezoneId
+        )}
       </div>
     )
   },
@@ -63,9 +77,14 @@ export const racesColumns: ColumnDef<SelectRace>[] = [
         </Button>
       )
     },
-    cell: ({ row }) => (
-      <div className="w-16 text-center">{row.getValue("season")}</div>
-    )
+    cell: ({ row }) => {
+      const season = row.original.season
+      const label =
+        row.original.series?.slug === "formula-e"
+          ? formatFormulaESeason(season)
+          : String(season)
+      return <div className="min-w-16 text-center">{label}</div>
+    }
   },
   {
     id: "round",
