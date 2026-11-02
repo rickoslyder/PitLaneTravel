@@ -149,6 +149,17 @@ export function readingMinutesFromMarkdown(markdown: string): number {
   return Math.max(1, Math.ceil(words.length / WORDS_PER_MINUTE))
 }
 
+function assertPublishableGuideBody(body: string, filename: string) {
+  if (/\bHOLD\b/.test(body) || /\bTODO\b/.test(body)) {
+    throw new Error(`${filename} contains HOLD or TODO and cannot be published`)
+  }
+  if (body.includes("<!--") || body.includes("/workspace/")) {
+    throw new Error(
+      `${filename} contains an unpublished note or internal path and cannot be published`
+    )
+  }
+}
+
 export function parseGuideSource(source: string, filename: string): Guide {
   const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(source)
   if (!match) {
@@ -168,6 +179,7 @@ export function parseGuideSource(source: string, filename: string): Guide {
   }
 
   const body = match[2].replace(/^\r?\n/, "")
+  assertPublishableGuideBody(body, filename)
   const heading = /^# (.+)$/m.exec(body)
   if (!heading) {
     throw new Error(`${filename} is missing an H1`)

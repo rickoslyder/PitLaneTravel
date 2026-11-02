@@ -68,15 +68,24 @@ describe("guide content loader", () => {
   it("loads the two published guides from content/guides", () => {
     const guides = listGuides()
 
-    expect(guides.map(guide => guide.slug)).toEqual([...publishedSlugs])
+    expect(guides.map(guide => guide.slug)).toEqual(
+      expect.arrayContaining([...publishedSlugs])
+    )
     for (const guide of guides) {
-      expect(guide.publishedAt).toBe("2026-10-31")
-      expect(guide.updatedAt).toBe("2026-10-31")
       expect(guide.author).toBe("PitLane Travel")
       expect(guide.heroImage).toBeUndefined()
-      expect(guide.relatedRaces.length).toBeGreaterThan(0)
       expect(guide.readingMinutes).toBeGreaterThan(5)
       expect(guide.body.startsWith(`# ${guide.headline}`)).toBe(true)
+      expect(guide.body).not.toMatch(/\bHOLD\b/)
+      expect(guide.body).not.toMatch(/\bTODO\b/)
+      expect(guide.body).not.toContain("<!--")
+      expect(guide.body).not.toContain("/workspace/")
+    }
+    for (const slug of publishedSlugs) {
+      const guide = getGuide(slug)
+      expect(guide?.publishedAt).toBe("2026-10-31")
+      expect(guide?.updatedAt).toBe("2026-10-31")
+      expect(guide?.relatedRaces.length).toBeGreaterThan(0)
     }
   })
 
@@ -116,6 +125,20 @@ describe("guide content loader", () => {
     expect(two!.body).toContain(
       "[Which motorsport race should you go to first?](/guides/which-race-first-2027)"
     )
+    expect(which!.body).toContain(
+      "Some links on this page are affiliate links."
+    )
+    expect(two!.body).toContain("Some links on this page are affiliate links.")
+    expect(which!.body.match(/omio\.sjv\.io\/jR09OP/g)).toHaveLength(1)
+    expect(two!.body.match(/omio\.sjv\.io\/jR09OP/g)).toHaveLength(2)
+    expect(which!.body).toContain("https://airalo.pxf.io/PzEM6e")
+    expect(which!.body).toContain("https://f1.pxf.io/5kEv72")
+    expect(two!.body).toContain("https://airalo.pxf.io/PzEM6e")
+    expect(two!.body).toContain("https://f1.pxf.io/5kEv72")
+    expect(which!.body).not.toMatch(/\/races\/[^)\s]*2027/)
+    expect(two!.body).not.toMatch(/\/races\/[^)\s]*2027/)
+    expect(which!.body).not.toContain("/guides/buying-f1-tickets-safely")
+    expect(two!.body).not.toContain("/guides/buying-f1-tickets-safely")
 
     for (const guide of [which!, two!]) {
       expect(guide.body).not.toContain("pitlanetravel.com")
@@ -142,6 +165,35 @@ describe("guide content loader", () => {
       expect(source).not.toContain("word_count")
       expect(source).not.toContain("meta_option_2")
     }
+  })
+
+  it("refuses a guide body that still has a hold, todo, or internal path", () => {
+    const source = `---
+title: "Hello"
+description: "A short dek."
+slug: hello-guide
+publishedAt: 2026-10-31
+updatedAt: 2026-10-31
+author: PitLane Travel
+---
+
+# Hello
+
+<!-- HOLD: later -->
+`
+    expect(() => parseGuideSource(source, "hello-guide.mdx")).toThrow(/HOLD/)
+    expect(() =>
+      parseGuideSource(
+        source.replace("HOLD: later", "TODO: later"),
+        "hello-guide.mdx"
+      )
+    ).toThrow(/TODO/)
+    expect(() =>
+      parseGuideSource(
+        source.replace("<!-- HOLD: later -->", "see /workspace/secret.md"),
+        "hello-guide.mdx"
+      )
+    ).toThrow(/internal path/)
   })
 
   it("rejects frontmatter that does not match the filename", () => {

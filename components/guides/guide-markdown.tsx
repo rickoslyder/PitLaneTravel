@@ -2,12 +2,21 @@ import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import type { Components } from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { guideAffiliateRel } from "@/lib/guide-links"
 
 const components: Components = {
   a: ({ href, children }) => {
     if (!href) return <>{children}</>
     if (href.startsWith("/")) {
       return <Link href={href}>{children}</Link>
+    }
+    const rel = guideAffiliateRel(href)
+    if (rel) {
+      return (
+        <a href={href} target="_blank" rel={rel}>
+          {children}
+        </a>
+      )
     }
     return <a href={href}>{children}</a>
   },
