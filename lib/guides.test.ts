@@ -15,6 +15,7 @@ import {
 } from "./guides"
 
 const publishedSlugs = [
+  "f1-2027-ticket-on-sale-dates",
   "two-races-one-trip-2027",
   "which-race-first-2027"
 ] as const
@@ -65,7 +66,7 @@ function assertBreadcrumbShape(
 }
 
 describe("guide content loader", () => {
-  it("loads the two published guides from content/guides", () => {
+  it("loads the published guides from content/guides", () => {
     const guides = listGuides()
 
     expect(guides.map(guide => guide.slug)).toEqual(
@@ -81,12 +82,16 @@ describe("guide content loader", () => {
       expect(guide.body).not.toContain("<!--")
       expect(guide.body).not.toContain("/workspace/")
     }
-    for (const slug of publishedSlugs) {
+    for (const slug of ["two-races-one-trip-2027", "which-race-first-2027"] as const) {
       const guide = getGuide(slug)
       expect(guide?.publishedAt).toBe("2026-10-31")
       expect(guide?.updatedAt).toBe("2026-10-31")
       expect(guide?.relatedRaces.length).toBeGreaterThan(0)
     }
+    expect(getGuide("which-race-first-2027")?.publishedAt).toBe("2026-10-31")
+    expect(getGuide("f1-2027-ticket-on-sale-dates")?.updatedAt).toBe(
+      "2026-11-02"
+    )
   })
 
   it("returns null for an unknown slug", () => {
