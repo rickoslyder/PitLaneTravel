@@ -8,6 +8,7 @@ import {
   seriesTable
 } from "@/db/schema"
 import { eq, isNotNull, and, ne } from "drizzle-orm"
+import { listGuides } from "@/lib/guides"
 import { slugify } from "@/lib/series"
 import { raceHasFinished } from "@/lib/finished-race"
 
@@ -47,6 +48,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/help`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/privacy`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE_URL}/terms`, changeFrequency: "yearly", priority: 0.3 }
+  ]
+
+  const guideRoutes: MetadataRoute.Sitemap = [
+    { url: `${BASE_URL}/guides`, changeFrequency: "weekly", priority: 0.7 },
+    ...listGuides().map(guide => ({
+      url: `${BASE_URL}/guides/${guide.slug}`,
+      lastModified: guide.updatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.6
+    }))
   ]
 
   try {
@@ -105,6 +116,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [
       ...staticRoutes,
+      ...guideRoutes,
       ...series.map(s => ({
         url: `${BASE_URL}/series/${s.slug}`,
         changeFrequency: "weekly" as const,
@@ -134,6 +146,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch (error) {
     // A DB outage must not fail the build; serve the static routes at minimum.
     console.error("[sitemap] failed to load dynamic routes:", error)
-    return staticRoutes
+    return [...staticRoutes, ...guideRoutes]
   }
 }
