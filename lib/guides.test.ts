@@ -293,6 +293,17 @@ describe("guide JSON-LD shape", () => {
     expect(remote.image).toBe("https://cdn.example/hero.jpg")
   })
 
+  it("does not publish internal names", () => {
+    for (const guide of listGuides()) {
+      expect(guide.body).not.toMatch(/\bScout\b/)
+      expect(guide.body).not.toMatch(/\bWriter\b/)
+      expect(guide.body).not.toMatch(/\bGrawk\b/)
+      expect(guide.body).not.toMatch(/\bHOLD\b/)
+      expect(guide.body).not.toMatch(/\bTODO\b/)
+      expect(guide.body).not.toMatch(/\bP1\b/)
+    }
+  })
+
   it("escapes angle brackets so JSON-LD cannot close the script tag", () => {
     const serialized = serializeJsonLd({ headline: "</script><script>" })
     expect(serialized).not.toContain("</")
