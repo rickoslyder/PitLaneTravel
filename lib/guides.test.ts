@@ -82,7 +82,10 @@ describe("guide content loader", () => {
       expect(guide.body).not.toContain("<!--")
       expect(guide.body).not.toContain("/workspace/")
     }
-    for (const slug of ["two-races-one-trip-2027", "which-race-first-2027"] as const) {
+    for (const slug of [
+      "two-races-one-trip-2027",
+      "which-race-first-2027"
+    ] as const) {
       const guide = getGuide(slug)
       expect(guide?.publishedAt).toBe("2026-10-31")
       expect(guide?.updatedAt).toBe("2026-10-31")
