@@ -1,4 +1,9 @@
-import { test as base, expect, type ConsoleMessage, type Page } from "@playwright/test"
+import {
+  test as base,
+  expect,
+  type ConsoleMessage,
+  type Page
+} from "@playwright/test"
 import postgres from "postgres"
 import {
   classifyBrowserRequest,
@@ -28,6 +33,17 @@ export const E2E_CIRCUIT_LOCATION = "E2E Fixture City"
 export const E2E_CIRCUIT_COUNTRY = "Fixtureland"
 export const E2E_RACE_NAME = "Synthetic Formula 1 Grand Prix"
 export const E2E_RACE_SLUG = "plt-e2e-synthetic-grand-prix"
+export const E2E_FAN_TIPS_QATAR_RACE_ID = "b1070009-e2e0-4000-8000-000000000160"
+export const E2E_FAN_TIPS_ABU_DHABI_RACE_ID =
+  "b1070009-e2e0-4000-8000-000000000161"
+export const E2E_FAN_TIPS_QATAR_SLUG = "qatar-grand-prix-2026-f1-2026"
+export const E2E_FAN_TIPS_ABU_DHABI_SLUG = "abu-dhabi-grand-prix-2026-f1-2026"
+export const E2E_FAN_TIPS_QATAR_NAME = "Qatar Grand Prix 2026"
+export const E2E_FAN_TIPS_ABU_DHABI_NAME = "Abu Dhabi Grand Prix 2026"
+// After every other disposable race so the homepage carousel's first page
+// stays the synthetic catalogue. The slug, not the date, selects the box.
+export const E2E_FAN_TIPS_QATAR_DATE = "2100-01-15T12:00:00.000Z"
+export const E2E_FAN_TIPS_ABU_DHABI_DATE = "2100-02-15T12:00:00.000Z"
 export const E2E_GRANDSTAND_NAME = "Synthetic Main Grandstand"
 export const E2E_GRANDSTAND_SLUG = "synthetic-main"
 export const E2E_RACE_DATE = "2099-09-15T12:00:00.000Z"
@@ -393,9 +409,7 @@ export function requireEphemeralClerkSession(role: "admin" | "nonadmin"): {
   return { session, clientUat }
 }
 
-export function ephemeralClerkCookieHeader(
-  role: "admin" | "nonadmin"
-): string {
+export function ephemeralClerkCookieHeader(role: "admin" | "nonadmin"): string {
   const { session, clientUat } = requireEphemeralClerkSession(role)
   return `__session=${session}; __client_uat=${clientUat}`
 }
@@ -535,8 +549,8 @@ async function seedDisposableProfilesAndCoverage(
       kind: "live_offer" as const,
       freshness: "current" as const
     }
-    ]
-    const extraTiers = [
+  ]
+  const extraTiers = [
     {
       id: E2E_COVERAGE_TIER1_CALENDAR_ID,
       raceId: E2E_RACE_IN_PROGRESS_ID,
@@ -585,11 +599,11 @@ async function seedDisposableProfilesAndCoverage(
       kind: "personalized_plan" as const,
       freshness: "current" as const
     }
-    ]
+  ]
 
-    for (const row of [...expired, ...current, ...extraTiers]) {
+  for (const row of [...expired, ...current, ...extraTiers]) {
     await upsertCoverageEvidence(tx, row)
-    }
+  }
 }
 
 async function cleanupDisposableCoverage(sql: postgres.Sql): Promise<void> {
@@ -861,6 +875,74 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
     `
 
     await tx`
+      INSERT INTO races (
+        id, circuit_id, series_id, name, date, season, round,
+        country, description, status, slug, is_sprint_weekend
+      )
+      VALUES (
+        ${E2E_FAN_TIPS_QATAR_RACE_ID}::uuid,
+        ${E2E_CIRCUIT_ID}::uuid,
+        ${f1SeriesId}::uuid,
+        ${E2E_FAN_TIPS_QATAR_NAME},
+        ${E2E_FAN_TIPS_QATAR_DATE}::timestamptz,
+        2026,
+        22,
+        ${"Qatar"},
+        ${"Disposable Playwright row for the Qatar fan-tips box. Not a calendar claim."},
+        ${"upcoming"}::race_status,
+        ${E2E_FAN_TIPS_QATAR_SLUG},
+        false
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        circuit_id = EXCLUDED.circuit_id,
+        series_id = EXCLUDED.series_id,
+        name = EXCLUDED.name,
+        date = EXCLUDED.date,
+        season = EXCLUDED.season,
+        round = EXCLUDED.round,
+        country = EXCLUDED.country,
+        description = EXCLUDED.description,
+        status = EXCLUDED.status,
+        slug = EXCLUDED.slug,
+        is_sprint_weekend = EXCLUDED.is_sprint_weekend,
+        updated_at = now()
+    `
+
+    await tx`
+      INSERT INTO races (
+        id, circuit_id, series_id, name, date, season, round,
+        country, description, status, slug, is_sprint_weekend
+      )
+      VALUES (
+        ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid,
+        ${E2E_CIRCUIT_ID}::uuid,
+        ${f1SeriesId}::uuid,
+        ${E2E_FAN_TIPS_ABU_DHABI_NAME},
+        ${E2E_FAN_TIPS_ABU_DHABI_DATE}::timestamptz,
+        2026,
+        23,
+        ${"UAE"},
+        ${"Disposable Playwright row for the Abu Dhabi fan-tips box. Not a calendar claim."},
+        ${"upcoming"}::race_status,
+        ${E2E_FAN_TIPS_ABU_DHABI_SLUG},
+        false
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        circuit_id = EXCLUDED.circuit_id,
+        series_id = EXCLUDED.series_id,
+        name = EXCLUDED.name,
+        date = EXCLUDED.date,
+        season = EXCLUDED.season,
+        round = EXCLUDED.round,
+        country = EXCLUDED.country,
+        description = EXCLUDED.description,
+        status = EXCLUDED.status,
+        slug = EXCLUDED.slug,
+        is_sprint_weekend = EXCLUDED.is_sprint_weekend,
+        updated_at = now()
+    `
+
+    await tx`
       INSERT INTO grandstands (
         id, circuit_id, name, slug, description, covered, has_big_screen
       )
@@ -902,11 +984,16 @@ async function cleanupCatalog(sql: postgres.Sql): Promise<void> {
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_CANCELLED_ID}::uuid`
   await sql`DELETE FROM grandstands WHERE id = ${E2E_GRANDSTAND_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_ID}::uuid`
+  await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_QATAR_RACE_ID}::uuid`
+  await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid`
   await sql`DELETE FROM circuits WHERE id = ${E2E_CIRCUIT_ID}::uuid`
   await cleanupDisposableProfiles(sql)
 }
 
-export const test = base.extend<{ consoleGuard: void }, { seededCatalog: SeededCatalog }>({
+export const test = base.extend<
+  { consoleGuard: void },
+  { seededCatalog: SeededCatalog }
+>({
   storageState: async ({}, use) => {
     await use(emptyStorageState)
   },
@@ -972,10 +1059,9 @@ export const test = base.extend<{ consoleGuard: void }, { seededCatalog: SeededC
 
       await use()
 
-      expect(
-        deniedExternalRequests,
-        deniedExternalRequests.join("\n")
-      ).toEqual([])
+      expect(deniedExternalRequests, deniedExternalRequests.join("\n")).toEqual(
+        []
+      )
       expect(consoleErrors, consoleErrors.join("\n")).toEqual([])
       expect(pageErrors, pageErrors.join("\n")).toEqual([])
     },

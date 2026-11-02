@@ -37,6 +37,7 @@ import { FreshnessNote } from "@/components/coverage/freshness-note"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import { raceHasFinished } from "@/lib/finished-race"
 import { FinishedRaceNotice } from "@/components/races/finished-race-notice"
+import { FanTipsSection } from "@/components/races/fan-tips/fan-tips-section"
 
 // Create a loading component
 function TabLoadingSpinner() {
@@ -343,6 +344,8 @@ export function RaceDetailsPage({
           </div>
         </div>
       )}
+
+      <FanTipsSection raceSlug={race.slug} />
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
         <Tabs
