@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import dynamic from "next/dynamic"
 import { RaceWithDetails } from "@/types/race"
@@ -35,6 +36,7 @@ import { useAnnouncer } from "./use-announcer"
 import { CoverageBadge } from "@/components/coverage/coverage-badge"
 import { FreshnessNote } from "@/components/coverage/freshness-note"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
+import { guideSlugForRace } from "@/lib/race-guide-links"
 import { raceHasFinished } from "@/lib/finished-race"
 import { FinishedRaceNotice } from "@/components/races/finished-race-notice"
 import { FanTipsSection } from "@/components/races/fan-tips/fan-tips-section"
@@ -155,6 +157,7 @@ export function RaceDetailsPage({
   const { announce, Announcer } = useAnnouncer()
   const consent = useAnalyticsConsent()
   const finished = raceHasFinished(race, new Date())
+  const guideSlug = guideSlugForRace(race.slug)
   const [activeTab, setActiveTab] = useState(() => {
     const tabFromUrl = searchParams.get("tab")
     return tabFromUrl && TAB_OPTIONS.some(tab => tab.value === tabFromUrl)
@@ -327,6 +330,17 @@ export function RaceDetailsPage({
             <CoverageBadge summary={coverage} />
             <FreshnessNote summary={coverage} />
           </div>
+        </div>
+      )}
+
+      {guideSlug && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+          <Link
+            href={`/guides/${guideSlug}`}
+            className="text-sm font-medium underline underline-offset-4"
+          >
+            Read the guide
+          </Link>
         </div>
       )}
 
