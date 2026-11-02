@@ -1,4 +1,7 @@
+import { F1TicketSaleTable } from "@/components/guides/f1-ticket-sale-table"
 import { GuideMarkdown } from "@/components/guides/guide-markdown"
+import { f1TicketSaleFaq } from "@/data/guides/f1-2027-ticket-on-sale-faq"
+import { f1TicketSales2027 } from "@/data/guides/f1-2027-ticket-sales"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,10 +30,35 @@ interface GuidePageProps {
   params: Promise<{ slug: string }>
 }
 
+const TICKET_SALE_TABLE = "{{f1-2027-ticket-sales}}"
+
 function bodyWithoutHeadline(body: string, headline: string): string {
   const prefix = `# ${headline}`
   if (!body.startsWith(prefix)) return body
   return body.slice(prefix.length).replace(/^\n+/, "")
+}
+
+function GuideBody({
+  body,
+  headline,
+  slug
+}: {
+  body: string
+  headline: string
+  slug: string
+}) {
+  const source = bodyWithoutHeadline(body, headline)
+  if (slug !== "f1-2027-ticket-on-sale-dates" || !source.includes(TICKET_SALE_TABLE)) {
+    return <GuideMarkdown source={source} />
+  }
+  const [before, after] = source.split(TICKET_SALE_TABLE)
+  return (
+    <>
+      <GuideMarkdown source={before} />
+      <F1TicketSaleTable rows={f1TicketSales2027} />
+      <GuideMarkdown source={after ?? ""} />
+    </>
+  )
 }
 
 export const dynamicParams = false
@@ -100,6 +128,14 @@ export default async function GuidePage({ params }: GuidePageProps) {
           __html: serializeJsonLd(buildGuideBreadcrumbJsonLd(guide))
         }}
       />
+      {guide.slug === "f1-2027-ticket-on-sale-dates" && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(f1TicketSaleFaq)
+          }}
+        />
+      )}
 
       <Breadcrumb>
         <BreadcrumbList>
@@ -144,8 +180,10 @@ export default async function GuidePage({ params }: GuidePageProps) {
       </p>
 
       <div className="mt-8">
-        <GuideMarkdown
-          source={bodyWithoutHeadline(guide.body, guide.headline)}
+        <GuideBody
+          body={guide.body}
+          headline={guide.headline}
+          slug={guide.slug}
         />
       </div>
 
