@@ -143,10 +143,10 @@ export const f1TicketSales2027: readonly F1TicketSaleRow[] = [
   },
   {
     "race": "Mexico City (29–31 Oct)",
-    "onSaleDate": "Not announced (checked 2 Nov 2026)",
-    "seller": "CIE via Ticketmaster / F1 store",
-    "status": "**Not announced**",
-    "source": "[mexicogp.mx](https://www.mexicogp.mx/boletos-generales); [F1 store](https://ticketing.formula1.com/mexico/) · 2 Nov"
+    "onSaleDate": "DPO holders (2026 seat renewals) Thu 5–Fri 6 Nov 2026, from 09:00 / 15:00 UK. Banamex presale and Banorte early sale Mon 9–Tue 10 Nov 2026, from 10:00 / 16:00 UK. **General sale Wed 11 Nov 2026, from 10:00 Mexico City time / 16:00 UK.** Limit 8 per transaction",
+    "seller": "Mexico GP (CIE), official ticket site via Ticketmaster",
+    "status": "**Confirmed**",
+    "source": "[mexicogp.mx news, 3 Nov](https://www.mexicogp.mx/noticia/el-banderazo-de-salida-para-el-mexico-gp-2027-comienza/); [@mexicogp, 3 Nov](https://x.com/mexicogp/status/2117648118002905100) · 3 Nov"
   },
   {
     "race": "São Paulo (5–7 Nov, sprint)",

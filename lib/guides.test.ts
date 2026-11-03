@@ -93,7 +93,7 @@ describe("guide content loader", () => {
     }
     expect(getGuide("which-race-first-2027")?.publishedAt).toBe("2026-10-31")
     expect(getGuide("f1-2027-ticket-on-sale-dates")?.updatedAt).toBe(
-      "2026-11-02"
+      "2026-11-03"
     )
   })
 
