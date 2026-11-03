@@ -7,7 +7,7 @@ export const f1TicketSaleFaq = {
       "name": "When do 2027 F1 tickets go on sale?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "There's no single on-sale date for 2027 F1 tickets: each of the 24 races is sold by its own promoter on its own schedule. As of 2 November 2026, Bahrain, Saudi Arabia, Australia, Miami, Monaco, Azerbaijan and most European rounds are already on sale, Singapore's general sale opens on 11 November at 10:00 Singapore time (02:00 UK) and Suzuka opens on 15 November at 11:00 Japan time (02:00 UK). Seven races, including Las Vegas, Abu Dhabi and Mexico City, haven't announced a date yet, and Canada has postponed its public sale."
+        "text": "There's no single on-sale date for 2027 F1 tickets: each of the 24 races is sold by its own promoter on its own schedule. As of 3 November 2026, Bahrain, Saudi Arabia, Australia, Miami, Monaco, Azerbaijan and most European rounds are already on sale, Singapore's general sale opens on 11 November at 10:00 Singapore time (02:00 UK) and Suzuka opens on 15 November at 11:00 Japan time (02:00 UK). Six races, including Las Vegas, Abu Dhabi and Qatar, haven't announced a date yet, and Canada has postponed its public sale."
       }
     },
     {
@@ -39,7 +39,7 @@ export const f1TicketSaleFaq = {
       "name": "Which 2027 F1 races haven't announced a ticket sale date?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "As of 2 November 2026: China, Türkiye, Mexico City, São Paulo, Las Vegas, Qatar and Abu Dhabi. Canada ran its presales but postponed its general public sale and hasn't set a new date. We check every race weekly and update this page."
+        "text": "As of 3 November 2026: China, Türkiye, São Paulo, Las Vegas, Qatar and Abu Dhabi. Canada ran its presales but postponed its general public sale and hasn't set a new date. We check every race weekly and update this page."
       }
     },
     {
