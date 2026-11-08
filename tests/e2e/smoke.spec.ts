@@ -141,6 +141,18 @@ test.describe("production smoke", () => {
         exact: true
       })
     ).toBeVisible()
+    await expect(
+      page.getByRole("link", {
+        name: "WEC 2027 Launch Week (10–16 Nov): Which Round to Book",
+        exact: true
+      })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("link", {
+        name: "Azerbaijan Grand Prix 2027 Tickets: 20% Early Bird, Best Grandstands",
+        exact: true
+      })
+    ).toBeVisible()
   })
 
   test("which-race-first guide renders the article, a race link, and JSON-LD", async ({
@@ -177,5 +189,118 @@ test.describe("production smoke", () => {
     )
     expect(parsed.some(block => block["@type"] === "Article")).toBe(true)
     expect(parsed.some(block => block["@type"] === "BreadcrumbList")).toBe(true)
+  })
+
+  test("WEC and Baku guides render indexable articles on mobile and desktop", async ({
+    page
+  }) => {
+    const cases = [
+      {
+        path: "/guides/wec-2027-launch-week",
+        heading:
+          "WEC 2027 Launch Week: which round to book, and what it costs",
+        disclosure:
+          "This page has two affiliate links: Airalo (eSIMs) and Omio (trains and buses).",
+        faq: "When is WEC Launch Week 2026?",
+        omio: true
+      },
+      {
+        path: "/guides/azerbaijan-grand-prix-2027-tickets-travel",
+        heading:
+          "Azerbaijan Grand Prix 2027 tickets: early bird, best grandstands and planning your trip",
+        disclosure: "Our only affiliate link here is to Airalo, an eSIM provider.",
+        faq: "When does the Baku F1 early bird end?",
+        omio: false
+      }
+    ] as const
+
+    for (const width of [375, 1280]) {
+      await page.setViewportSize({ width, height: 900 })
+      for (const item of cases) {
+        const response = await page.goto(item.path)
+        expect(response, `${item.path} should return a response`).toBeTruthy()
+        expect(response!.ok(), `${item.path} should be HTTP success`).toBeTruthy()
+
+        await expect(
+          page.getByRole("heading", { name: item.heading, exact: true })
+        ).toBeVisible()
+        const disclosure = page.getByText(item.disclosure)
+        await expect(disclosure).toBeVisible()
+        await expect(page.getByText(item.faq, { exact: true })).toBeVisible()
+        await expect(page.getByRole("main")).toHaveCount(1)
+
+        const disclosureBox = await disclosure.boundingBox()
+        const firstSection = await page
+          .getByRole("heading", { level: 2 })
+          .first()
+          .boundingBox()
+        expect(disclosureBox?.y).toBeLessThan(900)
+        expect(disclosureBox!.y).toBeLessThan(firstSection!.y)
+
+        await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+          "href",
+          `https://www.pitlanetravel.com${item.path}`
+        )
+        const robots = await page
+          .locator('meta[name="robots"]')
+          .getAttribute("content")
+        expect(robots).toContain("index")
+        expect(robots).not.toContain("noindex")
+        await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+          "content",
+          `https://www.pitlanetravel.com${item.path}`
+        )
+        await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
+          "content",
+          "article"
+        )
+
+        const airalo = page.locator('a[href="https://airalo.pxf.io/PzEM6e"]')
+        await expect(airalo).toHaveCount(1)
+        await expect(airalo).toHaveAttribute(
+          "rel",
+          "sponsored nofollow noopener noreferrer"
+        )
+        const omio = page.locator('a[href="https://omio.sjv.io/jR09OP"]')
+        await expect(omio).toHaveCount(item.omio ? 1 : 0)
+        if (item.omio) {
+          await expect(omio).toHaveAttribute(
+            "rel",
+            "sponsored nofollow noopener noreferrer"
+          )
+        }
+
+        const html = await page.content()
+        expect(html).not.toContain("VideoObject")
+        expect(html).not.toContain("SEO desk")
+        expect(html).not.toContain("Engineering Lead")
+        expect(html).not.toContain("VIDEO SLOT")
+        expect(html).not.toContain("/workspace/")
+        const blocks = await page
+          .locator('script[type="application/ld+json"]')
+          .allTextContents()
+        const parsed = blocks.map(
+          block => JSON.parse(block) as { "@type"?: string; mainEntity?: unknown[] }
+        )
+        expect(parsed.some(block => block["@type"] === "Article")).toBe(true)
+        expect(parsed.some(block => block["@type"] === "BreadcrumbList")).toBe(
+          true
+        )
+        const faq = parsed.find(block => block["@type"] === "FAQPage")
+        expect(faq?.mainEntity).toHaveLength(5)
+        expect(parsed.some(block => block["@type"] === "VideoObject")).toBe(
+          false
+        )
+
+        const metrics = await page.evaluate(() => ({
+          innerWidth: window.innerWidth,
+          documentScrollWidth: document.documentElement.scrollWidth
+        }))
+        expect(
+          metrics.documentScrollWidth,
+          `${item.path} at ${width}px overflows`
+        ).toBeLessThanOrEqual(metrics.innerWidth)
+      }
+    }
   })
 })

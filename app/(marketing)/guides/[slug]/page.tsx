@@ -1,7 +1,9 @@
 import { F1TicketSaleTable } from "@/components/guides/f1-ticket-sale-table"
 import { GuideMarkdown } from "@/components/guides/guide-markdown"
+import { azerbaijanGp2027Faq } from "@/data/guides/azerbaijan-grand-prix-2027-faq"
 import { f1TicketSaleFaq } from "@/data/guides/f1-2027-ticket-on-sale-faq"
 import { f1TicketSales2027 } from "@/data/guides/f1-2027-ticket-sales"
+import { wecLaunchWeekFaq } from "@/data/guides/wec-2027-launch-week-faq"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -32,6 +34,19 @@ interface GuidePageProps {
 
 const TICKET_SALE_TABLE = "{{f1-2027-ticket-sales}}"
 
+const NEW_GUIDE_SLUGS = new Set([
+  "wec-2027-launch-week",
+  "azerbaijan-grand-prix-2027-tickets-travel"
+])
+
+function faqJsonLdForNewGuide(slug: string) {
+  if (slug === "wec-2027-launch-week") return wecLaunchWeekFaq
+  if (slug === "azerbaijan-grand-prix-2027-tickets-travel") {
+    return azerbaijanGp2027Faq
+  }
+  return null
+}
+
 function bodyWithoutHeadline(body: string, headline: string): string {
   const prefix = `# ${headline}`
   if (!body.startsWith(prefix)) return body
@@ -48,7 +63,10 @@ function GuideBody({
   slug: string
 }) {
   const source = bodyWithoutHeadline(body, headline)
-  if (slug !== "f1-2027-ticket-on-sale-dates" || !source.includes(TICKET_SALE_TABLE)) {
+  if (
+    slug !== "f1-2027-ticket-on-sale-dates" ||
+    !source.includes(TICKET_SALE_TABLE)
+  ) {
     return <GuideMarkdown source={source} />
   }
   const [before, after] = source.split(TICKET_SALE_TABLE)
@@ -88,6 +106,9 @@ export async function generateMetadata({
     title: documentTitle,
     description: guide.description,
     alternates: { canonical },
+    ...(NEW_GUIDE_SLUGS.has(guide.slug)
+      ? { robots: { index: true, follow: true } }
+      : {}),
     openGraph: {
       title: guide.title,
       description: guide.description,
@@ -114,7 +135,8 @@ export default async function GuidePage({ params }: GuidePageProps) {
   const guide = getGuide(slug)
   if (!guide) notFound()
 
-  return (
+  const faqJsonLd = faqJsonLdForNewGuide(guide.slug)
+  const article = (
     <article className="mx-auto max-w-3xl px-4 py-12 sm:py-16">
       <script
         type="application/ld+json"
@@ -133,6 +155,14 @@ export default async function GuidePage({ params }: GuidePageProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: serializeJsonLd(f1TicketSaleFaq)
+          }}
+        />
+      )}
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(faqJsonLd)
           }}
         />
       )}
@@ -203,4 +233,10 @@ export default async function GuidePage({ params }: GuidePageProps) {
       )}
     </article>
   )
+
+  if (NEW_GUIDE_SLUGS.has(guide.slug)) {
+    return <main>{article}</main>
+  }
+
+  return article
 }
