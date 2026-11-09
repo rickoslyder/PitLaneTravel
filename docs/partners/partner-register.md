@@ -22,7 +22,7 @@ This file may be merged as **fail-closed evidence infrastructure**. It does **no
 6. **Product code must not claim a rate or attribution capability absent from this register.**
 7. **Credentials and confidential payloads stay out of Git.** No login names, publisher/account/affiliate IDs, message IDs, Drive IDs/URLs, exact commission rates, payout thresholds, confidential terms, tracking query strings, redirect slugs, or sensitive partner contacts. Public provider/program names and public root hostnames only when operationally useful. A vault credential is recorded as **existence-only metadata** (`private-vault-metadata`); no secret fields, values, or identifiers.
 8. **PLT-056 Hobby hold** is a paid Vercel plan-change / commercial-launch hosting boundary only. It does not freeze this inventory, does not block developing or deploying commercial-capability code, and does not relax the separate partner/commercial evidence gates in this register.
-9. **Evidence cut-off.** Current-state reads in this register are cut off at **2026-08-28**. Later mailbox, vault, dashboard, API, or production observations are outside this slice unless a later dated entry is added.
+9. **Evidence cut-off.** Current-state reads in this register are cut off at **2026-08-28**, except the dated **2026-09-19 Gootickets account-axis amendment** below. Other rows are not re-verified by that amendment.
 10. **Negative search is scoped, not global.** `negative-search` means only the **available Gmail account** and the **available Hermes operator vault** were searched on the evidence cut-off date. Those two sources are not every mailbox, vault, or partner dashboard. Absence there does **not** prove that no account, agreement, or other evidence exists in inaccessible dashboards, other vaults, or other mailboxes. The scoped absence remains a **blocking unknown**, not a global nonexistence claim. Owner dashboard/vault review can later locate evidence a scoped search missed; when it does, record the new class and date.
 11. **Portal access is not partner status and not automation permission.** A working login, quote creation, or a referral-link generator is a human portal capability. Any future automation against such a portal needs separate authorization and review.
 
@@ -98,7 +98,7 @@ Verification of a current agreement is **human review**. This register does not 
 | Party | Account | Product | Current terms | Commercial |
 |---|---|---|---|---|
 | P1 Travel (Partnerize) | `active-current-dashboard` | `product-enabled` | `unverified` (current terms retrieved; owner review still required) | `not-commercially-approved` |
-| Gootickets | `inaccessible-current` | `not-product-enabled` | `historical-welcome-only` | `not-commercially-approved` |
+| Gootickets | `active-current-dashboard` | `not-product-enabled` | `historical-welcome-only` | `not-commercially-approved` |
 | F1 Store / Fanatics on Impact | `active-current-dashboard` | `not-product-enabled` | `historical-welcome-only` | `not-commercially-approved` |
 | Omio on Impact | `active-current-dashboard` | `not-product-enabled` | `notice-only` (plus historical welcome) | `not-commercially-approved` |
 | Airalo on Impact | `active-current-dashboard` | `not-product-enabled` | `notice-only` (plus historical welcome) | `not-commercially-approved` |
@@ -139,23 +139,23 @@ Live attributed ticket handoff exists. Current dashboard access and campaign pre
 
 ## Gootickets
 
-Inventory only. Not product-enabled. Current login inaccessible.
+Inventory only. Not product-enabled. Portal login currently works. Terms still historical only.
 
 | Field | Record | Evidence |
 |---|---|---|
-| Account / application | **`inaccessible-current`.** Affiliate request registered 2024-12-27; accepted / registration confirmed 2024-12-30. Owner review 2026-08-27: current login is inaccessible; forgotten-password reset mail has not arrived; owner may re-register after a few days. Historical acceptance remains valid **historical** evidence only. | `historical-onboarding`; `current-dashboard` 2026-08-27 (access attempt) |
+| Account / application | **`active-current-dashboard`.** Affiliate request registered 2024-12-27; accepted / registration confirmed 2024-12-30. Owner review 2026-08-27 found login inaccessible (reset mail had not arrived). **Amendment 2026-09-19:** owner directed a login check of the public affiliate portal after a password-reset mail arrived; the check authenticated and loaded Statistics and My account. A Login item now exists in the private Hermes vault (existence only; nothing recorded here). Historical acceptance remains historical. Portal access is not current terms and not permission to automate. | `historical-onboarding`; `current-dashboard` 2026-08-27 (failed access); `current-dashboard` 2026-09-19 (owner-directed login check); `private-vault-metadata` 2026-09-19 |
 | Product enablement | **`not-product-enabled`.** No product integration found. | `repository-audited` 2026-08-27 |
 | Offer classes | **Historical only:** acceptance email supported broad motorsport/sports offer classes. **Current: blocking unknown.** | `historical-onboarding` |
 | Regions / series | **Blocking unknown** (not stated as current; not verified). | `absent` |
 | Attribution / sub-ID | **Historical only:** affiliate-tagged URLs. **Current attribution/sub-ID: blocking unknown.** | `historical-onboarding` |
 | Deep-link rules | **Historical only:** event-specific deep links. **Current: blocking unknown.** | `historical-onboarding` |
-| Reporting lag | **Blocking unknown.** Historical email mentioned dashboard statistics, not lag. | `absent` |
+| Reporting lag | **Blocking unknown.** Historical email mentioned dashboard statistics, not lag. Authenticated Statistics filters were observed 2026-09-19 as a portal capability only, not reporting terms. | `absent` |
 | Commission / cookie terms | **Blocking unknown.** Historical email contained confidential account/commission/payout details; omitted from Git; **not** reused as current terms. | `historical-onboarding` (confidential omitted) |
-| Feed / API format | **Blocking unknown.** | `absent` |
+| Feed / API format | **Blocking unknown.** The 2026-09-19 login used the public hostname `affiliate.tickets-platform.com`. No partner API or feed was observed. Do not automate against the portal. | `current-dashboard` 2026-09-19 |
 | Disclosure | **Blocking unknown.** | `absent` |
 | Contact / renewal | **Blocking unknown.** | `absent` |
-| Last verification | 2026-08-27 — owner access attempt (inaccessible). Historical onboarding 2024-12-27 / 2024-12-30. No current agreement reviewed. | mixed |
-| Blockers / next action | Do not product-enable. Current terms are blocking unknowns. Next: restore access (password reset or owner re-registration), then current dashboard/agreement review before any integration work. | — |
+| Last verification | 2026-09-19 — owner-directed portal login check (authenticated Statistics / My account). Historical onboarding 2024-12-27 / 2024-12-30. No current agreement reviewed. | mixed |
+| Blockers / next action | Do not product-enable. Current terms remain blocking unknowns. Next: owner current-agreement / dashboard terms review; change the vendor-issued temporary password in My Account; do not treat portal access as an API. | — |
 
 ---
 
