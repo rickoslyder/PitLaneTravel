@@ -150,10 +150,10 @@ export const f1TicketSales2027: readonly F1TicketSaleRow[] = [
   },
   {
     "race": "São Paulo (5–7 Nov, sprint)",
-    "onSaleDate": "Not announced (checked 2 Nov 2026)",
-    "seller": "Promoter via Eventim / F1 store",
-    "status": "**Not announced**",
-    "source": "[f1saopaulo.com.br](https://f1saopaulo.com.br/) (2026 only); [F1 store](https://ticketing.formula1.com/brazil/) · 2 Nov"
+    "onSaleDate": "On sale now via Eventim. Porto Bank cardholders from Mon 9 Nov 2026, 12:00 BRT / 15:00 UK (reported). Amex Thu 12 Nov 2026, 12:00 BRT / 15:00 UK (reported). General sale Mon 16 Nov 2026, 12:00 BRT / 15:00 UK (reported). Limit 4 per CPF (reported). Live sectors on 9 Nov: A, B, D, G, M, R, Arquibancada Bortoleto, Orange Tree Club, Pit Stop Club",
+    "seller": "Eventim (official São Paulo GP seller) / F1 store",
+    "status": "On sale: **Confirmed**. Phase dates: **Reported**",
+    "source": "[eventim.com.br/f1saopaulo](https://www.eventim.com.br/f1saopaulo) (2027 campaign live) · 9 Nov; phase dates: Sporting News BR / TMC / Remessa citing Porto Bank and @f1saopaulo · 9 Nov"
   },
   {
     "race": "Las Vegas (18–20 Nov; Saturday race)",

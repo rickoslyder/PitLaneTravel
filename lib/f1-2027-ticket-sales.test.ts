@@ -20,6 +20,16 @@ function visibleFaq(body: string): Array<{ name: string; text: string }> {
   })
 }
 
+/** Same partition as the 3 Nov count: a row that names both labels counts as Reported. */
+function statusBucket(
+  status: string
+): "Confirmed" | "Reported" | "Not announced" {
+  if (status.includes("Not announced")) return "Not announced"
+  if (status.includes("Reported")) return "Reported"
+  if (status.includes("Confirmed")) return "Confirmed"
+  throw new Error(`Unclassified ticket status: ${status}`)
+}
+
 describe("2027 F1 ticket on-sale guide", () => {
   it("keeps 24 typed rows, including F1 store links", () => {
     expect(f1TicketSales2027).toHaveLength(24)
@@ -39,20 +49,52 @@ describe("2027 F1 ticket on-sale guide", () => {
     expect(guide!.body).not.toContain("| Race (2027) |")
     expect(guide!.body).not.toContain("VideoObject")
     expect(guide!.body).not.toContain("buying-f1-tickets-safely")
-    expect(guide!.body).toContain(
-      "Our only affiliate link here is to Airalo"
-    )
+    expect(guide!.body).toContain("Our only affiliate link here is to Airalo")
     expect(guide!.body).toContain("https://airalo.pxf.io/PzEM6e")
-    expect(guide!.updatedAt).toBe("2026-11-03")
+    expect(guide!.updatedAt).toBe("2026-11-09")
+
+    const buckets = {
+      Confirmed: 0,
+      Reported: 0,
+      "Not announced": 0
+    }
+    for (const row of f1TicketSales2027) {
+      buckets[statusBucket(row.status)] += 1
+    }
+    expect(buckets).toEqual({
+      Confirmed: 16,
+      Reported: 3,
+      "Not announced": 5
+    })
+    expect(
+      f1TicketSales2027
+        .filter(row => statusBucket(row.status) === "Reported")
+        .map(row => row.race)
+    ).toEqual([
+      "Portugal (18–20 Jun)",
+      "Hungary (30 Jul–1 Aug)",
+      "São Paulo (5–7 Nov, sprint)"
+    ])
+    expect(
+      f1TicketSales2027
+        .filter(row => statusBucket(row.status) === "Not announced")
+        .map(row => row.race.split(" (")[0])
+    ).toEqual(["China", "Türkiye", "Las Vegas", "Qatar", "Abu Dhabi"])
     expect(guide!.body).toContain(
-      "**Count on 3 Nov 2026:** 16 Confirmed, 2 Reported (Portugal, and Hungary's opening date) and 6 Not announced."
+      "**Count on 9 Nov 2026:** 16 Confirmed, 3 Reported (Portugal, Hungary's opening date, and São Paulo's phase dates) and 5 Not announced."
     )
     const nextSales = guide!.body.split("## Next sales to watch")[1] ?? ""
     expect(nextSales.indexOf("**Suzuka:")).toBeLessThan(
       nextSales.indexOf("**Azerbaijan")
     )
     expect(nextSales.indexOf("**Mexico City:")).toBeLessThan(
-      nextSales.indexOf("**Suzuka:")
+      nextSales.indexOf("**São Paulo Amex:")
+    )
+    expect(nextSales.indexOf("**São Paulo Amex:")).toBeLessThan(
+      nextSales.indexOf("**São Paulo general sale:")
+    )
+    expect(nextSales.indexOf("**São Paulo general sale:")).toBeLessThan(
+      nextSales.indexOf("**Singapore:")
     )
 
     const mexico = f1TicketSales2027.find(row =>
@@ -64,6 +106,26 @@ describe("2027 F1 ticket on-sale guide", () => {
     expect(mexico?.onSaleDate).toContain("11 Nov 2026")
     expect(mexico?.onSaleDate).toContain("Limit 8 per transaction")
     expect(mexico?.seller).toContain("Ticketmaster")
+
+    const saoPaulo = f1TicketSales2027.find(row =>
+      row.race.startsWith("São Paulo")
+    )
+    expect(saoPaulo?.status).toBe(
+      "On sale: **Confirmed**. Phase dates: **Reported**"
+    )
+    expect(saoPaulo?.onSaleDate).toContain(
+      "Porto Bank cardholders from Mon 9 Nov 2026, 12:00 BRT / 15:00 UK (reported)"
+    )
+    expect(saoPaulo?.onSaleDate).toContain(
+      "Amex Thu 12 Nov 2026, 12:00 BRT / 15:00 UK (reported)"
+    )
+    expect(saoPaulo?.onSaleDate).toContain(
+      "General sale Mon 16 Nov 2026, 12:00 BRT / 15:00 UK (reported)"
+    )
+    expect(saoPaulo?.onSaleDate).toContain("Limit 4 per CPF (reported)")
+    expect(saoPaulo?.onSaleDate).toContain("Eventim")
+    expect(saoPaulo?.seller).toContain("Eventim")
+    expect(saoPaulo?.source).toContain("https://www.eventim.com.br/f1saopaulo")
 
     const published = [
       guide!.body,
