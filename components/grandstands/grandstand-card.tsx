@@ -1,5 +1,7 @@
 import Image from "next/image"
+import { FanSayLines } from "@/components/grandstands/circuit-fans-say"
 import { Card } from "@/components/ui/card"
+import type { GrandstandFanLine } from "@/content/grandstand-fan-notes"
 import { SelectGrandstand } from "@/db/schema/grandstands-schema"
 import {
   GRANDSTAND_PRICE_LEGEND,
@@ -49,9 +51,11 @@ function standPhoto(imageUrl: string | null | undefined): string {
 }
 
 export function GrandstandCard({
-  grandstand
+  grandstand,
+  fanLines = []
 }: {
   grandstand: SelectGrandstand
+  fanLines?: readonly GrandstandFanLine[]
 }) {
   const bestFor = formatBestFor(grandstand.bestFor)
   const cover = formatCoverSun(grandstand.covered, grandstand.sunExposure)
@@ -67,6 +71,7 @@ export function GrandstandCard({
   return (
     <Card
       data-grandstand-card={grandstand.slug}
+      data-grandstand-name={grandstand.name}
       className="flex h-full flex-col overflow-hidden"
     >
       <div className="flex flex-1 flex-col gap-4 p-5">
@@ -166,6 +171,8 @@ export function GrandstandCard({
             </div>
           </div>
         ) : null}
+
+        <FanSayLines lines={fanLines} />
       </div>
     </Card>
   )
