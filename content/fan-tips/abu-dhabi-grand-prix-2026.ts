@@ -3,10 +3,18 @@ import type { FanTipsBox } from "./types"
 export const abuDhabiGrandPrix2026FanTips: FanTipsBox = {
   raceSlug: "abu-dhabi-grand-prix-2026-f1-2026",
   heading: "What fans wish they'd known: Abu Dhabi Grand Prix",
-  calendarVerifiedOn: "2026-10-31",
-  statusLine:
-    "F1 has said it is monitoring the regional situation, so check formula1.com before booking non-refundable travel.",
-  leads: [],
+  calendarVerifiedOn: "2026-11-11",
+  status: [
+    "The 2026 Abu Dhabi Grand Prix is on the official F1 calendar as of 11 November 2026, as Round 23, with the race on Sunday 6 December. Check ",
+    {
+      text: "formula1.com",
+      href: "https://www.formula1.com/en/racing/2026"
+    },
+    " before booking non-refundable travel."
+  ],
+  leads: [
+    "If you can, book refundable or flexible fares, and a hotel you can cancel for free."
+  ],
   slots: [
     {
       id: "getting-out",
@@ -72,7 +80,7 @@ export const abuDhabiGrandPrix2026FanTips: FanTipsBox = {
     }
   ],
   footer:
-    "Based on reports from 13 fans on r/GrandPrixTravel, Dec 2024–Feb 2026. Last checked 31 Oct 2026.",
+    "Based on reports from 13 fans on r/GrandPrixTravel, Dec 2024–Feb 2026. Fan reports last checked 31 Oct 2026. Calendar status re-checked 11 Nov 2026.",
   sources: [
     { label: "2025 race thread", href: "https://redd.it/1pgkmfc" },
     { label: "2024 race thread", href: "https://redd.it/1h9sfco" },

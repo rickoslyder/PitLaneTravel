@@ -15,6 +15,14 @@ export type FanTipSource = {
   href: string
 }
 
+/** Plain text, or an external link, inside an authored status sentence. */
+export type FanTipStatusPart =
+  | string
+  | {
+      text: string
+      href: string
+    }
+
 export type FanTipSlot = {
   id: FanTipSlotId
   title: string
@@ -25,21 +33,38 @@ export type FanTipSlot = {
   note?: string
 }
 
-export type FanTipsBox = {
+type FanTipsBoxBase = {
   raceSlug: string
   heading: string
-  /** ISO date Scout last verified the race on the official calendar. */
+  /** ISO date the race was last checked on the official F1 calendar. */
   calendarVerifiedOn: string
-  /**
-   * The status sentence after "On the official F1 calendar as of <date>."
-   * The date is formatted at render time from `calendarVerifiedOn`.
-   */
-  statusLine: string
   leads: string[]
   slots: FanTipSlot[]
   footer: string
   sources: FanTipSource[]
 }
+
+/**
+ * Composed status: "On the official F1 calendar as of <date>. <statusLine>".
+ * The date is formatted at render time from `calendarVerifiedOn`.
+ */
+type FanTipsComposedStatus = {
+  statusLine: string
+  status?: undefined
+}
+
+/**
+ * Full visible status, in order. Use this when the sentence is not the
+ * composed "On the official F1 calendar as of <date>." line, or when the
+ * date phrase must stay as written.
+ */
+type FanTipsAuthoredStatus = {
+  status: readonly FanTipStatusPart[]
+  statusLine?: undefined
+}
+
+export type FanTipsBox = FanTipsBoxBase &
+  (FanTipsComposedStatus | FanTipsAuthoredStatus)
 
 export function fanTipSlotHasContent(slot: FanTipSlot): boolean {
   return slot.bullets.some(bullet => bullet.trim().length > 0)

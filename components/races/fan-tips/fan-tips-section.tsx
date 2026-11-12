@@ -1,8 +1,9 @@
-import React from "react"
+import React, { Fragment } from "react"
 import {
   fanTipsForRaceSlug,
-  fanTipsStatusText,
+  fanTipsStatusParts,
   visibleFanTipSlots,
+  type FanTipStatusPart,
   type FanTipsBox
 } from "@/content/fan-tips"
 
@@ -33,7 +34,7 @@ export function FanTipsBoxView({ tips }: { tips: FanTipsBox }) {
           {tips.heading}
         </h2>
         <p className="text-muted-foreground mt-3 text-sm italic leading-6">
-          {fanTipsStatusText(tips)}
+          <FanTipStatusParts parts={fanTipsStatusParts(tips)} />
         </p>
         {tips.leads.map(lead => (
           <p key={lead} className="mt-3 text-sm italic leading-6">
@@ -81,4 +82,18 @@ export function FanTipsBoxView({ tips }: { tips: FanTipsBox }) {
       </div>
     </section>
   )
+}
+
+function FanTipStatusParts({ parts }: { parts: readonly FanTipStatusPart[] }) {
+  return parts.map((part, index) => (
+    <Fragment key={index}>
+      {typeof part === "string" ? (
+        part
+      ) : (
+        <a href={part.href} target="_blank" rel={EXTERNAL_LINK_REL}>
+          {part.text}
+        </a>
+      )}
+    </Fragment>
+  ))
 }
