@@ -3,11 +3,17 @@ import type { FanTipsBox } from "./types"
 export const qatarGrandPrix2026FanTips: FanTipsBox = {
   raceSlug: "qatar-grand-prix-2026-f1-2026",
   heading: "What fans wish they'd known: Qatar Grand Prix",
-  calendarVerifiedOn: "2026-10-31",
-  statusLine:
-    "F1 has said it is monitoring the regional situation, so check formula1.com before booking non-refundable travel.",
+  calendarVerifiedOn: "2026-11-11",
+  status: [
+    "The 2026 Qatar Grand Prix is on the official F1 calendar as of 11 November 2026, as Round 22, with the race on Sunday 29 November. Check ",
+    {
+      text: "formula1.com",
+      href: "https://www.formula1.com/en/racing/2026"
+    },
+    " before booking non-refundable travel."
+  ],
   leads: [
-    "Book refundable rooms if you can. In 2025 one fan's five-star Doha hotel booking was cancelled a week before the race, and the same fan passed on reports of another hotel doing the same. (2025; fan report, r/GrandPrixTravel, Nov 2025) [15][16]"
+    "If you can, book refundable or flexible fares, and a hotel you can cancel for free. In 2025 one fan's five-star Doha hotel booking was cancelled a week before the race, and the same fan passed on reports of another hotel doing the same. (2025; fan report, r/GrandPrixTravel, Nov 2025) [15][16]"
   ],
   slots: [
     {
@@ -74,7 +80,7 @@ export const qatarGrandPrix2026FanTips: FanTipsBox = {
     }
   ],
   footer:
-    "Based on 16 fan reports from r/GrandPrixTravel, Nov 2024–Nov 2025. Last checked 31 Oct 2026.",
+    "Based on 16 fan reports from r/GrandPrixTravel, Nov 2024–Nov 2025. Fan reports last checked 31 Oct 2026. Calendar status re-checked 11 Nov 2026.",
   sources: [
     { label: "2024 race thread", href: "https://redd.it/1h4b6e8" },
     { label: "2025 race thread", href: "https://redd.it/1pas7t8" },

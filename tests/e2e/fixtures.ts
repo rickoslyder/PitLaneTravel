@@ -36,14 +36,19 @@ export const E2E_RACE_SLUG = "plt-e2e-synthetic-grand-prix"
 export const E2E_FAN_TIPS_QATAR_RACE_ID = "b1070009-e2e0-4000-8000-000000000160"
 export const E2E_FAN_TIPS_ABU_DHABI_RACE_ID =
   "b1070009-e2e0-4000-8000-000000000161"
+export const E2E_FAN_TIPS_LAS_VEGAS_RACE_ID =
+  "b1070009-e2e0-4000-8000-000000000162"
 export const E2E_FAN_TIPS_QATAR_SLUG = "qatar-grand-prix-2026-f1-2026"
 export const E2E_FAN_TIPS_ABU_DHABI_SLUG = "abu-dhabi-grand-prix-2026-f1-2026"
+export const E2E_FAN_TIPS_LAS_VEGAS_SLUG = "las-vegas-grand-prix-2026-f1-2026"
 export const E2E_FAN_TIPS_QATAR_NAME = "Qatar Grand Prix 2026"
 export const E2E_FAN_TIPS_ABU_DHABI_NAME = "Abu Dhabi Grand Prix 2026"
+export const E2E_FAN_TIPS_LAS_VEGAS_NAME = "Las Vegas Grand Prix 2026"
 // After every other disposable race so the homepage carousel's first page
 // stays the synthetic catalogue. The slug, not the date, selects the box.
 export const E2E_FAN_TIPS_QATAR_DATE = "2100-01-15T12:00:00.000Z"
 export const E2E_FAN_TIPS_ABU_DHABI_DATE = "2100-02-15T12:00:00.000Z"
+export const E2E_FAN_TIPS_LAS_VEGAS_DATE = "2100-03-15T12:00:00.000Z"
 export const E2E_GRANDSTAND_NAME = "Synthetic Main Grandstand"
 export const E2E_GRANDSTAND_SLUG = "synthetic-main"
 export const E2E_RACE_DATE = "2099-09-15T12:00:00.000Z"
@@ -943,6 +948,40 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
     `
 
     await tx`
+      INSERT INTO races (
+        id, circuit_id, series_id, name, date, season, round,
+        country, description, status, slug, is_sprint_weekend
+      )
+      VALUES (
+        ${E2E_FAN_TIPS_LAS_VEGAS_RACE_ID}::uuid,
+        ${E2E_CIRCUIT_ID}::uuid,
+        ${f1SeriesId}::uuid,
+        ${E2E_FAN_TIPS_LAS_VEGAS_NAME},
+        ${E2E_FAN_TIPS_LAS_VEGAS_DATE}::timestamptz,
+        2026,
+        21,
+        ${"United States"},
+        ${"Disposable Playwright row for the Las Vegas fan-tips box. Not a calendar claim."},
+        ${"upcoming"}::race_status,
+        ${E2E_FAN_TIPS_LAS_VEGAS_SLUG},
+        false
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        circuit_id = EXCLUDED.circuit_id,
+        series_id = EXCLUDED.series_id,
+        name = EXCLUDED.name,
+        date = EXCLUDED.date,
+        season = EXCLUDED.season,
+        round = EXCLUDED.round,
+        country = EXCLUDED.country,
+        description = EXCLUDED.description,
+        status = EXCLUDED.status,
+        slug = EXCLUDED.slug,
+        is_sprint_weekend = EXCLUDED.is_sprint_weekend,
+        updated_at = now()
+    `
+
+    await tx`
       INSERT INTO grandstands (
         id, circuit_id, name, slug, description, covered, has_big_screen
       )
@@ -986,6 +1025,7 @@ async function cleanupCatalog(sql: postgres.Sql): Promise<void> {
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_QATAR_RACE_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid`
+  await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_LAS_VEGAS_RACE_ID}::uuid`
   await sql`DELETE FROM circuits WHERE id = ${E2E_CIRCUIT_ID}::uuid`
   await cleanupDisposableProfiles(sql)
 }
