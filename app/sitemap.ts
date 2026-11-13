@@ -20,14 +20,16 @@ import { slugify } from "@/lib/series"
 
 const BASE_URL = SITE_ORIGIN
 
-// Regenerate daily. Without this the sitemap is frozen at build time, so races and
-// championships added through the admin never appear until someone redeploys.
-export const revalidate = 86400
+// Read the live races table on each request. A build-time snapshot, or the
+// previous daily ISR window (`revalidate = 86400`), kept a calendar import out
+// of the sitemap until the next deploy or the next revalidation. force-dynamic
+// picks up new rows with no code change. Finished races are still omitted.
+export const dynamic = "force-dynamic"
 
 /**
- * Sitemap generated from the database at build time, so new races and championships
- * appear without anyone remembering to re-run a script. Auth-gated routes (trips,
- * bookings, budget) and cancelled races are deliberately excluded.
+ * Sitemap from the live database. Auth-gated routes (trips, bookings, budget)
+ * and cancelled races are deliberately excluded. Finished races are excluded
+ * by isSitemapIndexableRace. There is no season, series, or row limit.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static paths live in lib/sitemap-routes.ts. /packages is omitted there:

@@ -313,6 +313,8 @@ test.describe("production smoke", () => {
   test("sitemap omits noindex /packages, lists /cancellation, and drops finished races", async ({
     request
   }) => {
+    // The production build runs before this fixture inserts races. A sitemap
+    // frozen at build time would miss the seeded upcoming slug.
     const response = await request.get("/sitemap.xml")
     expect(response.ok(), "sitemap should be HTTP success").toBeTruthy()
     const xml = await response.text()
