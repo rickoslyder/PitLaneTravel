@@ -10,7 +10,6 @@ import {
 import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { RaceCircuitImage } from "@/components/races/race-circuit-image"
 import { CalendarDays, MapPin, Share2, Timer } from "lucide-react"
-import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { TripPlannerButton } from "@/components/trip-planner-button"
@@ -20,6 +19,19 @@ import { FinishedRaceNotice } from "@/components/races/finished-race-notice"
 import { useEffect, useState, useMemo } from "react"
 import type { TicketListingState } from "@/components/races/tickets/ticket-availability"
 import { HeroTicketCta } from "./HeroTicketCta"
+
+function remainingUntil(target: Date, now: Date) {
+  const difference = target.getTime() - now.getTime()
+  if (difference <= 0) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 }
+  }
+  return {
+    days: differenceInDays(target, now),
+    hours: differenceInHours(target, now) % 24,
+    minutes: differenceInMinutes(target, now) % 60,
+    seconds: differenceInSeconds(target, now) % 60
+  }
+}
 
 interface RaceHeroProps {
   race: RaceWithDetails
@@ -36,12 +48,9 @@ export function RaceHero({
   onTabChange,
   ticketListings = "listed"
 }: RaceHeroProps) {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  })
+  const [timeLeft, setTimeLeft] = useState(() =>
+    remainingUntil(new Date(race.date), new Date())
+  )
 
   const raceDate = useMemo(() => new Date(race.date), [race.date])
   const weekendStart = useMemo(
@@ -61,12 +70,7 @@ export function RaceHero({
       const difference = raceDate.getTime() - now.getTime()
 
       if (difference > 0) {
-        setTimeLeft({
-          days: differenceInDays(raceDate, now),
-          hours: differenceInHours(raceDate, now) % 24,
-          minutes: differenceInMinutes(raceDate, now) % 60,
-          seconds: differenceInSeconds(raceDate, now) % 60
-        })
+        setTimeLeft(remainingUntil(raceDate, now))
       } else {
         clearInterval(timer)
       }
@@ -138,7 +142,10 @@ export function RaceHero({
           <RaceCircuitImage
             src={race.circuit.image_url}
             alt={race.name}
-            className="size-full object-cover"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
           />
           <div className="from-background/90 via-background/25 absolute inset-0 bg-gradient-to-t to-transparent" />
           <div className="absolute inset-0 bg-black/30" />
@@ -149,6 +156,7 @@ export function RaceHero({
             src="/assets/placeholder.jpg"
             alt=""
             className="size-full object-cover"
+            decoding="async"
           />
           <div
             className="absolute inset-0 bg-black/70"
@@ -162,12 +170,7 @@ export function RaceHero({
       </div>
 
       <div className="container relative flex h-full min-w-0 max-w-full flex-col items-center justify-center gap-6 px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto max-w-4xl text-center"
-        >
+        <div className="mx-auto max-w-4xl text-center">
           <div className="flex flex-wrap items-center justify-center gap-2">
             <Badge
               variant="secondary"
@@ -226,12 +229,7 @@ export function RaceHero({
           </div>
 
           {race.status === "upcoming" && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-6 flex flex-col items-center sm:mt-8"
-            >
+            <div className="mt-6 flex flex-col items-center sm:mt-8">
               <div className="flex flex-col items-center space-y-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-md sm:px-6 sm:py-4">
                 <div className="flex items-center gap-2 text-white/90">
                   <Timer className="size-4 sm:size-5" />
@@ -249,15 +247,10 @@ export function RaceHero({
                   <CountdownUnit value={timeLeft.seconds} label="SEC" />
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:mt-8 sm:gap-4"
-          >
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:mt-8 sm:gap-4">
             {finished ? (
               <FinishedRaceNotice series={race.series} className="text-white" />
             ) : (
@@ -285,8 +278,8 @@ export function RaceHero({
               <Share2 className="mr-2 size-4 sm:size-5" />
               Share
             </Button>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -295,14 +288,12 @@ export function RaceHero({
 function CountdownUnit({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex min-w-0 flex-col items-center sm:min-w-[80px]">
-      <motion.div
-        key={value}
-        initial={{ scale: 1.1 }}
-        animate={{ scale: 1 }}
-        className="text-xl font-bold text-white sm:text-3xl"
+      <div
+        className="text-xl font-bold tabular-nums text-white sm:text-3xl"
+        suppressHydrationWarning
       >
         {value.toString().padStart(2, "0")}
-      </motion.div>
+      </div>
       <div className="text-[10px] text-white/70 sm:text-xs">{label}</div>
     </div>
   )
@@ -310,18 +301,11 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
 
 function CountdownSeparator() {
   return (
-    <motion.div
-      animate={{
-        opacity: [1, 0.3, 1],
-        transition: {
-          duration: 1,
-          repeat: Infinity,
-          ease: "linear"
-        }
-      }}
-      className="text-2xl font-bold text-white/50 sm:text-3xl"
+    <div
+      aria-hidden="true"
+      className="text-2xl font-bold text-white/50 motion-safe:animate-pulse sm:text-3xl"
     >
       :
-    </motion.div>
+    </div>
   )
 }

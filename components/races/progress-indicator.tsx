@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
 
 export function ProgressIndicator() {
   const [progress, setProgress] = useState(0)
@@ -28,11 +27,7 @@ export function ProgressIndicator() {
 
   return (
     <div className="bg-muted fixed inset-x-0 top-0 z-[100] h-0.5">
-      <motion.div
-        className="bg-primary h-full"
-        style={{ width: `${progress}%` }}
-        transition={{ duration: 0.1 }}
-      />
+      <div className="bg-primary h-full" style={{ width: `${progress}%` }} />
     </div>
   )
 }

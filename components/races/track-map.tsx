@@ -30,6 +30,8 @@ export function TrackMap({ trackMapUrl, name }: TrackMapProps) {
             src={trackMapUrl}
             alt={`${name} track map`}
             className="size-full object-contain"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </CardContent>

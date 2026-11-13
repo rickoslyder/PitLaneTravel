@@ -4,16 +4,11 @@ This server page is the marketing homepage.
 </ai_context>
 */
 
-import { FeaturesSection } from "@/components/landing/features"
 import { HeroSection } from "@/components/landing/hero"
-import { UpcomingRaces } from "@/components/landing/upcoming-races"
 import { getRacesAction } from "@/actions/db/races-actions"
-import { isActiveRaceStatus } from "@/lib/race-status"
+import { isActiveRaceStatus, selectNextCountdownRace } from "@/lib/race-status"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { coverageByRaceId } from "@/lib/public-coverage"
-import WhyChooseFeaturesSection from "@/components/WhyChooseFeaturesSection"
-import FaqSection from "@/components/FaqSection"
-import CtaSection from "@/components/CtaSection"
 import dynamic from "next/dynamic"
 import CircuitExplorerSkeleton from "@/components/skeletons/circuit-explorer-skeleton"
 import { Metadata } from "next"
@@ -25,6 +20,25 @@ import {
   pageSeo,
   serializeJsonLd
 } from "@/lib/site-metadata"
+import { timeLeftUntil, type HeroCountdownSeed } from "@/lib/countdown"
+
+const UpcomingRaces = dynamic(() =>
+  import("@/components/landing/upcoming-races").then(mod => mod.UpcomingRaces)
+)
+const WhyChooseFeaturesSection = dynamic(
+  () => import("@/components/WhyChooseFeaturesSection")
+)
+const FeaturesSection = dynamic(() =>
+  import("@/components/landing/features").then(mod => mod.FeaturesSection)
+)
+const FaqSection = dynamic(() => import("@/components/FaqSection"))
+const CtaSection = dynamic(() => import("@/components/CtaSection"))
+const DynamicCircuitExplorer = dynamic(
+  () => import("@/components/CircuitExplorer"),
+  {
+    loading: () => <CircuitExplorerSkeleton />
+  }
+)
 
 export async function generateMetadata(): Promise<Metadata> {
   const availability = await getPackagesAvailability()
@@ -54,10 +68,32 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
+function countdownSeed(
+  race:
+    | {
+        name: string
+        date: Date | string
+        circuit?: { name?: string | null } | null
+      }
+    | undefined,
+  now: Date
+): HeroCountdownSeed | null {
+  if (!race) return null
+  return {
+    name: race.name,
+    date: new Date(race.date).toISOString(),
+    circuitName: race.circuit?.name ?? null,
+    initialTime: timeLeftUntil(race.date, now)
+  }
+}
+
 export default async function HomePage() {
-  const { data: races } = await getRacesAction({
-    excludeCancelled: true
-  })
+  const [{ data: races }, { siteWide }] = await Promise.all([
+    getRacesAction({
+      excludeCancelled: true
+    }),
+    getPackagesAvailability()
+  ])
   const upcomingRaces = (races ?? []).filter(race =>
     isActiveRaceStatus(race.status)
   )
@@ -67,15 +103,11 @@ export default async function HomePage() {
   const coverageMap = coverageResult.isSuccess
     ? coverageByRaceId(coverageResult.data)
     : {}
-  const { siteWide } = await getPackagesAvailability()
   const copy = brandCopy(siteWide)
-
-  // Dynamically import components that are not needed for initial render
-  const DynamicCircuitExplorer = dynamic(
-    () => import("@/components/CircuitExplorer"),
-    {
-      loading: () => <CircuitExplorerSkeleton />
-    }
+  const now = new Date()
+  const countdown = countdownSeed(
+    selectNextCountdownRace(upcomingRaces, now),
+    now
   )
 
   return (
@@ -92,7 +124,7 @@ export default async function HomePage() {
           __html: serializeJsonLd(buildWebSiteJsonLd(copy.description))
         }}
       />
-      <HeroSection packagesLive={siteWide} />
+      <HeroSection packagesLive={siteWide} countdown={countdown} />
       <UpcomingRaces
         races={upcomingRaces || []}
         coverageByRaceId={coverageMap}

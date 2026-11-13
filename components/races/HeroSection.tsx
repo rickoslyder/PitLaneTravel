@@ -1,7 +1,3 @@
-"use client"
-
-import { motion } from "framer-motion"
-
 export function HeroSection() {
   return (
     <div className="bg-background relative overflow-hidden py-24 sm:py-32">
@@ -10,20 +6,16 @@ export function HeroSection() {
       </div>
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
+          <div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
               Motorsport Race Calendar
             </h1>
             <p className="text-muted-foreground mt-6 text-lg leading-8">
-              Compare race weekends and plan the trip yourself. PitLane
-              Travel does not currently sell race-weekend packages. It does
-              not book or issue flights, and it does not sell tickets.
+              Compare race weekends and plan the trip yourself. PitLane Travel
+              does not currently sell race-weekend packages. It does not book or
+              issue flights, and it does not sell tickets.
             </p>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>

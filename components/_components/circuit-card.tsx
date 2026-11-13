@@ -31,7 +31,7 @@ export function CircuitCard({ race }: CircuitCardProps) {
           fill
           className="object-cover transition-transform duration-300 hover:scale-105"
           sizes="(max-width: 768px) 100vw, 50vw"
-          priority={true}
+          priority={false}
         />
       </div>
       <CardHeader>

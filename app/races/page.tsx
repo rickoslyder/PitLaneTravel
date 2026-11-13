@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
+import { HeroSection } from "@/components/races/HeroSection"
 import { RacesPage } from "@/components/races/RacesPage"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
@@ -12,7 +13,15 @@ import { buildWebPageJsonLd, serializeJsonLd } from "@/lib/site-metadata"
 import { racesPageDescription, racesPageTitle } from "./metadata"
 
 export default async function RacesServerPage() {
-  const { userId } = await auth()
+  const [{ userId }, racesResult] = await Promise.all([
+    auth(),
+    getRacesAction()
+  ])
+
+  const races = racesResult.data ?? []
+  const coveragePromise = getPublicCoverageSummariesAction(
+    races.map(race => race.id)
+  )
 
   if (userId) {
     // return redirect("/login")
@@ -22,16 +31,13 @@ export default async function RacesServerPage() {
     }
   }
 
-  const { data: races } = await getRacesAction()
-  const coverageResult = await getPublicCoverageSummariesAction(
-    (races ?? []).map(race => race.id)
-  )
+  const coverageResult = await coveragePromise
   const coverageMap = coverageResult.isSuccess
     ? coverageByRaceId(coverageResult.data)
     : {}
 
   return (
-    <div className="flex-1 p-4 pt-0">
+    <div className="flex-1 space-y-8 p-4 pt-0">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -44,8 +50,11 @@ export default async function RacesServerPage() {
           )
         }}
       />
+      <div className="bg-background">
+        <HeroSection />
+      </div>
       <RacesPage
-        initialRaces={races ?? []}
+        initialRaces={races}
         coverageByRaceId={coverageMap}
         asOfIso={startOfUtcDay(new Date()).toISOString()}
       />

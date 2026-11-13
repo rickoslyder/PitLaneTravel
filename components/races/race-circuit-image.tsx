@@ -13,6 +13,7 @@ interface RaceCircuitImageProps {
   fill?: boolean
   sizes?: string
   priority?: boolean
+  quality?: number
 }
 
 function Fallback({ className }: { className?: string }) {
@@ -39,7 +40,8 @@ export function RaceCircuitImage({
   className,
   fill = false,
   sizes,
-  priority = false
+  priority = false,
+  quality = 65
 }: RaceCircuitImageProps) {
   const [failed, setFailed] = useState(false)
 
@@ -53,8 +55,10 @@ export function RaceCircuitImage({
         src={src}
         alt={alt}
         fill
-        sizes={sizes}
+        sizes={sizes ?? "100vw"}
         priority={priority}
+        fetchPriority={priority ? "high" : "auto"}
+        quality={quality}
         className={className}
         onError={() => setFailed(true)}
       />
@@ -66,6 +70,8 @@ export function RaceCircuitImage({
       src={src}
       alt={alt}
       className={className}
+      loading="lazy"
+      decoding="async"
       onError={() => setFailed(true)}
     />
   )

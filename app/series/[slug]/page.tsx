@@ -1,5 +1,6 @@
 "use server"
 
+import { cache } from "react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Metadata } from "next"
@@ -17,11 +18,13 @@ interface SeriesPageProps {
   params: Promise<{ slug: string }>
 }
 
+const loadSeries = cache(async (slug: string) => getSeriesBySlugAction(slug))
+
 export async function generateMetadata({
   params
 }: SeriesPageProps): Promise<Metadata> {
   const { slug } = await params
-  const { isSuccess, data: series } = await getSeriesBySlugAction(slug)
+  const { isSuccess, data: series } = await loadSeries(slug)
   if (!isSuccess || !series) {
     return { title: "Series | PitLane Travel" }
   }
@@ -42,7 +45,15 @@ export async function generateMetadata({
 
 export default async function SeriesPage({ params }: SeriesPageProps) {
   const { slug } = await params
-  const { isSuccess, data: series, message } = await getSeriesBySlugAction(slug)
+  const [{ isSuccess, data: series, message }, racesResult] = await Promise.all(
+    [
+      loadSeries(slug),
+      getRacesAction({
+        series: slug,
+        excludeCancelled: true
+      })
+    ]
+  )
 
   // Distinguish "no such series" from "the database is down": returning 404 during an
   // outage tells search engines the page is gone and gets it deindexed.
@@ -57,10 +68,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
     series.description
   )
 
-  const { data: races } = await getRacesAction({
-    series: slug,
-    excludeCancelled: true
-  })
+  const races = racesResult.data
   const upcoming = (races ?? []).filter(r => isActiveRaceStatus(r.status))
   const coverageResult = await getPublicCoverageSummariesAction(
     upcoming.map(race => race.id)

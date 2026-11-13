@@ -1,5 +1,6 @@
 "use server"
 
+import { cache } from "react"
 import { auth } from "@clerk/nextjs/server"
 import {
   getRaceByIdAction,
@@ -27,17 +28,30 @@ import {
 } from "@/lib/site-metadata"
 import { raceHasTicketListingsAction } from "@/actions/db/ticket-listing-actions"
 
+const RACE_TABS = [
+  "info",
+  "tickets",
+  "travel",
+  "schedule",
+  "reviews",
+  "itinerary"
+] as const
+
 interface RacePageProps {
   params: Promise<{
     id: string
+  }>
+  searchParams: Promise<{
+    tab?: string | string[]
   }>
 }
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-// Helper function to reduce code duplication
-async function getRaceData(id: string) {
+// Helper function to reduce code duplication. Cached so metadata and the page
+// share one race lookup in the same request.
+const getRaceData = cache(async function getRaceData(id: string) {
   // UUIDs are primary keys; anything else is a slug (series- and season-agnostic).
   let raceResult
   if (UUID_RE.test(id)) {
@@ -67,7 +81,7 @@ async function getRaceData(id: string) {
     race: raceResult.data,
     circuit: circuitResult.data
   }
-}
+})
 
 export async function generateMetadata({
   params
@@ -114,125 +128,116 @@ export async function generateMetadata({
   }
 }
 
-export default async function RacePage({ params }: RacePageProps) {
-  const resolvedParams = await params
-  const { userId } = await auth()
+function requestedRaceTab(
+  tab: string | string[] | undefined
+): string | undefined {
+  const value = Array.isArray(tab) ? tab[0] : tab
+  return value && RACE_TABS.some(option => option === value) ? value : undefined
+}
 
-  // UUIDs are primary keys; anything else is a slug (series- and season-agnostic).
-  let raceResult
-  if (UUID_RE.test(resolvedParams.id)) {
-    raceResult = await getRaceByIdAction(resolvedParams.id)
-    if (!raceResult.isSuccess) {
-      raceResult = await getRaceBySlugAction(resolvedParams.id)
-    }
-  } else {
-    raceResult = await getRaceBySlugAction(resolvedParams.id)
-    if (!raceResult.isSuccess) {
-      raceResult = await getRaceByIdAction(resolvedParams.id)
-    }
-  }
-
-  if (!raceResult.isSuccess) {
-    return notFound()
-  }
-
-  const circuitResult = await getCircuitWithDetailsAction(
-    raceResult.data.circuit_id
-  )
-  if (!circuitResult.isSuccess) {
-    return notFound()
-  }
-
-  // Get race history
-  const historyResult = await getRaceHistoryAction(raceResult.data.id)
-  const coverageResult = await getPublicCoverageSummariesAction([
-    raceResult.data.id
+export default async function RacePage({
+  params,
+  searchParams
+}: RacePageProps) {
+  const [resolvedParams, resolvedSearch] = await Promise.all([
+    params,
+    searchParams
   ])
+  const [{ userId }, data] = await Promise.all([
+    auth(),
+    getRaceData(resolvedParams.id)
+  ])
+
+  if (!data?.circuit) {
+    return notFound()
+  }
+
+  const raceRow = data.race
+  const circuitData = data.circuit
+
+  const [historyResult, coverageResult, tripResult, hasTicketListings] =
+    await Promise.all([
+      getRaceHistoryAction(raceRow.id),
+      getPublicCoverageSummariesAction([raceRow.id]),
+      userId
+        ? getUserTripForRaceAction(userId, raceRow.id)
+        : Promise.resolve(null),
+      raceHasTicketListingsAction(raceRow.id)
+    ])
   const coverage = coverageResult.isSuccess
     ? (coverageResult.data[0] ?? null)
     : null
 
-  // Get user's existing trip for this race if they're logged in
   let existingTripId: string | undefined
-  if (userId) {
-    const tripResult = await getUserTripForRaceAction(
-      userId,
-      raceResult.data.id
-    )
-    if (tripResult.isSuccess && tripResult.data) {
-      existingTripId = tripResult.data.id
-    }
+  if (tripResult && tripResult.isSuccess && tripResult.data) {
+    existingTripId = tripResult.data.id
   }
 
   // Convert to RaceWithDetails
   const raceWithDetails: RaceWithDetails = {
-    ...raceResult.data,
-    status: raceResult.data.status,
-    circuit: circuitResult.data
+    ...raceRow,
+    status: raceRow.status,
+    circuit: circuitData
       ? {
-          id: circuitResult.data.id,
-          name: circuitResult.data.name,
-          location: circuitResult.data.location,
-          country: circuitResult.data.country,
-          latitude: Number(circuitResult.data.latitude),
-          longitude: Number(circuitResult.data.longitude),
-          image_url: circuitResult.data.imageUrl,
-          track_map_url: circuitResult.data.trackMapUrl,
-          openf1_key: circuitResult.data.openf1Key,
-          openf1_short_name: circuitResult.data.openf1ShortName,
-          timezone_id: circuitResult.data.timezoneId,
-          timezone_name: circuitResult.data.timezoneName,
-          created_at: circuitResult.data.createdAt.toISOString(),
-          updated_at: circuitResult.data.updatedAt.toISOString(),
-          website_url: circuitResult.data.websiteUrl,
-          details: circuitResult.data.details
+          id: circuitData.id,
+          name: circuitData.name,
+          location: circuitData.location,
+          country: circuitData.country,
+          latitude: Number(circuitData.latitude),
+          longitude: Number(circuitData.longitude),
+          image_url: circuitData.imageUrl,
+          track_map_url: circuitData.trackMapUrl,
+          openf1_key: circuitData.openf1Key,
+          openf1_short_name: circuitData.openf1ShortName,
+          timezone_id: circuitData.timezoneId,
+          timezone_name: circuitData.timezoneName,
+          created_at: circuitData.createdAt.toISOString(),
+          updated_at: circuitData.updatedAt.toISOString(),
+          website_url: circuitData.websiteUrl,
+          details: circuitData.details
             ? {
-                id: circuitResult.data.details.id,
-                circuit_id: circuitResult.data.details.circuitId,
-                length: Number(circuitResult.data.details.length),
-                corners: circuitResult.data.details.corners,
-                drs_zones: circuitResult.data.details.drsZones,
-                lap_record_time: circuitResult.data.details.lapRecordTime,
-                lap_record_year: circuitResult.data.details.lapRecordYear,
-                lap_record_driver: circuitResult.data.details.lapRecordDriver,
-                created_at: circuitResult.data.details.createdAt.toISOString(),
-                updated_at: circuitResult.data.details.updatedAt.toISOString()
+                id: circuitData.details.id,
+                circuit_id: circuitData.details.circuitId,
+                length: Number(circuitData.details.length),
+                corners: circuitData.details.corners,
+                drs_zones: circuitData.details.drsZones,
+                lap_record_time: circuitData.details.lapRecordTime,
+                lap_record_year: circuitData.details.lapRecordYear,
+                lap_record_driver: circuitData.details.lapRecordDriver,
+                created_at: circuitData.details.createdAt.toISOString(),
+                updated_at: circuitData.details.updatedAt.toISOString()
               }
             : undefined,
-          locations: circuitResult.data.locations?.map(location => ({
+          locations: circuitData.locations?.map(location => ({
             ...location,
             created_at: location.createdAt.toISOString(),
             updated_at: location.updatedAt.toISOString()
           })),
-          local_attractions: circuitResult.data.local_attractions?.map(
-            attraction => ({
-              id: attraction.id,
-              circuit_id: attraction.circuitId,
-              name: attraction.name,
-              description: attraction.description,
-              latitude: attraction.latitude
-                ? Number(attraction.latitude)
-                : null,
-              longitude: attraction.longitude
-                ? Number(attraction.longitude)
-                : null,
-              distance_from_circuit: attraction.distance_from_circuit
-                ? Number(attraction.distance_from_circuit)
-                : null,
-              distance_from_city: attraction.distance_from_city
-                ? Number(attraction.distance_from_city)
-                : null,
-              estimated_duration: attraction.estimated_duration || null,
-              recommended_times: attraction.recommended_times || null,
-              booking_required: attraction.booking_required || false,
-              price_range: attraction.price_range || null,
-              f1_relevance: attraction.f1_relevance || null,
-              peak_times: attraction.peak_times || null,
-              created_at: attraction.createdAt.toISOString(),
-              updated_at: attraction.updatedAt.toISOString()
-            })
-          ),
-          transport_info: circuitResult.data.transport_info?.map(info => ({
+          local_attractions: circuitData.local_attractions?.map(attraction => ({
+            id: attraction.id,
+            circuit_id: attraction.circuitId,
+            name: attraction.name,
+            description: attraction.description,
+            latitude: attraction.latitude ? Number(attraction.latitude) : null,
+            longitude: attraction.longitude
+              ? Number(attraction.longitude)
+              : null,
+            distance_from_circuit: attraction.distance_from_circuit
+              ? Number(attraction.distance_from_circuit)
+              : null,
+            distance_from_city: attraction.distance_from_city
+              ? Number(attraction.distance_from_city)
+              : null,
+            estimated_duration: attraction.estimated_duration || null,
+            recommended_times: attraction.recommended_times || null,
+            booking_required: attraction.booking_required || false,
+            price_range: attraction.price_range || null,
+            f1_relevance: attraction.f1_relevance || null,
+            peak_times: attraction.peak_times || null,
+            created_at: attraction.createdAt.toISOString(),
+            updated_at: attraction.updatedAt.toISOString()
+          })),
+          transport_info: circuitData.transport_info?.map(info => ({
             id: info.id,
             circuit_id: info.circuitId,
             type: info.type,
@@ -246,22 +251,20 @@ export default async function RacePage({ params }: RacePageProps) {
       : null
   }
 
-  const ticketListings = (await raceHasTicketListingsAction(raceResult.data.id))
-    ? "listed"
-    : "empty"
+  const ticketListings = hasTicketListings ? "listed" : "empty"
 
   const sportsEvent = buildSportsEventJsonLd({
-    name: raceResult.data.name,
-    startDate: raceResult.data.date,
-    endDate: raceResult.data.weekend_end,
-    status: raceResult.data.status,
-    url: raceResult.data.slug
-      ? `/races/${raceResult.data.slug}`
+    name: raceRow.name,
+    startDate: raceRow.date,
+    endDate: raceRow.weekend_end,
+    status: raceRow.status,
+    url: raceRow.slug
+      ? `/races/${raceRow.slug}`
       : `/races/${resolvedParams.id}`,
-    sport: raceResult.data.series?.name ?? null,
-    locationName: circuitResult.data?.name ?? null,
-    addressLocality: circuitResult.data?.location ?? null,
-    addressCountry: circuitResult.data?.country ?? raceResult.data.country
+    sport: raceRow.series?.name ?? null,
+    locationName: circuitData?.name ?? null,
+    addressLocality: circuitData?.location ?? null,
+    addressCountry: circuitData?.country ?? raceRow.country
   })
 
   return (
@@ -276,13 +279,14 @@ export default async function RacePage({ params }: RacePageProps) {
       ) : null}
       <RaceDetailsPage
         race={raceWithDetails}
+        initialTab={requestedRaceTab(resolvedSearch.tab)}
         userId={userId}
         existingTripId={existingTripId}
         history={historyResult.isSuccess ? historyResult.data : undefined}
         coverage={coverage}
         ticketListings={ticketListings}
       />
-      {/* <LocalAttractions circuit={circuitResult.data} /> */}
+      {/* <LocalAttractions circuit={circuitData} /> */}
     </div>
   )
 }

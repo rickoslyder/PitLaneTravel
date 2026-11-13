@@ -1,16 +1,58 @@
-import { useState, useEffect, useRef } from 'react'
-import { getRacesAction } from '@/actions/db/races-actions'
-import { RaceWithCircuitAndSeries } from '@/types/database'
-import { selectNextCountdownRace } from '@/lib/race-status'
+import { useState, useEffect, useRef } from "react"
+import { getRacesAction } from "@/actions/db/races-actions"
+import {
+  emptyCountdown,
+  timeLeftUntil,
+  type CountdownParts,
+  type HeroCountdownSeed
+} from "@/lib/countdown"
+import { selectNextCountdownRace } from "@/lib/race-status"
+import type { RaceStatusValue } from "@/services/providers/types"
 
-export function useNextRace() {
-  const [nextRace, setNextRace] = useState<RaceWithCircuitAndSeries | null>(null)
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-  const [isLoading, setIsLoading] = useState(true)
+export type { CountdownParts, HeroCountdownSeed } from "@/lib/countdown"
+
+type CountdownRace = {
+  name: string
+  date: Date | string
+  status: RaceStatusValue
+  circuit: { name: string } | null
+}
+
+/** When provided, the countdown is painted from server data and does not refetch. */
+export type UseNextRaceInput = {
+  seed: HeroCountdownSeed | null
+}
+
+function raceFromSeed(seed: HeroCountdownSeed): CountdownRace {
+  return {
+    name: seed.name,
+    date: new Date(seed.date),
+    status: "upcoming",
+    circuit: seed.circuitName ? { name: seed.circuitName } : null
+  }
+}
+
+export function useNextRace(input?: UseNextRaceInput) {
+  const seeded = input !== undefined
+  const seed = input?.seed ?? null
+  const [nextRace, setNextRace] = useState<CountdownRace | null>(() =>
+    seed ? raceFromSeed(seed) : null
+  )
+  const [timeLeft, setTimeLeft] = useState<CountdownParts>(() => {
+    if (seed?.initialTime) return seed.initialTime
+    if (seed) return timeLeftUntil(seed.date)
+    return emptyCountdown()
+  })
+  const [isLoading, setIsLoading] = useState(!seeded)
   const [error, setError] = useState<string | null>(null)
-  const racesRef = useRef<RaceWithCircuitAndSeries[]>([])
+  const racesRef = useRef<CountdownRace[]>(seed ? [raceFromSeed(seed)] : [])
 
   useEffect(() => {
+    if (seeded) {
+      racesRef.current = seed ? [raceFromSeed(seed)] : []
+      return
+    }
+
     const fetchRaces = async () => {
       try {
         const result = await getRacesAction()
@@ -23,20 +65,22 @@ export function useNextRace() {
         // race.date is the countdown target/order only.
         setNextRace(selectNextCountdownRace(result.data, new Date()) ?? null)
       } catch (err) {
-        console.error('Error fetching next race:', err)
-        setError(err instanceof Error ? err.message : 'Failed to fetch next race')
+        console.error("Error fetching next race:", err)
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch next race"
+        )
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchRaces()
-  }, []) // Only fetch once on mount
+  }, [seeded, seed?.circuitName, seed?.date, seed?.name])
 
   useEffect(() => {
     if (!nextRace) return
 
-    const timer = setInterval(() => {
+    const tick = () => {
       const now = new Date()
       const raceDate = new Date(nextRace.date)
       const difference = raceDate.getTime() - now.getTime()
@@ -49,19 +93,17 @@ export function useNextRace() {
         return
       }
 
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24)
-      const minutes = Math.floor((difference / 1000 / 60) % 60)
-      const seconds = Math.floor((difference / 1000) % 60)
-      setTimeLeft({ days, hours, minutes, seconds })
-    }, 1000)
+      setTimeLeft(timeLeftUntil(raceDate, now))
+    }
 
+    tick()
+    const timer = setInterval(tick, 1000)
     return () => clearInterval(timer)
   }, [nextRace])
 
   return {
     ...timeLeft,
-    raceName: nextRace?.name || '',
+    raceName: nextRace?.name || "",
     isLoading,
     error,
     nextRace // Return the full race object in case we need more details
