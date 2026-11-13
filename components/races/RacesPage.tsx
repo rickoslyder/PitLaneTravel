@@ -8,7 +8,6 @@ import { FilterSheet } from "./FilterSheet"
 import { ResultsSummary } from "./ResultsSummary"
 import { RaceGrid } from "./RaceGrid"
 import { EmptyState } from "./EmptyState"
-import { HeroSection } from "./HeroSection"
 import { ViewSwitcher } from "./ViewSwitcher"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import { racesForTiming, type RaceTiming } from "@/lib/race-calendar-window"
@@ -81,9 +80,7 @@ export function RacesPage({
 
     const matchesMonth =
       filters.month.length === 0 ||
-      filters.month.includes(
-        formatRaceCalendarMonth(race.date)
-      )
+      filters.month.includes(formatRaceCalendarMonth(race.date))
 
     const matchesCountry =
       filters.country.length === 0 ||
@@ -137,10 +134,6 @@ export function RacesPage({
 
   return (
     <div className="space-y-8">
-      <div className="bg-background">
-        <HeroSection />
-      </div>
-
       <div className="bg-card mx-auto max-w-7xl rounded-lg p-6 shadow">
         <h1 className="mb-6 text-center text-2xl font-bold">Race Calendar</h1>
 

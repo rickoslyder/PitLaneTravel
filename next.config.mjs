@@ -19,6 +19,7 @@ const nextConfig = {
     "/sitemap.xml": ["./content/guides/**/*"]
   },
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "vsszkzazjhvlecyryzon.supabase.co" },
       // Ticket-reseller and track-map images come from many third-party hosts.

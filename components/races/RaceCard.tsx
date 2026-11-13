@@ -22,6 +22,8 @@ interface RaceCardProps {
   onClick?: () => void
   /** Safe public coverage summary for this race */
   coverage?: PublicCoverageSummary
+  /** Preload the photo when this card is the largest above-the-fold image. */
+  imagePriority?: boolean
 }
 
 function CancelledBadge() {
@@ -37,7 +39,8 @@ export function RaceCard({
   variant = "grid",
   className,
   onClick,
-  coverage
+  coverage,
+  imagePriority = false
 }: RaceCardProps) {
   const raceDateLabel = formatRaceCalendarDate(
     race.date,
@@ -62,7 +65,9 @@ export function RaceCard({
               <RaceCircuitImage
                 src={race.circuit?.image_url}
                 alt={race.name}
-                className="size-full object-cover"
+                fill
+                sizes="80px"
+                className="object-cover"
               />
             </div>
           </CardHeader>
@@ -136,7 +141,10 @@ export function RaceCard({
           <RaceCircuitImage
             src={race.circuit?.image_url}
             alt={race.name}
-            className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            priority={imagePriority}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>
       </CardHeader>

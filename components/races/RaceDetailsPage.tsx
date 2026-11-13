@@ -29,7 +29,6 @@ import { SelectRaceHistory } from "@/db/schema/race-history-schema"
 import { captureAnalyticsEvent } from "@/lib/analytics/capture"
 import { useAnalyticsConsent } from "@/lib/analytics-consent"
 import { cn } from "@/lib/utils"
-import { motion, AnimatePresence } from "framer-motion"
 import { ErrorBoundary } from "./error-boundary"
 import { ProgressIndicator } from "./progress-indicator"
 import { useAnnouncer } from "./use-announcer"
@@ -82,6 +81,8 @@ const RaceItinerary = dynamic(
 interface RaceDetailsPageProps {
   /** The race to display */
   race: RaceWithDetails
+  /** Tab from the request URL, so a direct `?tab=` link paints that panel. */
+  initialTab?: string
   /** The user's existing trip ID for this race, if any */
   existingTripId?: string
   /** The current user's ID */
@@ -110,25 +111,6 @@ const TAB_OPTIONS: TabOption[] = [
   { value: "itinerary", label: "Itinerary", icon: Calendar }
 ]
 
-function TabContent({
-  children,
-  isActive
-}: {
-  children: React.ReactNode
-  isActive: boolean
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: isActive ? 1 : 0, x: isActive ? 0 : 20 }}
-      transition={{ duration: 0.2 }}
-      style={{ display: isActive ? "block" : "none" }}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
 function CancelledTabNotice({
   what,
   reason
@@ -146,6 +128,7 @@ function CancelledTabNotice({
 
 export function RaceDetailsPage({
   race,
+  initialTab,
   existingTripId,
   userId,
   history,
@@ -159,7 +142,7 @@ export function RaceDetailsPage({
   const finished = raceHasFinished(race, new Date())
   const guideSlug = guideSlugForRace(race.slug)
   const [activeTab, setActiveTab] = useState(() => {
-    const tabFromUrl = searchParams.get("tab")
+    const tabFromUrl = initialTab || searchParams.get("tab")
     return tabFromUrl && TAB_OPTIONS.some(tab => tab.value === tabFromUrl)
       ? tabFromUrl
       : "info"
@@ -189,22 +172,16 @@ export function RaceDetailsPage({
     return () => window.removeEventListener("scroll", handleScroll)
   }, [announce])
 
-  // Update URL when tab changes
-  useEffect(() => {
-    const newParams = new URLSearchParams(searchParams.toString())
-    if (activeTab) {
-      newParams.set("tab", activeTab)
-      router.replace(`?${newParams.toString()}`, { scroll: false })
-    }
-  }, [activeTab, router, searchParams])
-
   // Get active tab option
   const activeTabOption = TAB_OPTIONS.find(tab => tab.value === activeTab)
 
   const handleTabChange = (value: string) => {
     const newTab = TAB_OPTIONS.find(tab => tab.value === value)
-    if (newTab) {
+    if (newTab && value !== activeTab) {
       setActiveTab(value)
+      const newParams = new URLSearchParams(window.location.search)
+      newParams.set("tab", value)
+      router.replace(`?${newParams.toString()}`, { scroll: false })
       // Announce tab change to screen readers
       announce(`Switched to ${newTab.label} tab`)
 
@@ -440,15 +417,12 @@ export function RaceDetailsPage({
             aria-label={`${activeTabOption?.label} content`}
           >
             <ErrorBoundary>
-              <TabContent isActive={activeTab === "info"}>
+              {activeTab === "info" && (
                 <TabsContent value="info" className="mt-4">
                   <RaceInfoTab race={race} history={history} />
                 </TabsContent>
-              </TabContent>
-            </ErrorBoundary>
-
-            <ErrorBoundary>
-              <TabContent isActive={activeTab === "tickets"}>
+              )}
+              {activeTab === "tickets" && (
                 <TabsContent value="tickets" className="mt-4">
                   {race.status === "cancelled" ? (
                     <CancelledTabNotice
@@ -464,11 +438,8 @@ export function RaceDetailsPage({
                     <TicketSection race={race} />
                   )}
                 </TabsContent>
-              </TabContent>
-            </ErrorBoundary>
-
-            <ErrorBoundary>
-              <TabContent isActive={activeTab === "travel"}>
+              )}
+              {activeTab === "travel" && (
                 <TabsContent value="travel" className="mt-4">
                   {race.status === "cancelled" ? (
                     <CancelledTabNotice
@@ -479,58 +450,42 @@ export function RaceDetailsPage({
                     <TravelTab race={race} />
                   )}
                 </TabsContent>
-              </TabContent>
-            </ErrorBoundary>
-
-            <ErrorBoundary>
-              <TabContent isActive={activeTab === "schedule"}>
+              )}
+              {activeTab === "schedule" && (
                 <TabsContent value="schedule" className="mt-4">
                   <WeatherAndSchedule race={race} />
                 </TabsContent>
-              </TabContent>
-            </ErrorBoundary>
-
-            <ErrorBoundary>
-              <TabContent isActive={activeTab === "reviews"}>
+              )}
+              {activeTab === "reviews" && (
                 <TabsContent value="reviews" className="mt-4">
                   <ReviewSection raceId={race.id} />
                 </TabsContent>
-              </TabContent>
-            </ErrorBoundary>
-
-            <ErrorBoundary>
-              <TabContent isActive={activeTab === "itinerary"}>
+              )}
+              {activeTab === "itinerary" && (
                 <TabsContent value="itinerary" className="mt-4">
                   <RaceItinerary race={race} />
                 </TabsContent>
-              </TabContent>
+              )}
             </ErrorBoundary>
           </div>
         </Tabs>
       </div>
 
       {/* Scroll to top button with improved accessibility */}
-      <AnimatePresence>
-        {showScrollTop && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 right-6 z-50"
+      {showScrollTop && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <Button
+            size="icon"
+            variant="secondary"
+            onClick={handleScrollToTop}
+            className="rounded-full shadow-lg transition-shadow hover:shadow-xl"
+            aria-label="Scroll to top of page"
+            title="Scroll to top"
           >
-            <Button
-              size="icon"
-              variant="secondary"
-              onClick={handleScrollToTop}
-              className="rounded-full shadow-lg transition-shadow hover:shadow-xl"
-              aria-label="Scroll to top of page"
-              title="Scroll to top"
-            >
-              <ArrowUp className="size-5" />
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <ArrowUp className="size-5" />
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

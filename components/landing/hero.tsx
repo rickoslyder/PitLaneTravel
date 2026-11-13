@@ -1,6 +1,8 @@
 /*
 <ai_context>
 This client component provides the hero section for the landing page.
+The photograph and headline are in the server HTML at full opacity so the
+mobile LCP element is not withheld until hydration.
 </ai_context>
 */
 
@@ -8,11 +10,8 @@ This client component provides the hero section for the landing page.
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
 import {
   Calendar,
-  Flag,
   MapPin,
   Star,
   FlagIcon,
@@ -22,12 +21,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { captureAnalyticsEvent } from "@/lib/analytics/capture"
-import AnimatedGradientText from "../magicui/animated-gradient-text"
-import HeroVideoDialog from "../magicui/hero-video-dialog"
-import Image from "next/image"
-import { useState } from "react"
-import { useScroll, useTransform } from "framer-motion"
-import { useNextRace } from "@/hooks/useNextRace"
+import { useNextRace, type HeroCountdownSeed } from "@/hooks/useNextRace"
 import { siteCopy } from "@/config/site-copy"
 
 const HOME_HERO_SRC = "/images/home-hero.jpg"
@@ -39,10 +33,12 @@ const HOME_HERO_ALT =
  * storage render URL returns 403 and next/image reports a 502. The public
  * object is an 8.5MB 5824×3264 JPEG. This is that photo resized to 2400px.
  * The painted scene underneath shows if the file fails to load.
+ * Mobile LCP uses the prebuilt AVIF/WebP sources; the JPEG is the fallback.
+ * The markup is raw HTML so fetchpriority survives React 18's attribute filter.
  */
-function HeroImage() {
-  const [failed, setFailed] = useState(false)
+const HOME_HERO_MARKUP = `<link rel="preload" as="image" href="/images/home-hero-828.avif" type="image/avif" media="(max-width: 828px)" fetchpriority="high"><picture><source media="(max-width: 828px)" srcset="/images/home-hero-828.avif" type="image/avif"><source media="(max-width: 828px)" srcset="/images/home-hero-828.webp" type="image/webp"><source srcset="/images/home-hero-1600.avif" type="image/avif"><source srcset="/images/home-hero-1600.webp" type="image/webp"><img alt="${HOME_HERO_ALT}" src="${HOME_HERO_SRC}" fetchpriority="high" decoding="async" width="2400" height="1346" class="absolute size-full object-cover" sizes="100vw" onerror="this.remove()"></picture>`
 
+function HeroImage() {
   return (
     <>
       <div
@@ -57,76 +53,51 @@ function HeroImage() {
         <div className="absolute bottom-[22%] left-[28%] right-[6%] h-px bg-white/80" />
         <div className="absolute bottom-[24%] right-[18%] h-3 w-20 rounded-sm bg-[#e10600] shadow-[0_0_28px_rgba(225,6,0,0.85)]" />
       </div>
-      {!failed && (
-        <Image
-          alt={HOME_HERO_ALT}
-          src={HOME_HERO_SRC}
-          priority={true}
-          className="absolute size-full object-cover"
-          sizes="100vw"
-          fill
-          onError={() => setFailed(true)}
-        />
-      )}
+      <div
+        className="absolute inset-0"
+        dangerouslySetInnerHTML={{ __html: HOME_HERO_MARKUP }}
+      />
     </>
   )
 }
 
+function CountdownDigit({ value }: { value: number | undefined }) {
+  const label = value === undefined ? "00" : value.toString().padStart(2, "0")
+  return (
+    <div
+      className="text-2xl font-bold tabular-nums text-white sm:text-3xl md:text-4xl"
+      suppressHydrationWarning
+    >
+      {label}
+    </div>
+  )
+}
+
 export const HeroSection = ({
-  packagesLive = false
+  packagesLive = false,
+  countdown
 }: {
   packagesLive?: boolean
+  /** Server-rendered next race. Null means there is nothing to count down. */
+  countdown?: HeroCountdownSeed | null
 }) => {
   const copy = siteCopy(packagesLive)
-  const { scrollY } = useScroll()
-  const opacity = useTransform(scrollY, [0, 300], [1, 0])
-  const scale = useTransform(scrollY, [0, 300], [1, 0.95])
-
   const { days, hours, minutes, seconds, raceName, isLoading, nextRace } =
-    useNextRace()
-
-  // Format time units to always show two digits
-  const formatTimeUnit = (unit: number | undefined) => {
-    if (unit === undefined) return "00"
-    return unit.toString().padStart(2, "0")
-  }
-
-  // Pulsing animation for the separators
-  const separatorVariants = {
-    animate: {
-      opacity: [1, 0.3, 1],
-      transition: {
-        duration: 1,
-        repeat: Infinity,
-        ease: "linear"
-      }
-    }
-  }
+    useNextRace(countdown === undefined ? undefined : { seed: countdown })
 
   return (
     <>
       <section className="relative flex min-h-[95vh] items-center justify-center overflow-hidden">
-        {/* Background image with parallax effect */}
-        <motion.div style={{ scale }} className="absolute inset-0">
+        <div className="absolute inset-0">
           <HeroImage />
-          {/* Multiple gradient overlays for depth */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/60" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
-        </motion.div>
+        </div>
 
-        {/* Content */}
-        <motion.div
-          style={{ opacity }}
-          className="container relative z-10 mx-auto px-4"
-        >
+        <div className="container relative z-10 mx-auto px-4">
           <div className="flex flex-col items-center text-center">
-            {/* Season badge */}
-            <motion.div
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            >
+            <div>
               <Badge
                 variant="outline"
                 className="mb-6 border-white/20 bg-white/10 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:mb-8 sm:px-4 sm:py-2 sm:text-sm"
@@ -134,15 +105,9 @@ export const HeroSection = ({
                 <FlagIcon className="mr-2 size-3 sm:size-4" />
                 F1 · MotoGP · Formula E · IndyCar · WEC
               </Badge>
-            </motion.div>
+            </div>
 
-            {/* Main heading with text shadow for depth */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="mb-4 sm:mb-6"
-            >
+            <div className="mb-4 sm:mb-6">
               <h1 className="text-4xl font-bold tracking-tighter text-white drop-shadow-2xl [text-shadow:_0_4px_24px_rgba(0,0,0,0.3)] sm:text-5xl md:text-6xl lg:text-7xl">
                 Monaco. Le Mans. The Indy 500.
                 <br />
@@ -150,28 +115,16 @@ export const HeroSection = ({
                   Go like you&apos;ve been before.
                 </span>
               </h1>
-            </motion.div>
+            </div>
 
-            {/* Description with glass effect */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="mb-6 max-w-2xl px-4 sm:mb-8 sm:px-0"
-            >
+            <div className="mb-6 max-w-2xl px-4 sm:mb-8 sm:px-0">
               <p className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-base leading-relaxed text-white/90 shadow-xl backdrop-blur-md sm:px-6 sm:py-4 sm:text-lg md:text-xl">
                 {copy.heroSubline}
               </p>
-            </motion.div>
+            </div>
 
-            {/* Next Race Countdown */}
             {!isLoading && nextRace && (
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                className="mb-8 w-full px-4 sm:mb-12 sm:px-0"
-              >
+              <div className="mb-8 w-full px-4 sm:mb-12 sm:px-0">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="group flex w-full flex-col items-center space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:shadow-lg sm:w-auto sm:px-8 sm:py-6">
                     <div className="flex items-center space-x-2 text-white/90">
@@ -181,75 +134,44 @@ export const HeroSection = ({
                       </span>
                     </div>
                     <div className="flex items-center space-x-2 sm:space-x-4">
-                      <div className="flex flex-col items-center">
-                        <motion.div
-                          key={days}
-                          initial={{ scale: 1.1 }}
-                          animate={{ scale: 1 }}
-                          className="text-2xl font-bold text-white sm:text-3xl md:text-4xl"
-                        >
-                          {formatTimeUnit(days)}
-                        </motion.div>
+                      <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
+                        <CountdownDigit value={days} />
                         <div className="text-xs text-white/70 sm:text-sm">
                           DAYS
                         </div>
                       </div>
-                      <motion.div
-                        variants={separatorVariants}
-                        animate="animate"
-                        className="text-xl font-bold text-white/50 sm:text-2xl"
+                      <div
+                        className="text-xl font-bold text-white/50 motion-safe:animate-pulse sm:text-2xl"
+                        aria-hidden="true"
                       >
                         :
-                      </motion.div>
-                      <div className="flex flex-col items-center">
-                        <motion.div
-                          key={hours}
-                          initial={{ scale: 1.1 }}
-                          animate={{ scale: 1 }}
-                          className="text-2xl font-bold text-white sm:text-3xl md:text-4xl"
-                        >
-                          {formatTimeUnit(hours)}
-                        </motion.div>
+                      </div>
+                      <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
+                        <CountdownDigit value={hours} />
                         <div className="text-xs text-white/70 sm:text-sm">
                           HOURS
                         </div>
                       </div>
-                      <motion.div
-                        variants={separatorVariants}
-                        animate="animate"
-                        className="text-xl font-bold text-white/50 sm:text-2xl"
+                      <div
+                        className="text-xl font-bold text-white/50 motion-safe:animate-pulse sm:text-2xl"
+                        aria-hidden="true"
                       >
                         :
-                      </motion.div>
-                      <div className="flex flex-col items-center">
-                        <motion.div
-                          key={minutes}
-                          initial={{ scale: 1.1 }}
-                          animate={{ scale: 1 }}
-                          className="text-2xl font-bold text-white sm:text-3xl md:text-4xl"
-                        >
-                          {formatTimeUnit(minutes)}
-                        </motion.div>
+                      </div>
+                      <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
+                        <CountdownDigit value={minutes} />
                         <div className="text-xs text-white/70 sm:text-sm">
                           MINS
                         </div>
                       </div>
-                      <motion.div
-                        variants={separatorVariants}
-                        animate="animate"
-                        className="text-xl font-bold text-white/50 sm:text-2xl"
+                      <div
+                        className="text-xl font-bold text-white/50 motion-safe:animate-pulse sm:text-2xl"
+                        aria-hidden="true"
                       >
                         :
-                      </motion.div>
-                      <div className="flex flex-col items-center">
-                        <motion.div
-                          key={seconds}
-                          initial={{ scale: 1.1 }}
-                          animate={{ scale: 1 }}
-                          className="text-2xl font-bold text-white sm:text-3xl md:text-4xl"
-                        >
-                          {formatTimeUnit(seconds)}
-                        </motion.div>
+                      </div>
+                      <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
+                        <CountdownDigit value={seconds} />
                         <div className="text-xs text-white/70 sm:text-sm">
                           SECS
                         </div>
@@ -265,18 +187,11 @@ export const HeroSection = ({
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
 
-            {/* Group the buttons and scroll indicator together */}
             <div className="flex w-full flex-col items-center px-4 sm:px-0">
-              {/* Buttons */}
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="flex w-full flex-col justify-center gap-3 sm:flex-row sm:gap-4"
-              >
+              <div className="flex w-full flex-col justify-center gap-3 sm:flex-row sm:gap-4">
                 <Button
                   asChild
                   size="lg"
@@ -312,29 +227,18 @@ export const HeroSection = ({
                     {copy.heroSecondaryCta.label}
                   </Link>
                 </Button>
-              </motion.div>
+              </div>
 
-              {/* Scroll indicator below buttons */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.2 }}
-                className="mt-6 sm:mt-8"
-              >
+              <div className="mt-6 sm:mt-8">
                 <ChevronDownIcon className="size-6 animate-bounce text-white/70 sm:size-8" />
-              </motion.div>
+              </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       <section className="bg-background relative px-4 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="container mx-auto grid grid-cols-1 gap-8 md:grid-cols-3"
-        >
+        <div className="container mx-auto grid grid-cols-1 gap-8 md:grid-cols-3">
           <div className="flex flex-col items-center gap-2">
             <Calendar className="text-foreground size-8" />
             <h3 className="text-lg font-semibold">Every race, one calendar</h3>
@@ -355,11 +259,10 @@ export const HeroSection = ({
             <Star className="text-foreground size-8" />
             <h3 className="text-lg font-semibold">Get out on time</h3>
             <p className="text-muted-foreground text-center">
-              The quickest way back after the flag, from fans who queued for
-              it.
+              The quickest way back after the flag, from fans who queued for it.
             </p>
           </div>
-        </motion.div>
+        </div>
       </section>
     </>
   )

@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { RaceWithCircuitAndSeries } from "@/types/database"
-import { motion } from "framer-motion"
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -46,6 +45,8 @@ function UpcomingRaceImage({ src, alt }: { src?: string | null; alt: string }) {
       alt={alt}
       className="object-cover transition-transform duration-300 group-hover:scale-105"
       fill
+      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+      quality={65}
       onError={() => {
         if (current !== CIRCUIT_PLACEHOLDER_SRC) {
           setCurrent(CIRCUIT_PLACEHOLDER_SRC)
@@ -102,17 +103,12 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
   return (
     <section className="bg-background py-20">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center"
-        >
+        <div className="text-center">
           <h2 className="mb-4 text-4xl font-bold">Upcoming Races</h2>
           <p className="text-muted-foreground mx-auto mb-12 max-w-2xl text-lg">
             Upcoming events from the public five-series calendar
           </p>
-        </motion.div>
+        </div>
 
         <div className="relative">
           <div className="flex items-center justify-between">
@@ -128,11 +124,8 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
 
             <div className="mx-auto grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
               {visibleRaces.map((race, index) => (
-                <motion.div
+                <div
                   key={race.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
                   className={cn(
                     "lg:col-span-1",
                     // On lg screens, if this is the 4th item, hide it
@@ -182,7 +175,7 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
                       </Button>
                     </CardFooter>
                   </Card>
-                </motion.div>
+                </div>
               ))}
             </div>
 
