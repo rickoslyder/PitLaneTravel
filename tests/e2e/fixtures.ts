@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs"
+import path from "node:path"
 import {
   test as base,
   expect,
@@ -5,6 +7,7 @@ import {
   type Page
 } from "@playwright/test"
 import postgres from "postgres"
+import { slugify } from "../../lib/series"
 import {
   classifyBrowserRequest,
   isAppOriginConsoleError,
@@ -622,6 +625,100 @@ async function cleanupDisposableProfiles(sql: postgres.Sql): Promise<void> {
   await sql`DELETE FROM profiles WHERE user_id = ${E2E_NONADMIN_USER_ID}`
 }
 
+const FAN_NOTE_CIRCUIT_ROWS = [
+  {
+    id: "b1070009-e2e0-4000-8000-000000000201",
+    name: "Silverstone Circuit",
+    location: "Silverstone",
+    country: "UK",
+    latitude: "52.0786000",
+    longitude: "-1.0169400"
+  },
+  {
+    id: "b1070009-e2e0-4000-8000-000000000202",
+    name: "Circuit Gilles Villeneuve",
+    location: "Montreal",
+    country: "Canada",
+    latitude: "45.5000000",
+    longitude: "-73.5228000"
+  },
+  {
+    id: "b1070009-e2e0-4000-8000-000000000203",
+    name: "Circuit de Spa-Francorchamps",
+    location: "Spa",
+    country: "Belgium",
+    latitude: "50.4372000",
+    longitude: "5.9713900"
+  },
+  {
+    id: "b1070009-e2e0-4000-8000-000000000204",
+    name: "Yas Marina Circuit",
+    location: "Abu Dhabi",
+    country: "UAE",
+    latitude: "24.4672000",
+    longitude: "54.6031000"
+  },
+  {
+    id: "b1070009-e2e0-4000-8000-000000000205",
+    name: "Lusail International Circuit",
+    location: "Lusail",
+    country: "Qatar",
+    latitude: "25.4900000",
+    longitude: "51.4542000"
+  }
+] as const
+
+async function cleanupFanNoteCircuits(sql: postgres.Sql): Promise<void> {
+  for (const circuit of FAN_NOTE_CIRCUIT_ROWS) {
+    await sql`DELETE FROM circuits WHERE id = ${circuit.id}::uuid`
+  }
+}
+
+async function seedFanNoteCircuits(sql: postgres.Sql): Promise<void> {
+  await cleanupFanNoteCircuits(sql)
+  const seed = JSON.parse(
+    readFileSync(
+      path.join(process.cwd(), "data/seeds/grandstands.json"),
+      "utf8"
+    )
+  ) as { circuits: Record<string, { name: string }[]> }
+
+  for (const circuit of FAN_NOTE_CIRCUIT_ROWS) {
+    const stands = seed.circuits[circuit.name]
+    if (!stands || stands.length === 0) {
+      throw new Error(`missing grandstand seed for ${circuit.name}`)
+    }
+    await sql`
+      INSERT INTO circuits (
+        id, name, location, country, latitude, longitude, image_url
+      )
+      VALUES (
+        ${circuit.id}::uuid,
+        ${circuit.name},
+        ${circuit.location},
+        ${circuit.country},
+        ${circuit.latitude},
+        ${circuit.longitude},
+        ${"/android-chrome-512x512.png"}
+      )
+    `
+    for (const stand of stands) {
+      await sql`
+        INSERT INTO grandstands (
+          circuit_id, name, slug, covered, has_big_screen
+        )
+        VALUES (
+          ${circuit.id}::uuid,
+          ${stand.name},
+          ${slugify(stand.name)},
+          false,
+          false
+        )
+      `
+    }
+  }
+}
+
 async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
   await sql.begin(async tx => {
     const seriesIdBySlug = await loadCanonicalSeriesIds(tx)
@@ -1005,6 +1102,7 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
     `
 
     await seedDisposableProfilesAndCoverage(tx)
+    await seedFanNoteCircuits(tx)
   })
 
   return {
@@ -1027,6 +1125,7 @@ async function cleanupCatalog(sql: postgres.Sql): Promise<void> {
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_LAS_VEGAS_RACE_ID}::uuid`
   await sql`DELETE FROM circuits WHERE id = ${E2E_CIRCUIT_ID}::uuid`
+  await cleanupFanNoteCircuits(sql)
   await cleanupDisposableProfiles(sql)
 }
 
