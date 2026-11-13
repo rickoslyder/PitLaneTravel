@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Flag } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { isMissingRaceImage } from "@/lib/race-image"
+import { RaceImageFallback } from "@/components/races/race-image-fallback"
 
 interface RaceCircuitImageProps {
   src: string | null | undefined
@@ -13,25 +13,18 @@ interface RaceCircuitImageProps {
   fill?: boolean
   sizes?: string
   priority?: boolean
-}
-
-function Fallback({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "bg-muted flex size-full items-center justify-center",
-        className
-      )}
-      data-race-image-fallback=""
-    >
-      <Flag className="text-muted-foreground size-8" aria-hidden />
-    </div>
-  )
+  /** Square list thumbnail. Grid and home cards use the panel fallback. */
+  compact?: boolean
+  label?: {
+    title?: string | null
+    series?: string | null
+    country?: string | null
+  }
 }
 
 /**
- * Race and circuit photos. A missing or broken URL (null image_url, 404, or
- * a storage error) shows the flag placeholder instead of a failed image.
+ * Race and circuit photos. A missing, generic, or broken URL shows the
+ * designed monochrome card. Real photos still go through next/image.
  */
 export function RaceCircuitImage({
   src,
@@ -39,18 +32,28 @@ export function RaceCircuitImage({
   className,
   fill = false,
   sizes,
-  priority = false
+  priority = false,
+  compact = false,
+  label
 }: RaceCircuitImageProps) {
   const [failed, setFailed] = useState(false)
+  const title = label?.title?.trim() || alt
 
-  if (!src || failed) {
-    return <Fallback className={fill ? undefined : className} />
+  if (isMissingRaceImage(src) || failed) {
+    return (
+      <RaceImageFallback
+        title={title}
+        series={label?.series}
+        country={label?.country}
+        compact={compact}
+      />
+    )
   }
 
   if (fill) {
     return (
       <Image
-        src={src}
+        src={src as string}
         alt={alt}
         fill
         sizes={sizes}
@@ -63,10 +66,23 @@ export function RaceCircuitImage({
 
   return (
     <img
-      src={src}
+      src={src as string}
       alt={alt}
       className={className}
       onError={() => setFailed(true)}
     />
   )
+}
+
+export function raceCardImageLabel(race: {
+  name: string
+  country?: string | null
+  series?: { short_name?: string | null } | null
+  circuit?: { name?: string | null; country?: string | null } | null
+}) {
+  return {
+    title: race.circuit?.name || race.name,
+    series: race.series?.short_name,
+    country: race.country || race.circuit?.country
+  }
 }

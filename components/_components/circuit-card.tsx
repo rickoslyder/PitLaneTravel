@@ -4,7 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
-import { RaceCircuitImage } from "@/components/races/race-circuit-image"
+import {
+  RaceCircuitImage,
+  raceCardImageLabel
+} from "@/components/races/race-circuit-image"
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -32,6 +35,7 @@ export function CircuitCard({ race }: CircuitCardProps) {
           className="object-cover transition-transform duration-300 hover:scale-105"
           sizes="(max-width: 768px) 100vw, 50vw"
           priority={true}
+          label={raceCardImageLabel(race)}
         />
       </div>
       <CardHeader>

@@ -1,24 +1,31 @@
-import { readFileSync, statSync } from "node:fs"
+import { readFileSync } from "node:fs"
 import path from "node:path"
 import { describe, expect, it } from "vitest"
 
 const root = process.cwd()
 
 describe("upcoming race card image", () => {
-  it("ships a placeholder and falls back when the circuit photo fails", () => {
+  it("uses the designed fallback instead of the generic placeholder photo", () => {
     const source = readFileSync(
       path.join(root, "components/landing/upcoming-races.tsx"),
       "utf8"
     )
-    const asset = path.join(root, "public/assets/placeholder.jpg")
-    const header = readFileSync(asset).subarray(0, 3)
 
-    expect(source).toContain('"/assets/placeholder.jpg"')
-    expect(source).toContain("onError")
-    expect(source).toContain("data-race-image-fallback")
+    expect(source).not.toContain("placeholder.jpg")
+    expect(source).not.toContain('from "next/image"')
+    expect(source).toContain("RaceCircuitImage")
+    expect(source).toContain("raceCardImageLabel")
+    expect(source).toContain("data-race-card")
     expect(source).toContain("formatRaceCalendarDate")
     expect(source).not.toContain("toLocaleDateString")
-    expect([...header]).toEqual([0xff, 0xd8, 0xff])
-    expect(statSync(asset).size).toBeGreaterThan(1000)
+
+    const image = readFileSync(
+      path.join(root, "components/races/race-circuit-image.tsx"),
+      "utf8"
+    )
+    expect(image).toContain('from "next/image"')
+    expect(image).toContain("<Image")
+    expect(image).toContain("RaceImageFallback")
+    expect(image).not.toContain("placeholder.jpg")
   })
 })

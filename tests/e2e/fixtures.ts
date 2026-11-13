@@ -63,6 +63,14 @@ export const E2E_RACE_CANCELLED_DATE = "2098-04-01T12:00:00.000Z"
 export const E2E_RACE_CANCELLED_REASON =
   "Synthetic e2e cancellation. Not a real event."
 
+export const E2E_IMAGELESS_CIRCUIT_ID = "b1070009-e2e0-4000-8000-000000000170"
+export const E2E_IMAGELESS_RACE_ID = "b1070009-e2e0-4000-8000-000000000171"
+export const E2E_IMAGELESS_CIRCUIT_NAME = "Imageless Port Circuit"
+export const E2E_IMAGELESS_RACE_NAME = "Imageless Formula E E-Prix"
+export const E2E_IMAGELESS_RACE_SLUG = "plt-e2e-imageless-formula-e"
+export const E2E_IMAGELESS_RACE_DATE = "2099-09-20T12:00:00.000Z"
+export const E2E_IMAGELESS_COUNTRY = "Portugal"
+
 export const E2E_ADMIN_USER_ID = "user_plt014_admin"
 export const E2E_NONADMIN_USER_ID = "user_plt014_nonadmin"
 export const E2E_CLERK_SESSION_ADMIN_ENV = "PLAYWRIGHT_E2E_CLERK_SESSION_ADMIN"
@@ -982,6 +990,63 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
     `
 
     await tx`
+      INSERT INTO circuits (
+        id, name, location, country, latitude, longitude, image_url
+      )
+      VALUES (
+        ${E2E_IMAGELESS_CIRCUIT_ID}::uuid,
+        ${E2E_IMAGELESS_CIRCUIT_NAME},
+        ${"E2E Port"},
+        ${E2E_IMAGELESS_COUNTRY},
+        ${"0.0000000"},
+        ${"0.0000000"},
+        ${null}
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        name = EXCLUDED.name,
+        location = EXCLUDED.location,
+        country = EXCLUDED.country,
+        latitude = EXCLUDED.latitude,
+        longitude = EXCLUDED.longitude,
+        image_url = EXCLUDED.image_url,
+        updated_at = now()
+    `
+
+    await tx`
+      INSERT INTO races (
+        id, circuit_id, series_id, name, date, season, round,
+        country, description, status, slug, is_sprint_weekend
+      )
+      VALUES (
+        ${E2E_IMAGELESS_RACE_ID}::uuid,
+        ${E2E_IMAGELESS_CIRCUIT_ID}::uuid,
+        ${formulaESeriesId}::uuid,
+        ${E2E_IMAGELESS_RACE_NAME},
+        ${E2E_IMAGELESS_RACE_DATE}::timestamptz,
+        2099,
+        1,
+        ${E2E_IMAGELESS_COUNTRY},
+        ${"Disposable imageless circuit photo fixture. Not a real event."},
+        ${"upcoming"}::race_status,
+        ${E2E_IMAGELESS_RACE_SLUG},
+        false
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        circuit_id = EXCLUDED.circuit_id,
+        series_id = EXCLUDED.series_id,
+        name = EXCLUDED.name,
+        date = EXCLUDED.date,
+        season = EXCLUDED.season,
+        round = EXCLUDED.round,
+        country = EXCLUDED.country,
+        description = EXCLUDED.description,
+        status = EXCLUDED.status,
+        slug = EXCLUDED.slug,
+        is_sprint_weekend = EXCLUDED.is_sprint_weekend,
+        updated_at = now()
+    `
+
+    await tx`
       INSERT INTO grandstands (
         id, circuit_id, name, slug, description, covered, has_big_screen
       )
@@ -1026,6 +1091,8 @@ async function cleanupCatalog(sql: postgres.Sql): Promise<void> {
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_QATAR_RACE_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_LAS_VEGAS_RACE_ID}::uuid`
+  await sql`DELETE FROM races WHERE id = ${E2E_IMAGELESS_RACE_ID}::uuid`
+  await sql`DELETE FROM circuits WHERE id = ${E2E_IMAGELESS_CIRCUIT_ID}::uuid`
   await sql`DELETE FROM circuits WHERE id = ${E2E_CIRCUIT_ID}::uuid`
   await cleanupDisposableProfiles(sql)
 }

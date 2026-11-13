@@ -105,7 +105,7 @@ export const HeroSection = ({
 
   return (
     <>
-      <section className="relative flex min-h-[95vh] items-center justify-center overflow-hidden">
+      <section className="relative flex min-h-[95vh] items-start justify-center overflow-hidden pt-4 sm:items-center sm:pt-0">
         {/* Background image with parallax effect */}
         <motion.div style={{ scale }} className="absolute inset-0">
           <HeroImage />
@@ -129,7 +129,7 @@ export const HeroSection = ({
             >
               <Badge
                 variant="outline"
-                className="mb-6 border-white/20 bg-white/10 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:mb-8 sm:px-4 sm:py-2 sm:text-sm"
+                className="mb-2 border-white/20 bg-white/10 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:mb-8 sm:px-4 sm:py-2 sm:text-sm"
               >
                 <FlagIcon className="mr-2 size-3 sm:size-4" />
                 F1 · MotoGP · Formula E · IndyCar · WEC
@@ -141,7 +141,7 @@ export const HeroSection = ({
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="mb-4 sm:mb-6"
+              className="mb-2 sm:mb-6"
             >
               <h1 className="text-4xl font-bold tracking-tighter text-white drop-shadow-2xl [text-shadow:_0_4px_24px_rgba(0,0,0,0.3)] sm:text-5xl md:text-6xl lg:text-7xl">
                 Monaco. Le Mans. The Indy 500.
@@ -157,9 +157,9 @@ export const HeroSection = ({
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="mb-6 max-w-2xl px-4 sm:mb-8 sm:px-0"
+              className="mb-2 max-w-2xl px-4 sm:mb-8 sm:px-0"
             >
-              <p className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-base leading-relaxed text-white/90 shadow-xl backdrop-blur-md sm:px-6 sm:py-4 sm:text-lg md:text-xl">
+              <p className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm leading-snug text-white/90 shadow-xl backdrop-blur-md sm:px-6 sm:py-4 sm:text-lg sm:leading-relaxed md:text-xl">
                 {copy.heroSubline}
               </p>
             </motion.div>
@@ -170,10 +170,10 @@ export const HeroSection = ({
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
-                className="mb-8 w-full px-4 sm:mb-12 sm:px-0"
+                className="mb-3 w-full px-4 sm:mb-12 sm:px-0"
               >
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="group flex w-full flex-col items-center space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:shadow-lg sm:w-auto sm:px-8 sm:py-6">
+                <div className="flex flex-col items-center space-y-2 sm:space-y-4">
+                  <div className="group flex w-full flex-col items-center space-y-2 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:shadow-lg sm:w-auto sm:space-y-4 sm:px-8 sm:py-6">
                     <div className="flex items-center space-x-2 text-white/90">
                       <TimerIcon className="size-4 sm:size-5" />
                       <span className="text-base sm:text-lg">
@@ -275,6 +275,7 @@ export const HeroSection = ({
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
+                data-hero-cta-cluster=""
                 className="flex w-full flex-col justify-center gap-3 sm:flex-row sm:gap-4"
               >
                 <Button
@@ -319,7 +320,7 @@ export const HeroSection = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
-                className="mt-6 sm:mt-8"
+                className="mt-2 sm:mt-8"
               >
                 <ChevronDownIcon className="size-6 animate-bounce text-white/70 sm:size-8" />
               </motion.div>
@@ -355,8 +356,7 @@ export const HeroSection = ({
             <Star className="text-foreground size-8" />
             <h3 className="text-lg font-semibold">Get out on time</h3>
             <p className="text-muted-foreground text-center">
-              The quickest way back after the flag, from fans who queued for
-              it.
+              The quickest way back after the flag, from fans who queued for it.
             </p>
           </div>
         </motion.div>

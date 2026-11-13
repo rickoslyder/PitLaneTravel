@@ -1,4 +1,9 @@
-import type { ConsoleMessage, BrowserContext, Page, Request } from "@playwright/test"
+import type {
+  ConsoleMessage,
+  BrowserContext,
+  Page,
+  Request
+} from "@playwright/test"
 import {
   classifyBrowserRequest,
   isAppOriginConsoleError,
@@ -133,7 +138,9 @@ function isVendorPersistenceKey(key: string): boolean {
   )
 }
 
-async function attachIsolation(page: Page): Promise<{ assertClean: () => void }> {
+async function attachIsolation(
+  page: Page
+): Promise<{ assertClean: () => void }> {
   const consoleErrors: string[] = []
   const pageErrors: string[] = []
   const deniedExternalRequests: string[] = []
@@ -205,7 +212,9 @@ async function readStorageKeys(page: Page): Promise<{
       if (key) session.push(key)
     }
     const cookies = window.document.cookie
-      ? window.document.cookie.split(";").map(part => part.split("=")[0]?.trim() ?? "")
+      ? window.document.cookie
+          .split(";")
+          .map(part => part.split("=")[0]?.trim() ?? "")
       : []
     return { local, session, cookies: cookies.filter(Boolean) }
   })
@@ -243,7 +252,9 @@ async function readPublicGlobals(page: Page): Promise<{
       : []
     const queue = Array.isArray(w.clarity?.q) ? w.clarity.q : []
     const queuedGrant = queue.some(item => {
-      const args = Array.isArray(item) ? item : Array.from((item as ArrayLike<unknown>) ?? [])
+      const args = Array.isArray(item)
+        ? item
+        : Array.from((item as ArrayLike<unknown>) ?? [])
       const payload = args[1] as { analytics_Storage?: string } | undefined
       return args[0] === "consentv2" && payload?.analytics_Storage === "granted"
     })
@@ -292,7 +303,9 @@ async function assertNoPrivateMaterial(
   expect(html).not.toMatch(/BEGIN (RSA )?PRIVATE KEY/)
   expect(html).not.toMatch(/\bsk_live_[A-Za-z0-9]+/)
   expect(html).not.toMatch(/\bwhsec_[A-Za-z0-9]+/)
-  expect(html).not.toMatch(/CLERK_SECRET_KEY|DATABASE_URL|SUPABASE_SERVICE_ROLE/)
+  expect(html).not.toMatch(
+    /CLERK_SECRET_KEY|DATABASE_URL|SUPABASE_SERVICE_ROLE/
+  )
   for (const request of requests) {
     expect(request.url).not.toMatch(/BEGIN (RSA )?PRIVATE KEY/)
     if (request.body) {
@@ -338,7 +351,9 @@ async function assertEqualActionProminence(page: Page): Promise<void> {
   })
   await expect(accept).toBeVisible()
   await expect(reject).toBeVisible()
-  expect(await accept.getAttribute("class")).toBe(await reject.getAttribute("class"))
+  expect(await accept.getAttribute("class")).toBe(
+    await reject.getAttribute("class")
+  )
   const acceptBox = await accept.boundingBox()
   const rejectBox = await reject.boundingBox()
   expect(acceptBox, "Accept analytics geometry").toBeTruthy()
@@ -360,17 +375,24 @@ async function assertProgressierChromeIsAbsent(page: Page): Promise<void> {
         if (node instanceof HTMLElement && node.shadowRoot) {
           visit(node.shadowRoot)
         }
-        const className = typeof node.className === "string" ? node.className : ""
+        const className =
+          typeof node.className === "string" ? node.className : ""
         if (/progressier/i.test(className) || /progressier/i.test(node.id)) {
           found.push(`${node.tagName} ${className} ${node.id}`.trim())
         }
         if (node instanceof HTMLImageElement && /progressier/i.test(node.alt)) {
           found.push(`img alt=${node.alt}`)
         }
-        if (node instanceof HTMLScriptElement && /progressier\.app/i.test(node.src)) {
+        if (
+          node instanceof HTMLScriptElement &&
+          /progressier\.app/i.test(node.src)
+        ) {
           found.push(`script ${node.src}`)
         }
-        if (node instanceof HTMLLinkElement && /progressier\.app/i.test(node.href)) {
+        if (
+          node instanceof HTMLLinkElement &&
+          /progressier\.app/i.test(node.href)
+        ) {
           found.push(`link ${node.href}`)
         }
         const text = (node.textContent ?? "").replace(/\s+/g, " ").trim()
@@ -384,6 +406,107 @@ async function assertProgressierChromeIsAbsent(page: Page): Promise<void> {
   })
 
   expect(hits, "Progressier badge or install chrome").toEqual([])
+}
+
+function boxesOverlap(
+  a: { x: number; y: number; width: number; height: number },
+  b: { x: number; y: number; width: number; height: number }
+): boolean {
+  return (
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
+  )
+}
+
+async function assertConsentBarClearsHero(
+  page: Page,
+  viewport: { width: number; height: number }
+): Promise<void> {
+  const label = `${viewport.width}x${viewport.height}`
+  await assertFirstVisitBanner(page)
+  await expect(
+    page.getByRole("region", { name: "Usage analytics" })
+  ).toBeVisible()
+  await expect(page.getByText(/Next Race:/)).toBeVisible()
+
+  const bar = page.locator("[data-analytics-consent-bar]")
+  const cluster = page.locator("[data-hero-cta-cluster]")
+  const findRace = page.getByRole("link", {
+    name: "Find your race",
+    exact: true
+  })
+  const compare = page.getByRole("link", {
+    name: /Compare races|See F1 & MotoGP packages/
+  })
+  await expect(findRace).toBeVisible()
+  await expect(compare).toBeVisible()
+  await expect
+    .poll(async () => {
+      const barBox = await bar.boundingBox()
+      const clusterBox = await cluster.boundingBox()
+      if (!barBox || !clusterBox) return -1
+      return barBox.y - (clusterBox.y + clusterBox.height)
+    })
+    .toBeGreaterThanOrEqual(0)
+
+  const barBox = await bar.boundingBox()
+  expect(barBox, `${label} consent bar`).toBeTruthy()
+  expect(barBox!.height, `${label} consent bar height`).toBeLessThanOrEqual(160)
+  expect(
+    Math.abs(barBox!.y + barBox!.height - viewport.height),
+    `${label} consent bar should sit on the viewport bottom`
+  ).toBeLessThanOrEqual(1)
+
+  for (const link of [findRace, compare]) {
+    const box = await link.boundingBox()
+    expect(box, `${label} hero CTA`).toBeTruthy()
+    expect(
+      boxesOverlap(box!, barBox!),
+      `${label} CTA overlaps consent bar`
+    ).toBe(false)
+    expect(box!.y, `${label} CTA top`).toBeGreaterThanOrEqual(0)
+    expect(box!.y + box!.height, `${label} CTA bottom`).toBeLessThanOrEqual(
+      viewport.height
+    )
+    const expected = (await link.innerText()).replace(/\s+/g, " ").trim()
+    const hit = await page.evaluate(
+      ({ x, y }) => {
+        const el = document.elementFromPoint(x, y)
+        return el?.closest("a")?.textContent?.replace(/\s+/g, " ").trim() ?? ""
+      },
+      { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 }
+    )
+    expect(hit, `${label} CTA hit target`).toContain(expected)
+  }
+
+  const bottomNav = await page.evaluate(() => {
+    const barEl = document.querySelector("[data-analytics-consent-bar]")
+    if (!barEl) return "missing-bar"
+    const barRect = barEl.getBoundingClientRect()
+    const navs = [...document.querySelectorAll("nav")].filter(node => {
+      const style = getComputedStyle(node)
+      if (style.position !== "fixed" && style.position !== "sticky")
+        return false
+      const rect = node.getBoundingClientRect()
+      return rect.height > 0 && rect.top > window.innerHeight * 0.45
+    })
+    for (const node of navs) {
+      const rect = node.getBoundingClientRect()
+      const overlaps = !(
+        barRect.bottom <= rect.top ||
+        barRect.top >= rect.bottom ||
+        barRect.right <= rect.left ||
+        barRect.left >= rect.right
+      )
+      if (overlaps) return "overlap"
+    }
+    return "clear"
+  })
+  expect(bottomNav, `${label} mobile bottom nav`).toBe("clear")
+  await assertEqualActionProminence(page)
+  await assertNoHorizontalOverflow(page, label)
 }
 
 async function assertFirstVisitBanner(page: Page): Promise<void> {
@@ -402,7 +525,9 @@ async function assertFirstVisitBanner(page: Page): Promise<void> {
 }
 
 async function openPrivacySettings(page: Page): Promise<void> {
-  await page.getByRole("button", { name: "Privacy settings", exact: true }).click()
+  await page
+    .getByRole("button", { name: "Privacy settings", exact: true })
+    .click()
   await expect(
     page.getByRole("heading", { name: "Privacy settings", exact: true })
   ).toBeVisible()
@@ -462,7 +587,10 @@ async function installOrderProbe(page: Page): Promise<void> {
       url: string | URL
     ) {
       mark(url)
-      return origOpen.apply(this, arguments as unknown as Parameters<typeof origOpen>)
+      return origOpen.apply(
+        this,
+        arguments as unknown as Parameters<typeof origOpen>
+      )
     }
     const observer = new MutationObserver(mutations => {
       for (const mutation of mutations) {
@@ -527,7 +655,9 @@ async function expectGrantedVendors(
     .toBe(true)
   await expect.poll(() => hasGtmInit(vendorRequests(requests))).toBe(true)
   await expect.poll(() => hasPostHogInit(vendorRequests(requests))).toBe(true)
-  await expect.poll(() => hasSpeedInsightsInit(vendorRequests(requests))).toBe(true)
+  await expect
+    .poll(() => hasSpeedInsightsInit(vendorRequests(requests)))
+    .toBe(true)
   const globals = await readPublicGlobals(page)
   expect(globals.hasClarity || hasClarityRequest(requests)).toBe(true)
   expect(globals.clarityGranted || hasClarityRequest(requests)).toBe(true)
@@ -536,9 +666,9 @@ async function expectGrantedVendors(
   const update = commands.find(command => command.phase === "update")
   expect(defaultDenied, "Google consent default").toBeTruthy()
   expect(update, "Google consent update").toBeTruthy()
-  expect(commands.findIndex(command => command.phase === "default")).toBeLessThan(
-    commands.findIndex(command => command.phase === "update")
-  )
+  expect(
+    commands.findIndex(command => command.phase === "default")
+  ).toBeLessThan(commands.findIndex(command => command.phase === "update"))
   expect(defaultDenied!.state).toMatchObject({
     ad_storage: "denied",
     ad_user_data: "denied",
@@ -570,7 +700,11 @@ async function expectPostConsentPageview(page: Page): Promise<void> {
 
 async function openSecondPage(
   context: BrowserContext
-): Promise<{ page: Page; guard: { assertClean: () => void }; requests: ObservedRequest[] }> {
+): Promise<{
+  page: Page
+  guard: { assertClean: () => void }
+  requests: ObservedRequest[]
+}> {
   const page = await context.newPage()
   await installAutomationMarkerNormalization(page)
   const guard = await attachIsolation(page)
@@ -643,7 +777,9 @@ test.describe("analytics consent", () => {
     const beforeChoice = vendorRequests(requests).length
     expect(beforeChoice).toBe(0)
 
-    await page.getByRole("button", { name: "Reject non-essential", exact: true }).click()
+    await page
+      .getByRole("button", { name: "Reject non-essential", exact: true })
+      .click()
     await expect(
       page.getByRole("heading", { name: "Usage analytics", exact: true })
     ).toHaveCount(0)
@@ -682,9 +818,16 @@ test.describe("analytics consent", () => {
         })
       ).toHaveCount(0)
       await expect(
-        second.page.getByRole("button", { name: "Privacy settings", exact: true })
+        second.page.getByRole("button", {
+          name: "Privacy settings",
+          exact: true
+        })
       ).toBeVisible()
-      await assertNoVendorSurface(second.page, second.requests, "rejected return")
+      await assertNoVendorSurface(
+        second.page,
+        second.requests,
+        "rejected return"
+      )
     } finally {
       second.guard.assertClean()
       await second.page.close()
@@ -700,7 +843,9 @@ test.describe("analytics consent", () => {
     await gotoHome(page)
     expect(vendorRequests(requests)).toEqual([])
 
-    await page.getByRole("button", { name: "Accept analytics", exact: true }).click()
+    await page
+      .getByRole("button", { name: "Accept analytics", exact: true })
+      .click()
     await expectGrantedVendors(page, requests)
     await expectPostConsentPageview(page)
 
@@ -740,7 +885,9 @@ test.describe("analytics consent", () => {
   }) => {
     const requests = observeRequests(page)
     await gotoHome(page)
-    await page.getByRole("button", { name: "Accept analytics", exact: true }).click()
+    await page
+      .getByRole("button", { name: "Accept analytics", exact: true })
+      .click()
     await expectGrantedVendors(page, requests)
     await openPrivacySettings(page)
 
@@ -818,16 +965,23 @@ test.describe("analytics consent", () => {
       await assertFirstVisitBanner(second.page)
 
       const bLoads = trackMainFrameLoads(second.page)
-      await page.getByRole("button", { name: "Accept analytics", exact: true }).click()
+      await page
+        .getByRole("button", { name: "Accept analytics", exact: true })
+        .click()
       await expectGrantedVendors(page, requestsA)
       await expect(
-        second.page.getByRole("button", { name: "Privacy settings", exact: true })
+        second.page.getByRole("button", {
+          name: "Privacy settings",
+          exact: true
+        })
       ).toBeVisible()
       await expectGrantedVendors(second.page, second.requests)
       expect(bLoads.count()).toBe(0)
       const bGlobals = await readPublicGlobals(second.page)
       expect(
-        consentCommands(bGlobals.dataLayer).filter(command => command.phase === "default")
+        consentCommands(bGlobals.dataLayer).filter(
+          command => command.phase === "default"
+        )
       ).toHaveLength(1)
 
       const aLoads = trackMainFrameLoads(page)
@@ -861,7 +1015,9 @@ test.describe("analytics consent", () => {
   }) => {
     const requestsA = observeRequests(page)
     await gotoHome(page)
-    await page.getByRole("button", { name: "Accept analytics", exact: true }).click()
+    await page
+      .getByRole("button", { name: "Accept analytics", exact: true })
+      .click()
     await expectGrantedVendors(page, requestsA)
     const second = await openSecondPage(context)
     try {
@@ -891,7 +1047,9 @@ test.describe("analytics consent", () => {
     const damaged = "{not-json"
     const requestsA = observeRequests(page)
     await gotoHome(page)
-    await page.getByRole("button", { name: "Accept analytics", exact: true }).click()
+    await page
+      .getByRole("button", { name: "Accept analytics", exact: true })
+      .click()
     await expectGrantedVendors(page, requestsA)
     const second = await openSecondPage(context)
     try {
@@ -917,6 +1075,19 @@ test.describe("analytics consent", () => {
     }
   })
 
+  test("consent bar stays below the hero CTAs at 375 and 1440", async ({
+    page
+  }) => {
+    for (const viewport of [
+      { width: 375, height: 812 },
+      { width: 1440, height: 1000 }
+    ]) {
+      await page.setViewportSize(viewport)
+      await gotoHome(page)
+      await assertConsentBarClearsHero(page, viewport)
+    }
+  })
+
   test("unknown-version consent storage unloads vendors without rewriting the damaged value", async ({
     page,
     context
@@ -924,7 +1095,9 @@ test.describe("analytics consent", () => {
     const damaged = '{"v":99,"status":"granted"}'
     const requestsA = observeRequests(page)
     await gotoHome(page)
-    await page.getByRole("button", { name: "Accept analytics", exact: true }).click()
+    await page
+      .getByRole("button", { name: "Accept analytics", exact: true })
+      .click()
     await expectGrantedVendors(page, requestsA)
     const second = await openSecondPage(context)
     try {

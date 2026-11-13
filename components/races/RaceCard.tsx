@@ -6,7 +6,10 @@ import { RaceWithCircuitAndSeries } from "@/types/database"
 import { CalendarDays, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatRaceCalendarDate } from "@/lib/race-datetime"
-import { RaceCircuitImage } from "@/components/races/race-circuit-image"
+import {
+  RaceCircuitImage,
+  raceCardImageLabel
+} from "@/components/races/race-circuit-image"
 import { CoverageBadge } from "@/components/coverage/coverage-badge"
 import { SeriesBadge } from "@/components/series/series-badge"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
@@ -45,10 +48,12 @@ export function RaceCard({
     race.circuit?.timezone_id
   )
   const isCancelled = race.status === "cancelled"
+  const imageLabel = raceCardImageLabel(race)
 
   if (variant === "list") {
     return (
       <Card
+        data-race-card=""
         className={cn(
           "flex flex-col sm:flex-row sm:items-center sm:justify-between",
           isCancelled && "opacity-70",
@@ -61,8 +66,10 @@ export function RaceCard({
             <div className="relative size-20 overflow-hidden rounded-lg">
               <RaceCircuitImage
                 src={race.circuit?.image_url}
-                alt={race.name}
+                alt={imageLabel.title}
                 className="size-full object-cover"
+                compact
+                label={imageLabel}
               />
             </div>
           </CardHeader>
@@ -115,6 +122,7 @@ export function RaceCard({
 
   return (
     <Card
+      data-race-card=""
       className={cn(
         "group cursor-pointer",
         isCancelled && "opacity-70",
@@ -135,8 +143,9 @@ export function RaceCard({
           </div>
           <RaceCircuitImage
             src={race.circuit?.image_url}
-            alt={race.name}
+            alt={imageLabel.title}
             className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+            label={imageLabel}
           />
         </div>
       </CardHeader>
