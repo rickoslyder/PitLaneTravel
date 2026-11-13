@@ -3,8 +3,9 @@ import path from "node:path"
 import { format, parseISO } from "date-fns"
 import { z } from "zod"
 import { brand } from "@/config/brand"
+import { serializeJsonLd, SITE_ORIGIN } from "@/lib/site-metadata"
 
-export const SITE_ORIGIN = "https://www.pitlanetravel.com"
+export { serializeJsonLd, SITE_ORIGIN }
 export const GUIDES_DIR = path.join(process.cwd(), "content", "guides")
 
 const WORDS_PER_MINUTE = 220
@@ -332,8 +333,4 @@ export function buildGuidesIndexBreadcrumbJsonLd(): BreadcrumbListJsonLd {
       }
     ]
   }
-}
-
-export function serializeJsonLd(data: unknown): string {
-  return JSON.stringify(data).replace(/</g, "\\u003c")
 }

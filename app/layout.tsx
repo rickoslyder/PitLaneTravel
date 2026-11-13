@@ -17,6 +17,7 @@ import { TailwindIndicator } from "@/components/utilities/tailwind-indicator"
 import { cn } from "@/lib/utils"
 import { brand, brandCopy } from "@/config/brand"
 import { getPackagesAvailability } from "@/lib/packages-availability"
+import { DEFAULT_OG_IMAGE_URL, SITE_ORIGIN } from "@/lib/site-metadata"
 import { ClerkProvider } from "@clerk/nextjs"
 import { auth } from "@clerk/nextjs/server"
 import type { Metadata } from "next"
@@ -30,11 +31,20 @@ export async function generateMetadata(): Promise<Metadata> {
   const copy = brandCopy(availability.siteWide)
 
   return {
+    metadataBase: new URL(SITE_ORIGIN),
     title: brand.name,
     description: copy.description,
     applicationName: brand.name,
     creator: brand.name,
-    publisher: brand.name
+    publisher: brand.name,
+    // "./" resolves to the current path and drops query strings, so
+    // /races/[slug]?tab=info canonicalizes to the path.
+    alternates: { canonical: "./" },
+    openGraph: {
+      type: "website",
+      siteName: brand.name,
+      images: [{ url: DEFAULT_OG_IMAGE_URL, alt: brand.name }]
+    }
   }
 }
 

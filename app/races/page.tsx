@@ -8,6 +8,8 @@ import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { coverageByRaceId } from "@/lib/public-coverage"
 import { startOfUtcDay } from "@/lib/race-calendar-window"
+import { buildWebPageJsonLd, serializeJsonLd } from "@/lib/site-metadata"
+import { racesPageDescription, racesPageTitle } from "./metadata"
 
 export default async function RacesServerPage() {
   const { userId } = await auth()
@@ -30,6 +32,18 @@ export default async function RacesServerPage() {
 
   return (
     <div className="flex-1 p-4 pt-0">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(
+            buildWebPageJsonLd({
+              name: racesPageTitle,
+              description: racesPageDescription,
+              pathname: "/races"
+            })
+          )
+        }}
+      />
       <RacesPage
         initialRaces={races ?? []}
         coverageByRaceId={coverageMap}

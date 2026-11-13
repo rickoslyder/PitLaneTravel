@@ -2,6 +2,8 @@ import {
   test,
   expect,
   E2E_CIRCUIT_NAME,
+  E2E_RACE_CANCELLED_SLUG,
+  E2E_RACE_COMPLETED_SLUG,
   E2E_RACE_NAME,
   E2E_RACE_SLUG
 } from "./fixtures"
@@ -197,8 +199,7 @@ test.describe("production smoke", () => {
     const cases = [
       {
         path: "/guides/wec-2027-launch-week",
-        heading:
-          "WEC 2027 Launch Week: which round to book, and what it costs",
+        heading: "WEC 2027 Launch Week: which round to book, and what it costs",
         disclosure:
           "This page has two affiliate links: Airalo (eSIMs) and Omio (trains and buses).",
         faq: "When is WEC Launch Week 2026?",
@@ -208,7 +209,8 @@ test.describe("production smoke", () => {
         path: "/guides/azerbaijan-grand-prix-2027-tickets-travel",
         heading:
           "Azerbaijan Grand Prix 2027 tickets: early bird, best grandstands and planning your trip",
-        disclosure: "Our only affiliate link here is to Airalo, an eSIM provider.",
+        disclosure:
+          "Our only affiliate link here is to Airalo, an eSIM provider.",
         faq: "When does the Baku F1 early bird end?",
         omio: false
       }
@@ -219,7 +221,10 @@ test.describe("production smoke", () => {
       for (const item of cases) {
         const response = await page.goto(item.path)
         expect(response, `${item.path} should return a response`).toBeTruthy()
-        expect(response!.ok(), `${item.path} should be HTTP success`).toBeTruthy()
+        expect(
+          response!.ok(),
+          `${item.path} should be HTTP success`
+        ).toBeTruthy()
 
         await expect(
           page.getByRole("heading", { name: item.heading, exact: true })
@@ -280,7 +285,8 @@ test.describe("production smoke", () => {
           .locator('script[type="application/ld+json"]')
           .allTextContents()
         const parsed = blocks.map(
-          block => JSON.parse(block) as { "@type"?: string; mainEntity?: unknown[] }
+          block =>
+            JSON.parse(block) as { "@type"?: string; mainEntity?: unknown[] }
         )
         expect(parsed.some(block => block["@type"] === "Article")).toBe(true)
         expect(parsed.some(block => block["@type"] === "BreadcrumbList")).toBe(
@@ -302,5 +308,91 @@ test.describe("production smoke", () => {
         ).toBeLessThanOrEqual(metrics.innerWidth)
       }
     }
+  })
+
+  test("sitemap omits noindex /packages, lists /cancellation, and drops finished races", async ({
+    request
+  }) => {
+    // The production build runs before this fixture inserts races. A sitemap
+    // frozen at build time would miss the seeded upcoming slug.
+    const response = await request.get("/sitemap.xml")
+    expect(response.ok(), "sitemap should be HTTP success").toBeTruthy()
+    const xml = await response.text()
+
+    expect(xml).toContain("https://www.pitlanetravel.com/cancellation")
+    expect(xml).not.toContain("https://www.pitlanetravel.com/packages")
+    expect(xml).toContain(
+      `https://www.pitlanetravel.com/races/${E2E_RACE_SLUG}`
+    )
+    expect(xml).not.toContain(
+      `https://www.pitlanetravel.com/races/${E2E_RACE_COMPLETED_SLUG}`
+    )
+    expect(xml).not.toContain(
+      `https://www.pitlanetravel.com/races/${E2E_RACE_CANCELLED_SLUG}`
+    )
+  })
+
+  test("home, races, a race, and a guide publish canonical, og:image, and JSON-LD", async ({
+    page
+  }) => {
+    const ogImage = "https://www.pitlanetravel.com/images/home-hero.jpg"
+
+    async function expectShareMetadata(canonical: string) {
+      await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+        "href",
+        canonical
+      )
+      await expect(
+        page.locator('meta[property="og:image"]').first()
+      ).toHaveAttribute("content", ogImage)
+    }
+
+    async function jsonLdTypes(): Promise<string[]> {
+      const blocks = await page
+        .locator('script[type="application/ld+json"]')
+        .allTextContents()
+      return blocks.map(block => {
+        const parsed = JSON.parse(block) as { "@type"?: string }
+        return parsed["@type"] ?? ""
+      })
+    }
+
+    let response = await page.goto("/")
+    expect(response?.ok()).toBeTruthy()
+    await expectShareMetadata("https://www.pitlanetravel.com")
+    expect(await jsonLdTypes()).toEqual(
+      expect.arrayContaining(["Organization", "WebSite"])
+    )
+
+    response = await page.goto("/races")
+    expect(response?.ok()).toBeTruthy()
+    await expectShareMetadata("https://www.pitlanetravel.com/races")
+    expect(await jsonLdTypes()).toContain("WebPage")
+
+    response = await page.goto(`/races/${E2E_RACE_SLUG}?tab=info`)
+    expect(response?.ok()).toBeTruthy()
+    await expect(page).toHaveURL(/[?&]tab=info(?:&|$)/)
+    await expectShareMetadata(
+      `https://www.pitlanetravel.com/races/${E2E_RACE_SLUG}`
+    )
+    const raceBlocks = await page
+      .locator('script[type="application/ld+json"]')
+      .allTextContents()
+    const sportsEvent = raceBlocks
+      .map(block => JSON.parse(block) as { "@type"?: string; url?: string })
+      .find(block => block["@type"] === "SportsEvent")
+    expect(sportsEvent?.url).toBe(
+      `https://www.pitlanetravel.com/races/${E2E_RACE_SLUG}`
+    )
+    await expect(page.locator('a[href="/saved"]')).toHaveCount(0)
+    await expect(page.locator('a[href="/recent"]')).toHaveCount(0)
+
+    response = await page.goto("/guides/which-race-first-2027")
+    expect(response?.ok()).toBeTruthy()
+    await expectShareMetadata(
+      "https://www.pitlanetravel.com/guides/which-race-first-2027"
+    )
+    expect(await jsonLdTypes()).toContain("Article")
   })
 })

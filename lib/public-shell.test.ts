@@ -31,17 +31,21 @@ describe("public shell", () => {
       expect(source, relativePath).toContain("PublicShell")
       expect(source, relativePath).not.toContain("AppSidebar")
     }
-    expect(readSource("app/races/compare/layout.tsx")).not.toContain("AppSidebar")
+    expect(readSource("app/races/compare/layout.tsx")).not.toContain(
+      "AppSidebar"
+    )
     const racesLayout = readSource("app/races/layout.tsx")
     expect(racesLayout).toContain("AppSidebar")
     expect(racesLayout).toContain("SidebarInset")
     expect(racesLayout).toContain("min-w-0")
-    expect(readSource("components/public-shell.tsx")).toContain("overflow-x-clip")
+    expect(readSource("components/public-shell.tsx")).toContain(
+      "overflow-x-clip"
+    )
     expect(readSource("components/public-shell.tsx")).toContain("<Header")
     expect(readSource("components/public-shell.tsx")).toContain("<SiteFooter")
   })
 
-  it("keeps the sidebar on signed-in planning tools, including Saved and Trip Budget", () => {
+  it("keeps the sidebar on signed-in planning tools and hides missing Saved and Recent routes", () => {
     for (const relativePath of toolLayouts) {
       const source = readSource(relativePath)
       expect(source, relativePath).toContain("AppSidebar")
@@ -50,7 +54,8 @@ describe("public shell", () => {
     const sidebar = readSource("components/sidebar/app-sidebar.tsx")
     expect(sidebar).toContain('title: "My Trips"')
     expect(sidebar).toContain('name: "Trip Budget"')
-    expect(sidebar).toContain('name: "Saved Items"')
+    expect(sidebar).not.toContain('url: "/saved"')
+    expect(sidebar).not.toContain('url: "/recent"')
     const header = readSource("components/header.tsx")
     expect(header).not.toContain('label: "My Trips"')
     expect(header).toContain('label="Saved Items"')

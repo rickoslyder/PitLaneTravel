@@ -14,6 +14,7 @@ import {
   RACE_HISTORY_NOT_FOUND_DESCRIPTION,
   RACE_HISTORY_NOT_FOUND_TITLE
 } from "@/lib/race-page-metadata"
+import { pageSeo } from "@/lib/site-metadata"
 
 interface RaceHistoryPageProps {
   params: Promise<{
@@ -73,13 +74,19 @@ export async function generateMetadata({
     series: data.race.series,
     metaDescription: data.history.metaDescription
   })
+  const seo = pageSeo(
+    data.race.slug ? `/races/${data.race.slug}/history` : `/races/${id}/history`
+  )
 
   return {
     title,
     description,
+    alternates: seo.alternates,
     openGraph: {
       title,
-      description
+      description,
+      url: seo.openGraph.url,
+      images: seo.openGraph.images
     }
   }
 }

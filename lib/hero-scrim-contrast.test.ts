@@ -77,6 +77,10 @@ describe("race hero fallback contrast", () => {
       "utf8"
     )
     const sitemap = readFileSync(path.join(root, "app/sitemap.ts"), "utf8")
+    const sitemapRoutes = readFileSync(
+      path.join(root, "lib/sitemap-routes.ts"),
+      "utf8"
+    )
 
     expect(hero).toContain('src="/assets/placeholder.jpg"')
     expect(hero).toContain("bg-black/70")
@@ -86,6 +90,7 @@ describe("race hero fallback contrast", () => {
     expect(notice).toContain("See upcoming {seriesName} races.")
     expect(page).toContain("index: false")
     expect(page).toContain("follow: true")
-    expect(sitemap).toContain("raceHasFinished")
+    expect(sitemap).toContain("isSitemapIndexableRace")
+    expect(sitemapRoutes).toContain("raceHasFinished")
   })
 })

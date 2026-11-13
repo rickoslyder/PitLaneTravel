@@ -26,7 +26,7 @@
     { "id": "flights", "class": "core", "pathname": "/flights" },
     { "id": "hotels", "class": "core", "pathname": "/hotels" },
     { "id": "transport", "class": "core", "pathname": "/transport" },
-    { "id": "packages", "class": "core", "pathname": "/packages" },
+    { "id": "cancellation", "class": "core", "pathname": "/cancellation" },
     { "id": "about", "class": "core", "pathname": "/about" },
     { "id": "faq", "class": "core", "pathname": "/faq" },
     { "id": "contact", "class": "core", "pathname": "/contact" },

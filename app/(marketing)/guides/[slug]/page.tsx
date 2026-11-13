@@ -24,6 +24,7 @@ import {
   raceLinkLabel,
   serializeJsonLd
 } from "@/lib/guides"
+import { DEFAULT_OG_IMAGE_URL, pageSeo } from "@/lib/site-metadata"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -94,18 +95,19 @@ export async function generateMetadata({
     return { title: `Guide | ${brand.name}` }
   }
 
+  const seo = pageSeo(guidePath(guide.slug))
   const canonical = absoluteUrl(guidePath(guide.slug))
   const documentTitle = `${guide.title} | ${brand.name}`
   const image = guide.heroImage
     ? guide.heroImage.startsWith("http")
       ? guide.heroImage
       : absoluteUrl(guide.heroImage)
-    : undefined
+    : DEFAULT_OG_IMAGE_URL
 
   return {
     title: documentTitle,
     description: guide.description,
-    alternates: { canonical },
+    alternates: seo.alternates,
     ...(NEW_GUIDE_SLUGS.has(guide.slug)
       ? { robots: { index: true, follow: true } }
       : {}),
@@ -119,13 +121,13 @@ export async function generateMetadata({
       publishedTime: guide.publishedAt,
       modifiedTime: guide.updatedAt,
       authors: [guide.author],
-      images: image ? [{ url: image }] : undefined
+      images: [{ url: image, alt: guide.title }]
     },
     twitter: {
-      card: image ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: guide.title,
       description: guide.description,
-      images: image ? [image] : undefined
+      images: [image]
     }
   }
 }

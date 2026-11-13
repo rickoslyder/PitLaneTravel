@@ -20,6 +20,11 @@ import {
   RACE_PAGE_NOT_FOUND_TITLE
 } from "@/lib/race-page-metadata"
 import { raceHasFinished } from "@/lib/finished-race"
+import {
+  buildSportsEventJsonLd,
+  pageSeo,
+  serializeJsonLd
+} from "@/lib/site-metadata"
 import { raceHasTicketListingsAction } from "@/actions/db/ticket-listing-actions"
 
 interface RacePageProps {
@@ -93,13 +98,17 @@ export async function generateMetadata({
     },
     new Date()
   )
+  const seo = pageSeo(race.slug ? `/races/${race.slug}` : `/races/${id}`)
 
   return {
     title: copy.title,
     description: copy.description,
+    alternates: seo.alternates,
     openGraph: {
       title: copy.openGraph.title,
-      description: copy.openGraph.description
+      description: copy.openGraph.description,
+      url: seo.openGraph.url,
+      images: seo.openGraph.images
     },
     ...(finished ? { robots: { index: false, follow: true } } : {})
   }
@@ -241,8 +250,30 @@ export default async function RacePage({ params }: RacePageProps) {
     ? "listed"
     : "empty"
 
+  const sportsEvent = buildSportsEventJsonLd({
+    name: raceResult.data.name,
+    startDate: raceResult.data.date,
+    endDate: raceResult.data.weekend_end,
+    status: raceResult.data.status,
+    url: raceResult.data.slug
+      ? `/races/${raceResult.data.slug}`
+      : `/races/${resolvedParams.id}`,
+    sport: raceResult.data.series?.name ?? null,
+    locationName: circuitResult.data?.name ?? null,
+    addressLocality: circuitResult.data?.location ?? null,
+    addressCountry: circuitResult.data?.country ?? raceResult.data.country
+  })
+
   return (
     <div className="space-y-8 sm:container sm:py-8">
+      {sportsEvent ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(sportsEvent)
+          }}
+        />
+      ) : null}
       <RaceDetailsPage
         race={raceWithDetails}
         userId={userId}
