@@ -1,9 +1,13 @@
+import type { Page } from "@playwright/test"
 import {
   test,
   expect,
   E2E_CIRCUIT_NAME,
+  E2E_IMAGELESS_CIRCUIT_NAME,
+  E2E_IMAGELESS_RACE_NAME,
   E2E_RACE_CANCELLED_SLUG,
   E2E_RACE_COMPLETED_SLUG,
+  E2E_RACE_IN_PROGRESS_NAME,
   E2E_RACE_NAME,
   E2E_RACE_SLUG
 } from "./fixtures"
@@ -395,4 +399,82 @@ test.describe("production smoke", () => {
     )
     expect(await jsonLdTypes()).toContain("Article")
   })
+
+  test("imageless race cards render the designed fallback, not placeholder.jpg", async ({
+    page
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    const home = await page.goto("/")
+    expect(home?.ok()).toBeTruthy()
+    await page
+      .getByRole("button", { name: "Reject non-essential", exact: true })
+      .click()
+
+    await assertImagelessRaceCard(page)
+    await assertPageOmitsPlaceholderPhoto(page, "home 1440")
+    const photo = page.locator("[data-race-card]", {
+      has: page.getByRole("heading", { name: E2E_RACE_NAME, exact: true })
+    })
+    const photoImg = photo.locator("img")
+    await expect(photoImg).toBeVisible()
+    const photoSrc = `${await photoImg.getAttribute("src")} ${await photoImg.getAttribute("srcset")}`
+    expect(photoSrc).toContain("android-chrome-512x512")
+    expect(photoSrc).not.toContain("placeholder.jpg")
+
+    await page.setViewportSize({ width: 375, height: 812 })
+    await expect(
+      page.getByRole("heading", {
+        name: E2E_RACE_IN_PROGRESS_NAME,
+        exact: true
+      })
+    ).toBeVisible()
+    const next = page.getByRole("button", {
+      name: "Show next races",
+      exact: true
+    })
+    await next.click()
+    await expect(
+      page.getByRole("heading", { name: E2E_RACE_NAME, exact: true })
+    ).toBeVisible()
+    await next.click()
+    await assertImagelessRaceCard(page)
+    await assertPageOmitsPlaceholderPhoto(page, "home 375")
+
+    for (const width of [375, 1440]) {
+      await page.setViewportSize({ width, height: width === 375 ? 812 : 1000 })
+      const races = await page.goto("/races")
+      expect(races?.ok()).toBeTruthy()
+      await assertImagelessRaceCard(page)
+      await assertPageOmitsPlaceholderPhoto(page, `/races ${width}`)
+
+      const series = await page.goto("/series/formula-e")
+      expect(series?.ok()).toBeTruthy()
+      await assertImagelessRaceCard(page)
+      await assertPageOmitsPlaceholderPhoto(page, `/series/formula-e ${width}`)
+    }
+  })
 })
+
+async function assertImagelessRaceCard(page: Page): Promise<void> {
+  const card = page.locator("[data-race-card]", {
+    has: page.getByRole("heading", {
+      name: E2E_IMAGELESS_RACE_NAME,
+      exact: true
+    })
+  })
+  await expect(card).toBeVisible()
+  const fallback = card.locator("[data-race-image-fallback]")
+  await expect(fallback).toBeVisible()
+  await expect(fallback).toContainText(E2E_IMAGELESS_CIRCUIT_NAME)
+  await expect(fallback).toContainText("FE")
+  await expect(fallback.locator("[data-country-flag]")).toHaveText("🇵🇹")
+  await expect(card.locator("img")).toHaveCount(0)
+}
+
+async function assertPageOmitsPlaceholderPhoto(
+  page: Page,
+  label: string
+): Promise<void> {
+  const html = await page.content()
+  expect(html, label).not.toContain("placeholder.jpg")
+}

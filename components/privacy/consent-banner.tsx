@@ -7,10 +7,10 @@ import {
 } from "@/lib/analytics-consent"
 
 const actionClassName =
-  "inline-flex min-h-11 w-full min-w-0 flex-1 items-center justify-center rounded-md border border-zinc-900 bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
+  "inline-flex min-h-11 w-full items-center justify-center whitespace-nowrap rounded-md border border-zinc-900 bg-zinc-900 px-1.5 py-2 text-xs font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white sm:w-44 sm:px-3 sm:text-sm"
 
 const settingsClassName =
-  "inline-flex min-h-11 items-center justify-center rounded-md border border-zinc-900 bg-white px-4 py-2 text-sm font-medium text-zinc-900 shadow-sm"
+  "inline-flex min-h-11 items-center justify-center rounded-md border border-zinc-900 bg-white px-4 py-2 text-sm font-medium text-zinc-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
 
 export type ConsentBannerViewProps = {
   status: AnalyticsConsentStatus
@@ -35,26 +35,33 @@ export function ConsentBannerView({
   const showSettingsButton = status !== "undecided"
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] p-3 pb-20 sm:p-4">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
-        {showFirstVisit ? (
-          <section
-            aria-labelledby="analytics-consent-heading"
-            className="pointer-events-auto w-full max-w-full rounded-lg border border-zinc-200 bg-white p-4 shadow-lg"
-          >
-            <h2
-              id="analytics-consent-heading"
-              className="text-base font-semibold text-zinc-900"
-            >
-              Usage analytics
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-700">
-              PitLane Travel can use nonessential usage analytics from
-              PostHog, Google, Microsoft Clarity, and Vercel Speed Insights to
-              understand how the site is used. Essential features still work if
-              you reject.
-            </p>
-            <div className="mt-4 flex w-full max-w-full flex-col gap-3 sm:flex-row">
+    <>
+      {showFirstVisit ? (
+        <section
+          role="region"
+          aria-labelledby="analytics-consent-heading"
+          data-analytics-consent-bar=""
+          className="fixed inset-x-0 bottom-0 z-[60] border-t border-zinc-300 bg-white text-zinc-900 shadow-[0_-6px_20px_rgba(28,25,22,0.16)]"
+        >
+          <div className="mx-auto flex w-full max-w-6xl items-center gap-2 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:gap-4 sm:px-4 sm:py-2.5">
+            <div className="max-h-20 min-w-0 flex-1 overflow-y-auto sm:max-h-none">
+              <h2
+                id="analytics-consent-heading"
+                className="inline text-sm font-semibold leading-5 text-zinc-900"
+              >
+                Usage analytics
+              </h2>{" "}
+              <p
+                id="analytics-consent-description"
+                className="inline text-xs leading-4 text-zinc-800 sm:text-sm sm:leading-5"
+              >
+                PitLane Travel can use nonessential usage analytics from
+                PostHog, Google, Microsoft Clarity, and Vercel Speed Insights to
+                understand how the site is used. Essential features still work
+                if you reject.
+              </p>
+            </div>
+            <div className="flex w-44 shrink-0 flex-col gap-1.5 sm:w-auto sm:flex-row sm:gap-2">
               <button
                 type="button"
                 className={actionClassName}
@@ -70,62 +77,62 @@ export function ConsentBannerView({
                 Reject non-essential
               </button>
             </div>
-          </section>
-        ) : null}
-
-        {showSettingsButton ? (
-          <div className="flex w-full max-w-full flex-col items-stretch gap-3 sm:items-end">
-            {settingsOpen ? (
-              <section
-                id="analytics-privacy-settings"
-                aria-labelledby="analytics-privacy-settings-heading"
-                className="pointer-events-auto w-full max-w-full rounded-lg border border-zinc-200 bg-white p-4 shadow-lg"
-              >
-                <h2
-                  id="analytics-privacy-settings-heading"
-                  className="text-base font-semibold text-zinc-900"
-                >
-                  Privacy settings
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-zinc-700">
-                  These nonessential usage analytics from PostHog, Google,
-                  Microsoft Clarity, and Vercel Speed Insights{" "}
-                  {status === "granted" ? "are on." : "are off."}
-                </p>
-                <div className="mt-4 flex w-full max-w-full flex-col gap-3 sm:flex-row">
-                  {status === "granted" ? (
-                    <button
-                      type="button"
-                      className={actionClassName}
-                      onClick={onWithdraw}
-                    >
-                      Withdraw analytics consent
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className={actionClassName}
-                      onClick={onAccept}
-                    >
-                      Accept analytics
-                    </button>
-                  )}
-                </div>
-              </section>
-            ) : null}
-            <button
-              type="button"
-              className={`${settingsClassName} pointer-events-auto self-end`}
-              aria-expanded={settingsOpen}
-              aria-controls="analytics-privacy-settings"
-              onClick={settingsOpen ? onCloseSettings : onOpenSettings}
-            >
-              Privacy settings
-            </button>
           </div>
-        ) : null}
-      </div>
-    </div>
+        </section>
+      ) : null}
+
+      {showSettingsButton ? (
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] flex flex-col items-end gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          {settingsOpen ? (
+            <section
+              id="analytics-privacy-settings"
+              aria-labelledby="analytics-privacy-settings-heading"
+              className="pointer-events-auto w-full max-w-full rounded-lg border border-zinc-200 bg-white p-4 shadow-lg sm:max-w-md"
+            >
+              <h2
+                id="analytics-privacy-settings-heading"
+                className="text-base font-semibold text-zinc-900"
+              >
+                Privacy settings
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-zinc-700">
+                These nonessential usage analytics from PostHog, Google,
+                Microsoft Clarity, and Vercel Speed Insights{" "}
+                {status === "granted" ? "are on." : "are off."}
+              </p>
+              <div className="mt-4 flex w-full max-w-full flex-col gap-3 sm:flex-row">
+                {status === "granted" ? (
+                  <button
+                    type="button"
+                    className={actionClassName}
+                    onClick={onWithdraw}
+                  >
+                    Withdraw analytics consent
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className={actionClassName}
+                    onClick={onAccept}
+                  >
+                    Accept analytics
+                  </button>
+                )}
+              </div>
+            </section>
+          ) : null}
+          <button
+            type="button"
+            className={`${settingsClassName} pointer-events-auto`}
+            aria-expanded={settingsOpen}
+            aria-controls="analytics-privacy-settings"
+            onClick={settingsOpen ? onCloseSettings : onOpenSettings}
+          >
+            Privacy settings
+          </button>
+        </div>
+      ) : null}
+    </>
   )
 }
 

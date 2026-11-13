@@ -5,12 +5,15 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import { motion } from "framer-motion"
 import { ChevronLeft, ChevronRight, Flag } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { useState, useSyncExternalStore } from "react"
 import { cn } from "@/lib/utils"
 import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { CoverageBadge } from "@/components/coverage/coverage-badge"
+import {
+  RaceCircuitImage,
+  raceCardImageLabel
+} from "@/components/races/race-circuit-image"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import {
   UPCOMING_RACES_SSR_VISIBLE_COUNT,
@@ -20,42 +23,6 @@ import {
   upcomingRacesPrevIndex,
   upcomingRacesVisibleCount
 } from "@/components/landing/upcoming-races-visible-count"
-
-const CIRCUIT_PLACEHOLDER_SRC = "/assets/placeholder.jpg"
-
-function UpcomingRaceImage({ src, alt }: { src?: string | null; alt: string }) {
-  const [current, setCurrent] = useState(src || CIRCUIT_PLACEHOLDER_SRC)
-  const [hidden, setHidden] = useState(false)
-
-  if (hidden) {
-    return (
-      <div
-        className="flex size-full items-center justify-center bg-[#14161a]"
-        data-race-image-fallback=""
-        aria-hidden="true"
-      >
-        <Flag className="size-8 text-white/70" />
-      </div>
-    )
-  }
-
-  return (
-    <Image
-      key={current}
-      src={current}
-      alt={alt}
-      className="object-cover transition-transform duration-300 group-hover:scale-105"
-      fill
-      onError={() => {
-        if (current !== CIRCUIT_PLACEHOLDER_SRC) {
-          setCurrent(CIRCUIT_PLACEHOLDER_SRC)
-          return
-        }
-        setHidden(true)
-      }}
-    />
-  )
-}
 
 interface UpcomingRacesProps {
   races: RaceWithCircuitAndSeries[]
@@ -122,6 +89,7 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
               onClick={prevSlide}
               className="absolute -left-4 top-1/2 z-10 -translate-y-1/2"
               disabled={upcomingRacesPrevDisabled(currentIndex)}
+              aria-label="Show previous races"
             >
               <ChevronLeft className="size-6" />
             </Button>
@@ -139,11 +107,18 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
                     index === 3 && "lg:hidden 2xl:block"
                   )}
                 >
-                  <Card className="group h-full overflow-hidden">
+                  <Card
+                    data-race-card=""
+                    className="group h-full overflow-hidden"
+                  >
                     <div className="relative aspect-[16/9]">
-                      <UpcomingRaceImage
+                      <RaceCircuitImage
                         src={race.circuit?.image_url}
-                        alt={race.circuit?.name || "Race circuit"}
+                        alt={race.circuit?.name || race.name || "Race circuit"}
+                        fill
+                        sizes="(min-width: 1536px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        label={raceCardImageLabel(race)}
                       />
                     </div>
                     <CardContent className="p-4">
@@ -191,6 +166,7 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
               size="icon"
               onClick={nextSlide}
               className="absolute -right-4 top-1/2 z-10 -translate-y-1/2"
+              aria-label="Show next races"
               disabled={upcomingRacesNextDisabled(
                 currentIndex,
                 visibleCount,
