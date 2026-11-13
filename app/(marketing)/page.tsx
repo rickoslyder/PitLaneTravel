@@ -20,7 +20,7 @@ import {
   pageSeo,
   serializeJsonLd
 } from "@/lib/site-metadata"
-import { timeLeftUntil, type HeroCountdownSeed } from "@/hooks/useNextRace"
+import { timeLeftUntil, type HeroCountdownSeed } from "@/lib/countdown"
 
 const UpcomingRaces = dynamic(() =>
   import("@/components/landing/upcoming-races").then(mod => mod.UpcomingRaces)

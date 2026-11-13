@@ -1,7 +1,15 @@
 import { useState, useEffect, useRef } from "react"
 import { getRacesAction } from "@/actions/db/races-actions"
+import {
+  emptyCountdown,
+  timeLeftUntil,
+  type CountdownParts,
+  type HeroCountdownSeed
+} from "@/lib/countdown"
 import { selectNextCountdownRace } from "@/lib/race-status"
 import type { RaceStatusValue } from "@/services/providers/types"
+
+export type { CountdownParts, HeroCountdownSeed } from "@/lib/countdown"
 
 type CountdownRace = {
   name: string
@@ -10,40 +18,9 @@ type CountdownRace = {
   circuit: { name: string } | null
 }
 
-export type CountdownParts = {
-  days: number
-  hours: number
-  minutes: number
-  seconds: number
-}
-
-export type HeroCountdownSeed = {
-  name: string
-  date: string
-  circuitName: string | null
-  /** Digits computed once on the server so the first client render matches. */
-  initialTime?: CountdownParts
-}
-
 /** When provided, the countdown is painted from server data and does not refetch. */
 export type UseNextRaceInput = {
   seed: HeroCountdownSeed | null
-}
-
-function emptyTime() {
-  return { days: 0, hours: 0, minutes: 0, seconds: 0 }
-}
-
-export function timeLeftUntil(date: Date | string, now = new Date()) {
-  const target = new Date(date).getTime()
-  const difference = target - now.getTime()
-  if (!Number.isFinite(target) || difference < 0) return emptyTime()
-  return {
-    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-    minutes: Math.floor((difference / 1000 / 60) % 60),
-    seconds: Math.floor((difference / 1000) % 60)
-  }
 }
 
 function raceFromSeed(seed: HeroCountdownSeed): CountdownRace {
@@ -64,7 +41,7 @@ export function useNextRace(input?: UseNextRaceInput) {
   const [timeLeft, setTimeLeft] = useState<CountdownParts>(() => {
     if (seed?.initialTime) return seed.initialTime
     if (seed) return timeLeftUntil(seed.date)
-    return emptyTime()
+    return emptyCountdown()
   })
   const [isLoading, setIsLoading] = useState(!seeded)
   const [error, setError] = useState<string | null>(null)
