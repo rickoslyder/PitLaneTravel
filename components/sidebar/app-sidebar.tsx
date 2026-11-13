@@ -19,10 +19,8 @@ import {
   Car,
   Ticket,
   Settings,
-  Heart,
   Archive,
   Users,
-  Clock,
   Sun,
   Wallet
 } from "lucide-react"
@@ -102,18 +100,9 @@ const data = {
       ]
     }
   ],
+  // /saved and /recent are not routes. Hide them until those pages exist
+  // so the sidebar does not link to 404s.
   quickAccess: [
-    {
-      name: "Saved Items",
-      url: "/saved",
-      icon: Heart,
-      badge: "3"
-    },
-    {
-      name: "Recent Views",
-      url: "/recent",
-      icon: Clock
-    },
     {
       name: "Trip Budget",
       url: "/budget",

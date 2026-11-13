@@ -8,32 +8,32 @@ import {
 } from "@/components/ui/breadcrumb"
 import { brand } from "@/config/brand"
 import {
-  absoluteUrl,
   buildGuidesIndexBreadcrumbJsonLd,
   formatGuideDate,
   guidePath,
   listGuides,
   serializeJsonLd
 } from "@/lib/guides"
+import { pageSeo } from "@/lib/site-metadata"
 import type { Metadata } from "next"
 import Link from "next/link"
 
 const title = `Guides | ${brand.name}`
 const description = `Decision guides for choosing a motorsport trip. Each article names the sources its dates were checked against. ${brand.name} does not sell tickets or packages.`
+const seo = pageSeo("/guides")
 
 export const metadata: Metadata = {
   title,
   description,
-  alternates: {
-    canonical: absoluteUrl("/guides")
-  },
+  alternates: seo.alternates,
   openGraph: {
     title,
     description,
     type: "website",
-    url: absoluteUrl("/guides"),
+    url: seo.openGraph.url,
     locale: "en_GB",
-    siteName: brand.name
+    siteName: brand.name,
+    images: seo.openGraph.images
   },
   twitter: {
     card: "summary",

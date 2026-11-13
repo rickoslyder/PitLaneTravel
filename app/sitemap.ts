@@ -7,12 +7,18 @@ import {
   racesTable,
   seriesTable
 } from "@/db/schema"
-import { eq, isNotNull, and, ne } from "drizzle-orm"
+import { and, eq, isNotNull, ne } from "drizzle-orm"
 import { listGuides } from "@/lib/guides"
+import {
+  isSitemapIndexableRace,
+  SITEMAP_STATIC_PATHS,
+  SITEMAP_STATIC_ROUTE_META,
+  SITE_ORIGIN,
+  staticSitemapUrl
+} from "@/lib/sitemap-routes"
 import { slugify } from "@/lib/series"
-import { raceHasFinished } from "@/lib/finished-race"
 
-const BASE_URL = "https://www.pitlanetravel.com"
+const BASE_URL = SITE_ORIGIN
 
 // Regenerate daily. Without this the sitemap is frozen at build time, so races and
 // championships added through the admin never appear until someone redeploys.
@@ -24,31 +30,15 @@ export const revalidate = 86400
  * bookings, budget) and cancelled races are deliberately excluded.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticRoutes: MetadataRoute.Sitemap = [
-    { url: BASE_URL, changeFrequency: "daily", priority: 1 },
-    { url: `${BASE_URL}/races`, changeFrequency: "daily", priority: 1 },
-    { url: `${BASE_URL}/races/map`, changeFrequency: "weekly", priority: 0.9 },
-    {
-      url: `${BASE_URL}/races/compare`,
-      changeFrequency: "weekly",
-      priority: 0.8
-    },
-    {
-      url: `${BASE_URL}/circuits/grandstands`,
-      changeFrequency: "weekly",
-      priority: 0.9
-    },
-    { url: `${BASE_URL}/flights`, changeFrequency: "daily", priority: 0.8 },
-    { url: `${BASE_URL}/hotels`, changeFrequency: "weekly", priority: 0.7 },
-    { url: `${BASE_URL}/transport`, changeFrequency: "weekly", priority: 0.7 },
-    { url: `${BASE_URL}/packages`, changeFrequency: "weekly", priority: 0.7 },
-    { url: `${BASE_URL}/about`, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE_URL}/faq`, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE_URL}/contact`, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE_URL}/help`, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE_URL}/privacy`, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${BASE_URL}/terms`, changeFrequency: "yearly", priority: 0.3 }
-  ]
+  // Static paths live in lib/sitemap-routes.ts. /packages is omitted there:
+  // the page stays noindex,follow until flight packages launch.
+  const staticRoutes: MetadataRoute.Sitemap = SITEMAP_STATIC_PATHS.map(
+    path => ({
+      url: staticSitemapUrl(path),
+      changeFrequency: SITEMAP_STATIC_ROUTE_META[path].changeFrequency,
+      priority: SITEMAP_STATIC_ROUTE_META[path].priority
+    })
+  )
 
   const guideRoutes: MetadataRoute.Sitemap = [
     { url: `${BASE_URL}/guides`, changeFrequency: "weekly", priority: 0.7 },
@@ -96,22 +86,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     )
 
     const now = new Date()
+    // Finished weekends leave the sitemap on purpose via raceHasFinished
+    // (see isSitemapIndexableRace). The race-detail count falls as rounds end.
+    const indexableRaces = races.filter(race =>
+      isSitemapIndexableRace(
+        {
+          slug: race.slug,
+          status: race.status,
+          date: race.date,
+          weekendEnd: race.weekendEnd
+        },
+        now
+      )
+    )
+    const indexableSlugs = new Set(indexableRaces.map(race => race.slug))
     const finishedSlugs = new Set(
       races
-        .filter(race =>
-          raceHasFinished(
-            {
-              status: race.status,
-              date: race.date,
-              weekendEnd: race.weekendEnd
-            },
-            now
-          )
-        )
+        .filter(race => race.slug && !indexableSlugs.has(race.slug))
         .map(race => race.slug)
-    )
-    const indexableRaces = races.filter(
-      race => race.slug && !finishedSlugs.has(race.slug)
     )
 
     return [

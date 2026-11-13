@@ -19,22 +19,32 @@ import CircuitExplorerSkeleton from "@/components/skeletons/circuit-explorer-ske
 import { Metadata } from "next"
 import { brand, brandCopy } from "@/config/brand"
 import { getPackagesAvailability } from "@/lib/packages-availability"
+import {
+  buildOrganizationJsonLd,
+  buildWebSiteJsonLd,
+  pageSeo,
+  serializeJsonLd
+} from "@/lib/site-metadata"
 
 export async function generateMetadata(): Promise<Metadata> {
   const availability = await getPackagesAvailability()
   const copy = brandCopy(availability.siteWide)
   const homeTitle = `${copy.homeTitleTerms} | ${brand.name}`
+  const seo = pageSeo("/")
 
   return {
     title: homeTitle,
     description: copy.description,
     keywords: copy.seriesKeywords.join(", "),
+    alternates: seo.alternates,
     openGraph: {
       title: homeTitle,
       description: copy.shortDescription,
       type: "website",
       locale: "en_US",
-      siteName: brand.name
+      siteName: brand.name,
+      url: seo.openGraph.url,
+      images: seo.openGraph.images
     },
     twitter: {
       card: "summary_large_image",
@@ -48,7 +58,9 @@ export default async function HomePage() {
   const { data: races } = await getRacesAction({
     excludeCancelled: true
   })
-  const upcomingRaces = (races ?? []).filter(race => isActiveRaceStatus(race.status))
+  const upcomingRaces = (races ?? []).filter(race =>
+    isActiveRaceStatus(race.status)
+  )
   const coverageResult = await getPublicCoverageSummariesAction(
     upcomingRaces.map(race => race.id)
   )
@@ -56,6 +68,7 @@ export default async function HomePage() {
     ? coverageByRaceId(coverageResult.data)
     : {}
   const { siteWide } = await getPackagesAvailability()
+  const copy = brandCopy(siteWide)
 
   // Dynamically import components that are not needed for initial render
   const DynamicCircuitExplorer = dynamic(
@@ -67,6 +80,18 @@ export default async function HomePage() {
 
   return (
     <div className="pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(buildOrganizationJsonLd(copy.description))
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(buildWebSiteJsonLd(copy.description))
+        }}
+      />
       <HeroSection packagesLive={siteWide} />
       <UpcomingRaces
         races={upcomingRaces || []}

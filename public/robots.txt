@@ -27,4 +27,4 @@ Disallow: /api/
 Disallow: /go/
 
 # Sitemap
-Sitemap: https://www.pitlanetravel.com/sitemap.xml 
+Sitemap: https://www.pitlanetravel.com/sitemap.xml

@@ -674,7 +674,7 @@ const CORE_PATHS = [
   "/flights",
   "/hotels",
   "/transport",
-  "/packages",
+  "/cancellation",
   "/about",
   "/faq",
   "/contact",
