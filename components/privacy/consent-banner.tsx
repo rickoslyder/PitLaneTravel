@@ -44,7 +44,7 @@ export function ConsentBannerView({
           className="fixed inset-x-0 bottom-0 z-[60] border-t border-zinc-300 bg-white text-zinc-900 shadow-[0_-6px_20px_rgba(28,25,22,0.16)]"
         >
           <div className="mx-auto flex w-full max-w-6xl items-center gap-2 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:gap-4 sm:px-4 sm:py-2.5">
-            <div className="min-w-0 flex-1">
+            <div className="max-h-20 min-w-0 flex-1 overflow-y-auto sm:max-h-none">
               <h2
                 id="analytics-consent-heading"
                 className="inline text-sm font-semibold leading-5 text-zinc-900"
