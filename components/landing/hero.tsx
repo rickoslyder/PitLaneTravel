@@ -105,7 +105,7 @@ export const HeroSection = ({
 
   return (
     <>
-      <section className="relative flex min-h-[95vh] items-start justify-center overflow-hidden pt-4 sm:items-center sm:pt-0">
+      <section className="relative flex min-h-[95vh] items-start justify-center overflow-hidden sm:items-center">
         {/* Background image with parallax effect */}
         <motion.div style={{ scale }} className="absolute inset-0">
           <HeroImage />
@@ -129,7 +129,7 @@ export const HeroSection = ({
             >
               <Badge
                 variant="outline"
-                className="mb-2 border-white/20 bg-white/10 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:mb-8 sm:px-4 sm:py-2 sm:text-sm"
+                className="mb-1 border-white/20 bg-white/10 px-3 py-1 text-xs text-white backdrop-blur-sm sm:mb-8 sm:px-4 sm:py-2 sm:text-sm"
               >
                 <FlagIcon className="mr-2 size-3 sm:size-4" />
                 F1 · MotoGP · Formula E · IndyCar · WEC
@@ -141,9 +141,9 @@ export const HeroSection = ({
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="mb-2 sm:mb-6"
+              className="mb-1 sm:mb-6"
             >
-              <h1 className="text-4xl font-bold tracking-tighter text-white drop-shadow-2xl [text-shadow:_0_4px_24px_rgba(0,0,0,0.3)] sm:text-5xl md:text-6xl lg:text-7xl">
+              <h1 className="text-3xl font-bold tracking-tighter text-white drop-shadow-2xl [text-shadow:_0_4px_24px_rgba(0,0,0,0.3)] sm:text-5xl md:text-6xl lg:text-7xl">
                 Monaco. Le Mans. The Indy 500.
                 <br />
                 <span className="text-white drop-shadow-lg [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]">
@@ -157,9 +157,9 @@ export const HeroSection = ({
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="mb-2 max-w-2xl px-4 sm:mb-8 sm:px-0"
+              className="mb-1 max-w-2xl px-4 sm:mb-8 sm:px-0"
             >
-              <p className="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm leading-snug text-white/90 shadow-xl backdrop-blur-md sm:px-6 sm:py-4 sm:text-lg sm:leading-relaxed md:text-xl">
+              <p className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm leading-snug text-white/90 shadow-xl backdrop-blur-md sm:px-6 sm:py-4 sm:text-lg sm:leading-relaxed md:text-xl">
                 {copy.heroSubline}
               </p>
             </motion.div>
@@ -170,10 +170,10 @@ export const HeroSection = ({
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
-                className="mb-3 w-full px-4 sm:mb-12 sm:px-0"
+                className="mb-1 w-full px-4 sm:mb-12 sm:px-0"
               >
-                <div className="flex flex-col items-center space-y-2 sm:space-y-4">
-                  <div className="group flex w-full flex-col items-center space-y-2 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:shadow-lg sm:w-auto sm:space-y-4 sm:px-8 sm:py-6">
+                <div className="flex flex-col items-center space-y-1 sm:space-y-4">
+                  <div className="group flex w-full flex-col items-center space-y-1 rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:shadow-lg sm:w-auto sm:space-y-4 sm:px-8 sm:py-6">
                     <div className="flex items-center space-x-2 text-white/90">
                       <TimerIcon className="size-4 sm:size-5" />
                       <span className="text-base sm:text-lg">
@@ -281,7 +281,7 @@ export const HeroSection = ({
                 <Button
                   asChild
                   size="lg"
-                  className="bg-brand text-brand-foreground hover:bg-brand-hover px-6 py-5 text-base shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
+                  className="bg-brand text-brand-foreground hover:bg-brand-hover px-6 py-3 text-base shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
                 >
                   <Link
                     href="/races"
@@ -299,7 +299,7 @@ export const HeroSection = ({
                   asChild
                   size="lg"
                   variant="outline"
-                  className="border-white/20 bg-white/10 px-6 py-5 text-base text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
+                  className="border-white/20 bg-white/10 px-6 py-3 text-base text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
                 >
                   <Link
                     href={packagesLive ? "/packages" : "/races/compare"}
