@@ -38,9 +38,7 @@ describe("consent banner markup", () => {
     expect(html).not.toMatch(/personalization/)
     expect(html).not.toMatch(/advertising/)
 
-    const accept = html.match(
-      /<button([^>]*)>Accept analytics<\/button>/
-    )?.[1]
+    const accept = html.match(/<button([^>]*)>Accept analytics<\/button>/)?.[1]
     const reject = html.match(
       /<button([^>]*)>Reject non-essential<\/button>/
     )?.[1]
@@ -85,7 +83,9 @@ describe("consent banner markup", () => {
       onOpenSettings: noop,
       onCloseSettings: noop
     })
-    expect(withdraw).toMatch(/<button[^>]*>Withdraw analytics consent<\/button>/)
+    expect(withdraw).toMatch(
+      /<button[^>]*>Withdraw analytics consent<\/button>/
+    )
     expect(withdraw).toMatch(/<button[^>]*>Privacy settings<\/button>/)
     expect(withdraw).toMatch(/nonessential usage analytics/)
     expect(withdraw).toMatch(/PostHog/)
@@ -124,7 +124,7 @@ describe("consent banner markup", () => {
     expect(html).toMatch(/>Reject non-essential</)
   })
 
-  it("reserves extra mobile bottom clearance and restores desktop padding at sm", () => {
+  it("pins a labelled slim bar to the viewport bottom", () => {
     const html = render({
       status: "undecided",
       settingsOpen: false,
@@ -135,13 +135,21 @@ describe("consent banner markup", () => {
       onCloseSettings: noop
     })
 
+    expect(html).toMatch(/role="region"/)
+    expect(html).toMatch(/aria-labelledby="analytics-consent-heading"/)
+    expect(html).toMatch(/data-analytics-consent-bar=""/)
+    expect(html).toMatch(/safe-area-inset-bottom/)
+
     const outer = html.match(
       /class="([^"]*\bfixed\b[^"]*\binset-x-0\b[^"]*\bbottom-0\b[^"]*)"/
     )?.[1]
     expect(outer, "outer consent shell class").toBeTruthy()
-    expect(outer).toMatch(/\bp-3\b/)
-    expect(outer).toMatch(/\bpb-(1[6-9]|[2-9]\d)\b/)
-    expect(outer).toMatch(/\bsm:p-4\b/)
+    expect(outer).toMatch(/\bz-\[60\]/)
+    expect(outer).toMatch(/\bbg-white\b/)
+    expect(outer).toMatch(/\btext-zinc-900\b/)
+    expect(outer).not.toMatch(/\bpb-(1[6-9]|[2-9]\d)\b/)
     expect(outer).not.toMatch(/overflow(?:-x|-y)?-hidden/)
+    expect(html).toMatch(/bg-zinc-900/)
+    expect(html).toMatch(/\btext-white\b/)
   })
 })
