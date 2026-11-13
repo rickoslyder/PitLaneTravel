@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import dynamic from "next/dynamic"
 import { RaceWithDetails } from "@/types/race"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -135,7 +135,6 @@ export function RaceDetailsPage({
   coverage,
   ticketListings = "listed"
 }: RaceDetailsPageProps) {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const { announce, Announcer } = useAnnouncer()
   const consent = useAnalyticsConsent()
@@ -181,7 +180,14 @@ export function RaceDetailsPage({
       setActiveTab(value)
       const newParams = new URLSearchParams(window.location.search)
       newParams.set("tab", value)
-      router.replace(`?${newParams.toString()}`, { scroll: false })
+      const query = newParams.toString()
+      // A soft navigation re-applies generateMetadata. Next 15.5 can leave
+      // the existing canonical link in the document and insert another.
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}${query ? `?${query}` : ""}`
+      )
       // Announce tab change to screen readers
       announce(`Switched to ${newTab.label} tab`)
 

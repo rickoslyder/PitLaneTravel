@@ -376,6 +376,11 @@ test.describe("production smoke", () => {
     await expectShareMetadata(
       `https://www.pitlanetravel.com/races/${E2E_RACE_SLUG}`
     )
+    await page.getByRole("tab", { name: "Schedule" }).click()
+    await expect(page).toHaveURL(/[?&]tab=schedule(?:&|$)/)
+    await expectShareMetadata(
+      `https://www.pitlanetravel.com/races/${E2E_RACE_SLUG}`
+    )
     const raceBlocks = await page
       .locator('script[type="application/ld+json"]')
       .allTextContents()
