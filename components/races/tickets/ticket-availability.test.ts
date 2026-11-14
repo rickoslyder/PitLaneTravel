@@ -14,11 +14,14 @@ import {
 const RACE_NAME = "Abu Dhabi Grand Prix 2026"
 
 describe("zero ticket listings", () => {
-  it("uses the §28 empty-state sentence verbatim", () => {
+  it("uses the hero empty-listing sentence inside the tickets tab", () => {
     expect(emptyTicketsMessage(RACE_NAME)).toBe(
-      "Tickets for Abu Dhabi Grand Prix 2026 aren't listed here yet. Check back soon, or see the other races coming up."
+      "Tickets aren't listed yet. Check back closer to race weekend."
     )
     expect(emptyTicketsMessage(RACE_NAME)).not.toMatch(/on sale|available for/i)
+    expect(emptyTicketsMessage(RACE_NAME)).not.toMatch(
+      /Book Now|Book now|Buy tickets|Get ticket alerts/
+    )
   })
 
   it("treats missing tickets and packages as empty, including while a filter would be irrelevant", () => {

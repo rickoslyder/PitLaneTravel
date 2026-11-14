@@ -20,6 +20,8 @@ export default function Map({ center, airports }: MapProps) {
 
   useEffect(() => {
     if (!mapContainer.current) return
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+    if (!token || token.includes("invalid")) return
 
     // Initialize map centered on circuit
     const newMap = new mapboxgl.Map({

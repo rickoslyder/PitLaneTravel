@@ -4,6 +4,7 @@ import { RaceWithCircuitAndSeries } from "@/types/database"
 import { useRouter } from "next/navigation"
 import { RaceCard } from "./RaceCard"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
+import type { TicketListingState } from "@/components/races/tickets/ticket-availability"
 
 interface RaceGridProps {
   /** The races to display */
@@ -14,19 +15,31 @@ interface RaceGridProps {
   onRaceClick?: (race: RaceWithCircuitAndSeries) => void
   /** Public coverage summaries keyed by race id */
   coverageByRaceId?: Record<string, PublicCoverageSummary>
+  /**
+   * Race ids that have ticket rows. When omitted, cards keep View Details.
+   * When present, a missing id is an empty listing.
+   */
+  ticketedRaceIds?: readonly string[]
 }
 
 export function RaceGrid({
   races,
   viewType,
   onRaceClick,
-  coverageByRaceId
+  coverageByRaceId,
+  ticketedRaceIds
 }: RaceGridProps) {
   const router = useRouter()
+  const ticketed = ticketedRaceIds ? new Set(ticketedRaceIds) : null
   const handleClick =
     onRaceClick ??
     ((race: RaceWithCircuitAndSeries) =>
       router.push(`/races/${race.slug || race.id}`))
+
+  const listingStateFor = (raceId: string): TicketListingState | undefined => {
+    if (!ticketed) return undefined
+    return ticketed.has(raceId) ? "listed" : "empty"
+  }
 
   if (viewType === "grid") {
     return (
@@ -39,6 +52,7 @@ export function RaceGrid({
               className="h-full"
               coverage={coverageByRaceId?.[race.id]}
               imagePriority={index === 0}
+              listingState={listingStateFor(race.id)}
             />
           </div>
         ))}
@@ -55,6 +69,7 @@ export function RaceGrid({
             onClick={() => handleClick(race)}
             variant="list"
             coverage={coverageByRaceId?.[race.id]}
+            listingState={listingStateFor(race.id)}
           />
         </div>
       ))}

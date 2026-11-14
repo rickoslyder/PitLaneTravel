@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { HeroSection } from "@/components/races/HeroSection"
 import { RacesPage } from "@/components/races/RacesPage"
 import { getRacesAction } from "@/actions/db/races-actions"
+import { listRaceIdsWithTicketListingsAction } from "@/actions/db/ticket-listing-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { coverageByRaceId } from "@/lib/public-coverage"
@@ -13,9 +14,10 @@ import { buildWebPageJsonLd, serializeJsonLd } from "@/lib/site-metadata"
 import { racesPageDescription, racesPageTitle } from "./metadata"
 
 export default async function RacesServerPage() {
-  const [{ userId }, racesResult] = await Promise.all([
+  const [{ userId }, racesResult, ticketedRaceIds] = await Promise.all([
     auth(),
-    getRacesAction()
+    getRacesAction(),
+    listRaceIdsWithTicketListingsAction()
   ])
 
   const races = racesResult.data ?? []
@@ -57,6 +59,7 @@ export default async function RacesServerPage() {
         initialRaces={races}
         coverageByRaceId={coverageMap}
         asOfIso={startOfUtcDay(new Date()).toISOString()}
+        ticketedRaceIds={ticketedRaceIds ?? undefined}
       />
     </div>
   )

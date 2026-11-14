@@ -1,15 +1,17 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import { CalendarDays, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatRaceCalendarDate } from "@/lib/race-datetime"
+import { raceHasFinished } from "@/lib/finished-race"
 import { RaceCircuitImage } from "@/components/races/race-circuit-image"
 import { CoverageBadge } from "@/components/coverage/coverage-badge"
 import { SeriesBadge } from "@/components/series/series-badge"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
+import type { TicketListingState } from "@/components/races/tickets/ticket-availability"
+import { RaceCardCtas } from "@/components/races/race-card-ctas"
 
 interface RaceCardProps {
   /** The race to display */
@@ -24,6 +26,8 @@ interface RaceCardProps {
   coverage?: PublicCoverageSummary
   /** Preload the photo when this card is the largest above-the-fold image. */
   imagePriority?: boolean
+  /** Ticket rows for this race. Omitted keeps the details button. */
+  listingState?: TicketListingState
 }
 
 function CancelledBadge() {
@@ -40,7 +44,8 @@ export function RaceCard({
   className,
   onClick,
   coverage,
-  imagePriority = false
+  imagePriority = false,
+  listingState
 }: RaceCardProps) {
   const raceDateLabel = formatRaceCalendarDate(
     race.date,
@@ -48,6 +53,10 @@ export function RaceCard({
     race.circuit?.timezone_id
   )
   const isCancelled = race.status === "cancelled"
+  const finished = raceHasFinished(race, new Date())
+  const cardListingState =
+    isCancelled || finished ? undefined : listingState
+  const raceHref = `/races/${race.slug || race.id}`
 
   if (variant === "list") {
     return (
@@ -112,7 +121,14 @@ export function RaceCard({
           </CardContent>
         </div>
         <CardFooter className="shrink-0 pb-6">
-          <Button onClick={onClick}>View Details</Button>
+          <RaceCardCtas
+            raceName={race.name}
+            raceHref={raceHref}
+            listingState={cardListingState}
+            cancelled={isCancelled}
+            fullWidth={false}
+            onViewDetails={onClick}
+          />
         </CardFooter>
       </Card>
     )
@@ -177,13 +193,13 @@ export function RaceCard({
         </div>
       </CardContent>
       <CardFooter>
-        <Button
-          className="w-full"
-          variant={isCancelled ? "outline" : "default"}
-          onClick={onClick}
-        >
-          View Details
-        </Button>
+        <RaceCardCtas
+          raceName={race.name}
+          raceHref={raceHref}
+          listingState={cardListingState}
+          cancelled={isCancelled}
+          onViewDetails={onClick}
+        />
       </CardFooter>
     </Card>
   )

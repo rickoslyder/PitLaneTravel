@@ -20,7 +20,8 @@ export default defineConfig({
       "tests/e2e/public-coverage.spec.ts",
       "tests/e2e/analytics-consent.spec.ts",
       "tests/e2e/typed-analytics.spec.ts",
-      "tests/e2e/fan-tips.spec.ts"
+      "tests/e2e/fan-tips.spec.ts",
+      "tests/e2e/race-hero-cta.spec.ts"
     ]
   },
   resolve: {

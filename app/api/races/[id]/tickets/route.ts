@@ -13,7 +13,7 @@ export async function GET(
       getRacePackagesAction(resolvedParams.id)
     ])
 
-    if (!ticketsResult.isSuccess || !packagesResult.isSuccess) {
+    if (!ticketsResult.isSuccess) {
       return NextResponse.json(
         { error: "Failed to fetch tickets or packages" },
         { status: 500 }
@@ -22,7 +22,7 @@ export async function GET(
 
     return NextResponse.json({
       tickets: ticketsResult.data,
-      packages: packagesResult.data
+      packages: packagesResult.isSuccess ? packagesResult.data : []
     })
   } catch (error) {
     console.error("Error fetching tickets and packages:", error)
