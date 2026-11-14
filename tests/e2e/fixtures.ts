@@ -49,6 +49,12 @@ export const E2E_FAN_TIPS_LAS_VEGAS_NAME = "Las Vegas Grand Prix 2026"
 export const E2E_FAN_TIPS_QATAR_DATE = "2100-01-15T12:00:00.000Z"
 export const E2E_FAN_TIPS_ABU_DHABI_DATE = "2100-02-15T12:00:00.000Z"
 export const E2E_FAN_TIPS_LAS_VEGAS_DATE = "2100-03-15T12:00:00.000Z"
+export const E2E_MEXICO_CITY_EPRIX_2027_RACE_ID =
+  "b1070009-e2e0-4000-8000-000000000163"
+export const E2E_MEXICO_CITY_EPRIX_2027_SLUG =
+  "mexico-city-e-prix-2027-formula-e-2027"
+export const E2E_MEXICO_CITY_EPRIX_2027_NAME = "Mexico City E-Prix 2027"
+export const E2E_MEXICO_CITY_EPRIX_2027_DATE = "2100-04-15T12:00:00.000Z"
 export const E2E_GRANDSTAND_NAME = "Synthetic Main Grandstand"
 export const E2E_GRANDSTAND_SLUG = "synthetic-main"
 export const E2E_RACE_DATE = "2099-09-15T12:00:00.000Z"
@@ -982,6 +988,73 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
     `
 
     await tx`
+      INSERT INTO races (
+        id, circuit_id, series_id, name, date, season, round,
+        country, description, status, slug, is_sprint_weekend
+      )
+      VALUES (
+        ${E2E_MEXICO_CITY_EPRIX_2027_RACE_ID}::uuid,
+        ${E2E_CIRCUIT_ID}::uuid,
+        ${formulaESeriesId}::uuid,
+        ${E2E_MEXICO_CITY_EPRIX_2027_NAME},
+        ${E2E_MEXICO_CITY_EPRIX_2027_DATE}::timestamptz,
+        2027,
+        1,
+        ${"Mexico"},
+        ${"Disposable Playwright row for the unticketed hero CTA. Not a calendar claim."},
+        ${"upcoming"}::race_status,
+        ${E2E_MEXICO_CITY_EPRIX_2027_SLUG},
+        false
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        circuit_id = EXCLUDED.circuit_id,
+        series_id = EXCLUDED.series_id,
+        name = EXCLUDED.name,
+        date = EXCLUDED.date,
+        season = EXCLUDED.season,
+        round = EXCLUDED.round,
+        country = EXCLUDED.country,
+        description = EXCLUDED.description,
+        status = EXCLUDED.status,
+        slug = EXCLUDED.slug,
+        is_sprint_weekend = EXCLUDED.is_sprint_weekend,
+        updated_at = now()
+    `
+
+    await tx`
+      DELETE FROM ticket_pricing
+      WHERE ticket_id IN (
+        SELECT id FROM tickets
+        WHERE race_id = ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid
+      )
+    `
+    await tx`
+      DELETE FROM tickets
+      WHERE race_id = ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid
+    `
+    await tx`
+      WITH inserted AS (
+        INSERT INTO tickets (
+          race_id, title, description, ticket_type, availability,
+          days_included, is_child_ticket, reseller_url
+        )
+        VALUES (
+          ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid,
+          ${"Yas Marina grandstand"},
+          ${"Synthetic grandstand row for the Abu Dhabi hero CTA test."},
+          ${"grandstand"},
+          ${"available"}::ticket_availability,
+          '{"sunday": true}'::jsonb,
+          false,
+          ${"https://tickets.example.com/abu-dhabi"}
+        )
+        RETURNING id
+      )
+      INSERT INTO ticket_pricing (ticket_id, price, currency, valid_from)
+      SELECT id, 250.00, 'USD', now() FROM inserted
+    `
+
+    await tx`
       INSERT INTO grandstands (
         id, circuit_id, name, slug, description, covered, has_big_screen
       )
@@ -1015,6 +1088,17 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
 }
 
 async function cleanupCatalog(sql: postgres.Sql): Promise<void> {
+  await sql`
+    DELETE FROM ticket_pricing
+    WHERE ticket_id IN (
+      SELECT id FROM tickets
+      WHERE race_id = ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid
+    )
+  `
+  await sql`
+    DELETE FROM tickets
+    WHERE race_id = ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid
+  `
   await cleanupDisposableCoverage(sql)
   await sql`DELETE FROM races WHERE id = ${E2E_COVERAGE_TIER0_RACE_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_COVERAGE_TIER4_RACE_ID}::uuid`
@@ -1026,6 +1110,7 @@ async function cleanupCatalog(sql: postgres.Sql): Promise<void> {
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_QATAR_RACE_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_LAS_VEGAS_RACE_ID}::uuid`
+  await sql`DELETE FROM races WHERE id = ${E2E_MEXICO_CITY_EPRIX_2027_RACE_ID}::uuid`
   await sql`DELETE FROM circuits WHERE id = ${E2E_CIRCUIT_ID}::uuid`
   await cleanupDisposableProfiles(sql)
 }

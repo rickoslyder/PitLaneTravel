@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest"
 import {
+  PLAN_YOUR_TRIP_LABEL,
   RACE_TICKETS_CTA,
   TICKET_BUY_LABEL,
+  TICKETS_NOT_LISTED_NOTE,
+  findTicketsAccessibleName,
+  planYourTripAccessibleName,
   raceDateIsBeforeToday,
   resellerHost,
   ticketAvailabilityLabel,
@@ -25,6 +29,23 @@ describe("ticket availability states", () => {
     expect(TICKET_BUY_LABEL).toBe("Buy from official seller")
     expect(RACE_TICKETS_CTA).toBe("Find tickets")
     expect(RACE_TICKETS_CTA).not.toMatch(/book|purchase/i)
+    expect(PLAN_YOUR_TRIP_LABEL).toBe("Plan your trip")
+    expect(TICKETS_NOT_LISTED_NOTE).toBe(
+      "Tickets aren't listed yet. Check back closer to race weekend."
+    )
+    expect(findTicketsAccessibleName("Mexico City E-Prix 2027")).toBe(
+      "Find tickets for Mexico City E-Prix 2027"
+    )
+    expect(planYourTripAccessibleName("Abu Dhabi Grand Prix 2026")).toBe(
+      "Plan your trip to Abu Dhabi Grand Prix 2026"
+    )
+    for (const label of [
+      RACE_TICKETS_CTA,
+      PLAN_YOUR_TRIP_LABEL,
+      TICKETS_NOT_LISTED_NOTE
+    ]) {
+      expect(label).not.toMatch(/Book now|Book Now|Buy tickets|Get ticket alerts/)
+    }
   })
 
   it("still offers a waitlist for other non-sale states", () => {

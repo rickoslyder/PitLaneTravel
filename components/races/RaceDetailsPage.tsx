@@ -91,7 +91,7 @@ interface RaceDetailsPageProps {
   history?: SelectRaceHistory
   /** Safe public coverage summary for this race */
   coverage?: PublicCoverageSummary | null
-  /** Server-known ticket or package rows. Unknown stays "listed" so Book Now is not hidden by a failed lookup. */
+  /** Server-known ticket or package rows. Unknown stays "listed" so Find tickets is not hidden by a failed lookup. */
   ticketListings?: TicketListingState
 }
 

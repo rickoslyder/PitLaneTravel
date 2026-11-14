@@ -7,6 +7,7 @@ import { Metadata } from "next"
 import { getSeriesBySlugAction } from "@/actions/db/series-actions"
 import { formatFormulaESeason, pluralizeEventNoun } from "@/lib/series"
 import { getRacesAction } from "@/actions/db/races-actions"
+import { listRaceIdsWithTicketListingsAction } from "@/actions/db/ticket-listing-actions"
 import { isActiveRaceStatus } from "@/lib/race-status"
 import { RaceGrid } from "@/components/races/RaceGrid"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
@@ -45,15 +46,15 @@ export async function generateMetadata({
 
 export default async function SeriesPage({ params }: SeriesPageProps) {
   const { slug } = await params
-  const [{ isSuccess, data: series, message }, racesResult] = await Promise.all(
-    [
+  const [{ isSuccess, data: series, message }, racesResult, ticketedRaceIds] =
+    await Promise.all([
       loadSeries(slug),
       getRacesAction({
         series: slug,
         excludeCancelled: true
-      })
-    ]
-  )
+      }),
+      listRaceIdsWithTicketListingsAction()
+    ])
 
   // Distinguish "no such series" from "the database is down": returning 404 during an
   // outage tells search engines the page is gone and gets it deindexed.
@@ -125,6 +126,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
             races={upcoming}
             viewType="grid"
             coverageByRaceId={coverageMap}
+            ticketedRaceIds={ticketedRaceIds ?? undefined}
           />
         ) : (
           <div className="text-muted-foreground rounded-lg border border-dashed p-10 text-center">

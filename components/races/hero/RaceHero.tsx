@@ -12,12 +12,12 @@ import { RaceCircuitImage } from "@/components/races/race-circuit-image"
 import { CalendarDays, MapPin, Share2, Timer } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import { TripPlannerButton } from "@/components/trip-planner-button"
 import { seriesDisplayName } from "@/lib/series"
 import { raceHasFinished } from "@/lib/finished-race"
 import { FinishedRaceNotice } from "@/components/races/finished-race-notice"
 import { useEffect, useState, useMemo } from "react"
 import type { TicketListingState } from "@/components/races/tickets/ticket-availability"
+import { TICKETS_NOT_LISTED_NOTE } from "@/components/races/tickets/ticket-presentation"
 import { HeroTicketCta } from "./HeroTicketCta"
 
 function remainingUntil(target: Date, now: Date) {
@@ -43,8 +43,6 @@ interface RaceHeroProps {
 
 export function RaceHero({
   race,
-  userId,
-  existingTripId,
   onTabChange,
   ticketListings = "listed"
 }: RaceHeroProps) {
@@ -169,8 +167,8 @@ export function RaceHero({
         <div className="bg-primary absolute inset-x-0 top-0 -z-10 m-auto size-[310px] rounded-full opacity-20 blur-[100px]" />
       </div>
 
-      <div className="container relative flex h-full min-w-0 max-w-full flex-col items-center justify-center gap-6 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
+      <div className="container relative flex h-full min-w-0 max-w-full flex-col items-center justify-start gap-3 p-4 sm:justify-center sm:gap-6 sm:px-6 sm:pb-28 sm:pt-0 lg:px-8">
+        <div className="mx-auto flex w-full max-w-4xl flex-col text-center">
           <div className="flex flex-wrap items-center justify-center gap-2">
             <Badge
               variant="secondary"
@@ -192,15 +190,15 @@ export function RaceHero({
           </div>
 
           {seriesHeading ? (
-            <p className="mt-4 text-sm font-semibold uppercase tracking-[0.2em] text-white/80 sm:text-base">
+            <p className="mt-2 text-sm font-semibold uppercase tracking-[0.2em] text-white/80 sm:mt-4 sm:text-base">
               {seriesHeading}
             </p>
           ) : null}
-          <h1 className="mt-4 break-words text-2xl font-bold tracking-tight text-white [text-shadow:_0_4px_24px_rgba(0,0,0,0.5)] sm:text-4xl lg:text-6xl">
+          <h1 className="mt-2 break-words text-2xl font-bold tracking-tight text-white [text-shadow:_0_4px_24px_rgba(0,0,0,0.5)] sm:mt-4 sm:text-4xl lg:text-6xl">
             {race.name}
           </h1>
 
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-white/90 sm:mt-6 sm:gap-4 sm:text-base">
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-white/90 sm:mt-6 sm:gap-4 sm:text-base">
             <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-1 backdrop-blur-md transition-all duration-300 hover:bg-white/10 sm:px-4 sm:py-1.5">
               <MapPin className="size-3 sm:size-4" />
               <span className="break-words">
@@ -229,8 +227,8 @@ export function RaceHero({
           </div>
 
           {race.status === "upcoming" && (
-            <div className="mt-6 flex flex-col items-center sm:mt-8">
-              <div className="flex flex-col items-center space-y-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-md sm:px-6 sm:py-4">
+            <div className="order-2 mt-3 flex flex-col items-center sm:mt-8">
+              <div className="flex flex-col items-center space-y-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-md sm:space-y-4 sm:px-6 sm:py-4">
                 <div className="flex items-center gap-2 text-white/90">
                   <Timer className="size-4 sm:size-5" />
                   <span className="text-base font-medium sm:text-lg">
@@ -250,34 +248,44 @@ export function RaceHero({
             </div>
           )}
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:mt-8 sm:gap-4">
-            {finished ? (
-              <FinishedRaceNotice series={race.series} className="text-white" />
-            ) : (
-              race.status !== "cancelled" && (
-                <>
+          <div
+            className="order-1 mt-3 flex w-full flex-col items-center gap-2 sm:order-3 sm:mt-8 sm:gap-3"
+            data-race-hero-ctas=""
+          >
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+              {finished ? (
+                <FinishedRaceNotice
+                  series={race.series}
+                  className="text-white"
+                />
+              ) : (
+                race.status !== "cancelled" && (
                   <HeroTicketCta
                     listingState={ticketListings}
+                    raceName={race.name}
                     onTabChange={onTabChange}
                   />
-                  <TripPlannerButton
-                    race={race}
-                    userId={userId}
-                    existingTripId={existingTripId}
-                  />
-                </>
-              )
-            )}
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={handleShare}
-              className="group relative bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-white/20 sm:p-6 sm:text-base"
-            >
-              <div className="absolute inset-0 rounded-md bg-gradient-to-r from-white/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              <Share2 className="mr-2 size-4 sm:size-5" />
-              Share
-            </Button>
+                )
+              )}
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                onClick={handleShare}
+                className="group relative border-white/40 bg-white/10 px-4 py-2 text-sm font-medium text-white shadow-none backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:text-white sm:p-6 sm:text-base"
+              >
+                <div className="pointer-events-none absolute inset-0 rounded-md bg-gradient-to-r from-white/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <Share2 className="mr-2 size-4 sm:size-5" />
+                Share
+              </Button>
+            </div>
+            {!finished &&
+            race.status !== "cancelled" &&
+            ticketListings === "empty" ? (
+              <p className="max-w-md text-center text-sm leading-6 text-white/80">
+                {TICKETS_NOT_LISTED_NOTE}
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

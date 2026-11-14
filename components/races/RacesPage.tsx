@@ -18,12 +18,15 @@ interface RacesPageProps {
   coverageByRaceId?: Record<string, PublicCoverageSummary>
   /** UTC start of the current day. Upcoming is date >= this instant. */
   asOfIso: string
+  /** Race ids with ticket rows. Omitted keeps the details button on each card. */
+  ticketedRaceIds?: readonly string[]
 }
 
 export function RacesPage({
   initialRaces,
   coverageByRaceId,
-  asOfIso
+  asOfIso,
+  ticketedRaceIds
 }: RacesPageProps) {
   const router = useRouter()
   const [races] = useState<RaceWithCircuitAndSeries[]>(initialRaces)
@@ -219,6 +222,7 @@ export function RacesPage({
               viewType={viewType}
               onRaceClick={handleRaceClick}
               coverageByRaceId={coverageByRaceId}
+              ticketedRaceIds={ticketedRaceIds}
             />
           ) : (
             <EmptyState

@@ -1,18 +1,19 @@
 /**
  * Zero-listing tickets tab (RACE-01).
- * Copy is §28 of the site-copy draft, verbatim.
+ * The sentence under the empty hero is the tickets-tab copy as well.
  * There is no official ticket URL on a race. A circuit website is not a
  * ticket seller, so it is not linked from this empty state.
  */
 
+import { TICKETS_NOT_LISTED_NOTE } from "./ticket-presentation"
+
 export const EMPTY_TICKETS_BUTTON_LABEL = "See upcoming races"
 export const EMPTY_TICKETS_BUTTON_HREF = "/races"
-export const SEE_TRAVEL_OPTIONS_LABEL = "See travel options"
 
 export type TicketListingState = "unknown" | "listed" | "empty"
 
-export function emptyTicketsMessage(raceName: string): string {
-  return `Tickets for ${raceName} aren't listed here yet. Check back soon, or see the other races coming up.`
+export function emptyTicketsMessage(_raceName: string): string {
+  return TICKETS_NOT_LISTED_NOTE
 }
 
 export function hasTicketListings(

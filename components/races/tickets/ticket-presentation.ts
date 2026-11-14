@@ -8,6 +8,21 @@ export const TICKET_BUY_LABEL = "Buy from official seller"
 /** Race-page button that scrolls to the tickets tab. PitLane does not book the race. */
 export const RACE_TICKETS_CTA = "Find tickets"
 
+/** Quiet or primary trip button. Sentence case, one place for a copy follow-up. */
+export const PLAN_YOUR_TRIP_LABEL = "Plan your trip"
+
+/** Shown under the hero and card buttons, and in the tickets-tab empty state. */
+export const TICKETS_NOT_LISTED_NOTE =
+  "Tickets aren't listed yet. Check back closer to race weekend."
+
+export function findTicketsAccessibleName(raceName: string): string {
+  return `Find tickets for ${raceName}`
+}
+
+export function planYourTripAccessibleName(raceName: string): string {
+  return `Plan your trip to ${raceName}`
+}
+
 /** Explicit ticket.availability value. Missing rows are not this state. */
 export const NOT_ON_SALE_AVAILABILITY = "not_on_sale"
 
