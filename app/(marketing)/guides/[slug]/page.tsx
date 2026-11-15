@@ -236,9 +236,5 @@ export default async function GuidePage({ params }: GuidePageProps) {
     </article>
   )
 
-  if (NEW_GUIDE_SLUGS.has(guide.slug)) {
-    return <main>{article}</main>
-  }
-
   return article
 }

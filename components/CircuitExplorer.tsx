@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { motion, MotionConfig } from "framer-motion"
+import { usePrefersReducedMotion } from "@/lib/prefers-reduced-motion"
 import { getRaceByIdAction } from "@/actions/db/races-actions"
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import { CircuitCard } from "./_components/circuit-card"
@@ -20,6 +21,7 @@ export default function CircuitExplorer() {
   const [selectedRace, setSelectedRace] =
     useState<RaceWithCircuitAndSeries | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const reduceMotion = usePrefersReducedMotion()
 
   useEffect(() => {
     async function fetchRaces() {
@@ -49,48 +51,54 @@ export default function CircuitExplorer() {
   }
 
   return (
-    <section
-      className="mt-20 bg-gradient-to-b from-gray-50 to-white py-20 dark:from-gray-800 dark:to-gray-900"
-      aria-labelledby="circuit-explorer-title"
-    >
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <CircuitExplorerHeader />
+    <MotionConfig reducedMotion="user">
+      <section
+        className="mt-20 bg-gradient-to-b from-gray-50 to-white py-20 dark:from-gray-800 dark:to-gray-900"
+        aria-labelledby="circuit-explorer-title"
+      >
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : { duration: 0.8, ease: "easeOut" }
+            }
+          >
+            <CircuitExplorerHeader />
 
-          <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
-            {/* Circuit selector appears first on mobile */}
-            <div className="md:hidden">
-              <CircuitSelector
-                races={races}
-                selectedRace={selectedRace}
-                onSelectRace={setSelectedRace}
-              />
+            <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
+              {/* Circuit selector appears first on mobile */}
+              <div className="md:hidden">
+                <CircuitSelector
+                  races={races}
+                  selectedRace={selectedRace}
+                  onSelectRace={setSelectedRace}
+                />
+              </div>
+
+              <motion.div
+                key={selectedRace.id}
+                initial={reduceMotion ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: reduceMotion ? 0 : 0.5 }}
+              >
+                <CircuitCard race={selectedRace} />
+              </motion.div>
+
+              {/* Circuit selector appears on the right on larger screens */}
+              <div className="hidden md:block">
+                <CircuitSelector
+                  races={races}
+                  selectedRace={selectedRace}
+                  onSelectRace={setSelectedRace}
+                />
+              </div>
             </div>
-
-            <motion.div
-              key={selectedRace.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <CircuitCard race={selectedRace} />
-            </motion.div>
-
-            {/* Circuit selector appears on the right on larger screens */}
-            <div className="hidden md:block">
-              <CircuitSelector
-                races={races}
-                selectedRace={selectedRace}
-                onSelectRace={setSelectedRace}
-              />
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
+          </motion.div>
+        </div>
+      </section>
+    </MotionConfig>
   )
 }

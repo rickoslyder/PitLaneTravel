@@ -17,7 +17,7 @@ export default async function RacesLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset id="main-content" tabIndex={-1}>
         <div className="flex min-h-screen flex-col">
           <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b backdrop-blur">
             <div className="flex h-14 min-w-0 items-center gap-2 px-3 sm:gap-4 sm:px-4">
@@ -27,7 +27,7 @@ export default async function RacesLayout({
             </div>
           </header>
 
-          <main className="min-w-0 flex-1">{children}</main>
+          <div className="min-w-0 flex-1">{children}</div>
         </div>
       </SidebarInset>
     </SidebarProvider>

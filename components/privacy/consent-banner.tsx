@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import {
   useAnalyticsConsent,
   type AnalyticsConsentStatus
@@ -33,6 +33,30 @@ export function ConsentBannerView({
 }: ConsentBannerViewProps) {
   const showFirstVisit = status === "undecided"
   const showSettingsButton = status !== "undecided"
+
+  useEffect(() => {
+    if (!showFirstVisit) {
+      document.documentElement.style.removeProperty("--consent-bar-height")
+      return
+    }
+
+    const bar = document.querySelector("[data-analytics-consent-bar]")
+    if (!(bar instanceof HTMLElement)) return
+
+    const apply = () => {
+      document.documentElement.style.setProperty(
+        "--consent-bar-height",
+        `${Math.ceil(bar.getBoundingClientRect().height)}px`
+      )
+    }
+    apply()
+    const observer = new ResizeObserver(apply)
+    observer.observe(bar)
+    return () => {
+      observer.disconnect()
+      document.documentElement.style.removeProperty("--consent-bar-height")
+    }
+  }, [showFirstVisit])
 
   return (
     <>

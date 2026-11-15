@@ -235,7 +235,7 @@ export const HeroSection = ({
               </div>
 
               <div className="mt-2 sm:mt-8">
-                <ChevronDownIcon className="size-6 animate-bounce text-white/70 sm:size-8" />
+                <ChevronDownIcon className="size-6 text-white/70 motion-safe:animate-bounce sm:size-8" />
               </div>
             </div>
           </div>

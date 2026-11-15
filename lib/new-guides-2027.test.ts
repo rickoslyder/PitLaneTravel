@@ -208,7 +208,7 @@ describe("WEC Launch Week and Baku 2027 guides", () => {
     ).toBeLessThan(baku.body.indexOf("## Baku 2027 at a glance"))
   })
 
-  it("renders one main, indexable metadata, and affiliate rels without touching other guides", async () => {
+  it("renders one article without a nested main, indexable metadata, and affiliate rels without touching other guides", async () => {
     const indexHtml = renderToStaticMarkup(await GuidesIndexPage())
     expect(indexHtml).toContain('href="/guides/wec-2027-launch-week"')
     expect(indexHtml).toContain(
@@ -237,9 +237,9 @@ describe("WEC Launch Week and Baku 2027 guides", () => {
       expect(metadata.description?.length).toBeGreaterThan(0)
 
       const html = await renderGuide(slug)
-      expect(html.match(/<main[\s>]/g)).toHaveLength(1)
+      expect(html.match(/<main[\s>]/g) ?? []).toHaveLength(0)
       expect(html.match(/<article[\s>]/g)).toHaveLength(1)
-      expect(html).toContain("<main><article")
+      expect(html).toContain("<article")
       const blocks = jsonLdBlocks(html)
       expect(blocks.map(block => block["@type"]).sort()).toEqual([
         "Article",

@@ -16,7 +16,11 @@ export default async function FlightsLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="min-w-0 overflow-x-clip">
+      <SidebarInset
+        id="main-content"
+        tabIndex={-1}
+        className="min-w-0 overflow-x-clip"
+      >
         <div className="flex min-h-screen min-w-0 flex-col">
           <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b backdrop-blur">
             <div className="flex h-14 min-w-0 items-center gap-4 px-4">
@@ -26,7 +30,7 @@ export default async function FlightsLayout({
             </div>
           </header>
 
-          <main className="flex-1">{children}</main>
+          <div className="flex-1">{children}</div>
         </div>
       </SidebarInset>
     </SidebarProvider>

@@ -16,7 +16,7 @@ import {
 } from "@clerk/nextjs"
 import { Calendar, Flag, Heart, Menu, Wallet, X } from "lucide-react"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ThemeSwitcher } from "./utilities/theme-switcher"
 import { brand } from "@/config/brand"
 
@@ -40,10 +40,59 @@ export default function Header({
   )
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
+
+  useEffect(() => {
+    if (!isMenuOpen) return
+
+    const panel = document.getElementById("mobile-nav")
+    const toggle = menuButtonRef.current
+    if (!panel) return
+
+    const marked: HTMLElement[] = []
+    const visit = (el: Element) => {
+      if (!(el instanceof HTMLElement)) return
+      if (el === panel || el === toggle) return
+      if (el.contains(panel) || (toggle && el.contains(toggle))) {
+        Array.from(el.children).forEach(visit)
+        return
+      }
+      el.setAttribute("inert", "")
+      marked.push(el)
+    }
+    Array.from(document.body.children).forEach(visit)
+
+    panel.querySelector<HTMLElement>("a[href], button:not([disabled])")?.focus()
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return
+      event.preventDefault()
+      setIsMenuOpen(false)
+    }
+    document.addEventListener("keydown", onKeyDown)
+
+    return () => {
+      marked.forEach(el => el.removeAttribute("inert"))
+      document.removeEventListener("keydown", onKeyDown)
+      const toggleButton = menuButtonRef.current
+      if (toggleButton && toggleButton.getClientRects().length > 0) {
+        toggleButton.focus()
+      }
+    }
+  }, [isMenuOpen])
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)")
+    const closeOnDesktop = () => {
+      if (desktop.matches) setIsMenuOpen(false)
+    }
+    desktop.addEventListener("change", closeOnDesktop)
+    return () => desktop.removeEventListener("change", closeOnDesktop)
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -83,7 +132,10 @@ export default function Header({
           </Link>
         </div>
 
-        <nav className="absolute left-1/2 hidden -translate-x-1/2 space-x-1 font-semibold lg:flex lg:space-x-2">
+        <nav
+          aria-label="Main"
+          className="absolute left-1/2 hidden -translate-x-1/2 space-x-1 font-semibold lg:flex lg:space-x-2"
+        >
           {links.map(link => (
             <Link
               key={link.href}
@@ -93,7 +145,6 @@ export default function Header({
               {link.label}
             </Link>
           ))}
-
         </nav>
 
         <div className="flex items-center gap-2 lg:gap-4">
@@ -146,10 +197,14 @@ export default function Header({
 
           <div className="lg:hidden">
             <Button
+              ref={menuButtonRef}
+              type="button"
               variant="ghost"
               size="sm"
               onClick={toggleMenu}
-              aria-label="Toggle menu"
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-nav"
+              aria-label="Menu"
               className="p-1 sm:p-2"
             >
               {isMenuOpen ? (
@@ -163,7 +218,11 @@ export default function Header({
       </div>
 
       {isMenuOpen && (
-        <nav className="bg-background/95 fixed inset-0 top-[57px] backdrop-blur-sm lg:hidden">
+        <nav
+          id="mobile-nav"
+          aria-label="Primary"
+          className="bg-background/95 fixed inset-0 top-[57px] backdrop-blur-sm lg:hidden"
+        >
           <ul className="mx-auto max-w-screen-2xl space-y-4 p-6">
             <li>
               <Link
