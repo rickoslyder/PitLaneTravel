@@ -59,11 +59,12 @@ export function RaceCircuitImage({
         alt={alt}
         fill
         sizes={sizes ?? "100vw"}
-        priority={priority}
-        fetchPriority={priority ? "high" : "auto"}
         quality={quality}
         className={className}
         onError={() => setFailed(true)}
+        {...(priority
+          ? { priority: true, fetchPriority: "high" as const }
+          : {})}
       />
     )
   }
@@ -73,8 +74,10 @@ export function RaceCircuitImage({
       src={src as string}
       alt={alt}
       className={className}
-      loading="lazy"
       decoding="async"
+      {...(priority
+        ? { fetchPriority: "high" as const }
+        : { loading: "lazy" as const })}
       onError={() => setFailed(true)}
     />
   )

@@ -22,6 +22,7 @@ import {
 import Link from "next/link"
 import { captureAnalyticsEvent } from "@/lib/analytics/capture"
 import { useNextRace, type HeroCountdownSeed } from "@/hooks/useNextRace"
+import { HOME_HERO_MOBILE_AVIF_HREF } from "@/lib/home-hero-image"
 import { siteCopy } from "@/config/site-copy"
 
 const HOME_HERO_SRC = "/images/home-hero.jpg"
@@ -34,9 +35,10 @@ const HOME_HERO_ALT =
  * object is an 8.5MB 5824×3264 JPEG. This is that photo resized to 2400px.
  * The painted scene underneath shows if the file fails to load.
  * Mobile LCP uses the prebuilt AVIF/WebP sources; the JPEG is the fallback.
- * The markup is raw HTML so fetchpriority survives React 18's attribute filter.
+ * The picture stays raw HTML so fetchpriority on the img survives React 18.
+ * The matching preload is a link on the home server page, hoisted into <head>.
  */
-const HOME_HERO_MARKUP = `<link rel="preload" as="image" href="/images/home-hero-828.avif" type="image/avif" media="(max-width: 828px)" fetchpriority="high"><picture><source media="(max-width: 828px)" srcset="/images/home-hero-828.avif" type="image/avif"><source media="(max-width: 828px)" srcset="/images/home-hero-828.webp" type="image/webp"><source srcset="/images/home-hero-1600.avif" type="image/avif"><source srcset="/images/home-hero-1600.webp" type="image/webp"><img alt="${HOME_HERO_ALT}" src="${HOME_HERO_SRC}" fetchpriority="high" decoding="async" width="2400" height="1346" class="absolute size-full object-cover" sizes="100vw" onerror="this.remove()"></picture>`
+const HOME_HERO_MARKUP = `<picture><source media="(max-width: 828px)" srcset="${HOME_HERO_MOBILE_AVIF_HREF}" type="image/avif"><source media="(max-width: 828px)" srcset="/images/home-hero-828.webp" type="image/webp"><source srcset="/images/home-hero-1600.avif" type="image/avif"><source srcset="/images/home-hero-1600.webp" type="image/webp"><img alt="${HOME_HERO_ALT}" src="${HOME_HERO_SRC}" fetchpriority="high" decoding="async" width="2400" height="1346" class="absolute size-full object-cover" sizes="100vw" onerror="this.remove()"></picture>`
 
 function HeroImage() {
   return (
