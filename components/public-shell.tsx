@@ -10,7 +10,9 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip">
       <Header showPackagesLink={siteWide} />
-      <div className="min-w-0 flex-1">{children}</div>
+      <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
+        {children}
+      </main>
       <SiteFooter packagesLive={siteWide} />
     </div>
   )

@@ -9,33 +9,35 @@ This client component provides a theme switcher for the app.
 import { cn } from "@/lib/utils"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-import { HTMLAttributes, ReactNode } from "react"
+import { ButtonHTMLAttributes, ReactNode } from "react"
 
-interface ThemeSwitcherProps extends HTMLAttributes<HTMLDivElement> {
+interface ThemeSwitcherProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode
 }
 
-export const ThemeSwitcher = ({ children, ...props }: ThemeSwitcherProps) => {
+export const ThemeSwitcher = ({ className, ...props }: ThemeSwitcherProps) => {
   const { setTheme, theme } = useTheme()
+  const isDark = theme === "dark"
 
-  const handleChange = (theme: "dark" | "light") => {
-    localStorage.setItem("theme", theme)
-    setTheme(theme)
+  const handleChange = (next: "dark" | "light") => {
+    localStorage.setItem("theme", next)
+    setTheme(next)
   }
 
   return (
-    <div
-      className={cn(
-        "p-1 hover:cursor-pointer hover:opacity-50",
-        props.className
-      )}
-      onClick={() => handleChange(theme === "light" ? "dark" : "light")}
+    <button
+      {...props}
+      type="button"
+      className={cn("p-1 hover:cursor-pointer hover:opacity-50", className)}
+      aria-pressed={isDark}
+      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      onClick={() => handleChange(isDark ? "light" : "dark")}
     >
-      {theme === "dark" ? (
-        <Moon className="size-6" />
+      {isDark ? (
+        <Moon aria-hidden="true" className="size-6" />
       ) : (
-        <Sun className="size-6" />
+        <Sun aria-hidden="true" className="size-6" />
       )}
-    </div>
+    </button>
   )
 }

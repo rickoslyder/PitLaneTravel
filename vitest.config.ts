@@ -21,7 +21,8 @@ export default defineConfig({
       "tests/e2e/analytics-consent.spec.ts",
       "tests/e2e/typed-analytics.spec.ts",
       "tests/e2e/fan-tips.spec.ts",
-      "tests/e2e/race-hero-cta.spec.ts"
+      "tests/e2e/race-hero-cta.spec.ts",
+      "tests/e2e/accessibility.spec.ts"
     ]
   },
   resolve: {

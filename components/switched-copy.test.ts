@@ -7,7 +7,8 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: (...args: never[]) => unknown) => fn
 }))
 vi.mock("next/image", () => ({
-  default: (props: { alt?: string }) => createElement("img", { alt: props.alt ?? "" })
+  default: (props: { alt?: string }) =>
+    createElement("img", { alt: props.alt ?? "" })
 }))
 vi.mock("framer-motion", () => {
   const passthrough = (props: { children?: unknown }) =>
@@ -20,6 +21,8 @@ vi.mock("framer-motion", () => {
       }
     ),
     AnimatePresence: (props: { children?: unknown }) =>
+      createElement("div", {}, props.children as never),
+    MotionConfig: (props: { children?: unknown }) =>
       createElement("div", {}, props.children as never),
     useScroll: () => ({ scrollY: 0 }),
     useTransform: () => 1

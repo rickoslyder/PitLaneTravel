@@ -118,10 +118,16 @@ export default async function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <body
           className={cn(
-            "bg-background mx-auto min-h-screen w-full scroll-smooth antialiased",
+            "bg-background mx-auto min-h-screen w-full antialiased motion-safe:scroll-smooth",
             inter.className
           )}
         >
+          <a
+            href="#main-content"
+            className="focus:bg-background focus:text-foreground focus:ring-ring sr-only z-[80] focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-md focus:px-4 focus:py-3 focus:text-sm focus:font-medium focus:shadow-lg focus:outline-none focus:ring-2"
+          >
+            Skip to main content
+          </a>
           <Providers
             attribute="class"
             defaultTheme="light"

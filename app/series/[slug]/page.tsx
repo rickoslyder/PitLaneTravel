@@ -85,7 +85,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
       : []
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-4 sm:p-8">
+    <div data-series-page="" className="mx-auto max-w-7xl space-y-8 p-4 sm:p-8">
       <header className="border-border bg-card rounded-2xl border p-8">
         <div className="flex flex-wrap items-center gap-3">
           <SeriesBadge
