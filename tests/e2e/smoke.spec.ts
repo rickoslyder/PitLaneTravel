@@ -476,6 +476,76 @@ async function assertImagelessRaceCard(page: Page): Promise<void> {
   await expect(card.locator("img")).toHaveCount(0)
 }
 
+test("home LCP image preload is in the document head once", async ({
+  page
+}) => {
+  const response = await page.request.get("/")
+  expect(response.ok(), "homepage should be HTTP success").toBeTruthy()
+  const html = await response.text()
+  const headEnd = html.toLowerCase().indexOf("</head>")
+  expect(headEnd).toBeGreaterThan(0)
+  const head = html.slice(0, headEnd)
+  const body = html.slice(headEnd)
+  const preloads = linkTags(html, "/images/home-hero-828.avif", "preload")
+  const headPreloads = linkTags(head, "/images/home-hero-828.avif", "preload")
+
+  expect(headPreloads).toHaveLength(1)
+  expect(preloads).toHaveLength(1)
+  const tag = headPreloads[0].toLowerCase()
+  expect(tag).toContain('as="image"')
+  expect(tag).toContain('type="image/avif"')
+  expect(tag).toContain('media="(max-width: 828px)"')
+  expect(tag).toContain('fetchpriority="high"')
+  expect(linkTags(body, "/images/home-hero-828.avif", "preload")).toHaveLength(
+    0
+  )
+  expect(body).toContain("/images/home-hero-828.avif")
+
+  const images = imgTags(html)
+  const high = images.filter(img =>
+    img.toLowerCase().includes('fetchpriority="high"')
+  )
+  expect(high).toHaveLength(1)
+  expect(high[0].toLowerCase()).toContain("/images/home-hero.jpg")
+  expect(high[0].toLowerCase()).not.toContain('loading="lazy"')
+  expect(html.toLowerCase()).not.toContain('fetchpriority="auto"')
+})
+
+test("race grids prioritise the first real photo and omit fetchpriority auto", async ({
+  page
+}) => {
+  for (const path of ["/races", "/series/f1"]) {
+    const response = await page.request.get(path)
+    expect(response.ok(), `${path} should be HTTP success`).toBeTruthy()
+    const html = await response.text()
+    expect(html.toLowerCase(), path).not.toContain('fetchpriority="auto"')
+
+    const high = imgTags(html).filter(img =>
+      img.toLowerCase().includes('fetchpriority="high"')
+    )
+    expect(high, path).toHaveLength(1)
+    expect(high[0].toLowerCase(), path).not.toContain('loading="lazy"')
+  }
+})
+
+function linkTags(html: string, href: string, rel: string): string[] {
+  const relDouble = `rel="${rel}"`
+  const relSingle = `rel='${rel}'`
+  return [...html.matchAll(/<link\b[^>]*>/gi)]
+    .map(match => match[0])
+    .filter(tag => {
+      const lower = tag.toLowerCase()
+      return (
+        lower.includes(href) &&
+        (lower.includes(relDouble) || lower.includes(relSingle))
+      )
+    })
+}
+
+function imgTags(html: string): string[] {
+  return [...html.matchAll(/<img\b[^>]*>/gi)].map(match => match[0])
+}
+
 async function assertPageOmitsPlaceholderPhoto(
   page: Page,
   label: string

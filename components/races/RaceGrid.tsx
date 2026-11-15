@@ -2,6 +2,7 @@
 
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import { useRouter } from "next/navigation"
+import { firstRaceIdWithImage } from "@/lib/race-image"
 import { RaceCard } from "./RaceCard"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import type { TicketListingState } from "@/components/races/tickets/ticket-availability"
@@ -42,16 +43,17 @@ export function RaceGrid({
   }
 
   if (viewType === "grid") {
+    const priorityRaceId = firstRaceIdWithImage(races)
     return (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {races.map((race, index) => (
+        {races.map(race => (
           <div key={race.id}>
             <RaceCard
               race={race}
               onClick={() => handleClick(race)}
               className="h-full"
               coverage={coverageByRaceId?.[race.id]}
-              imagePriority={index === 0}
+              imagePriority={race.id === priorityRaceId}
               listingState={listingStateFor(race.id)}
             />
           </div>

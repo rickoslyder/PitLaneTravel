@@ -1,9 +1,11 @@
+import { readFileSync } from "node:fs"
+import path from "node:path"
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
 import { contrastRatio } from "@/lib/color-contrast"
 import { countryFlagEmoji } from "@/lib/country-flag"
-import { isMissingRaceImage } from "@/lib/race-image"
+import { firstRaceIdWithImage, isMissingRaceImage } from "@/lib/race-image"
 import { RaceCircuitImage } from "@/components/races/race-circuit-image"
 import {
   RACE_FALLBACK_INK,
@@ -33,6 +35,29 @@ describe("missing race image", () => {
       isMissingRaceImage("https://cdn.example/assets/placeholder.jpg?w=10")
     ).toBe(true)
     expect(isMissingRaceImage("/android-chrome-512x512.png")).toBe(false)
+  })
+
+  it("prioritises the first card that has a photo, not the first index", () => {
+    const races = [
+      {
+        id: "portugal",
+        circuit: { image_url: null }
+      },
+      {
+        id: "placeholder",
+        circuit: { image_url: "/assets/placeholder.jpg" }
+      },
+      {
+        id: "spain",
+        circuit: { image_url: "/images/barcelona.jpg" }
+      }
+    ]
+
+    expect(firstRaceIdWithImage(races)).toBe("spain")
+    expect(firstRaceIdWithImage([])).toBeUndefined()
+    expect(
+      firstRaceIdWithImage([{ id: "empty", circuit: { image_url: "  " } }])
+    ).toBeUndefined()
   })
 })
 
@@ -109,6 +134,54 @@ describe("race image fallback", () => {
     )
     expect(photo).toContain("<img")
     expect(photo).toContain("/android-chrome-512x512.png")
+    expect(photo).toContain('loading="lazy"')
+    expect(photo.toLowerCase()).not.toContain("fetchpriority")
     expect(photo).not.toContain("data-race-image-fallback")
+  })
+
+  it("omits fetchpriority on ordinary next/image photos and sets high without lazy", () => {
+    const ordinary = renderToStaticMarkup(
+      createElement(RaceCircuitImage, {
+        src: "/android-chrome-512x512.png",
+        alt: "Synthetic E2E Circuit",
+        fill: true
+      })
+    )
+    expect(ordinary.toLowerCase()).not.toContain("fetchpriority")
+    expect(ordinary).not.toContain('fetchpriority="auto"')
+    expect(ordinary).toContain('loading="lazy"')
+
+    const priority = renderToStaticMarkup(
+      createElement(RaceCircuitImage, {
+        src: "/android-chrome-512x512.png",
+        alt: "Synthetic E2E Circuit",
+        fill: true,
+        priority: true
+      })
+    )
+    expect(priority.toLowerCase()).toContain('fetchpriority="high"')
+    expect(priority).not.toContain('loading="lazy"')
+  })
+
+  it("shares the first-photo priority with every RaceGrid, including series pages", () => {
+    const root = process.cwd()
+    const grid = readFileSync(
+      path.join(root, "components/races/RaceGrid.tsx"),
+      "utf8"
+    )
+    const series = readFileSync(
+      path.join(root, "app/series/[slug]/page.tsx"),
+      "utf8"
+    )
+    const races = readFileSync(
+      path.join(root, "components/races/RacesPage.tsx"),
+      "utf8"
+    )
+
+    expect(grid).toContain("firstRaceIdWithImage")
+    expect(grid).not.toContain("index === 0")
+    expect(grid).not.toContain('fetchPriority="auto"')
+    expect(series).toContain("<RaceGrid")
+    expect(races).toContain("<RaceGrid")
   })
 })

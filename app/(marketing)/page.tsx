@@ -21,6 +21,10 @@ import {
   serializeJsonLd
 } from "@/lib/site-metadata"
 import { timeLeftUntil, type HeroCountdownSeed } from "@/lib/countdown"
+import {
+  HOME_HERO_MOBILE_AVIF_HREF,
+  HOME_HERO_MOBILE_AVIF_PRELOAD
+} from "@/lib/home-hero-image"
 
 const UpcomingRaces = dynamic(() =>
   import("@/components/landing/upcoming-races").then(mod => mod.UpcomingRaces)
@@ -87,7 +91,31 @@ function countdownSeed(
   }
 }
 
-export default async function HomePage() {
+function HomeHeroPreload() {
+  // ReactDOM.preload() does not emit a tag from this server page.
+  // Next hoists this link into <head>.
+  return (
+    <link
+      rel="preload"
+      href={HOME_HERO_MOBILE_AVIF_HREF}
+      as={HOME_HERO_MOBILE_AVIF_PRELOAD.as}
+      type={HOME_HERO_MOBILE_AVIF_PRELOAD.type}
+      media={HOME_HERO_MOBILE_AVIF_PRELOAD.media}
+      fetchPriority={HOME_HERO_MOBILE_AVIF_PRELOAD.fetchPriority}
+    />
+  )
+}
+
+export default function HomePage() {
+  return (
+    <>
+      <HomeHeroPreload />
+      <HomePageContent />
+    </>
+  )
+}
+
+async function HomePageContent() {
   const [{ data: races }, { siteWide }] = await Promise.all([
     getRacesAction({
       excludeCancelled: true
