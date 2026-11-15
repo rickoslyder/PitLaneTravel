@@ -83,6 +83,19 @@ test.describe("accessibility", () => {
     await expect(menu).toHaveAttribute("aria-expanded", "false")
     await expect(panel).toHaveCount(0)
     await expect(menu).toBeFocused()
+
+    await menu.click()
+    await expect(panel).toBeVisible()
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await expect(panel).toHaveCount(0)
+    await expect(page.locator("#main-content")).not.toHaveAttribute("inert", "")
+    const mainInert = await page.evaluate(() =>
+      Boolean(document.getElementById("main-content")?.closest("[inert]"))
+    )
+    expect(mainInert).toBe(false)
+    await expect(
+      page.getByRole("link", { name: "Races", exact: true })
+    ).toBeVisible()
   })
 
   test("FAQ questions are buttons", async ({ page }) => {

@@ -78,9 +78,21 @@ export default function Header({
     return () => {
       marked.forEach(el => el.removeAttribute("inert"))
       document.removeEventListener("keydown", onKeyDown)
-      menuButtonRef.current?.focus()
+      const toggleButton = menuButtonRef.current
+      if (toggleButton && toggleButton.getClientRects().length > 0) {
+        toggleButton.focus()
+      }
     }
   }, [isMenuOpen])
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)")
+    const closeOnDesktop = () => {
+      if (desktop.matches) setIsMenuOpen(false)
+    }
+    desktop.addEventListener("change", closeOnDesktop)
+    return () => desktop.removeEventListener("change", closeOnDesktop)
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
