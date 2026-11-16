@@ -246,7 +246,7 @@ export const HeroSection = ({
         <div className="container mx-auto grid grid-cols-1 gap-8 md:grid-cols-3">
           <div className="flex flex-col items-center gap-2">
             <Calendar className="text-foreground size-8" />
-            <h3 className="text-lg font-semibold">Every race, one calendar</h3>
+            <h2 className="text-lg font-semibold">Every race, one calendar</h2>
             <p className="text-muted-foreground text-center">
               Five series, this season and next.
             </p>
@@ -254,7 +254,7 @@ export const HeroSection = ({
 
           <div className="flex flex-col items-center gap-2">
             <MapPin className="text-foreground size-8" />
-            <h3 className="text-lg font-semibold">Know your seat</h3>
+            <h2 className="text-lg font-semibold">Know your seat</h2>
             <p className="text-muted-foreground text-center">
               What each grandstand looks onto, before you buy.
             </p>
@@ -262,7 +262,7 @@ export const HeroSection = ({
 
           <div className="flex flex-col items-center gap-2">
             <Star className="text-foreground size-8" />
-            <h3 className="text-lg font-semibold">Get out on time</h3>
+            <h2 className="text-lg font-semibold">Get out on time</h2>
             <p className="text-muted-foreground text-center">
               The quickest way back after the flag, from fans who queued for it.
             </p>

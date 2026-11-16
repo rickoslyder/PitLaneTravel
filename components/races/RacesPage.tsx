@@ -138,7 +138,7 @@ export function RacesPage({
   return (
     <div className="space-y-8">
       <div className="bg-card mx-auto max-w-7xl rounded-lg p-6 shadow">
-        <h1 className="mb-6 text-center text-2xl font-bold">Race Calendar</h1>
+        <h2 className="mb-6 text-center text-2xl font-bold">Race Calendar</h2>
 
         <div
           className="mb-6 flex flex-wrap justify-center gap-2"

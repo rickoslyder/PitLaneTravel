@@ -11,7 +11,18 @@ import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-a
 import { coverageByRaceId } from "@/lib/public-coverage"
 import { startOfUtcDay } from "@/lib/race-calendar-window"
 import { buildWebPageJsonLd, serializeJsonLd } from "@/lib/site-metadata"
-import { racesPageDescription, racesPageTitle } from "./metadata"
+import {
+  metadata as racesMetadata,
+  racesPageDescription,
+  racesPageTitle
+} from "./metadata"
+
+// This module is "use server", so Next rejects a non-async `metadata` export.
+// Race detail uses the same generateMetadata shape. The object, including the
+// PR 122/125 canonical and Open Graph fields, stays in ./metadata.
+export async function generateMetadata() {
+  return racesMetadata
+}
 
 export default async function RacesServerPage() {
   const [{ userId }, racesResult, ticketedRaceIds] = await Promise.all([

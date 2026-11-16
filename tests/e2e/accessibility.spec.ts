@@ -1,5 +1,14 @@
 import type { Page } from "@playwright/test"
-import { expect, test } from "./fixtures"
+import { racesPageDescription, racesPageTitle } from "@/app/races/metadata"
+import { E2E_RACE_SLUG, expect, test } from "./fixtures"
+
+const SHELL_PATHS = [
+  "/",
+  "/series/f1",
+  "/guides",
+  "/races",
+  `/races/${E2E_RACE_SLUG}`
+] as const
 
 const NARROW = [
   { width: 375, height: 812 },
@@ -12,6 +21,19 @@ async function expectOneMain(page: Page, path: string) {
   expect(response?.ok(), path).toBeTruthy()
   await expect(page.locator("main")).toHaveCount(1)
   await expect(page.locator("main#main-content")).toHaveCount(1)
+}
+
+async function expectSequentialHeadings(page: Page, path: string) {
+  const levels = await page
+    .locator("h1, h2, h3, h4, h5, h6")
+    .evaluateAll(nodes => nodes.map(node => Number(node.tagName.charAt(1))))
+  expect(levels.length, path).toBeGreaterThan(0)
+  for (let index = 1; index < levels.length; index += 1) {
+    expect(
+      levels[index] - levels[index - 1],
+      `${path} heading ${levels[index - 1]} then ${levels[index]}`
+    ).toBeLessThanOrEqual(1)
+  }
 }
 
 test.describe("accessibility", () => {
@@ -124,7 +146,7 @@ test.describe("accessibility", () => {
   test("skip link is the first focusable control and moves focus to main", async ({
     page
   }) => {
-    for (const path of ["/", "/series/f1", "/guides", "/races"]) {
+    for (const path of SHELL_PATHS) {
       const response = await page.goto(path)
       expect(response?.ok(), path).toBeTruthy()
       await page.keyboard.press("Tab")
@@ -137,9 +159,81 @@ test.describe("accessibility", () => {
   })
 
   test("each public page has exactly one main", async ({ page }) => {
-    for (const path of ["/", "/races", "/series/f1", "/guides"]) {
+    for (const path of SHELL_PATHS) {
       await expectOneMain(page, path)
     }
+  })
+
+  test("home carousel buttons are named and headings do not skip a level", async ({
+    page
+  }) => {
+    const response = await page.goto("/")
+    expect(response?.ok()).toBeTruthy()
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1)
+    await expect(
+      page.getByRole("heading", {
+        level: 2,
+        name: "Every race, one calendar",
+        exact: true
+      })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("heading", {
+        level: 2,
+        name: "Know your seat",
+        exact: true
+      })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("heading", {
+        level: 2,
+        name: "Get out on time",
+        exact: true
+      })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("button", { name: "Show previous races", exact: true })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("button", { name: "Show next races", exact: true })
+    ).toBeVisible()
+    await expectSequentialHeadings(page, "/")
+  })
+
+  test("races page publishes the calendar title and a single h1", async ({
+    page
+  }) => {
+    const response = await page.goto("/races")
+    expect(response?.ok()).toBeTruthy()
+    await expect(page).toHaveTitle(racesPageTitle)
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      "content",
+      racesPageDescription
+    )
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      "content",
+      racesPageTitle
+    )
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      "https://www.pitlanetravel.com/races"
+    )
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1)
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: "Motorsport Race Calendar",
+        exact: true
+      })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("heading", {
+        level: 2,
+        name: "Race Calendar",
+        exact: true
+      })
+    ).toBeVisible()
+    await expectSequentialHeadings(page, "/races")
   })
 
   test("first series card CTAs stay clear of the consent bar on narrow screens", async ({
