@@ -46,7 +46,7 @@ export function SimilarRaces({ currentRace }: SimilarRacesProps) {
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="bg-muted h-[300px] animate-pulse rounded-lg"
+              className="bg-muted h-[300px] motion-safe:animate-pulse rounded-lg"
             />
           ))}
         </div>

@@ -1,16 +1,17 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useLayoutEffect, useState } from "react"
 
 /**
- * False during SSR so markup matches. The client updates to the real
- * prefers-reduced-motion value after mount. MotionConfig reducedMotion="user"
- * also snaps positional and height animations on the client.
+ * False during SSR and hydration so markup matches. The layout effect then
+ * applies the real prefers-reduced-motion value before the browser paints,
+ * so entrance motion does not start for people who asked for reduced motion.
+ * MotionConfig reducedMotion="user" also drops transform animations.
  */
 export function usePrefersReducedMotion(): boolean {
   const [reduce, setReduce] = useState(false)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const query = window.matchMedia("(prefers-reduced-motion: reduce)")
     const apply = () => setReduce(query.matches)
     apply()

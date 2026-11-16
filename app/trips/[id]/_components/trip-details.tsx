@@ -240,7 +240,7 @@ export function TripDetails({ trip, race, userId }: TripDetailsProps) {
           <Button onClick={handleSave} disabled={isLoading}>
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
+                <Loader2 className="mr-2 size-4 motion-safe:animate-spin" />
                 Saving...
               </>
             ) : (
