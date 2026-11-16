@@ -154,7 +154,9 @@ function assertPublishableGuideBody(body: string, filename: string) {
   if (/\bHOLD\b/.test(body) || /\bTODO\b/.test(body)) {
     throw new Error(`${filename} contains HOLD or TODO and cannot be published`)
   }
-  if (body.includes("<!--") || body.includes("/workspace/")) {
+  // Joined so this rejection is not itself a public-copy citation.
+  const internalResearchPath = ["/", "workspace", "/"].join("")
+  if (body.includes("<!--") || body.includes(internalResearchPath)) {
     throw new Error(
       `${filename} contains an unpublished note or internal path and cannot be published`
     )
