@@ -7,7 +7,7 @@ const root = process.cwd()
 describe("home hero image", () => {
   it("serves a local optimized photo and a designed fallback", () => {
     const source = readFileSync(
-      path.join(root, "components/landing/hero.tsx"),
+      path.join(root, "components/landing/hero-photo.tsx"),
       "utf8"
     )
     const assetPath = path.join(root, "public/images/home-hero.jpg")
@@ -25,6 +25,7 @@ describe("home hero image", () => {
     expect(source).not.toContain('rel="preload"')
     expect(source).toContain('fetchpriority="high"')
     expect(source).not.toContain('loading="lazy"')
+    expect(source).not.toContain('decoding="async"')
     expect(source).toContain("HOME_HERO_MOBILE_AVIF_HREF")
 
     const preload = readFileSync(
@@ -46,6 +47,13 @@ describe("home hero image", () => {
       "fetchPriority={HOME_HERO_MOBILE_AVIF_PRELOAD.fetchPriority}"
     )
     expect(home).toContain("<HomeHeroPreload />")
+    expect(home).toContain("<Suspense fallback={<HeroCountdownFallback />}>")
+    const heroAt = home.indexOf("<HeroSection")
+    const belowAt = home.indexOf("<HomeBelow")
+    const coverageAt = home.indexOf("await getPublicCoverageSummariesAction")
+    expect(heroAt).toBeGreaterThan(-1)
+    expect(belowAt).toBeGreaterThan(heroAt)
+    expect(coverageAt).toBeGreaterThan(belowAt)
     expect([...header]).toEqual([0xff, 0xd8, 0xff])
     expect(bytes).toBeGreaterThan(50_000)
     expect(bytes).toBeLessThan(1_500_000)
