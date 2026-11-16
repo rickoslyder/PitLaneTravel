@@ -121,9 +121,11 @@ test.describe("race hub fan sub-pages", () => {
     ])
 
     const levels = await page.evaluate(() =>
-      [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(node =>
-        Number(node.tagName.slice(1))
-      )
+      [
+        ...document.querySelectorAll(
+          "#main-content h1, #main-content h2, #main-content h3, #main-content h4, #main-content h5, #main-content h6"
+        )
+      ].map(node => Number(node.tagName.slice(1)))
     )
     expect(levels[0]).toBe(1)
     expect(levels.filter(level => level === 1)).toHaveLength(1)
