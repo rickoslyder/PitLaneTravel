@@ -22,14 +22,9 @@ const stripBaselinePolyfillsLoader = fileURLToPath(
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    // The races h1 is text. On a fast lab run the render-blocking CSS file
-    // finishes just after the async scripts, so Lantern treats those scripts
-    // as LCP dependencies and resimulates them on slow 4G. Inlining the CSS
-    // lets the h1 paint before those responses return, which drops them out
-    // of the LCP graph. The rendered CSS is unchanged.
-    inlineCss: true
-  },
+  // Do not set experimental.inlineCss. Next puts the whole Tailwind sheet in
+  // a render-blocking <style> and again in the flight payload, which raises
+  // mobile FCP and the /series/f1 main-thread time.
   // Guide markdown is read from disk at build and again when the sitemap
   // regenerates. Keep the files in the server trace for those routes.
   outputFileTracingIncludes: {
