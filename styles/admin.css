@@ -1,0 +1,9 @@
+/*
+<ai_context>
+Utilities that exist only on admin screens. Imported from the admin sidebar,
+which the admin layout always renders.
+</ai_context>
+*/
+
+@config "../tailwind.admin.config.ts";
+@tailwind utilities;

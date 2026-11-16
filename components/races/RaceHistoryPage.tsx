@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import "@/styles/prose.css"
 
 interface RaceHistoryPageProps {
   race: RaceWithDetails

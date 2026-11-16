@@ -1,6 +1,7 @@
 "use server"
 
 import { AffiliateDisclosure } from "@/components/partners/affiliate-disclosure"
+import "@/styles/prose.css"
 
 export default async function TermsPage() {
   return (

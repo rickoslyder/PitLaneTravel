@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import "@/styles/prose.css"
 import { RaceWithDetails } from "@/types/race"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, Info, MapPin, Plug, AlertTriangle, X } from "lucide-react"
