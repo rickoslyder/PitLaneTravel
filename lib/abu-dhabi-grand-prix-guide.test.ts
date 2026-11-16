@@ -116,34 +116,46 @@ describe("Abu Dhabi Grand Prix travel guide", () => {
     expect(guide!.body).toContain(
       '**Official "from" prices, checked 16 Nov 2026:**'
     )
+    expect(guide!.body).not.toContain("General admission | AED 745")
+    expect(guide!.body).not.toContain("AED 745")
     expect(guide!.body).toContain(
-      "| Promoter (abudhabigp.com) [5] | General admission | AED 745 | On sale |"
+      "| Promoter [5] | Grandstands | AED 1,895 | Listed 31 October 2026; re-check before you buy |"
     )
     expect(guide!.body).toContain(
       "| Promoter [5] | South Grandstand | AED 2,095 | On sale |"
     )
     expect(guide!.body).toContain(
-      "| Promoter [5] | Premium hospitality | AED 9,795 | On sale |"
+      "| Promoter [5] | Premium | AED 2,995 | Listed 31 October 2026; re-check before you buy |"
     )
     expect(guide!.body).toContain(
-      "| F1 Tickets [8] | West Grandstand | — | Sold out |"
+      "| Promoter [5] | Premium hospitality | AED 7,995 | Listed 31 October 2026; re-check before you buy |"
     )
     expect(guide!.body).toContain(
-      "| F1 Tickets [8] | Abu Dhabi Hill | — | Sold out |"
+      "| Promoter [5] | Upgrades and concerts | AED 295 | Listed 31 October 2026; re-check before you buy |"
+    )
+    expect(guide!.body).not.toContain("AED 9,795")
+    expect(guide!.body).toContain(
+      "| F1 Tickets [8] | West Grandstand | — | Sold out (checked 16 November 2026) |"
     )
     expect(guide!.body).toContain(
-      "| F1 Tickets [8] | North Straight Grandstand | — | Sold out |"
+      "| F1 Tickets [8] | Abu Dhabi Hill | — | Sold out (checked 16 November 2026) |"
     )
     expect(guide!.body).toContain(
-      "| F1 Tickets [8] | West Straight Grandstand | — | Sold out |"
+      "| F1 Tickets [8] | North Straight Grandstand | — | Sold out (checked 16 November 2026) |"
     )
     expect(guide!.body).toContain(
-      "| F1 Tickets [8] | South Grandstand | — | No longer listed |"
+      "| F1 Tickets [8] | West Straight Grandstand | — | Sold out (checked 16 November 2026) |"
     )
     expect(guide!.body).toContain(
-      "For seats sold out or no longer listed on F1 Tickets, check the promoter: general admission is listed from AED 745, and the South Grandstand from AED 2,095."
+      "| F1 Tickets [8] | Sunset Lounge | — | Still listed (checked 16 November 2026) |"
     )
-    expect(guide!.body).not.toContain("AED 7,995")
+    expect(guide!.body).toContain(
+      "| F1 Tickets [8] | Shams Suite | — | Still listed (checked 16 November 2026) |"
+    )
+    expect(guide!.body).not.toContain("No longer listed")
+    expect(guide!.body).toContain(
+      "For seats sold out or no longer listed on F1 Tickets, check the promoter: the South Grandstand is listed from AED 2,095."
+    )
     expect(guide!.body).not.toContain("€379.28")
     expect(guide!.body).not.toContain("€736.24")
     expect(guide!.body).not.toContain("€1,311.84")
