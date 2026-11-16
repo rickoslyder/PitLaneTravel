@@ -1,5 +1,6 @@
 "use server"
 
+import "@/app/global-styles"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import {
   Breadcrumb,

@@ -1,3 +1,4 @@
+import "@/app/global-styles"
 import { PublicShell } from "@/components/public-shell"
 
 export default function SeriesLayout({

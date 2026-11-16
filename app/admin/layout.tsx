@@ -1,5 +1,6 @@
 "use server"
 
+import "@/app/global-styles"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { getProfileAction } from "@/actions/db/profiles-actions"

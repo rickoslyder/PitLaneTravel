@@ -6,6 +6,8 @@ This server layout provides a centered layout for (auth) pages.
 
 "use server"
 
+import "@/app/global-styles"
+
 interface AuthLayoutProps {
   children: React.ReactNode
 }

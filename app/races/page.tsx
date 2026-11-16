@@ -4,6 +4,7 @@ import { Suspense } from "react"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { HeroSection } from "@/components/races/HeroSection"
+import { RacesCriticalCss } from "@/components/races/races-critical-css"
 import { RacesPage } from "@/components/races/RacesPage"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { listRaceIdsWithTicketListingsAction } from "@/actions/db/ticket-listing-actions"
@@ -38,31 +39,34 @@ export default async function RacesServerPage() {
   }
 
   return (
-    <div className="flex-1 space-y-8 p-4 pt-0" data-races-listing="">
-      {/* Root generateMetadata awaits package availability, and this page is
+    <>
+      <RacesCriticalCss />
+      <div className="flex-1 space-y-8 p-4 pt-0" data-races-listing="">
+        {/* Root generateMetadata awaits package availability, and this page is
           dynamic, so Next streams the merged description into the body.
           Lighthouse only reads head meta. This tag is part of the shell, so
           it is hoisted into the initial head. */}
-      <meta name="description" content={racesPageDescription} />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: serializeJsonLd(
-            buildWebPageJsonLd({
-              name: racesPageTitle,
-              description: racesPageDescription,
-              pathname: "/races"
-            })
-          )
-        }}
-      />
-      <div className="bg-background" data-races-listing-hero="">
-        <HeroSection />
+        <meta name="description" content={racesPageDescription} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(
+              buildWebPageJsonLd({
+                name: racesPageTitle,
+                description: racesPageDescription,
+                pathname: "/races"
+              })
+            )
+          }}
+        />
+        <div className="bg-background" data-races-listing-hero="">
+          <HeroSection />
+        </div>
+        <Suspense fallback={null}>
+          <RacesListing />
+        </Suspense>
       </div>
-      <Suspense fallback={null}>
-        <RacesListing />
-      </Suspense>
-    </div>
+    </>
   )
 }
 

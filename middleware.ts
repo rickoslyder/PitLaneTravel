@@ -34,6 +34,12 @@ export default clerkMiddleware(
         return NextResponse.redirect(signIn)
       }
     }
+
+    const requestHeaders = new Headers(req.headers)
+    requestHeaders.set("x-pathname", req.nextUrl.pathname)
+    return NextResponse.next({
+      request: { headers: requestHeaders }
+    })
   },
   {
     ...clerkMiddlewareNetworklessOptions(),

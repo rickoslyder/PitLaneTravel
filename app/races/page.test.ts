@@ -51,6 +51,10 @@ describe("races page metadata", () => {
     expect(shell).toContain("<Suspense")
     expect(shell).toContain('data-races-listing=""')
     expect(shell).toContain('data-races-listing-hero=""')
+    expect(shell).toContain("<RacesCriticalCss")
+    expect(shell.indexOf("<RacesCriticalCss")).toBeLessThan(
+      shell.indexOf("<HeroSection")
+    )
     expect(shell).not.toContain("getRacesAction")
     expect(source.slice(listing)).toContain("getRacesAction")
   })
