@@ -211,7 +211,7 @@ test.describe("accessibility", () => {
     const response = await page.goto("/races")
     expect(response?.ok()).toBeTruthy()
     await expect(page).toHaveTitle(racesPageTitle)
-    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    await expect(page.locator('head meta[name="description"]')).toHaveAttribute(
       "content",
       racesPageDescription
     )
