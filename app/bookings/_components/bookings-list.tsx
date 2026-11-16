@@ -432,7 +432,7 @@ export function BookingsList({ bookings, userId }: BookingsListProps) {
               </DialogHeader>
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="text-muted-foreground size-8 animate-spin" />
+                  <Loader2 className="text-muted-foreground size-8 motion-safe:animate-spin" />
                 </div>
               ) : (
                 <TripSelector

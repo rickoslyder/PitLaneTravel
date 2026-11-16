@@ -192,3 +192,193 @@ test.describe("accessibility", () => {
     }
   })
 })
+
+type AnswerSample = {
+  height: number
+  scrollHeight: number
+  opacity: number
+  inlineHeight: string
+}
+
+async function readAnswer(
+  page: Page,
+  answerId: string
+): Promise<AnswerSample | null> {
+  return page.evaluate(id => {
+    const element = document.getElementById(id)
+    if (!element) return null
+    const style = getComputedStyle(element)
+    return {
+      height: element.getBoundingClientRect().height,
+      scrollHeight: element.scrollHeight,
+      opacity: Number(style.opacity),
+      inlineHeight: element.style.height
+    }
+  }, answerId)
+}
+
+async function sampleAnswerHeights(
+  page: Page,
+  answerId: string,
+  click: () => Promise<void>
+): Promise<number[]> {
+  const pending = page.evaluate(
+    id =>
+      new Promise<number[]>(resolve => {
+        const samples: number[] = []
+        let started = 0
+        const giveUp = window.setTimeout(() => resolve(samples), 5000)
+        const tick = () => {
+          const element = document.getElementById(id)
+          if (!element) {
+            requestAnimationFrame(tick)
+            return
+          }
+          if (started === 0) started = performance.now()
+          samples.push(element.getBoundingClientRect().height)
+          if (performance.now() - started < 400) {
+            requestAnimationFrame(tick)
+            return
+          }
+          window.clearTimeout(giveUp)
+          resolve(samples)
+        }
+        requestAnimationFrame(tick)
+      }),
+    answerId
+  )
+  await click()
+  return pending
+}
+
+test.describe("reduced motion", () => {
+  test("scrolls instantly and expands FAQ answers without a height animation", async ({
+    page
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" })
+    const response = await page.goto("/")
+    expect(response?.ok()).toBeTruthy()
+
+    const scrolling = await page.evaluate(() => ({
+      body: getComputedStyle(document.body).scrollBehavior,
+      root: getComputedStyle(document.documentElement).scrollBehavior
+    }))
+    expect(scrolling.body).toBe("auto")
+    expect(scrolling.root).toBe("auto")
+
+    await page.keyboard.press("Tab")
+    await expect(
+      page.getByRole("link", { name: "Skip to main content", exact: true })
+    ).toBeFocused()
+    await page.keyboard.press("Enter")
+    await expect(page.locator("#main-content")).toBeFocused()
+
+    const questions = page.locator("button[aria-controls^='faq-answer-']")
+    await expect.poll(async () => questions.count()).toBeGreaterThan(1)
+
+    const entrance = await page.evaluate(() => {
+      const heading = document.getElementById("faq-title")
+      const root = heading?.parentElement
+      if (!root) return null
+      const style = getComputedStyle(root)
+      return { opacity: Number(style.opacity), transform: style.transform }
+    })
+    expect(entrance?.opacity).toBeGreaterThan(0.99)
+    expect(["none", "matrix(1, 0, 0, 1, 0, 0)"]).toContain(entrance?.transform)
+
+    const closed = questions.nth(1)
+    await closed.evaluate(element =>
+      element.scrollIntoView({
+        block: "center",
+        inline: "nearest",
+        behavior: "instant"
+      })
+    )
+    await expect(closed).toHaveAttribute("aria-expanded", "false")
+    const controls = await closed.getAttribute("aria-controls")
+    expect(controls).toBeTruthy()
+
+    await expect
+      .poll(async () =>
+        closed
+          .locator("svg")
+          .evaluate(element => getComputedStyle(element).transitionDuration)
+      )
+      .toBe("0s")
+
+    const answerId = controls!
+    const samples = await sampleAnswerHeights(page, answerId, () =>
+      closed.click()
+    )
+    const panel = page.locator(`#${answerId}`)
+    await expect(panel).toBeVisible()
+    const settled = await readAnswer(page, answerId)
+    expect(settled).not.toBeNull()
+    expect(settled!.opacity).toBeGreaterThan(0.99)
+    expect(settled!.height).toBeGreaterThan(20)
+    expect(Math.abs(settled!.height - settled!.scrollHeight)).toBeLessThan(2)
+
+    const present = samples.filter(height => height > 0)
+    expect(present, samples.join(",")).toHaveLength(samples.length)
+    expect(present.length).toBeGreaterThan(2)
+    const spread = Math.max(...present) - Math.min(...present)
+    expect(spread).toBeLessThan(1)
+    await expect(panel.locator("p")).not.toBeEmpty()
+  })
+})
+
+test.describe("motion allowed", () => {
+  test("smooth-scrolls and animates FAQ answer height", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "no-preference" })
+    const response = await page.goto("/")
+    expect(response?.ok()).toBeTruthy()
+
+    const scrolling = await page.evaluate(() => ({
+      body: getComputedStyle(document.body).scrollBehavior,
+      root: getComputedStyle(document.documentElement).scrollBehavior
+    }))
+    expect(scrolling.body).toBe("smooth")
+    expect(scrolling.root).toBe("auto")
+
+    const questions = page.locator("button[aria-controls^='faq-answer-']")
+    await expect.poll(async () => questions.count()).toBeGreaterThan(1)
+    const closed = questions.nth(1)
+    await closed.evaluate(element =>
+      element.scrollIntoView({
+        block: "center",
+        inline: "nearest",
+        behavior: "instant"
+      })
+    )
+    await expect(closed).toHaveAttribute("aria-expanded", "false")
+    const controls = await closed.getAttribute("aria-controls")
+    expect(controls).toBeTruthy()
+
+    const chevronDuration = await closed
+      .locator("svg")
+      .evaluate(element => getComputedStyle(element).transitionDuration)
+    expect(parseFloat(chevronDuration)).toBeGreaterThan(0)
+
+    const samples = await sampleAnswerHeights(page, controls!, () =>
+      closed.click()
+    )
+    const present = samples.filter(height => height > 0)
+    expect(present.length, samples.join(",")).toBeGreaterThan(2)
+    const spread = Math.max(...present) - Math.min(...present)
+    expect(spread, samples.join(",")).toBeGreaterThan(8)
+
+    const panel = page.locator(`#${controls}`)
+    await expect(panel).toBeVisible()
+    await expect
+      .poll(async () => {
+        const sample = await readAnswer(page, controls!)
+        if (!sample) return false
+        return (
+          sample.opacity > 0.99 &&
+          sample.height > 20 &&
+          Math.abs(sample.height - sample.scrollHeight) < 2
+        )
+      })
+      .toBe(true)
+  })
+})

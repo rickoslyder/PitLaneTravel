@@ -58,8 +58,9 @@ export default function CircuitExplorer() {
       >
         <div className="container mx-auto px-4">
           <motion.div
+            key={reduceMotion ? "reduced" : "motion"}
             initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
             transition={
               reduceMotion
                 ? { duration: 0 }

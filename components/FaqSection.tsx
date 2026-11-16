@@ -27,8 +27,9 @@ export default function FaqSection({
       >
         <div className="container mx-auto px-4">
           <motion.div
+            key={reduceMotion ? "reduced" : "motion"}
             initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
             transition={
               reduceMotion
                 ? { duration: 0 }
@@ -46,7 +47,7 @@ export default function FaqSection({
                 <motion.div
                   key={index}
                   initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                   transition={
                     reduceMotion
                       ? { duration: 0 }
@@ -64,7 +65,7 @@ export default function FaqSection({
                     <span className="font-semibold">{faq.question}</span>
                     <ChevronDown
                       aria-hidden="true"
-                      className={`transition-transform duration-200 ${
+                      className={`motion-safe:transition-transform motion-safe:duration-200 ${
                         activeIndex === index ? "rotate-180" : ""
                       }`}
                     />
@@ -75,10 +76,14 @@ export default function FaqSection({
                         initial={
                           reduceMotion ? false : { height: 0, opacity: 0 }
                         }
-                        animate={{ height: "auto", opacity: 1 }}
+                        animate={
+                          reduceMotion
+                            ? { opacity: 1 }
+                            : { height: "auto", opacity: 1 }
+                        }
                         exit={
                           reduceMotion
-                            ? { height: "auto", opacity: 1 }
+                            ? { opacity: 1 }
                             : { height: 0, opacity: 0 }
                         }
                         transition={{ duration: reduceMotion ? 0 : 0.3 }}

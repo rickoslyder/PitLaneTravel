@@ -44,7 +44,7 @@ import { FanTipsSection } from "@/components/races/fan-tips/fan-tips-section"
 function TabLoadingSpinner() {
   return (
     <div className="flex h-[500px] items-center justify-center">
-      <div className="border-primary size-8 animate-spin rounded-full border-2 border-t-transparent" />
+      <div className="border-primary size-8 motion-safe:animate-spin rounded-full border-2 border-t-transparent" />
     </div>
   )
 }
