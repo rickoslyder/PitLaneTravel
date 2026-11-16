@@ -20,13 +20,11 @@ import { cn } from "@/lib/utils"
 import { brand, brandCopy } from "@/config/brand"
 import { getPackagesAvailability } from "@/lib/packages-availability"
 import { DEFAULT_OG_IMAGE_URL, SITE_ORIGIN } from "@/lib/site-metadata"
+import { racesCriticalUnblockScript } from "@/lib/races-critical-unblock"
 import { ClerkProvider } from "@clerk/nextjs"
 import { auth } from "@clerk/nextjs/server"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-
-const inter = Inter({ subsets: ["latin"] })
+import { headers } from "next/headers"
 
 export async function generateMetadata(): Promise<Metadata> {
   const availability = await getPackagesAvailability()
@@ -55,6 +53,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const pathname = (await headers()).get("x-pathname")
+  const deferRacesCss = pathname === "/races" || pathname === "/races/"
   const { userId } = await auth()
 
   if (userId) {
@@ -118,11 +118,19 @@ export default async function RootLayout({
       />
       <link rel="manifest" href="/site.webmanifest" />
       <html lang="en" suppressHydrationWarning>
+        {deferRacesCss ? (
+          <head>
+            <script
+              id="races-critical-css-unblock"
+              dangerouslySetInnerHTML={{ __html: racesCriticalUnblockScript }}
+            />
+          </head>
+        ) : null}
         <body
           className={cn(
-            "bg-background mx-auto min-h-screen w-full antialiased motion-safe:scroll-smooth",
-            inter.className
+            "bg-background mx-auto min-h-screen w-full antialiased motion-safe:scroll-smooth"
           )}
+          style={{ fontFamily: 'Inter, "Inter Fallback"' }}
         >
           <a
             href="#main-content"

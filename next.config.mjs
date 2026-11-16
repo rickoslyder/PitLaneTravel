@@ -13,6 +13,10 @@ import { createRequire } from "node:module"
 import { fileURLToPath } from "node:url"
 
 const require = createRequire(import.meta.url)
+const {
+  RacesStylesheetManifestPlugin,
+  embedRacesStylesheetManifest
+} = require("./config/races-stylesheet-manifest.cjs")
 const polyfillModule = require.resolve(
   "next/dist/build/polyfills/polyfill-module.js"
 )
@@ -62,7 +66,39 @@ const nextConfig = {
       enforce: "pre",
       loader: stripBaselinePolyfillsLoader
     })
+    config.plugins ??= []
+    config.plugins.push(new RacesStylesheetManifestPlugin())
     return config
+  }
+}
+
+// Next calls process.exit() when the build finishes, which skips beforeExit,
+// and it rewrites server bundles during trace collection after the client
+// compiler. Patch the href on the way out of the main build process.
+const isMainNextBuild =
+  process.argv.includes("build") &&
+  process.env.NEXT_PRIVATE_BUILD_WORKER !== "1"
+if (isMainNextBuild) {
+  let racesStylesheetEmbedded = false
+  const embedRacesStylesheetOrFail = () => {
+    if (racesStylesheetEmbedded) return 0
+    racesStylesheetEmbedded = true
+    const result = embedRacesStylesheetManifest()
+    if (result.hrefs.length === 0 || result.tokenRemaining > 0) {
+      console.error(
+        "Races stylesheet href was not embedded into the server bundle"
+      )
+      return 1
+    }
+    return 0
+  }
+  process.on("exit", () => {
+    embedRacesStylesheetOrFail()
+  })
+  const exit = process.exit.bind(process)
+  process.exit = code => {
+    const failed = embedRacesStylesheetOrFail()
+    exit(failed === 1 ? 1 : code)
   }
 }
 

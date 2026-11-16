@@ -1,5 +1,6 @@
 "use server"
 
+import "@/app/global-styles"
 import NotFoundContent from "@/app/_components/not-found-content"
 import { PublicShell } from "@/components/public-shell"
 

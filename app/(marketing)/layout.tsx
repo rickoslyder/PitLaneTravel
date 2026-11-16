@@ -4,6 +4,7 @@ This server layout provides a shared header and basic structure for (marketing) 
 </ai_context>
 */
 
+import "@/app/global-styles"
 import { PublicShell } from "@/components/public-shell"
 
 export default async function MarketingLayout({

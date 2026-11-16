@@ -1,3 +1,5 @@
+import "@/app/global-styles"
+
 export default function CompareLayout({
   children
 }: {

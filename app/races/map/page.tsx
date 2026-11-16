@@ -1,5 +1,6 @@
 "use server"
 
+import "@/app/global-styles"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { MapView } from "./_components/map-view"
 

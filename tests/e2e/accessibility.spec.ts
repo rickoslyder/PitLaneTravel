@@ -311,6 +311,23 @@ test.describe("accessibility", () => {
         expect(response?.ok(), path).toBeTruthy()
         const bar = page.locator("[data-analytics-consent-bar]")
         await expect(bar).toBeVisible()
+        if (path === "/races") {
+          await expect
+            .poll(async () =>
+              page.evaluate(() =>
+                [...document.querySelectorAll("link")].some(link => {
+                  if (!(link instanceof HTMLLinkElement)) return false
+                  const href = link.getAttribute("href") || ""
+                  return (
+                    href.includes("/_next/static/css/") &&
+                    (link.media === "all" || link.media === "")
+                  )
+                })
+              )
+            )
+            .toBe(true)
+          await page.evaluate(() => document.fonts.ready)
+        }
 
         const covered = await page.evaluate(() => {
           const barEl = document.querySelector("[data-analytics-consent-bar]")
@@ -336,6 +353,58 @@ test.describe("accessibility", () => {
         )
       }
     }
+  })
+
+  test("races full stylesheet is applied and below-fold cards keep prod styling", async ({
+    page
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const response = await page.goto("/races")
+    expect(response?.ok()).toBeTruthy()
+    await expect
+      .poll(async () =>
+        page.evaluate(() =>
+          [...document.querySelectorAll('link[rel="stylesheet"]')].some(
+            link => {
+              if (!(link instanceof HTMLLinkElement)) return false
+              const href = link.getAttribute("href") || ""
+              return (
+                href.includes("/_next/static/css/") &&
+                (link.media === "all" || link.media === "")
+              )
+            }
+          )
+        )
+      )
+      .toBe(true)
+
+    const html = await page.content()
+    expect(html).toContain("<noscript>")
+    expect(html).toContain('media="print"')
+    expect(html).toContain('data-races-critical=""')
+
+    const below = await page.evaluate(() => {
+      const cards = [...document.querySelectorAll("[data-race-card]")]
+      const card =
+        cards.find(
+          el => el.getBoundingClientRect().top >= window.innerHeight
+        ) ?? null
+      if (!(card instanceof HTMLElement)) return null
+      const img = card.querySelector(".race-listing-img")
+      return {
+        top: card.getBoundingClientRect().top,
+        innerHeight: window.innerHeight,
+        borderTopWidth: getComputedStyle(card).borderTopWidth,
+        transition:
+          img instanceof HTMLElement
+            ? getComputedStyle(img).transitionProperty
+            : ""
+      }
+    })
+    expect(below, "a race card starts below the fold").not.toBeNull()
+    expect(below!.top).toBeGreaterThanOrEqual(below!.innerHeight)
+    expect(below!.borderTopWidth).toBe("1px")
+    expect(below!.transition).toContain("transform")
   })
 
   test("races hero stays 16px above the calendar on a tall phone with the consent bar open", async ({
