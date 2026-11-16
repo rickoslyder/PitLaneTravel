@@ -179,3 +179,30 @@ html:has([data-analytics-consent-bar]) body {
     max-height: 2.25rem;
   }
 }
+
+/* Tall phones: the races hero otherwise pushes the series filters and the
+   view controls under the first-visit bar. Shorter phones keep the full
+   hero, because those controls start below the fold. */
+@media (max-width: 639px) and (min-height: 800px) {
+  html:has([data-analytics-consent-bar])
+    [data-races-listing-hero]
+    > :first-child {
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
+  }
+
+  html:has([data-analytics-consent-bar]) [data-races-listing-hero] p {
+    display: -webkit-box;
+    margin-top: 0.75rem;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  html:has([data-analytics-consent-bar])
+    [data-races-listing]
+    > :not([hidden])
+    ~ :not([hidden]) {
+    margin-top: 1rem;
+  }
+}

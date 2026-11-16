@@ -50,7 +50,7 @@ export default async function RacesServerPage() {
     : {}
 
   return (
-    <div className="flex-1 space-y-8 p-4 pt-0">
+    <div className="flex-1 space-y-8 p-4 pt-0" data-races-listing="">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -63,7 +63,7 @@ export default async function RacesServerPage() {
           )
         }}
       />
-      <div className="bg-background">
+      <div className="bg-background" data-races-listing-hero="">
         <HeroSection />
       </div>
       <RacesPage
