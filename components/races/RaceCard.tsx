@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { RaceWithCircuitAndSeries } from "@/types/database"
+import type { SeriesCalendarRace } from "@/lib/series-card-image"
 import { CalendarDays, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatRaceCalendarDate } from "@/lib/race-datetime"
@@ -18,7 +18,7 @@ import { RaceCardCtas } from "@/components/races/race-card-ctas"
 
 interface RaceCardProps {
   /** The race to display */
-  race: RaceWithCircuitAndSeries
+  race: SeriesCalendarRace
   /** The variant of the card */
   variant?: "grid" | "list"
   /** Additional class names */
@@ -29,6 +29,8 @@ interface RaceCardProps {
   coverage?: PublicCoverageSummary
   /** Preload the photo when this card is the largest above-the-fold image. */
   imagePriority?: boolean
+  /** Override the grid image sizes. Series pages pass the real frame width. */
+  imageSizes?: string
   /** Ticket rows for this race. Omitted keeps the details button. */
   listingState?: TicketListingState
 }
@@ -48,6 +50,7 @@ export function RaceCard({
   onClick,
   coverage,
   imagePriority = false,
+  imageSizes,
   listingState
 }: RaceCardProps) {
   const raceDateLabel = formatRaceCalendarDate(
@@ -57,8 +60,7 @@ export function RaceCard({
   )
   const isCancelled = race.status === "cancelled"
   const finished = raceHasFinished(race, new Date())
-  const cardListingState =
-    isCancelled || finished ? undefined : listingState
+  const cardListingState = isCancelled || finished ? undefined : listingState
   const raceHref = `/races/${race.slug || race.id}`
   const imageLabel = raceCardImageLabel(race)
 
@@ -167,7 +169,10 @@ export function RaceCard({
             alt={imageLabel.title}
             fill
             priority={imagePriority}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes={
+              imageSizes ??
+              "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            }
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             label={imageLabel}
           />

@@ -1,19 +1,19 @@
 "use client"
 
-import { RaceWithCircuitAndSeries } from "@/types/database"
+import type { SeriesCalendarRace } from "@/lib/series-card-image"
 import { useRouter } from "next/navigation"
 import { firstRaceIdWithImage } from "@/lib/race-image"
 import { RaceCard } from "./RaceCard"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import type { TicketListingState } from "@/components/races/tickets/ticket-availability"
 
-interface RaceGridProps {
+interface RaceGridProps<T extends SeriesCalendarRace> {
   /** The races to display */
-  races: RaceWithCircuitAndSeries[]
+  races: T[]
   /** The current view type */
   viewType: "grid" | "list"
   /** Callback when a race is clicked. Defaults to navigating to the race page. */
-  onRaceClick?: (race: RaceWithCircuitAndSeries) => void
+  onRaceClick?: (race: T) => void
   /** Public coverage summaries keyed by race id */
   coverageByRaceId?: Record<string, PublicCoverageSummary>
   /**
@@ -21,21 +21,22 @@ interface RaceGridProps {
    * When present, a missing id is an empty listing.
    */
   ticketedRaceIds?: readonly string[]
+  /** Series pages pass the real card frame so mobile does not assume 100vw. */
+  imageSizes?: string
 }
 
-export function RaceGrid({
+export function RaceGrid<T extends SeriesCalendarRace>({
   races,
   viewType,
   onRaceClick,
   coverageByRaceId,
-  ticketedRaceIds
-}: RaceGridProps) {
+  ticketedRaceIds,
+  imageSizes
+}: RaceGridProps<T>) {
   const router = useRouter()
   const ticketed = ticketedRaceIds ? new Set(ticketedRaceIds) : null
   const handleClick =
-    onRaceClick ??
-    ((race: RaceWithCircuitAndSeries) =>
-      router.push(`/races/${race.slug || race.id}`))
+    onRaceClick ?? ((race: T) => router.push(`/races/${race.slug || race.id}`))
 
   const listingStateFor = (raceId: string): TicketListingState | undefined => {
     if (!ticketed) return undefined
@@ -54,6 +55,7 @@ export function RaceGrid({
               className="h-full"
               coverage={coverageByRaceId?.[race.id]}
               imagePriority={race.id === priorityRaceId}
+              imageSizes={imageSizes}
               listingState={listingStateFor(race.id)}
             />
           </div>

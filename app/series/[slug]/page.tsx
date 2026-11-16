@@ -6,9 +6,17 @@ import Link from "next/link"
 import { Metadata } from "next"
 import { getSeriesBySlugAction } from "@/actions/db/series-actions"
 import { formatFormulaESeason, pluralizeEventNoun } from "@/lib/series"
-import { getRacesAction } from "@/actions/db/races-actions"
-import { listRaceIdsWithTicketListingsAction } from "@/actions/db/ticket-listing-actions"
+import {
+  getSeriesCalendarAction,
+  listSeriesTicketedRaceIdsAction
+} from "@/actions/db/series-calendar-actions"
 import { isActiveRaceStatus } from "@/lib/race-status"
+import { firstRaceIdWithImage } from "@/lib/race-image"
+import {
+  SERIES_CARD_MOBILE_MEDIA,
+  SERIES_CARD_SIZES,
+  seriesCardMobileImageHref
+} from "@/lib/series-card-image"
 import { RaceGrid } from "@/components/races/RaceGrid"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { coverageByRaceId } from "@/lib/public-coverage"
@@ -46,15 +54,11 @@ export async function generateMetadata({
 
 export default async function SeriesPage({ params }: SeriesPageProps) {
   const { slug } = await params
-  const [{ isSuccess, data: series, message }, racesResult, ticketedRaceIds] =
-    await Promise.all([
-      loadSeries(slug),
-      getRacesAction({
-        series: slug,
-        excludeCancelled: true
-      }),
-      listRaceIdsWithTicketListingsAction()
-    ])
+  const [{ isSuccess, data: series, message }, calendarResult] =
+    await Promise.all([loadSeries(slug), getSeriesCalendarAction(slug)])
+  const races = calendarResult.isSuccess
+    ? calendarResult.data?.races
+    : undefined
 
   // Distinguish "no such series" from "the database is down": returning 404 during an
   // outage tells search engines the page is gone and gets it deindexed.
@@ -69,11 +73,12 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
     series.description
   )
 
-  const races = racesResult.data
   const upcoming = (races ?? []).filter(r => isActiveRaceStatus(r.status))
-  const coverageResult = await getPublicCoverageSummariesAction(
-    upcoming.map(race => race.id)
-  )
+  const upcomingIds = upcoming.map(race => race.id)
+  const [ticketedRaceIds, coverageResult] = await Promise.all([
+    listSeriesTicketedRaceIdsAction(upcomingIds),
+    getPublicCoverageSummariesAction(upcomingIds)
+  ])
   const coverageMap = coverageResult.isSuccess
     ? coverageByRaceId(coverageResult.data)
     : {}
@@ -83,62 +88,87 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
           .sort((a, b) => a - b)
           .map(year => formatFormulaESeason(year))
       : []
+  const lcpSrc = upcoming.find(
+    race => race.id === firstRaceIdWithImage(upcoming)
+  )?.circuit?.image_url
+  const lcpHref =
+    typeof lcpSrc === "string" && lcpSrc.trim()
+      ? seriesCardMobileImageHref(lcpSrc)
+      : null
 
   return (
-    <div data-series-page="" className="mx-auto max-w-7xl space-y-8 p-4 sm:p-8">
-      <header className="border-border bg-card rounded-2xl border p-8">
-        <div className="flex flex-wrap items-center gap-3">
-          <SeriesBadge
-            label={series.shortName}
-            accentColor={series.accentColor}
-          />
-          <p className="text-muted-foreground text-sm font-medium uppercase tracking-wide">
-            {series.seasonLabel ?? series.governingBody}
-          </p>
-        </div>
-        {formulaESeasons.length > 0 && (
-          <p className="text-muted-foreground mt-2 text-sm">
-            {formulaESeasons.join(" · ")}
-          </p>
-        )}
-        <h1 className="text-foreground mt-3 text-3xl font-bold sm:text-4xl">
-          {series.name} Travel
-        </h1>
-        {seriesDescription && (
-          <p className="text-muted-foreground mt-3 max-w-2xl">
-            {seriesDescription}
-          </p>
-        )}
-      </header>
-
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">
-            Upcoming {pluralizeEventNoun(series.eventNoun)}
-          </h2>
-          <Link href="/races" className="text-primary text-sm hover:underline">
-            View full calendar →
-          </Link>
-        </div>
-
-        {upcoming.length > 0 ? (
-          <RaceGrid
-            races={upcoming}
-            viewType="grid"
-            coverageByRaceId={coverageMap}
-            ticketedRaceIds={ticketedRaceIds ?? undefined}
-          />
-        ) : (
-          <div className="text-muted-foreground rounded-lg border border-dashed p-10 text-center">
-            The {series.name} calendar is being finalised. Check back soon or
-            browse the{" "}
-            <Link href="/races" className="text-primary hover:underline">
-              full race calendar
-            </Link>
-            .
+    <>
+      {lcpHref ? (
+        <link
+          rel="preload"
+          as="image"
+          href={lcpHref}
+          media={SERIES_CARD_MOBILE_MEDIA}
+          fetchPriority="high"
+        />
+      ) : null}
+      <div
+        data-series-page=""
+        className="mx-auto max-w-7xl space-y-8 p-4 sm:p-8"
+      >
+        <header className="border-border bg-card rounded-2xl border p-8">
+          <div className="flex flex-wrap items-center gap-3">
+            <SeriesBadge
+              label={series.shortName}
+              accentColor={series.accentColor}
+            />
+            <p className="text-muted-foreground text-sm font-medium uppercase tracking-wide">
+              {series.seasonLabel ?? series.governingBody}
+            </p>
           </div>
-        )}
-      </section>
-    </div>
+          {formulaESeasons.length > 0 && (
+            <p className="text-muted-foreground mt-2 text-sm">
+              {formulaESeasons.join(" · ")}
+            </p>
+          )}
+          <h1 className="text-foreground mt-3 text-3xl font-bold sm:text-4xl">
+            {series.name} Travel
+          </h1>
+          {seriesDescription && (
+            <p className="text-muted-foreground mt-3 max-w-2xl">
+              {seriesDescription}
+            </p>
+          )}
+        </header>
+
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">
+              Upcoming {pluralizeEventNoun(series.eventNoun)}
+            </h2>
+            <Link
+              href="/races"
+              className="text-primary text-sm hover:underline"
+            >
+              View full calendar →
+            </Link>
+          </div>
+
+          {upcoming.length > 0 ? (
+            <RaceGrid
+              races={upcoming}
+              viewType="grid"
+              coverageByRaceId={coverageMap}
+              ticketedRaceIds={ticketedRaceIds ?? undefined}
+              imageSizes={SERIES_CARD_SIZES}
+            />
+          ) : (
+            <div className="text-muted-foreground rounded-lg border border-dashed p-10 text-center">
+              The {series.name} calendar is being finalised. Check back soon or
+              browse the{" "}
+              <Link href="/races" className="text-primary hover:underline">
+                full race calendar
+              </Link>
+              .
+            </div>
+          )}
+        </section>
+      </div>
+    </>
   )
 }
