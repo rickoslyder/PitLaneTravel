@@ -225,4 +225,18 @@ html:has([data-analytics-consent-bar]) body {
   .home-rise {
     animation: home-rise 0.8s ease-out both;
   }
+
+  .faq-answer-open {
+    overflow: hidden;
+    animation: faq-answer-open 0.35s ease-out both;
+  }
+}
+
+@keyframes faq-answer-open {
+  from {
+    max-height: 0;
+  }
+  to {
+    max-height: 24rem;
+  }
 }

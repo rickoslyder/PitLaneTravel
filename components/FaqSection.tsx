@@ -52,7 +52,7 @@ export default function FaqSection({
                   />
                 </button>
                 {activeIndex === index && (
-                  <div id={`faq-answer-${index}`}>
+                  <div id={`faq-answer-${index}`} className="faq-answer-open">
                     <p className="bg-background text-muted-foreground p-4">
                       {faq.answer}
                     </p>
