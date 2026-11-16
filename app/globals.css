@@ -199,10 +199,14 @@ html:has([data-analytics-consent-bar]) body {
     -webkit-line-clamp: 2;
   }
 
+  /* Direct children, not a sibling combinator. A Suspense boundary or a
+     style tag between the hero and the calendar must not reopen the gap. */
   html:has([data-analytics-consent-bar])
     [data-races-listing]
-    > :not([hidden])
-    ~ :not([hidden]) {
+    > [data-races-listing-hero],
+  html:has([data-analytics-consent-bar])
+    [data-races-listing]
+    > [data-races-listing-body] {
     margin-top: 1rem;
   }
 }

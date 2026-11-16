@@ -182,6 +182,16 @@ describe("race image fallback", () => {
     expect(grid).not.toContain("index === 0")
     expect(grid).not.toContain('fetchPriority="auto"')
     expect(series).toContain("<RaceGrid")
-    expect(races).toContain("<RaceGrid")
+    // The calendar LCP element is the h1, so its cards stay lazy and are
+    // server-rendered. Series pages still prioritise their first photo.
+    const listing = readFileSync(
+      path.join(root, "components/races/race-listing-card.tsx"),
+      "utf8"
+    )
+    expect(races).not.toMatch(/^\s*["']use client["']/m)
+    expect(races).toContain("<ListingCardView")
+    expect(listing).not.toMatch(/priority\s*:/)
+    expect(listing).not.toContain('fetchPriority="high"')
+    expect(listing).not.toContain('fetchpriority="high"')
   })
 })

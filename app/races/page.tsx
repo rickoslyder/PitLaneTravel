@@ -1,5 +1,6 @@
 "use server"
 
+import { Suspense } from "react"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { HeroSection } from "@/components/races/HeroSection"
@@ -25,17 +26,9 @@ export async function generateMetadata() {
 }
 
 export default async function RacesServerPage() {
-  const [{ userId }, racesResult, ticketedRaceIds] = await Promise.all([
-    auth(),
-    getRacesAction(),
-    listRaceIdsWithTicketListingsAction()
-  ])
-
-  const races = racesResult.data ?? []
-  const coveragePromise = getPublicCoverageSummariesAction(
-    races.map(race => race.id)
-  )
-
+  // Profile redirect stays ahead of the shell. The race query does not:
+  // the h1 is the LCP element, and it can paint before the calendar rows load.
+  const { userId } = await auth()
   if (userId) {
     // return redirect("/login")
     const { data: profile } = await getProfileByUserIdAction(userId)
@@ -43,11 +36,6 @@ export default async function RacesServerPage() {
       return redirect("/signup")
     }
   }
-
-  const coverageResult = await coveragePromise
-  const coverageMap = coverageResult.isSuccess
-    ? coverageByRaceId(coverageResult.data)
-    : {}
 
   return (
     <div className="flex-1 space-y-8 p-4 pt-0" data-races-listing="">
@@ -66,12 +54,32 @@ export default async function RacesServerPage() {
       <div className="bg-background" data-races-listing-hero="">
         <HeroSection />
       </div>
-      <RacesPage
-        initialRaces={races}
-        coverageByRaceId={coverageMap}
-        asOfIso={startOfUtcDay(new Date()).toISOString()}
-        ticketedRaceIds={ticketedRaceIds ?? undefined}
-      />
+      <Suspense fallback={null}>
+        <RacesListing />
+      </Suspense>
     </div>
+  )
+}
+
+async function RacesListing() {
+  const [racesResult, ticketedRaceIds] = await Promise.all([
+    getRacesAction(),
+    listRaceIdsWithTicketListingsAction()
+  ])
+  const races = racesResult.data ?? []
+  const coverageResult = await getPublicCoverageSummariesAction(
+    races.map(race => race.id)
+  )
+  const coverageMap = coverageResult.isSuccess
+    ? coverageByRaceId(coverageResult.data)
+    : {}
+
+  return (
+    <RacesPage
+      initialRaces={races}
+      coverageByRaceId={coverageMap}
+      asOfIso={startOfUtcDay(new Date()).toISOString()}
+      ticketedRaceIds={ticketedRaceIds ?? undefined}
+    />
   )
 }

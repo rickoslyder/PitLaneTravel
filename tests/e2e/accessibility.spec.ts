@@ -337,6 +337,53 @@ test.describe("accessibility", () => {
       }
     }
   })
+
+  test("races hero stays 16px above the calendar on a tall phone with the consent bar open", async ({
+    page
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const response = await page.goto("/races")
+    expect(response?.ok()).toBeTruthy()
+    await expect(page.locator("[data-analytics-consent-bar]")).toBeVisible()
+    await expect(page.locator("[data-races-series-filters]")).toBeVisible()
+
+    const spacing = await page.evaluate(() => {
+      const hero = document.querySelector("[data-races-listing-hero]")
+      const body = document.querySelector("[data-races-listing-body]")
+      const filters = document.querySelector("[data-races-series-filters]")
+      if (
+        !(hero instanceof HTMLElement) ||
+        !(body instanceof HTMLElement) ||
+        !(filters instanceof HTMLElement)
+      ) {
+        return null
+      }
+      const card = body.firstElementChild
+      const heroBox = hero.getBoundingClientRect()
+      const bodyBox = body.getBoundingClientRect()
+      const cardBox =
+        card instanceof HTMLElement ? card.getBoundingClientRect() : null
+      const filtersBox = filters.getBoundingClientRect()
+      return {
+        heroBottom: Math.round(heroBox.bottom),
+        filtersTop: Math.round(filtersBox.top),
+        heroToBody: Math.round(bodyBox.top - heroBox.bottom),
+        bodyToCard: cardBox ? Math.round(cardBox.top - bodyBox.top) : null,
+        heroMarginTop: getComputedStyle(hero).marginTop,
+        bodyMarginTop: getComputedStyle(body).marginTop,
+        cardMarginTop:
+          card instanceof HTMLElement ? getComputedStyle(card).marginTop : null
+      }
+    })
+
+    expect(spacing).not.toBeNull()
+    expect(spacing?.heroMarginTop).toBe("16px")
+    expect(spacing?.bodyMarginTop).toBe("16px")
+    expect(spacing?.cardMarginTop).toBe("0px")
+    expect(spacing?.heroToBody).toBe(16)
+    expect(spacing?.bodyToCard).toBe(0)
+    expect(spacing!.filtersTop - spacing!.heroBottom).toBeGreaterThan(16)
+  })
 })
 
 type AnswerSample = {
