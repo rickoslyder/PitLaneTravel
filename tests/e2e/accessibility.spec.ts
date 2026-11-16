@@ -1,6 +1,11 @@
 import type { Page } from "@playwright/test"
 import { racesPageDescription, racesPageTitle } from "@/app/races/metadata"
-import { E2E_RACE_SLUG, expect, test } from "./fixtures"
+import {
+  E2E_FAN_TIPS_ABU_DHABI_SLUG,
+  E2E_RACE_SLUG,
+  expect,
+  test
+} from "./fixtures"
 
 const SHELL_PATHS = [
   "/",
@@ -283,6 +288,53 @@ test.describe("accessibility", () => {
         return top?.closest("a, button") === cta ? "cta" : "other"
       })
       expect(hit, `${viewport.width}x${viewport.height}`).toBe("cta")
+    }
+  })
+
+  test("in-view controls stay clear of the consent bar at 390 and 375", async ({
+    page
+  }) => {
+    const viewports = [
+      { width: 390, height: 844 },
+      { width: 375, height: 667 }
+    ] as const
+    const paths = [
+      "/races",
+      "/series/f1",
+      `/races/${E2E_FAN_TIPS_ABU_DHABI_SLUG}`
+    ]
+
+    for (const viewport of viewports) {
+      await page.setViewportSize({ ...viewport })
+      for (const path of paths) {
+        const response = await page.goto(path)
+        expect(response?.ok(), path).toBeTruthy()
+        const bar = page.locator("[data-analytics-consent-bar]")
+        await expect(bar).toBeVisible()
+
+        const covered = await page.evaluate(() => {
+          const barEl = document.querySelector("[data-analytics-consent-bar]")
+          if (!(barEl instanceof HTMLElement)) return ["missing bar"]
+          const barRect = barEl.getBoundingClientRect()
+          const hits: string[] = []
+          for (const el of document.querySelectorAll("button")) {
+            if (barEl.contains(el)) continue
+            const rect = el.getBoundingClientRect()
+            if (rect.width < 8 || rect.height < 8) continue
+            if (rect.top >= window.innerHeight || rect.bottom <= 0) continue
+            if (rect.bottom <= barRect.top + 1) continue
+            const label = (el.innerText || el.getAttribute("aria-label") || "")
+              .trim()
+              .replace(/\s+/g, " ")
+              .slice(0, 60)
+            hits.push(label || el.tagName)
+          }
+          return hits
+        })
+        expect(covered, `${path} ${viewport.width}x${viewport.height}`).toEqual(
+          []
+        )
+      }
     }
   })
 })
