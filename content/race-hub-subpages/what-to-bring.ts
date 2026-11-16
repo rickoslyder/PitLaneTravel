@@ -1,80 +1,57 @@
 import type { RaceHubSubpage } from "@/lib/race-hub-subpages"
 
-/** Unpublished template sample. Not travel advice. Leave published false. */
 export const whatToBringPage = {
-  hubSlug: "abu-dhabi-grand-prix-travel-guide",
-  slug: "what-to-bring",
-  published: false,
-  title: "Abu Dhabi Grand Prix what you can bring: template sample",
-  breadcrumbLabel: "What to bring",
-  description:
-    "Unpublished template sample for the Abu Dhabi what-to-bring sub-page. Not a travel guide.",
-  headline: "Abu Dhabi Grand Prix what you can bring: template sample",
-  hubLinkLabel: "Full Abu Dhabi travel guide",
-  hubBreadcrumbLabel: "Abu Dhabi GP guide",
-  publishedAt: "2026-11-16",
-  updatedAt: "2026-11-16",
-  checkedOn: "2026-11-16",
-  overview:
-    "This what-to-bring page is an unpublished template sample for the Abu Dhabi hub. It is not a travel guide, and it stays unpublished so the live site never shows it. Three facts matter here: the opening answer comes first, the comparison table gives one verdict on each row, and each question can opt into the FAQ schema. Nothing on this page describes a real race, ticket, or hotel, checked 16 Nov 2026.",
-  atAGlance: {
-    ticket: "No ticket: this what-to-bring sample sells nothing.",
-    stand: "No stand: this what-to-bring sample has no circuit.",
-    transport: "No transport: this what-to-bring sample has no route.",
-    stay: "No stay: this what-to-bring sample names no hotel.",
-    budget: "No budget: this what-to-bring sample has no prices."
-  },
-  questions: [
+  "hubSlug": "abu-dhabi-grand-prix-travel-guide",
+  "slug": "what-to-bring",
+  "published": true,
+  "title": "What can you bring to the Abu Dhabi GP? Yas Marina rules",
+  "breadcrumbLabel": "What to bring",
+  "description": "Abu Dhabi GP bag, camera, flag and water rules, the full Yas Marina banned list, no cloakroom, and a December packing list. Checked 16 Nov 2026.",
+  "headline": "What you can bring to the Abu Dhabi Grand Prix: Yas Marina banned items, bags and cameras",
+  "hubLinkLabel": "Abu Dhabi Grand Prix travel guide",
+  "hubBreadcrumbLabel": "Abu Dhabi GP",
+  "publishedAt": "2026-11-16",
+  "updatedAt": "2026-11-16",
+  "checkedOn": "2026-11-16",
+  "overview": "Pack light for Yas Marina. One small bag that fits under your seat, an empty refillable water bottle, sun protection, headphones or earplugs, and a layer for the evening. Leave behind outside food and drink (baby food and medical food excepted), umbrellas, chairs, large backpacks, GoPros, drones and any camera over 30 cm with its lens. There's no cloakroom, so anything refused at the gate goes back to your hotel or car. *Checked 16 November 2026.*",
+  "article": "Pack light for Yas Marina. One small bag that fits under your seat, an empty refillable water bottle, sun protection, headphones or earplugs, and a layer for the evening. Leave behind outside food and drink (baby food and medical food excepted), umbrellas, chairs, large backpacks, GoPros, drones and any camera over 30 cm with its lens. There's no cloakroom, so anything refused at the gate goes back to your hotel or car. *Checked 16 November 2026.*\n\nSome links on this page are affiliate links. If you book or buy through them, PitLane Travel may earn a commission at no extra cost to you. It never changes what we recommend.\n\nDates, hotels and getting there: see our full [Abu Dhabi Grand Prix travel guide](/guides/abu-dhabi-grand-prix-travel-guide).\n\nThe 2026 Abu Dhabi Grand Prix is on the official F1 calendar as of 16 November 2026, as Round 23, with the race on Sunday 6 December. Check [formula1.com](https://www.formula1.com/en/racing/2026/united-arab-emirates) before booking non-refundable travel. If you can, book refundable or flexible fares, and a hotel you can cancel for free.\n\n## Can I bring…?\n\n| Item | Allowed? | What the official pages say |\n|---|---|---|\n| Small bag | Yes, if it fits under a seat | \"Large backpacks\" and \"any large article that cannot be placed under a seat\" are banned. No dimensions have been published. |\n| Large backpack, cooler, picnic hamper | No | \"Cooler boxes (hard or soft), picnic hampers and large backpacks.\" |\n| Refillable water bottle | Yes | Other bottles, cans and flasks are banned. Official pages do not mention free refill stations. *(Scout, AD13.)* |\n| Outside food and drink | No | Baby food is allowed. Medical food is allowed with a prescription or doctor's letter. |\n| Alcohol | No (on sale inside to 21+ with photo ID) | Leave it at the hotel. |\n| Umbrella | Only if bought inside | Otherwise banned. |\n| Chair, stool | No | If you're in general admission, that means standing or sitting on the ground. |\n| Phone | Yes | Personal devices are permitted \"unless otherwise advised\". For filming, see below. |\n| Stills camera | Yes, 30 cm or shorter including the lens | \"Cameras - inclusive of camera lens - exceeding 30 cm\" are banned. |\n| Video camera, GoPro | No | \"Video cameras and the use of video capable devices including GoPro or similar.\" |\n| Professional photo, film or audio kit | Not without prior consent | |\n| Drone | No | |\n| Flag | Yes, with limits | 2026 FAQ: handle 1 metre or shorter, no offensive message. January 2025 terms are stricter; keep it small and hand-held, and expect gate staff to have the final say. *(Scout, AD31.)* |\n| Banners, signs, balloons, whistles | Not without consent (older terms) | These appear in the January 2025 conditions of entry, not on the 2026 FAQ list. |\n| Air horns, instruments, loudhailers | No | |\n| Fireworks, flares, lasers | No | |\n| Scooters, bikes, skateboards, rollerblades, hoverboards | No | |\n| Pets | No (service animals excepted) | |\n| Pushchair | Not published officially | No official rule found. Check the Abu Dhabi GP app or an AskYAS point. *(Scout, AD6.)* |\n| Sunscreen (including aerosol) | Not published officially | Not on the 2026 banned list, but not stated as allowed either. Check the app or an AskYAS point. *(Scout, AD31.)* |\n| Power bank | Not published | Not mentioned by the promoter. Don't assume one is allowed; check the app or an AskYAS point. *(Scout, AD31.)* |\n| Medicines | UAE entry rules come first | Baby and medically required food are allowed as above. Medical devices are not named. See \"Before you fly\". *(Scout, AD21.)* |\n\n## Notes on the official lists\n\nThe table follows the organiser's 2026 FAQ. The conditions of entry (January 2025 edition) also cover banners, signs and commercial material, and they conflict with the 2026 FAQ on bottles and flags — follow the 2026 FAQ on those two, and expect gate staff to have the final say. *(Scout, 16 November 2026, AD31 and AD34.)* No centimetre bag limit has been published, so don't rely on unofficial 30×30 cm claims, and pack only what you will carry all day. Official pages do not mention free refill stations. *(Scout, AD13, AD31.)*\n\nPhones are allowed as personal devices, but the 2026 FAQ also bans \"the use of video capable devices\". That ban doesn't name phones, and the organiser's conditions of entry (January 2025 edition) allow mobile phones and permit recordings for private, non-commercial use only. Keep any phone clips personal. Baby-food rules are on the [with kids](/guides/abu-dhabi-grand-prix-travel-guide/with-kids) page.\n\n## Packing list for a December race day\n\nDecember afternoons are typically warm (mean high 26.5°C); the evening after the 17:00 local start can feel cooler (mean low 15.7°C).\n\nChecklist:\n\n- A small bag that will fit under a seat\n- An empty refillable water bottle\n- Sunscreen (aerosol rules not published officially)\n- A hat and sunglasses\n- Headphones, earplugs or ear defenders\n- A light layer for after sunset\n- Comfortable shoes\n- A phone with the Abu Dhabi GP app, and enough charge for the evening\n- Photo ID if you'll buy alcohol (21+)\n\nTeam kit: the <a href=\"https://f1.pxf.io/5kEv72\" rel=\"sponsored nofollow\">F1 Store</a> (affiliate) sells official merchandise; order early so it arrives before you fly.\n\n**Before you fly (medicines).** Medicines classed as narcotic, psychotropic, controlled or semi-controlled need UAE Ministry of Health approval in advance (usually within 5 working days). Visitors can bring up to three months' supply, or one month's if the medicine needs approval. Check [GOV.UK's UAE entry advice](https://www.gov.uk/foreign-travel-advice/united-arab-emirates/entry-requirements) before you pack. This is the government's entry rule, not medical advice.\n\nTickets and the circuit map live in the Abu Dhabi GP app, so check roaming or set up an eSIM from a provider such as <a href=\"https://airalo.pxf.io/PzEM6e\" rel=\"sponsored nofollow\">Airalo</a> (affiliate) before you fly. [App-only tickets](/guides/abu-dhabi-grand-prix-travel-guide/first-timers) are explained on the first-timers page.\n\n### Packing for Yas Marina (video coming)\n\nA packing walk-through will sit here later.\n\n## Frequently asked questions\n\n**What items are banned at the Abu Dhabi Grand Prix?**\nThe organiser's list includes alcohol, outside food (baby food and medically required food excepted), bottles, cans and flasks other than refillable water containers, cooler boxes, picnic hampers and large backpacks, anything that can't go under a seat, chairs and stools, umbrellas unless bought inside, video cameras and GoPro-type devices, cameras over 30 cm including the lens, drones, scooters, bikes and skateboards, air horns and musical instruments, fireworks, flares and lasers, weapons, and animals other than service animals. Checked 16 November 2026.\n\n**Can I bring a camera to the Abu Dhabi Grand Prix?**\nYes, a personal stills camera or phone is fine if the camera, including its lens, is no longer than 30 cm. Video cameras and GoPro-type devices are banned, and professional photo, film or broadcast kit needs the organiser's prior consent. Photos are for private, non-commercial use only. Checked on the organiser's FAQ and terms on 16 November 2026.\n\n**Can I bring a flag to Yas Marina Circuit?**\nYes. The organiser's 2026 FAQ allows flags as long as any handle is 1 metre or shorter and the flag carries no profanity or offensive message. Older conditions of entry from January 2025 are stricter, so keep it small and hand-held, and expect gate staff to have the final say. Checked on the organiser's FAQ on 16 November 2026.\n\n**Can I bring a water bottle into the Abu Dhabi Grand Prix?**\nYes, if it is a refillable water container. Every other bottle, can, flask and drinks container is banned, and food and drink are on sale at the Oasis areas around the circuit. Checked on the organiser's FAQ on 16 November 2026.\n\n**Is there a cloakroom or bag drop at Yas Marina Circuit?**\nNo. The organiser's conditions of entry say cloaking facilities are not available, and staff can inspect and refuse bags at the gate. Anything turned away has to go back to your hotel or car, so pack only what you will carry all day. Checked 16 November 2026.\n\n\n## Plan by fan type\n\n- [Abu Dhabi Grand Prix for first-timers](/guides/abu-dhabi-grand-prix-travel-guide/first-timers)\n- [Abu Dhabi Grand Prix with kids](/guides/abu-dhabi-grand-prix-travel-guide/with-kids)\n\nPlanning 2027? See [when 2027 tickets go on sale](/guides/f1-2027-ticket-on-sale-dates).\n\n## Sources\n\nChecked 16 November 2026, unless noted.\n\n- Abu Dhabi GP FAQ (2026 banned list, water, cameras, flags): https://www.abudhabigp.com/en/faq\n- The organiser's conditions of entry (January 2025 edition; no cloakroom; bag checks; sun and hearing; recordings): https://www.abudhabigp.com/en/terms-and-conditions\n- GOV.UK, UAE entry requirements (medicines): https://www.gov.uk/foreign-travel-advice/united-arab-emirates/entry-requirements\n- WMO 1991–2020 normals via NOAA, Abu Dhabi International Airport\n- Scout fact-check, 16 November 2026: `/workspace/state/review/scout-2026-11-16-abu-dhabi-facts.md` (AD6, AD13, AD21, AD31, AD32)",
+  "questions": [
     {
-      question: "What is this what-to-bring template sample for?",
-      answer:
-        "It renders the what-to-bring sub-page template for tests and preview deployments. It is not advice about a race.",
-      includeInFaqPage: true
+      "question": "What items are banned at the Abu Dhabi Grand Prix?",
+      "answer": "The organiser's list includes alcohol, outside food (baby food and medically required food excepted), bottles, cans and flasks other than refillable water containers, cooler boxes, picnic hampers and large backpacks, anything that can't go under a seat, chairs and stools, umbrellas unless bought inside, video cameras and GoPro-type devices, cameras over 30 cm including the lens, drones, scooters, bikes and skateboards, air horns and musical instruments, fireworks, flares and lasers, weapons, and animals other than service animals. Checked 16 November 2026.",
+      "includeInFaqPage": true
     },
     {
-      question:
-        "Does this what-to-bring template sample describe a real grand prix?",
-      answer:
-        "No. Every statement on this what-to-bring sample is invented, checked 16 Nov 2026, and is not a fact about tickets, hotels, or transport.",
-      includeInFaqPage: true
+      "question": "Can I bring a camera to the Abu Dhabi Grand Prix?",
+      "answer": "Yes, a personal stills camera or phone is fine if the camera, including its lens, is no longer than 30 cm. Video cameras and GoPro-type devices are banned, and professional photo, film or broadcast kit needs the organiser's prior consent. Photos are for private, non-commercial use only. Checked on the organiser's FAQ and terms on 16 November 2026.",
+      "includeInFaqPage": true
     },
     {
-      question: "Which rows does this what-to-bring comparison table include?",
-      answer:
-        "Ticket, stand, transport, stay, and budget. Each cell on this what-to-bring sample is a one-line verdict.",
-      includeInFaqPage: true
+      "question": "Can I bring a flag to Yas Marina Circuit?",
+      "answer": "Yes. The organiser's 2026 FAQ allows flags as long as any handle is 1 metre or shorter and the flag carries no profanity or offensive message. Older conditions of entry from January 2025 are stricter, so keep it small and hand-held, and expect gate staff to have the final say. Checked on the organiser's FAQ on 16 November 2026.",
+      "includeInFaqPage": true
     },
     {
-      question: "How does this what-to-bring page build its FAQ schema?",
-      answer:
-        "The visible what-to-bring questions and answers are the only source. The schema copies the marked ones character for character, checked 16 Nov 2026.",
-      includeInFaqPage: true
+      "question": "Can I bring a water bottle into the Abu Dhabi Grand Prix?",
+      "answer": "Yes, if it is a refillable water container. Every other bottle, can, flask and drinks container is banned, and food and drink are on sale at the Oasis areas around the circuit. Checked on the organiser's FAQ on 16 November 2026.",
+      "includeInFaqPage": true
     },
     {
-      question: "Does this what-to-bring page include a video?",
-      answer:
-        "No. The what-to-bring video area is a placeholder with no player and no video schema.",
-      includeInFaqPage: true
-    },
-    {
-      question: "Who can open this what-to-bring page before publication?",
-      answer:
-        "Anyone with the preview or local deployment can open the what-to-bring URL directly. The live site does not list it.",
-      includeInFaqPage: false
-    },
-    {
-      question:
-        "What does production do with this unpublished what-to-bring page?",
-      answer:
-        "A production deployment returns a 404 for this what-to-bring page and leaves it out of the sitemap.",
-      includeInFaqPage: false
-    },
-    {
-      question: "Do hub links include this unpublished what-to-bring page?",
-      answer:
-        "No. The Plan by fan type block lists published pages only, so this what-to-bring page is omitted.",
-      includeInFaqPage: false
+      "question": "Is there a cloakroom or bag drop at Yas Marina Circuit?",
+      "answer": "No. The organiser's conditions of entry say cloaking facilities are not available, and staff can inspect and refuse bags at the gate. Anything turned away has to go back to your hotel or car, so pack only what you will carry all day. Checked 16 November 2026.",
+      "includeInFaqPage": true
     }
   ],
-  fanTips: ["Treat this what-to-bring sample as a template, not a trip plan."]
+  "affiliateLinks": [
+    {
+      "partner": "F1 Store",
+      "href": "https://f1.pxf.io/5kEv72",
+      "label": "F1 Store"
+    },
+    {
+      "partner": "Airalo",
+      "href": "https://airalo.pxf.io/PzEM6e",
+      "label": "Airalo"
+    }
+  ]
 } satisfies RaceHubSubpage

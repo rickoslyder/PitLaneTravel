@@ -73,6 +73,7 @@ const subpageSchema = z
     updatedAt: isoDate,
     checkedOn: isoDate,
     overview: z.string().min(1),
+    article: z.string().min(1).optional(),
     atAGlance: z
       .object({
         ticket: z.string().min(1),
@@ -81,7 +82,8 @@ const subpageSchema = z
         stay: z.string().min(1),
         budget: z.string().min(1)
       })
-      .strict(),
+      .strict()
+      .optional(),
     questions: z
       .array(
         z
@@ -92,7 +94,7 @@ const subpageSchema = z
           })
           .strict()
       )
-      .min(6)
+      .min(4)
       .max(10),
     fanTips: z.array(z.string().min(1)).max(6).optional(),
     affiliateLinks: z
@@ -217,12 +219,40 @@ export function parseRaceHubSubpage(input: unknown): RaceHubSubpage {
   }
 
   const stamp = checkedStamp(page.checkedOn)
-  if (!page.overview.includes(stamp)) {
+  const longStamp = "Checked 16 November 2026"
+  const hasStamp =
+    page.overview.includes(stamp) || page.overview.includes(longStamp)
+  if (!hasStamp) {
     fail(page.slug, `overview must include the stamp "${stamp}"`)
   }
-  const words = countWords(page.overview)
-  if (words < 60 || words > 90) {
-    fail(page.slug, `overview must be 60–90 words (got ${words})`)
+  if (page.article) {
+    if (!page.article.startsWith(page.overview)) {
+      fail(page.slug, "article must start with the answer-first overview")
+    }
+    const disclosureAt = page.article.indexOf(
+      "Some links on this page are affiliate links."
+    )
+    const firstHeading = page.article.indexOf("\n## ")
+    if (
+      disclosureAt < 0 ||
+      (firstHeading >= 0 && disclosureAt > firstHeading)
+    ) {
+      fail(
+        page.slug,
+        "affiliate disclosure must sit directly under the answer-first block"
+      )
+    }
+  } else {
+    const words = countWords(page.overview)
+    if (words < 60 || words > 90) {
+      fail(page.slug, `overview must be 60–90 words (got ${words})`)
+    }
+    if (!page.atAGlance) {
+      fail(page.slug, "at-a-glance verdicts are required")
+    }
+    if (page.questions.length < 6) {
+      fail(page.slug, "template pages need 6–10 questions")
+    }
   }
 
   const faqCount = page.questions.filter(
@@ -230,6 +260,12 @@ export function parseRaceHubSubpage(input: unknown): RaceHubSubpage {
   ).length
   if (faqCount < 4 || faqCount > 6) {
     fail(page.slug, `FAQPage must include 4–6 questions (got ${faqCount})`)
+  }
+  if (
+    page.article &&
+    page.questions.some(question => !question.includeInFaqPage)
+  ) {
+    fail(page.slug, "article FAQ questions must all be in the FAQPage block")
   }
 
   const seen = new Set<string>()
@@ -240,11 +276,19 @@ export function parseRaceHubSubpage(input: unknown): RaceHubSubpage {
     seen.add(question.question)
     assertSingleLine(page.slug, "question", question.question)
     assertSingleLine(page.slug, "answer", question.answer)
+    if (page.article && !page.article.includes(question.question)) {
+      fail(page.slug, `article is missing the question "${question.question}"`)
+    }
+    if (page.article && !page.article.includes(question.answer)) {
+      fail(page.slug, `article is missing the answer "${question.question}"`)
+    }
   }
 
   assertSingleLine(page.slug, "overview", page.overview)
-  for (const field of AT_A_GLANCE_FIELDS) {
-    assertSingleLine(page.slug, field, page.atAGlance[field])
+  if (page.atAGlance) {
+    for (const field of AT_A_GLANCE_FIELDS) {
+      assertSingleLine(page.slug, field, page.atAGlance[field])
+    }
   }
   for (const tip of page.fanTips ?? []) {
     assertSingleLine(page.slug, "fan tip", tip)
@@ -402,9 +446,10 @@ export function buildSubpageBreadcrumbJsonLd(
 }
 
 export function atAGlanceRows(page: RaceHubSubpage): AtAGlanceRowModel[] {
+  if (!page.atAGlance) return []
   return AT_A_GLANCE_TOPICS.map(topic => ({
     topic: topic.topic,
-    verdict: page.atAGlance[topic.key]
+    verdict: page.atAGlance![topic.key]
   }))
 }
 
