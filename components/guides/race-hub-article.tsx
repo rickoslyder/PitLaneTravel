@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown"
 import type { Components } from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { AFFILIATE_LINK_REL } from "@/lib/race-hub-subpages"
+import "@/styles/prose.css"
 
 function headingText(children: ReactNode): string {
   if (typeof children === "string" || typeof children === "number") {
