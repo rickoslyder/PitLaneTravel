@@ -70,6 +70,38 @@ async function expectCurrentSrc(
     .toContain(part)
 }
 
+async function expectShortDialogStillScrolls(page: Page, name: string) {
+  await page.setViewportSize({ width: 700, height: 320 })
+  const button = page.getByRole("button", { name, exact: true })
+  await button.scrollIntoViewIfNeeded()
+  await button.focus()
+  await page.keyboard.press("Enter")
+  const dialog = page.getByRole("dialog")
+  await expect(dialog).toBeVisible()
+  const scroller = dialog.locator("[data-locator-scroll]")
+  const metrics = await scroller.evaluate(element => {
+    const credit = element.querySelector(
+      'a[href="https://www.openstreetmap.org/copyright"]'
+    )
+    element.scrollTop = element.scrollHeight
+    const creditTop = credit?.getBoundingClientRect().top ?? -1
+    const scrollerBottom = element.getBoundingClientRect().bottom
+    return {
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+      creditInside: Boolean(credit),
+      creditTop,
+      scrollerBottom
+    }
+  })
+  expect(metrics.clientHeight).toBeGreaterThan(80)
+  expect(metrics.scrollHeight).toBeGreaterThan(metrics.clientHeight)
+  expect(metrics.creditInside).toBe(true)
+  expect(metrics.creditTop).toBeLessThanOrEqual(metrics.scrollerBottom + 1)
+  await page.keyboard.press("Escape")
+  await expect(dialog).toBeHidden()
+}
+
 async function expectKeyboardDialog(
   page: Page,
   name: string,
@@ -84,7 +116,15 @@ async function expectKeyboardDialog(
   const expanded = dialog.locator('img[data-locator-art="expanded"]')
   await expect(expanded).toHaveAttribute("src", desktopSvg)
   await expect(expanded).toHaveAttribute("alt", /.+/)
-  await expectCredits(dialog)
+  const scroller = dialog.locator("[data-locator-scroll]")
+  await expect(scroller).toBeVisible()
+  await expectCredits(scroller)
+  const scrollMetrics = await scroller.evaluate(element => ({
+    clientHeight: element.clientHeight,
+    scrollHeight: element.scrollHeight
+  }))
+  expect(scrollMetrics.clientHeight).toBeGreaterThan(80)
+  expect(scrollMetrics.scrollHeight).toBeGreaterThan(scrollMetrics.clientHeight)
 
   const focusInside = await page.evaluate(() => {
     const node = document.querySelector('[role="dialog"]')
@@ -200,6 +240,7 @@ test.describe("prepared geographic locators", () => {
     await figure.scrollIntoViewIfNeeded()
     await expectCurrentSrc(img, "abu-dhabi-stay-zones-desktop.svg")
     await expectNoHorizontalOverflow(page, "stay-zone guide at desktop")
+    await expectShortDialogStillScrolls(page, "Expand stay-zone map")
   })
 
   test("seating map sits above the grandstand comparisons", async ({
@@ -280,5 +321,6 @@ test.describe("prepared geographic locators", () => {
     expect(desktopWidth).toBeGreaterThan(1000)
     expect(desktopWidth).toBeLessThanOrEqual(1220)
     await expectNoHorizontalOverflow(page, "seating map at desktop")
+    await expectShortDialogStillScrolls(page, "Expand seating map")
   })
 })

@@ -291,6 +291,7 @@ export function YasMarinaLocator({ kind }: { kind: LocatorKind }) {
             <div
               tabIndex={0}
               aria-label={expandLabel}
+              data-locator-scroll=""
               className="min-h-0 flex-1 overflow-auto"
             >
               <img
@@ -306,11 +307,11 @@ export function YasMarinaLocator({ kind }: { kind: LocatorKind }) {
                   maxWidth: "none"
                 }}
               />
-            </div>
-            <div className="text-muted-foreground shrink-0 space-y-3 text-sm leading-relaxed">
-              {seating ? <SeatingCaption /> : <StayCaption />}
-              <AreaKey title={keyTitle} items={items} />
-              <Credits naturalEarth={!seating} />
+              <div className="text-muted-foreground mt-4 space-y-3 text-sm leading-relaxed">
+                {seating ? <SeatingCaption /> : <StayCaption />}
+                <AreaKey title={keyTitle} items={items} />
+                <Credits naturalEarth={!seating} />
+              </div>
             </div>
           </DialogContent>
         </Dialog>
