@@ -51,21 +51,26 @@ export function RacesPage({
     )
 
   return (
-    <div className="space-y-8">
+    <>
       <style>{raceListingListStyles}</style>
-      <div className="bg-card mx-auto max-w-7xl rounded-lg p-6 shadow">
-        <h2 className="mb-6 text-center text-2xl font-bold">Race Calendar</h2>
-        <RaceCalendarControls
-          series={tabs}
-          upcomingCount={upcoming.length}
-          pastCount={past.length}
-          pastCards={past.map(race => modelFor(race, "past"))}
-        >
-          {upcoming.map(race => (
-            <ListingCardView key={race.id} model={modelFor(race, "upcoming")} />
-          ))}
-        </RaceCalendarControls>
+      <div className="space-y-8" data-races-listing-body="">
+        <div className="bg-card mx-auto max-w-7xl rounded-lg p-6 shadow">
+          <h2 className="mb-6 text-center text-2xl font-bold">Race Calendar</h2>
+          <RaceCalendarControls
+            series={tabs}
+            upcomingCount={upcoming.length}
+            pastCount={past.length}
+            pastCards={past.map(race => modelFor(race, "past"))}
+          >
+            {upcoming.map(race => (
+              <ListingCardView
+                key={race.id}
+                model={modelFor(race, "upcoming")}
+              />
+            ))}
+          </RaceCalendarControls>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

@@ -1,6 +1,12 @@
 "use client"
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState
+} from "react"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { EmptyState } from "@/components/races/EmptyState"
@@ -186,7 +192,10 @@ export function RaceCalendarControls({
       </div>
 
       {series.length > 1 ? (
-        <div className="mb-6 flex flex-wrap justify-center gap-2">
+        <div
+          className="mb-6 flex flex-wrap justify-center gap-2"
+          data-races-series-filters=""
+        >
           <button
             type="button"
             onClick={() => setSeriesFilter(null)}
