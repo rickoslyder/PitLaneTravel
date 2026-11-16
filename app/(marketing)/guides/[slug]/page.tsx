@@ -1,5 +1,6 @@
 import { F1TicketSaleTable } from "@/components/guides/f1-ticket-sale-table"
 import { GuideMarkdown } from "@/components/guides/guide-markdown"
+import { YasMarinaLocator } from "@/components/maps/yas-marina-locator"
 import { PlanByFanType } from "@/components/guides/plan-by-fan-type"
 import { abuDhabiGrandPrixTravelGuideFaq } from "@/data/guides/abu-dhabi-grand-prix-travel-guide-faq"
 import { azerbaijanGp2027Faq } from "@/data/guides/azerbaijan-grand-prix-2027-faq"
@@ -36,6 +37,11 @@ interface GuidePageProps {
 }
 
 const TICKET_SALE_TABLE = "{{f1-2027-ticket-sales}}"
+const ABU_DHABI_GUIDE = "abu-dhabi-grand-prix-travel-guide"
+const STAY_HEADING =
+  "## Where to stay: Yas Island vs downtown Abu Dhabi vs Dubai"
+const STAY_INTRO =
+  "This table is our editorial judgement. The transport facts come from official sources linked below."
 
 const NEW_GUIDE_SLUGS = new Set([
   "wec-2027-launch-week",
@@ -69,6 +75,20 @@ function GuideBody({
   slug: string
 }) {
   const source = bodyWithoutHeadline(body, headline)
+  if (slug === ABU_DHABI_GUIDE) {
+    const headingAt = source.indexOf(STAY_HEADING)
+    const introAt = source.indexOf(STAY_INTRO)
+    if (headingAt >= 0 && introAt > headingAt) {
+      const cut = introAt + STAY_INTRO.length
+      return (
+        <>
+          <GuideMarkdown source={source.slice(0, cut)} />
+          <YasMarinaLocator kind="stay-zones" />
+          <GuideMarkdown source={source.slice(cut)} />
+        </>
+      )
+    }
+  }
   if (
     slug !== "f1-2027-ticket-on-sale-dates" ||
     !source.includes(TICKET_SALE_TABLE)

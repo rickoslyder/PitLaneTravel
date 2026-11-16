@@ -7,7 +7,7 @@ export default defineConfig({
   // Other *.spec.ts in this dir are Vitest; Playwright selects only the
   // production smoke, catalogue-matrix, admin-coverage, public-coverage,
   // analytics-consent, typed-analytics, fan-tips, race-hero-cta,
-  // accessibility, race-hub-subpages, and content-hygiene browser suites.
+  // accessibility, race-hub-subpages, content-hygiene, and guide-maps browser suites.
   // https://playwright.dev/docs/test-configuration#filtering-tests
   testMatch: [
     "smoke.spec.ts",
@@ -20,7 +20,8 @@ export default defineConfig({
     "race-hero-cta.spec.ts",
     "accessibility.spec.ts",
     "race-hub-subpages.spec.ts",
-    "content-hygiene.spec.ts"
+    "content-hygiene.spec.ts",
+    "guide-maps.spec.ts"
   ],
   forbidOnly: !!process.env.CI,
   retries: 0,

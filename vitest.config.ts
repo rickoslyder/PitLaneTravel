@@ -24,7 +24,8 @@ export default defineConfig({
       "tests/e2e/race-hero-cta.spec.ts",
       "tests/e2e/accessibility.spec.ts",
       "tests/e2e/race-hub-subpages.spec.ts",
-      "tests/e2e/content-hygiene.spec.ts"
+      "tests/e2e/content-hygiene.spec.ts",
+      "tests/e2e/guide-maps.spec.ts"
     ]
   },
   resolve: {

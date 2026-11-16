@@ -57,6 +57,15 @@ export const E2E_MEXICO_CITY_EPRIX_2027_NAME = "Mexico City E-Prix 2027"
 export const E2E_MEXICO_CITY_EPRIX_2027_DATE = "2100-04-15T12:00:00.000Z"
 export const E2E_GRANDSTAND_NAME = "Synthetic Main Grandstand"
 export const E2E_GRANDSTAND_SLUG = "synthetic-main"
+export const E2E_YAS_MARINA_CIRCUIT_ID = "b1070009-e2e0-4000-8000-000000000180"
+export const E2E_YAS_MARINA_GRANDSTAND_IDS = [
+  "b1070009-e2e0-4000-8000-000000000181",
+  "b1070009-e2e0-4000-8000-000000000182",
+  "b1070009-e2e0-4000-8000-000000000183",
+  "b1070009-e2e0-4000-8000-000000000184",
+  "b1070009-e2e0-4000-8000-000000000185",
+  "b1070009-e2e0-4000-8000-000000000186"
+] as const
 export const E2E_RACE_DATE = "2099-09-15T12:00:00.000Z"
 export const E2E_RACE_IN_PROGRESS_NAME = "Synthetic MotoGP Grand Prix"
 export const E2E_RACE_IN_PROGRESS_SLUG = "plt-e2e-synthetic-motogp-live"
@@ -1180,6 +1189,105 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
         updated_at = now()
     `
 
+    await tx`
+      INSERT INTO circuits (
+        id, name, location, country, latitude, longitude, image_url
+      )
+      VALUES (
+        ${E2E_YAS_MARINA_CIRCUIT_ID}::uuid,
+        ${"Yas Marina Circuit"},
+        ${"Yas Island"},
+        ${"United Arab Emirates"},
+        ${"24.4672000"},
+        ${"54.6031000"},
+        ${null}
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        name = EXCLUDED.name,
+        location = EXCLUDED.location,
+        country = EXCLUDED.country,
+        latitude = EXCLUDED.latitude,
+        longitude = EXCLUDED.longitude,
+        image_url = EXCLUDED.image_url,
+        updated_at = now()
+    `
+
+    await tx`
+      INSERT INTO grandstands (
+        id, circuit_id, name, slug, description, view_rating, covered, has_big_screen
+      )
+      VALUES
+        (
+          ${E2E_YAS_MARINA_GRANDSTAND_IDS[0]}::uuid,
+          ${E2E_YAS_MARINA_CIRCUIT_ID}::uuid,
+          ${"Main"},
+          ${"main"},
+          ${"Synthetic seating note used only by disposable Playwright e2e."},
+          5,
+          true,
+          true
+        ),
+        (
+          ${E2E_YAS_MARINA_GRANDSTAND_IDS[1]}::uuid,
+          ${E2E_YAS_MARINA_CIRCUIT_ID}::uuid,
+          ${"West"},
+          ${"west"},
+          ${"Synthetic seating note used only by disposable Playwright e2e."},
+          4,
+          true,
+          true
+        ),
+        (
+          ${E2E_YAS_MARINA_GRANDSTAND_IDS[2]}::uuid,
+          ${E2E_YAS_MARINA_CIRCUIT_ID}::uuid,
+          ${"North"},
+          ${"north"},
+          ${"Synthetic seating note used only by disposable Playwright e2e."},
+          4,
+          true,
+          true
+        ),
+        (
+          ${E2E_YAS_MARINA_GRANDSTAND_IDS[3]}::uuid,
+          ${E2E_YAS_MARINA_CIRCUIT_ID}::uuid,
+          ${"South"},
+          ${"south"},
+          ${"Synthetic seating note used only by disposable Playwright e2e."},
+          3,
+          true,
+          true
+        ),
+        (
+          ${E2E_YAS_MARINA_GRANDSTAND_IDS[4]}::uuid,
+          ${E2E_YAS_MARINA_CIRCUIT_ID}::uuid,
+          ${"Marina"},
+          ${"marina"},
+          ${"Synthetic seating note used only by disposable Playwright e2e."},
+          3,
+          false,
+          true
+        ),
+        (
+          ${E2E_YAS_MARINA_GRANDSTAND_IDS[5]}::uuid,
+          ${E2E_YAS_MARINA_CIRCUIT_ID}::uuid,
+          ${"Abu Dhabi Hill"},
+          ${"abu-dhabi-hill"},
+          ${"Synthetic seating note used only by disposable Playwright e2e."},
+          2,
+          false,
+          false
+        )
+      ON CONFLICT (id) DO UPDATE SET
+        circuit_id = EXCLUDED.circuit_id,
+        name = EXCLUDED.name,
+        slug = EXCLUDED.slug,
+        description = EXCLUDED.description,
+        view_rating = EXCLUDED.view_rating,
+        covered = EXCLUDED.covered,
+        has_big_screen = EXCLUDED.has_big_screen,
+        updated_at = now()
+    `
+
     await seedDisposableProfilesAndCoverage(tx)
   })
 
@@ -1209,6 +1317,8 @@ async function cleanupCatalog(sql: postgres.Sql): Promise<void> {
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_COMPLETED_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_CANCELLED_ID}::uuid`
   await sql`DELETE FROM grandstands WHERE id = ${E2E_GRANDSTAND_ID}::uuid`
+  await sql`DELETE FROM grandstands WHERE circuit_id = ${E2E_YAS_MARINA_CIRCUIT_ID}::uuid`
+  await sql`DELETE FROM circuits WHERE id = ${E2E_YAS_MARINA_CIRCUIT_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_RACE_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_QATAR_RACE_ID}::uuid`
   await sql`DELETE FROM races WHERE id = ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid`
