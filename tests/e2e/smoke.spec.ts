@@ -536,9 +536,6 @@ test("race grids prioritise the first real photo and omit fetchpriority auto", a
   const head = racesHtml.slice(0, racesHtml.toLowerCase().indexOf("</head>"))
   expect(head).toContain('name="description"')
   expect(head).toContain(racesPageDescription)
-  expect(head).toContain('rel="preload"')
-  expect(head).toContain('as="font"')
-  expect(head).toContain(".p.woff2")
 })
 
 function linkTags(html: string, href: string, rel: string): string[] {

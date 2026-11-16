@@ -17,7 +17,6 @@ import { TailwindIndicator } from "@/components/utilities/tailwind-indicator"
 import { cn } from "@/lib/utils"
 import { brand, brandCopy } from "@/config/brand"
 import { getPackagesAvailability } from "@/lib/packages-availability"
-import { latinFontPreloadHref } from "@/lib/latin-font-preload"
 import { DEFAULT_OG_IMAGE_URL, SITE_ORIGIN } from "@/lib/site-metadata"
 import { ClerkProvider } from "@clerk/nextjs"
 import { auth } from "@clerk/nextjs/server"
@@ -25,7 +24,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"], display: "swap", preload: true })
+const inter = Inter({ subsets: ["latin"] })
 
 export async function generateMetadata(): Promise<Metadata> {
   const availability = await getPackagesAvailability()
@@ -54,10 +53,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  // next/font records this preload in the flight payload, after </head>.
-  // A real link beside the icon tags is in the initial head, so the latin
-  // file can start with the document instead of after the font CSS.
-  const fontPreload = latinFontPreloadHref()
   const { userId } = await auth()
 
   if (userId) {
@@ -102,15 +97,6 @@ export default async function RootLayout({
 
   return (
     <ClerkProvider>
-      {fontPreload ? (
-        <link
-          rel="preload"
-          href={fontPreload}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-      ) : null}
       <link
         rel="apple-touch-icon"
         sizes="180x180"
