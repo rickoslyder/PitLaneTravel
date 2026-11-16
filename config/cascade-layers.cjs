@@ -7,10 +7,13 @@ across the global sheet and the prose sheet.
 
 Custom CSS that Tailwind did not tag stays in the utilities layer, which is
 where it already sat: after the generated utilities in globals.css.
+
+CommonJS because Next.js loads PostCSS plugins with require() and rejects
+plugin instances in postcss.config.
 </ai_context>
 */
 
-import postcss from "postcss"
+const postcss = require("postcss")
 
 function layerName(node) {
   const meta = node.raws && node.raws.tailwind
@@ -84,7 +87,7 @@ function wrapContainer(container) {
   }
 }
 
-export default function cascadeLayers() {
+function cascadeLayers() {
   return {
     postcssPlugin: "cascade-layers",
     Once(root) {
@@ -100,3 +103,5 @@ export default function cascadeLayers() {
 }
 
 cascadeLayers.postcss = true
+
+module.exports = cascadeLayers
