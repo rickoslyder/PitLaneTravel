@@ -34,10 +34,12 @@ import {
 import { ticketGoHref } from "@/lib/ticket-go"
 import {
   TICKET_BUY_LABEL,
+  notOnSaleOfficialLinkLabel,
   raceDateIsBeforeToday,
   resellerHost,
   ticketAvailabilityLabel,
   ticketShowsBuyButton,
+  ticketShowsOfficialSellerLink,
   ticketShowsWaitlist
 } from "./ticket-presentation"
 
@@ -69,6 +71,45 @@ function getFeatureIcon(category: string) {
   }
 }
 
+function TicketSellerLink({
+  ticketId,
+  label,
+  affiliatePartner,
+  linkCaption,
+  variant = "default"
+}: {
+  ticketId: number
+  label: string
+  affiliatePartner: string | null
+  linkCaption: string
+  variant?: "default" | "secondary"
+}) {
+  return (
+    <div className="flex items-start gap-2">
+      <div className="min-w-0 flex-1 space-y-2">
+        <Button asChild className="w-full" size="lg" variant={variant}>
+          <a
+            href={ticketGoHref(ticketId)}
+            target="_blank"
+            rel={ticketOutboundRel(affiliatePartner)}
+            aria-describedby={
+              affiliatePartner ? `affiliate-ad-${ticketId}` : undefined
+            }
+          >
+            {label}
+          </a>
+        </Button>
+        <p className="text-muted-foreground text-center text-xs">
+          {linkCaption}
+        </p>
+      </div>
+      {affiliatePartner ? (
+        <AffiliateAdTag id={`affiliate-ad-${ticketId}`} />
+      ) : null}
+    </div>
+  )
+}
+
 export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
   const [selectedCurrency, setSelectedCurrency] = useState(
     ticket.currentPrice?.currency || SUPPORTED_CURRENCIES[0].code
@@ -77,6 +118,11 @@ export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
   const [conversionRate, setConversionRate] = useState<number | null>(null)
   const showBuyButton = ticketShowsBuyButton(ticket.availability, raceDate)
   const showWaitlist = ticketShowsWaitlist(ticket.availability, raceDate)
+  const showOfficialLink = ticketShowsOfficialSellerLink(
+    ticket.availability,
+    ticket.resellerUrl,
+    raceDate
+  )
   const raceHasPassed = raceDate
     ? raceDateIsBeforeToday(raceDate, new Date())
     : false
@@ -137,6 +183,7 @@ export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
       transition={{ delay: index * 0.1 }}
     >
       <Card
+        data-ticket-availability={ticket.availability}
         className={cn(
           "relative overflow-hidden transition-shadow hover:shadow-lg",
           ticket.isChildTicket && "border-primary/50"
@@ -272,27 +319,13 @@ export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
           </div>
 
           {showBuyButton ? (
-            <div className="mt-4 flex items-start gap-2">
-              <div className="min-w-0 flex-1 space-y-2">
-                <Button asChild className="w-full" size="lg">
-                  <a
-                    href={ticketGoHref(ticket.id)}
-                    target="_blank"
-                    rel={ticketOutboundRel(affiliatePartner)}
-                    aria-describedby={
-                      affiliatePartner ? `affiliate-ad-${ticket.id}` : undefined
-                    }
-                  >
-                    {buyLabel}
-                  </a>
-                </Button>
-                <p className="text-muted-foreground text-center text-xs">
-                  {linkCaption}
-                </p>
-              </div>
-              {affiliatePartner ? (
-                <AffiliateAdTag id={`affiliate-ad-${ticket.id}`} />
-              ) : null}
+            <div className="mt-4">
+              <TicketSellerLink
+                ticketId={ticket.id}
+                label={buyLabel}
+                affiliatePartner={affiliatePartner}
+                linkCaption={linkCaption}
+              />
             </div>
           ) : showWaitlist ? (
             <WaitlistForm
@@ -306,7 +339,18 @@ export function TicketCard({ ticket, index, raceDate }: TicketCardProps) {
               This race date has passed.
             </p>
           ) : ticket.availability === "not_on_sale" ? (
-            <p className="text-muted-foreground text-sm">Not on sale yet.</p>
+            <div className="mt-4 space-y-3">
+              <p className="text-muted-foreground text-sm">Not on sale yet.</p>
+              {showOfficialLink ? (
+                <TicketSellerLink
+                  ticketId={ticket.id}
+                  label={notOnSaleOfficialLinkLabel(ticket.resellerUrl)}
+                  affiliatePartner={affiliatePartner}
+                  linkCaption={linkCaption}
+                  variant="secondary"
+                />
+              ) : null}
+            </div>
           ) : (
             <p className="text-muted-foreground text-sm">
               {affiliatePartner

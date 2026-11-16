@@ -4,7 +4,14 @@ This server page is the marketing homepage.
 </ai_context>
 */
 
-import { HeroSection } from "@/components/landing/hero"
+import { Suspense } from "react"
+import { HeroFrame } from "@/components/landing/hero-frame"
+import {
+  HeroCountdown,
+  HeroCountdownFallback,
+  HeroSection,
+  HeroStats
+} from "@/components/landing/hero"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { isActiveRaceStatus, selectNextCountdownRace } from "@/lib/race-status"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
@@ -106,22 +113,73 @@ function HomeHeroPreload() {
   )
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Kick off the calendar read now, but do not block the hero on it.
+  // The mobile LCP image is the hero photo; races and coverage stream in after.
+  const racesPromise = getRacesAction({
+    excludeCancelled: true
+  })
+  const { siteWide } = await getPackagesAvailability()
+  const copy = brandCopy(siteWide)
+
   return (
     <>
       <HomeHeroPreload />
-      <HomePageContent />
+      <div className="pb-20">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(buildOrganizationJsonLd(copy.description))
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(buildWebSiteJsonLd(copy.description))
+          }}
+        />
+        <HeroFrame>
+          <HeroSection packagesLive={siteWide}>
+            <Suspense fallback={<HeroCountdownFallback />}>
+              <HomeCountdown racesPromise={racesPromise} />
+            </Suspense>
+          </HeroSection>
+        </HeroFrame>
+        <HeroStats />
+        <Suspense fallback={null}>
+          <HomeBelow racesPromise={racesPromise} siteWide={siteWide} />
+        </Suspense>
+      </div>
     </>
   )
 }
 
-async function HomePageContent() {
-  const [{ data: races }, { siteWide }] = await Promise.all([
-    getRacesAction({
-      excludeCancelled: true
-    }),
-    getPackagesAvailability()
-  ])
+async function HomeCountdown({
+  racesPromise
+}: {
+  racesPromise: ReturnType<typeof getRacesAction>
+}) {
+  const { data: races } = await racesPromise
+  const upcomingRaces = (races ?? []).filter(race =>
+    isActiveRaceStatus(race.status)
+  )
+  const now = new Date()
+  const countdown = countdownSeed(
+    selectNextCountdownRace(upcomingRaces, now),
+    now
+  )
+  if (!countdown) return null
+  return <HeroCountdown countdown={countdown} />
+}
+
+async function HomeBelow({
+  racesPromise,
+  siteWide
+}: {
+  racesPromise: ReturnType<typeof getRacesAction>
+  siteWide: boolean
+}) {
+  const { data: races } = await racesPromise
   const upcomingRaces = (races ?? []).filter(race =>
     isActiveRaceStatus(race.status)
   )
@@ -131,28 +189,9 @@ async function HomePageContent() {
   const coverageMap = coverageResult.isSuccess
     ? coverageByRaceId(coverageResult.data)
     : {}
-  const copy = brandCopy(siteWide)
-  const now = new Date()
-  const countdown = countdownSeed(
-    selectNextCountdownRace(upcomingRaces, now),
-    now
-  )
 
   return (
-    <div className="pb-20">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: serializeJsonLd(buildOrganizationJsonLd(copy.description))
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: serializeJsonLd(buildWebSiteJsonLd(copy.description))
-        }}
-      />
-      <HeroSection packagesLive={siteWide} countdown={countdown} />
+    <>
       <UpcomingRaces
         races={upcomingRaces || []}
         coverageByRaceId={coverageMap}
@@ -162,6 +201,6 @@ async function HomePageContent() {
       <FeaturesSection packagesLive={siteWide} />
       <FaqSection packagesLive={siteWide} />
       <CtaSection />
-    </div>
+    </>
   )
 }

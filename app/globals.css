@@ -4,6 +4,11 @@ Global styles for the app.
 </ai_context>
 */
 
+/* Tailwind's PostCSS plugin keeps the last @config path on one shared
+   instance, and Next.js reuses that instance for every stylesheet. Pin
+   the public config so prose.css / admin.css cannot replace it. */
+@config "../tailwind.config.ts";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -177,5 +182,70 @@ html:has([data-analytics-consent-bar]) body {
     [data-race-card]
     .aspect-\[16\/9\] {
     max-height: 2.25rem;
+  }
+}
+
+/* Tall phones: the races hero otherwise pushes the series filters and the
+   view controls under the first-visit bar. Shorter phones keep the full
+   hero, because those controls start below the fold. */
+@media (max-width: 639px) and (min-height: 800px) {
+  html:has([data-analytics-consent-bar])
+    [data-races-listing-hero]
+    > :first-child {
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
+  }
+
+  html:has([data-analytics-consent-bar]) [data-races-listing-hero] p {
+    display: -webkit-box;
+    margin-top: 0.75rem;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  /* Direct children, not a sibling combinator. A Suspense boundary or a
+     style tag between the hero and the calendar must not reopen the gap. */
+  html:has([data-analytics-consent-bar])
+    [data-races-listing]
+    > [data-races-listing-hero],
+  html:has([data-analytics-consent-bar])
+    [data-races-listing]
+    > [data-races-listing-body] {
+    margin-top: 1rem;
+  }
+}
+
+/* Home sections used to rise in with framer-motion after hydration.
+   The same 20px / 0.8s ease-out runs on the compositor, and it does not
+   run when the user asked for reduced motion. */
+@keyframes home-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-rise {
+    animation: home-rise 0.8s ease-out both;
+  }
+
+  .faq-answer-open {
+    overflow: hidden;
+    animation: faq-answer-open 0.35s ease-out both;
+  }
+}
+
+@keyframes faq-answer-open {
+  from {
+    max-height: 0;
+  }
+  to {
+    max-height: 24rem;
   }
 }

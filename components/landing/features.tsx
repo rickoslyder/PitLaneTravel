@@ -1,10 +1,8 @@
 /*
 <ai_context>
-This client component provides the features section for the landing page.
+This server component provides the features section for the landing page.
 </ai_context>
 */
-
-"use client"
 
 import {
   Card,
@@ -12,7 +10,6 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
-import { motion } from "framer-motion"
 import { siteCopy } from "@/config/site-copy"
 import {
   Calendar,
@@ -44,11 +41,7 @@ const featureIcons: LucideIcon[] = [
 ]
 
 const FeatureCard = ({ title, description, icon: Icon }: FeatureProps) => (
-  <motion.div
-    whileHover={{ scale: 1.02 }}
-    transition={{ type: "spring", stiffness: 300 }}
-    className="transform-gpu"
-  >
+  <div className="motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:scale-[1.02]">
     <Card className="group h-full transition-shadow duration-200 hover:shadow-lg">
       <CardHeader>
         <Icon className="text-foreground mb-2 size-12" />
@@ -56,7 +49,7 @@ const FeatureCard = ({ title, description, icon: Icon }: FeatureProps) => (
         <CardDescription className="text-base">{description}</CardDescription>
       </CardHeader>
     </Card>
-  </motion.div>
+  </div>
 )
 
 export const FeaturesSection = ({
@@ -74,11 +67,7 @@ export const FeaturesSection = ({
   return (
     <section className="mt-20 bg-gradient-to-b from-gray-50 to-white py-20 dark:from-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
+        <div className="home-rise">
           <h2 className="mb-4 text-center text-4xl font-bold">
             Know before you go
           </h2>
@@ -90,7 +79,7 @@ export const FeaturesSection = ({
               <FeatureCard key={feature.title} {...feature} />
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   )

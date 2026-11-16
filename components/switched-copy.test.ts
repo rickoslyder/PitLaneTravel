@@ -66,7 +66,7 @@ vi.mock("@/lib/packages-availability", () => ({
 }))
 
 import { FeaturesSection } from "@/components/landing/features"
-import { HeroSection } from "@/components/landing/hero"
+import { HeroSection, HeroStats } from "@/components/landing/hero"
 import FaqSection from "@/components/FaqSection"
 import WhyChooseFeaturesSection from "@/components/WhyChooseFeaturesSection"
 import Header from "@/components/header"
@@ -81,6 +81,7 @@ describe("switched copy rendering", () => {
     const markup = [
       html(createElement(FeaturesSection, { packagesLive: false })),
       html(createElement(HeroSection, { packagesLive: false })),
+      html(createElement(HeroStats)),
       html(createElement(FaqSection, { packagesLive: false })),
       html(createElement(WhyChooseFeaturesSection, { packagesLive: false }))
     ].join("\n")
@@ -99,6 +100,7 @@ describe("switched copy rendering", () => {
     const markup = [
       html(createElement(FeaturesSection, { packagesLive: true })),
       html(createElement(HeroSection, { packagesLive: true })),
+      html(createElement(HeroStats)),
       html(createElement(FaqSection, { packagesLive: true })),
       html(createElement(WhyChooseFeaturesSection, { packagesLive: true }))
     ].join("\n")

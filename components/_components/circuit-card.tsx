@@ -11,6 +11,7 @@ import {
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import "@/styles/prose.css"
 import {
   Dialog,
   DialogContent,

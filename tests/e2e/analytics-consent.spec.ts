@@ -429,7 +429,11 @@ async function assertConsentBarClearsHero(
   await expect(
     page.getByRole("region", { name: "Usage analytics" })
   ).toBeVisible()
-  await expect(page.getByText(/Next Race:/)).toBeVisible()
+  // The countdown is streamed in a hidden S:n segment outside #main-content
+  // until React reveals it. That copy is not a second hero.
+  await expect(
+    page.locator("#main-content").getByText(/Next Race:/)
+  ).toBeVisible()
 
   const bar = page.locator("[data-analytics-consent-bar]")
   const cluster = page.locator("[data-hero-cta-cluster]")

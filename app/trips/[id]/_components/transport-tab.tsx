@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Edit, Car, X } from "lucide-react"
 import { Dispatch, SetStateAction } from "react"
+import "@/styles/prose.css"
 
 interface TransportTabProps {
   trip: Trip

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import "@/styles/prose.css"
 import { useChat } from "ai/react"
 import ReactMarkdown from "react-markdown"
 import { Button } from "@/components/ui/button"

@@ -38,6 +38,23 @@ describe("races page metadata", () => {
     expect(racesPage).not.toMatch(/<h1[^>]*>Race Calendar<\/h1>/)
   })
 
+  it("renders the h1 shell before the race query", () => {
+    const start = source.indexOf(
+      "export default async function RacesServerPage"
+    )
+    const listing = source.indexOf("async function RacesListing")
+    const shell = source.slice(start, listing)
+    expect(shell).toContain("<HeroSection")
+    expect(shell).toContain(
+      '<meta name="description" content={racesPageDescription} />'
+    )
+    expect(shell).toContain("<Suspense")
+    expect(shell).toContain('data-races-listing=""')
+    expect(shell).toContain('data-races-listing-hero=""')
+    expect(shell).not.toContain("getRacesAction")
+    expect(source.slice(listing)).toContain("getRacesAction")
+  })
+
   it("places the home feature titles at h2 with the same classes", () => {
     const hero = readSource("components/landing/hero.tsx")
     for (const title of [

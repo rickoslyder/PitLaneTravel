@@ -1,6 +1,11 @@
 import type { Page } from "@playwright/test"
 import { racesPageDescription, racesPageTitle } from "@/app/races/metadata"
-import { E2E_RACE_SLUG, expect, test } from "./fixtures"
+import {
+  E2E_FAN_TIPS_ABU_DHABI_SLUG,
+  E2E_RACE_SLUG,
+  expect,
+  test
+} from "./fixtures"
 
 const SHELL_PATHS = [
   "/",
@@ -206,7 +211,7 @@ test.describe("accessibility", () => {
     const response = await page.goto("/races")
     expect(response?.ok()).toBeTruthy()
     await expect(page).toHaveTitle(racesPageTitle)
-    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    await expect(page.locator('head meta[name="description"]')).toHaveAttribute(
       "content",
       racesPageDescription
     )
@@ -284,6 +289,100 @@ test.describe("accessibility", () => {
       })
       expect(hit, `${viewport.width}x${viewport.height}`).toBe("cta")
     }
+  })
+
+  test("in-view controls stay clear of the consent bar at 390 and 375", async ({
+    page
+  }) => {
+    const viewports = [
+      { width: 390, height: 844 },
+      { width: 375, height: 667 }
+    ] as const
+    const paths = [
+      "/races",
+      "/series/f1",
+      `/races/${E2E_FAN_TIPS_ABU_DHABI_SLUG}`
+    ]
+
+    for (const viewport of viewports) {
+      await page.setViewportSize({ ...viewport })
+      for (const path of paths) {
+        const response = await page.goto(path)
+        expect(response?.ok(), path).toBeTruthy()
+        const bar = page.locator("[data-analytics-consent-bar]")
+        await expect(bar).toBeVisible()
+
+        const covered = await page.evaluate(() => {
+          const barEl = document.querySelector("[data-analytics-consent-bar]")
+          if (!(barEl instanceof HTMLElement)) return ["missing bar"]
+          const barRect = barEl.getBoundingClientRect()
+          const hits: string[] = []
+          for (const el of document.querySelectorAll("button")) {
+            if (barEl.contains(el)) continue
+            const rect = el.getBoundingClientRect()
+            if (rect.width < 8 || rect.height < 8) continue
+            if (rect.top >= window.innerHeight || rect.bottom <= 0) continue
+            if (rect.bottom <= barRect.top + 1) continue
+            const label = (el.innerText || el.getAttribute("aria-label") || "")
+              .trim()
+              .replace(/\s+/g, " ")
+              .slice(0, 60)
+            hits.push(label || el.tagName)
+          }
+          return hits
+        })
+        expect(covered, `${path} ${viewport.width}x${viewport.height}`).toEqual(
+          []
+        )
+      }
+    }
+  })
+
+  test("races hero stays 16px above the calendar on a tall phone with the consent bar open", async ({
+    page
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const response = await page.goto("/races")
+    expect(response?.ok()).toBeTruthy()
+    await expect(page.locator("[data-analytics-consent-bar]")).toBeVisible()
+    await expect(page.locator("[data-races-series-filters]")).toBeVisible()
+
+    const spacing = await page.evaluate(() => {
+      const hero = document.querySelector("[data-races-listing-hero]")
+      const body = document.querySelector("[data-races-listing-body]")
+      const filters = document.querySelector("[data-races-series-filters]")
+      if (
+        !(hero instanceof HTMLElement) ||
+        !(body instanceof HTMLElement) ||
+        !(filters instanceof HTMLElement)
+      ) {
+        return null
+      }
+      const card = body.firstElementChild
+      const heroBox = hero.getBoundingClientRect()
+      const bodyBox = body.getBoundingClientRect()
+      const cardBox =
+        card instanceof HTMLElement ? card.getBoundingClientRect() : null
+      const filtersBox = filters.getBoundingClientRect()
+      return {
+        heroBottom: Math.round(heroBox.bottom),
+        filtersTop: Math.round(filtersBox.top),
+        heroToBody: Math.round(bodyBox.top - heroBox.bottom),
+        bodyToCard: cardBox ? Math.round(cardBox.top - bodyBox.top) : null,
+        heroMarginTop: getComputedStyle(hero).marginTop,
+        bodyMarginTop: getComputedStyle(body).marginTop,
+        cardMarginTop:
+          card instanceof HTMLElement ? getComputedStyle(card).marginTop : null
+      }
+    })
+
+    expect(spacing).not.toBeNull()
+    expect(spacing?.heroMarginTop).toBe("16px")
+    expect(spacing?.bodyMarginTop).toBe("16px")
+    expect(spacing?.cardMarginTop).toBe("0px")
+    expect(spacing?.heroToBody).toBe(16)
+    expect(spacing?.bodyToCard).toBe(0)
+    expect(spacing!.filtersTop - spacing!.heroBottom).toBeGreaterThan(16)
   })
 })
 
@@ -474,5 +573,185 @@ test.describe("motion allowed", () => {
         )
       })
       .toBe(true)
+  })
+})
+async function scrollToAndRest(page: Page, top: number) {
+  await page.evaluate(y => {
+    return new Promise<void>(resolve => {
+      let settled = false
+      const finish = () => {
+        if (settled) return
+        settled = true
+        resolve()
+      }
+      window.addEventListener("scrollend", finish, { once: true })
+      window.scrollTo({ top: y, behavior: "instant" })
+      window.setTimeout(finish, 400)
+    })
+  }, top)
+}
+
+async function progressSnapshot(page: Page) {
+  return page.evaluate(async () => {
+    await new Promise<void>(resolve => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    })
+    const bar = document.querySelector("[data-scroll-progress-bar]")
+    if (!(bar instanceof HTMLElement)) return null
+    const transform = getComputedStyle(bar).transform
+    const match = /matrix(?:3d)?\(([^)]+)\)/.exec(transform)
+    const scale = match ? Number.parseFloat(match[1].split(",")[0]) : null
+    return {
+      mode: bar.dataset.scrollProgressMode ?? null,
+      scale: scale !== null && Number.isFinite(scale) ? scale : null,
+      max: document.documentElement.scrollHeight - window.innerHeight
+    }
+  })
+}
+
+test.describe("scroll handlers", () => {
+  test("header blur toggles when the page leaves and returns to the top", async ({
+    page
+  }) => {
+    const response = await page.goto("/")
+    expect(response?.ok()).toBeTruthy()
+
+    const header = page.locator("header.sticky.top-0")
+    await expect(header).toHaveCount(1)
+    await expect(header).not.toHaveClass(/backdrop-blur-sm/)
+
+    const max = await page.evaluate(
+      () => document.documentElement.scrollHeight - window.innerHeight
+    )
+    expect(max).toBeGreaterThan(400)
+
+    await expect
+      .poll(async () => {
+        await scrollToAndRest(page, 0)
+        await scrollToAndRest(page, 40)
+        return header.evaluate(element =>
+          element.className.includes("backdrop-blur-sm")
+        )
+      })
+      .toBe(true)
+    await expect(header).toHaveClass(/shadow-sm/)
+
+    await scrollToAndRest(page, 400)
+    await expect(header).toHaveClass(/backdrop-blur-sm/)
+
+    await scrollToAndRest(page, 0)
+    await expect(header).not.toHaveClass(/backdrop-blur-sm/)
+    await expect(header).not.toHaveClass(/shadow-sm/)
+  })
+
+  test("race progress, sticky shadow, and scroll announcements track the document", async ({
+    page
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 640 })
+    const response = await page.goto(`/races/${E2E_RACE_SLUG}`)
+    expect(response?.ok()).toBeTruthy()
+
+    const bar = page.locator("[data-scroll-progress-bar]")
+    const nav = page.getByRole("navigation", {
+      name: "Race details navigation"
+    })
+    const toTop = page.getByRole("button", { name: "Scroll to top of page" })
+    const announcer = page.locator("[data-scroll-announcer]")
+
+    await expect(bar).toHaveCount(1)
+    await expect(bar).toHaveAttribute(
+      "data-scroll-progress-mode",
+      /^(timeline|script)$/
+    )
+    await expect(announcer).toHaveAttribute("aria-live", "polite")
+    await expect(announcer).toHaveText("")
+    await expect(nav).not.toHaveClass(/shadow-md/)
+    await expect(toTop).toHaveCount(0)
+
+    const atTop = await progressSnapshot(page)
+    expect(atTop?.max).toBeGreaterThan(700)
+    expect(atTop?.scale).not.toBeNull()
+    expect(atTop!.scale!).toBeLessThan(0.05)
+    expect(["timeline", "script"]).toContain(atTop?.mode)
+
+    await scrollToAndRest(page, 40)
+    await expect(nav).toHaveClass(/shadow-md/)
+    await expect(toTop).toHaveCount(0)
+
+    await scrollToAndRest(page, 501)
+    await expect(toTop).toBeVisible()
+
+    await scrollToAndRest(page, Math.round((atTop?.max ?? 0) * 0.7))
+    const mid = await progressSnapshot(page)
+    expect(mid?.scale).not.toBeNull()
+    expect(mid!.scale!).toBeGreaterThan(0.45)
+
+    await scrollToAndRest(page, atTop?.max ?? 0)
+    const end = await progressSnapshot(page)
+    expect(end?.scale).not.toBeNull()
+    expect(end!.scale!).toBeGreaterThan(0.95)
+    await expect(announcer).toHaveText("Nearing the end of the page")
+
+    const mutations = await page.evaluate(async () => {
+      const node = document.querySelector("[data-scroll-announcer]")
+      if (!node) return -1
+      let count = 0
+      const observer = new MutationObserver(() => {
+        count += 1
+      })
+      observer.observe(node, {
+        childList: true,
+        characterData: true,
+        subtree: true
+      })
+      const top =
+        document.documentElement.scrollHeight - window.innerHeight - 20
+      await new Promise<void>(resolve => {
+        let settled = false
+        const finish = () => {
+          if (settled) return
+          settled = true
+          resolve()
+        }
+        window.addEventListener("scrollend", finish, { once: true })
+        window.scrollTo({ top, behavior: "instant" })
+        window.setTimeout(finish, 400)
+      })
+      observer.disconnect()
+      return count
+    })
+    expect(mutations).toBe(0)
+    await expect(announcer).toHaveText("Nearing the end of the page")
+
+    await scrollToAndRest(page, 0)
+    await expect(announcer).toHaveText("At the top of the page")
+    await expect(nav).not.toHaveClass(/shadow-md/)
+    await expect(toTop).toHaveCount(0)
+    const back = await progressSnapshot(page)
+    expect(back?.scale).not.toBeNull()
+    expect(back!.scale!).toBeLessThan(0.05)
+  })
+
+  test("reduced motion still moves the progress bar from script", async ({
+    page
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" })
+    await page.setViewportSize({ width: 1280, height: 640 })
+    const response = await page.goto(`/races/${E2E_RACE_SLUG}`)
+    expect(response?.ok()).toBeTruthy()
+
+    const bar = page.locator("[data-scroll-progress-bar]")
+    await expect(bar).toHaveAttribute("data-scroll-progress-mode", "script")
+
+    const atTop = await progressSnapshot(page)
+    expect(atTop?.max).toBeGreaterThan(700)
+    expect(atTop?.scale).not.toBeNull()
+    expect(atTop!.scale!).toBeLessThan(0.05)
+
+    await scrollToAndRest(page, atTop?.max ?? 0)
+    const end = await progressSnapshot(page)
+    expect(end?.mode).toBe("script")
+    expect(end?.scale).not.toBeNull()
+    expect(end!.scale!).toBeGreaterThan(0.95)
   })
 })

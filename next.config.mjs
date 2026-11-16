@@ -22,6 +22,9 @@ const stripBaselinePolyfillsLoader = fileURLToPath(
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Do not set experimental.inlineCss. Next puts the whole Tailwind sheet in
+  // a render-blocking <style> and again in the flight payload, which raises
+  // mobile FCP and the /series/f1 main-thread time.
   // Guide markdown is read from disk at build and again when the sitemap
   // regenerates. Keep the files in the server trace for those routes.
   outputFileTracingIncludes: {

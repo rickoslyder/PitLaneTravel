@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import dynamic from "next/dynamic"
@@ -29,6 +29,11 @@ import { SelectRaceHistory } from "@/db/schema/race-history-schema"
 import { captureAnalyticsEvent } from "@/lib/analytics/capture"
 import { useAnalyticsConsent } from "@/lib/analytics-consent"
 import { cn } from "@/lib/utils"
+import {
+  listenForScrollEnd,
+  reduceScrollFlags,
+  scrollPositionMessage
+} from "@/lib/scroll-signals"
 import { ErrorBoundary } from "./error-boundary"
 import { ProgressIndicator } from "./progress-indicator"
 import { useAnnouncer } from "./use-announcer"
@@ -136,7 +141,7 @@ export function RaceDetailsPage({
   ticketListings = "listed"
 }: RaceDetailsPageProps) {
   const searchParams = useSearchParams()
-  const { announce, Announcer } = useAnnouncer()
+  const { announce, announcerRef, Announcer } = useAnnouncer()
   const consent = useAnalyticsConsent()
   const finished = raceHasFinished(race, new Date())
   const guideSlug = guideSlugForRace(race.slug)
@@ -148,27 +153,35 @@ export function RaceDetailsPage({
   })
   const [isScrolled, setIsScrolled] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
+  const scrollFlagsRef = useRef({ isScrolled: false, showScrollTop: false })
 
-  // Handle scroll events
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY
-      setIsScrolled(scrollTop > 0)
-      setShowScrollTop(scrollTop > 500)
-
-      // Announce scroll position for screen readers when reaching certain thresholds
-      if (scrollTop === 0) {
-        announce("At the top of the page")
-      } else if (
-        scrollTop + window.innerHeight >=
-        document.documentElement.scrollHeight - 100
-      ) {
-        announce("Nearing the end of the page")
+      const current = scrollFlagsRef.current
+      const next = reduceScrollFlags(current, window.scrollY)
+      if (!next) return
+      scrollFlagsRef.current = next
+      if (next.isScrolled !== current.isScrolled) setIsScrolled(next.isScrolled)
+      if (next.showScrollTop !== current.showScrollTop) {
+        setShowScrollTop(next.showScrollTop)
       }
     }
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  useEffect(() => {
+    const announcePosition = () => {
+      const message = scrollPositionMessage(
+        window.scrollY,
+        window.innerHeight,
+        document.documentElement.scrollHeight
+      )
+      if (message) announce(message)
+    }
+
+    return listenForScrollEnd(window, announcePosition, window)
   }, [announce])
 
   // Get active tab option
@@ -296,7 +309,7 @@ export function RaceDetailsPage({
       role="region"
       aria-label={`${race.name} details`}
     >
-      <Announcer />
+      <Announcer ref={announcerRef} />
       <ProgressIndicator />
 
       <RaceHero
