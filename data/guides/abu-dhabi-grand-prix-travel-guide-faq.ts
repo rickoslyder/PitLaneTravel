@@ -64,7 +64,7 @@ export const abuDhabiGrandPrixTravelGuideFaq = {
       name: "How much are Abu Dhabi GP tickets?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "As of 16 Nov 2026, the promoter lists general admission from AED 745 and grandstands from AED 1,895. On F1 Tickets, Abu Dhabi Hill, the North Straight Grandstand, the South Grandstand and the West Straight Grandstand are sold out, and the West Grandstand is on sale from €1,333.18. Prices change, so recheck them on the official sites."
+        text: "As of 16 Nov 2026, the promoter lists general admission from AED 745, grandstands from AED 1,895 and the South Grandstand from AED 2,095. F1 Tickets lists 6 options; West Grandstand, Abu Dhabi Hill, the North Straight Grandstand and the West Straight Grandstand are sold out, and the South Grandstand is no longer listed. Prices change, so recheck them on the official sites."
       }
     },
     {

@@ -1,5 +1,6 @@
 import { F1TicketSaleTable } from "@/components/guides/f1-ticket-sale-table"
 import { GuideMarkdown } from "@/components/guides/guide-markdown"
+import { PlanByFanType } from "@/components/guides/plan-by-fan-type"
 import { abuDhabiGrandPrixTravelGuideFaq } from "@/data/guides/abu-dhabi-grand-prix-travel-guide-faq"
 import { azerbaijanGp2027Faq } from "@/data/guides/azerbaijan-grand-prix-2027-faq"
 import { f1TicketSaleFaq } from "@/data/guides/f1-2027-ticket-on-sale-faq"
@@ -222,6 +223,8 @@ export default async function GuidePage({ params }: GuidePageProps) {
           slug={guide.slug}
         />
       </div>
+
+      <PlanByFanType hubSlug={guide.slug} />
 
       {guide.relatedRaces.length > 0 && (
         <aside className="mt-12 border-t pt-8">
