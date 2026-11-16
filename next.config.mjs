@@ -16,6 +16,7 @@ const nextConfig = {
   outputFileTracingIncludes: {
     "/guides": ["./content/guides/**/*"],
     "/guides/[slug]": ["./content/guides/**/*"],
+    "/guides/[slug]/[subpage]": ["./content/guides/**/*"],
     "/sitemap.xml": ["./content/guides/**/*"]
   },
   images: {
