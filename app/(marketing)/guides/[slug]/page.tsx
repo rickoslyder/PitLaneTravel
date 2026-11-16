@@ -1,6 +1,7 @@
 import { F1TicketSaleTable } from "@/components/guides/f1-ticket-sale-table"
 import { GuideMarkdown } from "@/components/guides/guide-markdown"
 import { PlanByFanType } from "@/components/guides/plan-by-fan-type"
+import { abuDhabiGrandPrixTravelGuideFaq } from "@/data/guides/abu-dhabi-grand-prix-travel-guide-faq"
 import { azerbaijanGp2027Faq } from "@/data/guides/azerbaijan-grand-prix-2027-faq"
 import { f1TicketSaleFaq } from "@/data/guides/f1-2027-ticket-on-sale-faq"
 import { f1TicketSales2027 } from "@/data/guides/f1-2027-ticket-sales"
@@ -42,6 +43,9 @@ const NEW_GUIDE_SLUGS = new Set([
 ])
 
 function faqJsonLdForNewGuide(slug: string) {
+  if (slug === "abu-dhabi-grand-prix-travel-guide") {
+    return abuDhabiGrandPrixTravelGuideFaq
+  }
   if (slug === "wec-2027-launch-week") return wecLaunchWeekFaq
   if (slug === "azerbaijan-grand-prix-2027-tickets-travel") {
     return azerbaijanGp2027Faq
