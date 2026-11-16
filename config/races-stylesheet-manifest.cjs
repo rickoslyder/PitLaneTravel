@@ -31,14 +31,12 @@ function manifestFromAssets(assets) {
   for (const asset of assets) {
     if (!asset.name.endsWith(".css")) continue
     const isTailwind = isPublicSheet(asset.css)
-    if (isTailwind) hrefs.push(stylesheetHref(asset.name))
-    if (
+    const isInterFallback =
       !isTailwind &&
       asset.css.includes("@font-face") &&
       /Inter Fallback/.test(asset.css)
-    ) {
-      fallbackFontCss = fallbackFace(asset.css)
-    }
+    if (isTailwind || isInterFallback) hrefs.push(stylesheetHref(asset.name))
+    if (isInterFallback) fallbackFontCss = fallbackFace(asset.css)
   }
   return { hrefs, fallbackFontCss }
 }

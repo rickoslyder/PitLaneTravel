@@ -72,23 +72,34 @@ const nextConfig = {
   }
 }
 
-// Next rewrites server bundles again while collecting traces, after the client
-// compiler has finished. Patch the href once the main build process is done.
-// Workers exit earlier, and `next build` does not set NEXT_PHASE until page
-// data collection, which is after this file is first evaluated.
+// Next calls process.exit() when the build finishes, which skips beforeExit,
+// and it rewrites server bundles during trace collection after the client
+// compiler. Patch the href on the way out of the main build process.
 const isMainNextBuild =
   process.argv.includes("build") &&
   process.env.NEXT_PRIVATE_BUILD_WORKER !== "1"
 if (isMainNextBuild) {
-  process.once("beforeExit", () => {
+  let racesStylesheetEmbedded = false
+  const embedRacesStylesheetOrFail = () => {
+    if (racesStylesheetEmbedded) return 0
+    racesStylesheetEmbedded = true
     const result = embedRacesStylesheetManifest()
     if (result.hrefs.length === 0 || result.tokenRemaining > 0) {
       console.error(
         "Races stylesheet href was not embedded into the server bundle"
       )
-      process.exitCode = 1
+      return 1
     }
+    return 0
+  }
+  process.on("exit", () => {
+    embedRacesStylesheetOrFail()
   })
+  const exit = process.exit.bind(process)
+  process.exit = code => {
+    const failed = embedRacesStylesheetOrFail()
+    exit(failed === 1 ? 1 : code)
+  }
 }
 
 export default nextConfig

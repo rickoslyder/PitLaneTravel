@@ -311,6 +311,23 @@ test.describe("accessibility", () => {
         expect(response?.ok(), path).toBeTruthy()
         const bar = page.locator("[data-analytics-consent-bar]")
         await expect(bar).toBeVisible()
+        if (path === "/races") {
+          await expect
+            .poll(async () =>
+              page.evaluate(() =>
+                [...document.querySelectorAll("link")].some(link => {
+                  if (!(link instanceof HTMLLinkElement)) return false
+                  const href = link.getAttribute("href") || ""
+                  return (
+                    href.includes("/_next/static/css/") &&
+                    (link.media === "all" || link.media === "")
+                  )
+                })
+              )
+            )
+            .toBe(true)
+          await page.evaluate(() => document.fonts.ready)
+        }
 
         const covered = await page.evaluate(() => {
           const barEl = document.querySelector("[data-analytics-consent-bar]")

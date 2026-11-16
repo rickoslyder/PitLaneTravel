@@ -28,7 +28,10 @@ describe("races stylesheet manifest", () => {
         css: ".mapboxgl-map{position:relative}"
       }
     ])
-    expect(manifest.hrefs).toEqual(["/_next/static/css/tailwind.css"])
+    expect(manifest.hrefs).toEqual([
+      "/_next/static/css/font.css",
+      "/_next/static/css/tailwind.css"
+    ])
     expect(manifest.fallbackFontCss).toContain("Inter Fallback")
     expect(manifest.fallbackFontCss).not.toContain("woff2")
   })
