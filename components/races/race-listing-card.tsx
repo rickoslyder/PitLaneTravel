@@ -26,8 +26,7 @@ export function toListingCardModel(
   race: RaceWithCircuitAndSeries,
   timing: RaceTiming,
   coverage: PublicCoverageSummary | undefined,
-  listingState: TicketListingState | undefined,
-  options?: { srcSet?: boolean }
+  listingState: TicketListingState | undefined
 ): ListingCardModel {
   const seriesSlug = race.series?.slug ?? "f1"
   const cancelled = race.status === "cancelled"
@@ -44,7 +43,7 @@ export function toListingCardModel(
     })
     image = {
       src: props.src,
-      srcSet: options?.srcSet === false ? undefined : props.srcSet,
+      srcSet: props.srcSet,
       sizes: props.sizes || LISTING_IMAGE_SIZES,
       alt: fallbackTitle
     }

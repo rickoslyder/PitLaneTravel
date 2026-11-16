@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useLayoutEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { EmptyState } from "@/components/races/EmptyState"
@@ -11,6 +11,7 @@ import {
   ListingCardView,
   type ListingCardModel
 } from "@/components/races/race-listing-card-view"
+import { revealListingPhotoFallback } from "@/components/races/race-listing-photo-fallback"
 import {
   hasListingFilters,
   listingCardMatches,
@@ -92,6 +93,12 @@ export function RaceCalendarControls({
     month: filters.month,
     country: filters.country
   }
+
+  useEffect(() => {
+    const onError = (event: Event) => revealListingPhotoFallback(event.target)
+    document.addEventListener("error", onError, true)
+    return () => document.removeEventListener("error", onError, true)
+  }, [])
 
   useLayoutEffect(() => {
     const root = resultsRef.current

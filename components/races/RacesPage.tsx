@@ -59,15 +59,7 @@ export function RacesPage({
           series={tabs}
           upcomingCount={upcoming.length}
           pastCount={past.length}
-          pastCards={past.map(race =>
-            toListingCardModel(
-              race,
-              "past",
-              coverageByRaceId?.[race.id],
-              listingStateFor(race),
-              { srcSet: false }
-            )
-          )}
+          pastCards={past.map(race => modelFor(race, "past"))}
         >
           {upcoming.map(race => (
             <ListingCardView key={race.id} model={modelFor(race, "upcoming")} />

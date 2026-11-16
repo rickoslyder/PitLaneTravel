@@ -168,25 +168,27 @@ export function ListingCardView({ model }: { model: ListingCardModel }) {
                   color: "transparent"
                 }}
               />
-            ) : (
-              <>
-                <div className="race-fallback-grid">
-                  <RaceImageFallback
-                    title={model.fallbackTitle}
-                    series={model.fallbackSeries}
-                    country={model.fallbackCountry}
-                  />
-                </div>
-                <div className="race-fallback-list hidden">
-                  <RaceImageFallback
-                    title={model.fallbackTitle}
-                    series={model.fallbackSeries}
-                    country={model.fallbackCountry}
-                    compact
-                  />
-                </div>
-              </>
-            )}
+            ) : null}
+            <div
+              className={cn(
+                "race-fallback-grid",
+                model.image && "hidden"
+              )}
+            >
+              <RaceImageFallback
+                title={model.fallbackTitle}
+                series={model.fallbackSeries}
+                country={model.fallbackCountry}
+              />
+            </div>
+            <div className="race-fallback-list hidden">
+              <RaceImageFallback
+                title={model.fallbackTitle}
+                series={model.fallbackSeries}
+                country={model.fallbackCountry}
+                compact
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent className="race-listing-content space-y-2.5">
@@ -251,8 +253,11 @@ export const raceListingListStyles = `
 [data-race-view="list"] .race-listing-ctas a{width:auto !important}
 [data-race-view="list"] .race-listing-header{padding-top:1.5rem;padding-bottom:.5rem}
 [data-race-view="list"] .race-listing-content{padding-bottom:.5rem;row-gap:.375rem}
-[data-race-view="list"] .race-fallback-grid{display:none}
-[data-race-view="list"] .race-fallback-list{display:block}
+[data-race-view="list"] .race-fallback-grid{display:none !important}
+[data-race-view="list"] .race-listing-photo:not(:has(.race-listing-img)) .race-fallback-list,
+[data-race-view="list"] .race-listing-photo[data-race-photo-failed] .race-fallback-list{display:block !important}
+.race-listing-photo[data-race-photo-failed] .race-listing-img{display:none !important}
+.race-listing-photo[data-race-photo-failed] .race-fallback-grid{display:block}
 @media (min-width:640px){
   [data-race-view="list"] [data-race-card]{flex-direction:row;align-items:center;justify-content:space-between}
   [data-race-view="list"] .race-listing-main{flex-direction:row;align-items:center;gap:1.5rem}
