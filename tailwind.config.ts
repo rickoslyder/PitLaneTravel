@@ -5,15 +5,13 @@ Configures Tailwind CSS for the app.
 */
 
 import type { Config } from "tailwindcss"
+import { globalContent } from "./config/tailwind-content"
 
 const config = {
   darkMode: ["class"],
-  content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}"
-  ],
+  // Public sheet only. Admin utilities: styles/admin.css.
+  // Typography: styles/prose.css. See config/tailwind-content.ts.
+  content: globalContent,
   prefix: "",
   theme: {
     container: {
@@ -109,7 +107,7 @@ const config = {
       }
     }
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")]
+  plugins: [require("tailwindcss-animate")]
 } satisfies Config
 
 export default config

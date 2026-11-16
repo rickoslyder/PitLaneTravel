@@ -4,6 +4,11 @@ Global styles for the app.
 </ai_context>
 */
 
+/* Tailwind's PostCSS plugin keeps the last @config path on one shared
+   instance, and Next.js reuses that instance for every stylesheet. Pin
+   the public config so prose.css / admin.css cannot replace it. */
+@config "../tailwind.config.ts";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

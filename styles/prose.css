@@ -1,0 +1,10 @@
+/*
+<ai_context>
+Typography sheet. Import it from every module that renders a prose class.
+The global stylesheet does not include these rules.
+</ai_context>
+*/
+
+@config "../tailwind.prose.config.ts";
+@tailwind components;
+@tailwind utilities;

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import "@/styles/admin.css"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
