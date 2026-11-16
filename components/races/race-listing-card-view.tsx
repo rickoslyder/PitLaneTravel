@@ -169,36 +169,17 @@ export function ListingCardView({ model }: { model: ListingCardModel }) {
                 }}
               />
             ) : null}
-            <div
-              className={cn(
-                "race-fallback-grid",
-                model.image && "hidden"
-              )}
-            >
+            <div className={cn(model.image && "hidden")}>
               <RaceImageFallback
                 title={model.fallbackTitle}
                 series={model.fallbackSeries}
                 country={model.fallbackCountry}
-              />
-            </div>
-            <div className="race-fallback-list hidden">
-              <RaceImageFallback
-                title={model.fallbackTitle}
-                series={model.fallbackSeries}
-                country={model.fallbackCountry}
-                compact
               />
             </div>
           </div>
         </CardHeader>
         <CardContent className="race-listing-content space-y-2.5">
           <div className="race-listing-title-row">
-            <div className="race-listing-badges-inline hidden">
-              {badges}
-              {model.coverage ? (
-                <CoverageBadge summary={model.coverage} compact />
-              ) : null}
-            </div>
             <h3
               className={cn(
                 "race-listing-title line-clamp-2 font-semibold",
@@ -207,12 +188,11 @@ export function ListingCardView({ model }: { model: ListingCardModel }) {
             >
               {model.name}
             </h3>
-          </div>
-          {model.coverage ? (
-            <div className="race-listing-coverage-grid">
+            {model.coverage ? (
               <CoverageBadge summary={model.coverage} compact />
-            </div>
-          ) : null}
+            ) : null}
+            <div className="race-listing-badges-inline hidden">{badges}</div>
+          </div>
           <div className="race-listing-meta text-muted-foreground flex flex-col gap-2 text-sm">
             <div className="flex items-center gap-1">
               <MapPin className="size-3.5" />
@@ -253,11 +233,12 @@ export const raceListingListStyles = `
 [data-race-view="list"] .race-listing-ctas a{width:auto !important}
 [data-race-view="list"] .race-listing-header{padding-top:1.5rem;padding-bottom:.5rem}
 [data-race-view="list"] .race-listing-content{padding-bottom:.5rem;row-gap:.375rem}
-[data-race-view="list"] .race-fallback-grid{display:none !important}
-[data-race-view="list"] .race-listing-photo:not(:has(.race-listing-img)) .race-fallback-list,
-[data-race-view="list"] .race-listing-photo[data-race-photo-failed] .race-fallback-list{display:block !important}
+[data-race-view="list"] .race-listing-title-row > [data-coverage-badge]{margin-top:0}
+.race-listing-title-row > [data-coverage-badge]{margin-top:.625rem}
 .race-listing-photo[data-race-photo-failed] .race-listing-img{display:none !important}
-.race-listing-photo[data-race-photo-failed] .race-fallback-grid{display:block}
+.race-listing-photo[data-race-photo-failed] > .hidden{display:block !important}
+[data-race-view="list"] .race-listing-photo [data-race-image-fallback]{padding:.375rem}
+[data-race-view="list"] .race-listing-photo [data-race-image-fallback] p{font-size:10px;line-height:1.15;-webkit-line-clamp:2}
 @media (min-width:640px){
   [data-race-view="list"] [data-race-card]{flex-direction:row;align-items:center;justify-content:space-between}
   [data-race-view="list"] .race-listing-main{flex-direction:row;align-items:center;gap:1.5rem}

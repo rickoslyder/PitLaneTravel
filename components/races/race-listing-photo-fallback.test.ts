@@ -22,6 +22,13 @@ const model: ListingCardModel = {
   href: "/races/australian-grand-prix",
   cancelled: false,
   cancellationReason: null,
+  coverage: {
+    raceId: "race-1",
+    tier: 3,
+    liveOfferState: "current",
+    freshUntil: null,
+    derivedAt: "2026-03-01T00:00:00.000Z"
+  },
   image: {
     src: "/_next/image?url=%2Fphoto.jpg&w=640&q=65",
     srcSet:
@@ -40,8 +47,10 @@ describe("listing photo fallback", () => {
     expect(html).toContain("384w")
     expect(html).toContain("640w")
     expect(html).toContain("data-race-image-fallback")
-    expect(html).toContain("race-fallback-grid hidden")
-    expect(html).toContain("race-fallback-list hidden")
+    expect(html.match(/data-race-image-fallback/g)).toHaveLength(1)
+    expect(html).toMatch(
+      /<h3[^>]*>Australian Grand Prix<\/h3><div[^>]*data-coverage-badge=""/
+    )
   })
 
   it("reveals that card from one error listener instead of a client image per card", () => {
