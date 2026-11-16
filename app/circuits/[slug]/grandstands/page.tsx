@@ -5,6 +5,7 @@ import { notFound } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
 import { getCircuitsWithGrandstandsAction } from "@/actions/db/grandstands-actions"
 import { GrandstandCard } from "@/components/grandstands/grandstand-card"
+import { YasMarinaLocator } from "@/components/maps/yas-marina-locator"
 import { slugify } from "@/lib/series"
 import {
   FORMULA_E_LONDON_VENUE_NOTE,
@@ -86,6 +87,10 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
           </p>
         )}
       </header>
+
+      {slug === "yas-marina-circuit" ? (
+        <YasMarinaLocator kind="seating" />
+      ) : null}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {ranked.map(g => (
