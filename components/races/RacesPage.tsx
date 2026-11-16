@@ -1,17 +1,15 @@
-"use client"
-
-import { useCallback, useState } from "react"
-import { useRouter } from "next/navigation"
-import { RaceWithCircuitAndSeries } from "@/types/database"
-import { SearchBar } from "./SearchBar"
-import { FilterSheet } from "./FilterSheet"
-import { ResultsSummary } from "./ResultsSummary"
-import { RaceGrid } from "./RaceGrid"
-import { EmptyState } from "./EmptyState"
-import { ViewSwitcher } from "./ViewSwitcher"
+import { RaceCalendarControls } from "@/components/races/race-calendar-controls"
+import { toListingCardModel } from "@/components/races/race-listing-card"
+import {
+  ListingCardView,
+  raceListingListStyles
+} from "@/components/races/race-listing-card-view"
+import type { TicketListingState } from "@/components/races/tickets/ticket-availability"
+import { raceHasFinished } from "@/lib/finished-race"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import { racesForTiming, type RaceTiming } from "@/lib/race-calendar-window"
-import { formatRaceCalendarMonth } from "@/lib/race-datetime"
+import { seriesTabs } from "@/lib/race-listing-filter"
+import type { RaceWithCircuitAndSeries } from "@/types/database"
 
 interface RacesPageProps {
   initialRaces: RaceWithCircuitAndSeries[]
@@ -28,219 +26,54 @@ export function RacesPage({
   asOfIso,
   ticketedRaceIds
 }: RacesPageProps) {
-  const router = useRouter()
-  const [races] = useState<RaceWithCircuitAndSeries[]>(initialRaces)
-  const [timing, setTiming] = useState<RaceTiming>("upcoming")
-  const [viewType, setViewType] = useState<"grid" | "list">("grid")
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [filters, setFilters] = useState({
-    search: "",
-    availability: [] as string[],
-    month: [] as string[],
-    country: [] as string[]
-  })
-  const [seriesFilter, setSeriesFilter] = useState<string | null>(null)
+  const now = new Date()
+  const ticketed = ticketedRaceIds ? new Set(ticketedRaceIds) : null
+  const upcoming = racesForTiming(initialRaces, "upcoming", asOfIso)
+  const past = racesForTiming(initialRaces, "past", asOfIso)
+  const tabs = seriesTabs(initialRaces)
 
-  // Distinct series present in the loaded races, in sort order. Races without a
-  // series row (legacy data) are treated as F1.
-  const availableSeries = Array.from(
-    new Map(
-      races.map(r => {
-        const s = r.series ?? {
-          id: "f1",
-          name: "Formula 1",
-          short_name: "F1",
-          slug: "f1",
-          event_noun: "Grand Prix",
-          accent_color: "#e10600"
-        }
-        return [s.slug, s]
-      })
-    ).values()
-  )
+  const listingStateFor = (
+    race: RaceWithCircuitAndSeries
+  ): TicketListingState | undefined => {
+    if (!ticketed) return undefined
+    if (race.status === "cancelled" || raceHasFinished(race, now)) {
+      return undefined
+    }
+    return ticketed.has(race.id) ? "listed" : "empty"
+  }
 
-  const timedRaces = racesForTiming(races, timing, asOfIso)
-
-  const filteredRaces = timedRaces.filter(race => {
-    const raceSeriesSlug = race.series?.slug ?? "f1"
-    const matchesSeries = !seriesFilter || raceSeriesSlug === seriesFilter
-    if (!matchesSeries) return false
-
-    const searchTerms = [
-      race.name,
-      race.circuit?.name,
-      race.country,
-      race.circuit?.location
-    ].filter(Boolean) as string[]
-
-    const matchesSearch =
-      !filters.search ||
-      searchTerms.some(term =>
-        term.toLowerCase().includes(filters.search.toLowerCase())
-      )
-
-    const matchesAvailability = filters.availability.length === 0
-
-    const matchesMonth =
-      filters.month.length === 0 ||
-      filters.month.includes(formatRaceCalendarMonth(race.date))
-
-    const matchesCountry =
-      filters.country.length === 0 ||
-      (race.country && filters.country.includes(race.country))
-
-    return (
-      matchesSearch && matchesAvailability && matchesMonth && matchesCountry
+  const modelFor = (race: RaceWithCircuitAndSeries, timing: RaceTiming) =>
+    toListingCardModel(
+      race,
+      timing,
+      coverageByRaceId?.[race.id],
+      listingStateFor(race)
     )
-  })
-
-  const handleSearchChange = useCallback((query: string) => {
-    setFilters(prev => ({ ...prev, search: query }))
-  }, [])
-
-  const handleFilterChange = useCallback(
-    (field: keyof typeof filters, value: string[]) => {
-      setFilters(prev => ({ ...prev, [field]: value }))
-    },
-    []
-  )
-
-  const handleClearFilters = useCallback(() => {
-    setFilters({
-      search: "",
-      availability: [],
-      month: [],
-      country: []
-    })
-  }, [])
-
-  const handleRaceClick = useCallback(
-    (race: RaceWithCircuitAndSeries) => {
-      router.push(`/races/${race.slug || race.id}`)
-    },
-    [router]
-  )
-
-  const hasFilters =
-    Boolean(filters.search) ||
-    filters.availability.length > 0 ||
-    filters.month.length > 0 ||
-    filters.country.length > 0
-
-  const activeFilterCount = Object.entries(filters).reduce(
-    (count, [key, value]) => {
-      if (key === "search") return count
-      return count + (value as string[]).length
-    },
-    0
-  )
 
   return (
     <div className="space-y-8">
+      <style>{raceListingListStyles}</style>
       <div className="bg-card mx-auto max-w-7xl rounded-lg p-6 shadow">
         <h2 className="mb-6 text-center text-2xl font-bold">Race Calendar</h2>
-
-        <div
-          className="mb-6 flex flex-wrap justify-center gap-2"
-          role="group"
-          aria-label="Race timing"
-        >
-          {(
-            [
-              ["upcoming", "Upcoming"],
-              ["past", "Past"]
-            ] as const
-          ).map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={timing === value}
-              onClick={() => setTiming(value)}
-              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
-                timing === value
-                  ? "bg-primary text-primary-foreground border-transparent"
-                  : "bg-background hover:bg-muted"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {availableSeries.length > 1 && (
-          <div className="mb-6 flex flex-wrap justify-center gap-2">
-            <button
-              onClick={() => setSeriesFilter(null)}
-              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
-                seriesFilter === null
-                  ? "bg-primary text-primary-foreground border-transparent"
-                  : "bg-background hover:bg-muted"
-              }`}
-            >
-              All Series
-            </button>
-            {availableSeries.map(s => (
-              <button
-                key={s.slug}
-                onClick={() =>
-                  setSeriesFilter(prev => (prev === s.slug ? null : s.slug))
-                }
-                className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
-                  seriesFilter === s.slug
-                    ? "bg-foreground text-background border-transparent"
-                    : "bg-background text-foreground hover:bg-muted"
-                }`}
-              >
-                {s.short_name}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="space-y-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <SearchBar
-              searchQuery={filters.search}
-              onSearchChange={handleSearchChange}
-              onFilterClick={() => setIsFilterOpen(true)}
-              activeFilterCount={activeFilterCount}
-            />
-            <ViewSwitcher viewType={viewType} onViewChange={setViewType} />
-          </div>
-
-          <ResultsSummary
-            totalRaces={timedRaces.length}
-            shownRaces={filteredRaces.length}
-            viewType={viewType}
-            searchQuery={filters.search}
-            filters={filters}
-          />
-
-          {filteredRaces.length > 0 ? (
-            <RaceGrid
-              races={filteredRaces}
-              viewType={viewType}
-              onRaceClick={handleRaceClick}
-              coverageByRaceId={coverageByRaceId}
-              ticketedRaceIds={ticketedRaceIds}
-            />
-          ) : (
-            <EmptyState
-              isFiltered={hasFilters}
-              onClearFilters={handleClearFilters}
-            />
+        <RaceCalendarControls
+          series={tabs}
+          upcomingCount={upcoming.length}
+          pastCount={past.length}
+          pastCards={past.map(race =>
+            toListingCardModel(
+              race,
+              "past",
+              coverageByRaceId?.[race.id],
+              listingStateFor(race),
+              { srcSet: false }
+            )
           )}
-        </div>
+        >
+          {upcoming.map(race => (
+            <ListingCardView key={race.id} model={modelFor(race, "upcoming")} />
+          ))}
+        </RaceCalendarControls>
       </div>
-
-      <FilterSheet
-        open={isFilterOpen}
-        onOpenChange={setIsFilterOpen}
-        races={timedRaces}
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
-      />
     </div>
   )
 }
