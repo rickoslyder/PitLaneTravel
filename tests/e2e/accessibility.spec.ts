@@ -476,3 +476,183 @@ test.describe("motion allowed", () => {
       .toBe(true)
   })
 })
+async function scrollToAndRest(page: Page, top: number) {
+  await page.evaluate(y => {
+    return new Promise<void>(resolve => {
+      let settled = false
+      const finish = () => {
+        if (settled) return
+        settled = true
+        resolve()
+      }
+      window.addEventListener("scrollend", finish, { once: true })
+      window.scrollTo({ top: y, behavior: "instant" })
+      window.setTimeout(finish, 400)
+    })
+  }, top)
+}
+
+async function progressSnapshot(page: Page) {
+  return page.evaluate(async () => {
+    await new Promise<void>(resolve => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    })
+    const bar = document.querySelector("[data-scroll-progress-bar]")
+    if (!(bar instanceof HTMLElement)) return null
+    const transform = getComputedStyle(bar).transform
+    const match = /matrix(?:3d)?\(([^)]+)\)/.exec(transform)
+    const scale = match ? Number.parseFloat(match[1].split(",")[0]) : null
+    return {
+      mode: bar.dataset.scrollProgressMode ?? null,
+      scale: scale !== null && Number.isFinite(scale) ? scale : null,
+      max: document.documentElement.scrollHeight - window.innerHeight
+    }
+  })
+}
+
+test.describe("scroll handlers", () => {
+  test("header blur toggles when the page leaves and returns to the top", async ({
+    page
+  }) => {
+    const response = await page.goto("/")
+    expect(response?.ok()).toBeTruthy()
+
+    const header = page.locator("header.sticky.top-0")
+    await expect(header).toHaveCount(1)
+    await expect(header).not.toHaveClass(/backdrop-blur-sm/)
+
+    const max = await page.evaluate(
+      () => document.documentElement.scrollHeight - window.innerHeight
+    )
+    expect(max).toBeGreaterThan(400)
+
+    await expect
+      .poll(async () => {
+        await scrollToAndRest(page, 0)
+        await scrollToAndRest(page, 40)
+        return header.evaluate(element =>
+          element.className.includes("backdrop-blur-sm")
+        )
+      })
+      .toBe(true)
+    await expect(header).toHaveClass(/shadow-sm/)
+
+    await scrollToAndRest(page, 400)
+    await expect(header).toHaveClass(/backdrop-blur-sm/)
+
+    await scrollToAndRest(page, 0)
+    await expect(header).not.toHaveClass(/backdrop-blur-sm/)
+    await expect(header).not.toHaveClass(/shadow-sm/)
+  })
+
+  test("race progress, sticky shadow, and scroll announcements track the document", async ({
+    page
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 640 })
+    const response = await page.goto(`/races/${E2E_RACE_SLUG}`)
+    expect(response?.ok()).toBeTruthy()
+
+    const bar = page.locator("[data-scroll-progress-bar]")
+    const nav = page.getByRole("navigation", {
+      name: "Race details navigation"
+    })
+    const toTop = page.getByRole("button", { name: "Scroll to top of page" })
+    const announcer = page.locator("[data-scroll-announcer]")
+
+    await expect(bar).toHaveCount(1)
+    await expect(bar).toHaveAttribute(
+      "data-scroll-progress-mode",
+      /^(timeline|script)$/
+    )
+    await expect(announcer).toHaveAttribute("aria-live", "polite")
+    await expect(announcer).toHaveText("")
+    await expect(nav).not.toHaveClass(/shadow-md/)
+    await expect(toTop).toHaveCount(0)
+
+    const atTop = await progressSnapshot(page)
+    expect(atTop?.max).toBeGreaterThan(700)
+    expect(atTop?.scale).not.toBeNull()
+    expect(atTop!.scale!).toBeLessThan(0.05)
+    expect(["timeline", "script"]).toContain(atTop?.mode)
+
+    await scrollToAndRest(page, 40)
+    await expect(nav).toHaveClass(/shadow-md/)
+    await expect(toTop).toHaveCount(0)
+
+    await scrollToAndRest(page, 501)
+    await expect(toTop).toBeVisible()
+
+    await scrollToAndRest(page, Math.round((atTop?.max ?? 0) * 0.7))
+    const mid = await progressSnapshot(page)
+    expect(mid?.scale).not.toBeNull()
+    expect(mid!.scale!).toBeGreaterThan(0.45)
+
+    await scrollToAndRest(page, atTop?.max ?? 0)
+    const end = await progressSnapshot(page)
+    expect(end?.scale).not.toBeNull()
+    expect(end!.scale!).toBeGreaterThan(0.95)
+    await expect(announcer).toHaveText("Nearing the end of the page")
+
+    const mutations = await page.evaluate(async () => {
+      const node = document.querySelector("[data-scroll-announcer]")
+      if (!node) return -1
+      let count = 0
+      const observer = new MutationObserver(() => {
+        count += 1
+      })
+      observer.observe(node, {
+        childList: true,
+        characterData: true,
+        subtree: true
+      })
+      const top =
+        document.documentElement.scrollHeight - window.innerHeight - 20
+      await new Promise<void>(resolve => {
+        let settled = false
+        const finish = () => {
+          if (settled) return
+          settled = true
+          resolve()
+        }
+        window.addEventListener("scrollend", finish, { once: true })
+        window.scrollTo({ top, behavior: "instant" })
+        window.setTimeout(finish, 400)
+      })
+      observer.disconnect()
+      return count
+    })
+    expect(mutations).toBe(0)
+    await expect(announcer).toHaveText("Nearing the end of the page")
+
+    await scrollToAndRest(page, 0)
+    await expect(announcer).toHaveText("At the top of the page")
+    await expect(nav).not.toHaveClass(/shadow-md/)
+    await expect(toTop).toHaveCount(0)
+    const back = await progressSnapshot(page)
+    expect(back?.scale).not.toBeNull()
+    expect(back!.scale!).toBeLessThan(0.05)
+  })
+
+  test("reduced motion still moves the progress bar from script", async ({
+    page
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" })
+    await page.setViewportSize({ width: 1280, height: 640 })
+    const response = await page.goto(`/races/${E2E_RACE_SLUG}`)
+    expect(response?.ok()).toBeTruthy()
+
+    const bar = page.locator("[data-scroll-progress-bar]")
+    await expect(bar).toHaveAttribute("data-scroll-progress-mode", "script")
+
+    const atTop = await progressSnapshot(page)
+    expect(atTop?.max).toBeGreaterThan(700)
+    expect(atTop?.scale).not.toBeNull()
+    expect(atTop!.scale!).toBeLessThan(0.05)
+
+    await scrollToAndRest(page, atTop?.max ?? 0)
+    const end = await progressSnapshot(page)
+    expect(end?.mode).toBe("script")
+    expect(end?.scale).not.toBeNull()
+    expect(end!.scale!).toBeGreaterThan(0.95)
+  })
+})

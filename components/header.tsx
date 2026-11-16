@@ -19,6 +19,7 @@ import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { ThemeSwitcher } from "./utilities/theme-switcher"
 import { brand } from "@/config/brand"
+import { isScrolledFromTop } from "@/lib/scroll-signals"
 
 const navLinks = [
   { href: "/races", label: "Races" },
@@ -40,6 +41,7 @@ export default function Header({
   )
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const isScrolledRef = useRef(false)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
 
   const toggleMenu = () => {
@@ -96,10 +98,13 @@ export default function Header({
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0)
+      const next = isScrolledFromTop(window.scrollY)
+      if (next === isScrolledRef.current) return
+      isScrolledRef.current = next
+      setIsScrolled(next)
     }
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
