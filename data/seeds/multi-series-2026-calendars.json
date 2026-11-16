@@ -1,5 +1,5 @@
 {
-  "_note": "Verified 2026 calendars for the non-F1 series. Researched from official series sites + Wikipedia and independently fact-checked (see DECISIONS.md). Circuit coordinates from the Wikipedia coordinates API, each validated to fall inside its stated country. Race `status` is DERIVED FROM THE DATE at seed time, not stored here, so it cannot go stale.",
+  "_note": "Verified 2026 calendars for the non-F1 series. Researched from official series sites + Wikipedia and independently checked (see DECISIONS.md). Circuit coordinates from the Wikipedia coordinates API, each validated to fall inside its stated country. Race `status` is DERIVED FROM THE DATE at seed time, not stored here, so it cannot go stale.",
   "season": 2026,
   "series": {
     "formula-e": {

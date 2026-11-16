@@ -100,6 +100,13 @@ describe("Abu Dhabi fan-type sub-page copy", () => {
       expect(page.article).not.toContain(GA_VS_GRANDSTAND_SLUG)
       expect(page.article).not.toContain("/go/")
       expect(page.article).not.toContain("/api/redirect/")
+      expect(page.article).not.toMatch(/\bScout\b/)
+      expect(page.article).not.toContain("/workspace/")
+      expect(page.article).not.toContain("fact-check")
+      expect(page.article).not.toMatch(/\bAD\d{1,2}\b/)
+      expect(page.article).not.toContain("re-check AD")
+      expect(JSON.stringify(page.questions)).not.toMatch(/\bScout\b/)
+      expect(JSON.stringify(page.questions)).not.toMatch(/\bAD\d{1,2}\b/)
       expect(page.questions).toHaveLength(5)
       expect(page.questions.every(question => question.includeInFaqPage)).toBe(
         true
