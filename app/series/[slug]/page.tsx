@@ -13,7 +13,7 @@ import {
 import { isActiveRaceStatus } from "@/lib/race-status"
 import { firstRaceIdWithImage } from "@/lib/race-image"
 import {
-  SERIES_CARD_MOBILE_MEDIA,
+  SERIES_CARD_LCP_PRELOAD_MEDIA,
   SERIES_CARD_SIZES,
   seriesCardMobileImageHref
 } from "@/lib/series-card-image"
@@ -103,7 +103,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
           rel="preload"
           as="image"
           href={lcpHref}
-          media={SERIES_CARD_MOBILE_MEDIA}
+          media={SERIES_CARD_LCP_PRELOAD_MEDIA}
           fetchPriority="high"
         />
       ) : null}

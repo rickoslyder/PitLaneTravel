@@ -3,10 +3,11 @@ import path from "node:path"
 import { describe, expect, it } from "vitest"
 import {
   SERIES_CARD_IMAGE_QUALITY,
-  SERIES_CARD_MOBILE_MEDIA,
+  SERIES_CARD_LCP_PRELOAD_MEDIA,
   SERIES_CARD_MOBILE_WIDTH,
   SERIES_CARD_SIZES,
-  seriesCardMobileImageHref
+  seriesCardMobileImageHref,
+  seriesCardSelectedWidth
 } from "@/lib/series-card-image"
 
 describe("series card mobile image", () => {
@@ -27,7 +28,12 @@ describe("series card mobile image", () => {
     expect(devicePixels).toBeGreaterThan(384)
     expect(devicePixels).toBeLessThanOrEqual(SERIES_CARD_MOBILE_WIDTH)
     expect(SERIES_CARD_SIZES).toContain("calc(100vw - 5rem)")
-    expect(SERIES_CARD_MOBILE_MEDIA).toBe("(max-width: 639px)")
+    expect(seriesCardSelectedWidth(412, 1.75)).toBe(640)
+    expect(seriesCardSelectedWidth(400, 1.5)).toBe(640)
+    expect(seriesCardSelectedWidth(430, 1.75)).toBe(640)
+    expect(seriesCardSelectedWidth(412, 2)).toBe(750)
+    expect(seriesCardSelectedWidth(412, 3)).toBe(1080)
+    expect(SERIES_CARD_LCP_PRELOAD_MEDIA).not.toContain("639px")
   })
 
   it("preloads that URL from the series page with a real href", () => {
@@ -39,7 +45,7 @@ describe("series card mobile image", () => {
     expect(page).toContain('rel="preload"')
     expect(page).toContain('as="image"')
     expect(page).toContain('fetchPriority="high"')
-    expect(page).toContain("SERIES_CARD_MOBILE_MEDIA")
+    expect(page).toContain("SERIES_CARD_LCP_PRELOAD_MEDIA")
     expect(page).toContain("SERIES_CARD_SIZES")
     expect(page).not.toContain("getRacesAction")
     expect(page).not.toContain("listRaceIdsWithTicketListingsAction")
