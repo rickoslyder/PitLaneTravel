@@ -1,0 +1,21 @@
+# Compile targets for Next.js 15.5.
+#
+# Do not replace this with `baseline widely available`.
+# Next 15.5.24's compiled browserslist rejects that query. getSupportedBrowsers()
+# swallows the error and falls back to Chrome 64 / Safari 12, which is the
+# target that keeps the legacy polyfills in the client runtime.
+# browserslist 4.29.5 (November 2026) resolves the query to Chrome 124+,
+# Firefox 126+, and Safari / iOS Safari 17.5+. That drops iOS Safari 16.
+#
+# This is the explicit modern floor that still includes iOS Safari 16:
+# Chrome, Edge, and Firefox 111, Safari and iOS Safari 16, Opera 97
+# (Chromium 111). Every API the legacy-JavaScript audit flags is already
+# native there (Safari 15.4 / Chrome 93). Lines are combined with OR.
+# Do not add a bare `defaults` or `not dead` line.
+
+chrome >= 111
+edge >= 111
+firefox >= 111
+safari >= 16
+ios_saf >= 16
+opera >= 97
