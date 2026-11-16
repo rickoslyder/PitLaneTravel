@@ -21,7 +21,11 @@ import { raceHasFinished } from "@/lib/finished-race"
 import { hasTicketListings } from "./ticket-availability"
 import { OfficialTicketLink, TicketsEmptyState } from "./TicketsEmptyState"
 import { useTickets } from "./use-tickets"
-import { ticketSectionIntro, ticketShowsBuyButton } from "./ticket-presentation"
+import {
+  ticketSectionIntro,
+  ticketShowsBuyButton,
+  ticketShowsOfficialSellerLink
+} from "./ticket-presentation"
 import { affiliatePartnersOnPage } from "@/lib/ticket-affiliate"
 import { AffiliateDisclosure } from "@/components/partners/affiliate-disclosure"
 
@@ -62,8 +66,14 @@ export function TicketSection({ race }: { race: RaceWithDetails }) {
 
   const catalogueAffiliates = affiliatePartnersOnPage(data?.tickets ?? [])
   const affiliatePartners = affiliatePartnersOnPage(
-    (filteredTickets ?? []).filter(ticket =>
-      ticketShowsBuyButton(ticket.availability, race.date)
+    (filteredTickets ?? []).filter(
+      ticket =>
+        ticketShowsBuyButton(ticket.availability, race.date) ||
+        ticketShowsOfficialSellerLink(
+          ticket.availability,
+          ticket.resellerUrl,
+          race.date
+        )
     )
   )
 

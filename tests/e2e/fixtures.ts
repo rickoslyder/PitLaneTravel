@@ -1120,6 +1120,44 @@ async function seedCatalog(sql: postgres.Sql): Promise<SeededCatalog> {
     `
 
     await tx`
+      INSERT INTO tickets (
+        race_id, title, description, ticket_type, availability,
+        days_included, is_child_ticket, reseller_url
+      )
+      VALUES
+        (
+          ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid,
+          ${"North grandstand"},
+          ${"Synthetic not-on-sale row with an official waitlist URL."},
+          ${"grandstand"},
+          ${"not_on_sale"},
+          '{"sunday": true}'::jsonb,
+          false,
+          ${"https://tickets.example.com/abu-dhabi/waitlist"}
+        ),
+        (
+          ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid,
+          ${"Main grandstand"},
+          ${"Synthetic not-on-sale row with an official ticket page."},
+          ${"grandstand"},
+          ${"not_on_sale"},
+          '{"sunday": true}'::jsonb,
+          false,
+          ${"https://tickets.example.com/abu-dhabi/grandstand"}
+        ),
+        (
+          ${E2E_FAN_TIPS_ABU_DHABI_RACE_ID}::uuid,
+          ${"Unlinked grandstand"},
+          ${"Synthetic not-on-sale row with no seller URL."},
+          ${"grandstand"},
+          ${"not_on_sale"},
+          '{"sunday": true}'::jsonb,
+          false,
+          ${""}
+        )
+    `
+
+    await tx`
       INSERT INTO grandstands (
         id, circuit_id, name, slug, description, covered, has_big_screen
       )

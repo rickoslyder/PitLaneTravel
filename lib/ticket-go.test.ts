@@ -27,9 +27,11 @@ describe("ticket seller hop", () => {
   it("opens the hop in a new tab from the click, without a client write", () => {
     const card = read("components/races/tickets/TicketCard.tsx")
 
-    expect(card).toContain("ticketGoHref(ticket.id)")
+    expect(card).toContain("ticketGoHref(ticketId)")
+    expect(card).toContain("ticketId={ticket.id}")
     expect(card).toContain('target="_blank"')
     expect(card).toContain("rel={ticketOutboundRel(affiliatePartner)}")
+    expect(card).toContain('variant="secondary"')
     expect(ticketOutboundRel("P1 Travel")).toBe(
       "sponsored nofollow noopener noreferrer"
     )

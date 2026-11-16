@@ -57,8 +57,9 @@ describe("affiliate Ad call sites", () => {
       "utf8"
     )
     expect(source).toMatch(
-      /AffiliateAdTag id=\{`affiliate-ad-\$\{ticket.id\}`\}/
+      /AffiliateAdTag id=\{`affiliate-ad-\$\{ticketId\}`\}/
     )
+    expect(source).toMatch(/ticketId=\{ticket\.id\}/)
     expect(source).toMatch(/aria-describedby=\{/)
     expect(source).toMatch(/Button asChild/)
     expect(source).not.toMatch(/Find tickets/)
