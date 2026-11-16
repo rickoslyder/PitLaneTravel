@@ -46,9 +46,7 @@ test.describe("Abu Dhabi fan-type sub-pages", () => {
       await expect(
         page.getByRole("heading", { level: 1, name: item.heading })
       ).toBeVisible()
-      await expect(
-        page.getByText(item.sentence, { exact: false })
-      ).toBeVisible()
+      await expect(page.getByText(item.sentence).first()).toBeVisible()
 
       const crumb = page.getByRole("navigation", { name: "breadcrumb" })
       await expect(crumb.getByRole("link", { name: "Guides" })).toHaveAttribute(
