@@ -1,8 +1,8 @@
 "use client"
 
-import posthog from "posthog-js"
-import { PostHogProvider } from "posthog-js/react"
-
+// The React provider used to import posthog-js into the root layout's client
+// graph, so the library was a <script> in the initial head. Nothing on the
+// page calls usePostHog. Vendor code loads posthog-js itself after consent.
 export function CSPostHogProvider({ children }: { children: React.ReactNode }) {
-  return <PostHogProvider client={posthog}>{children}</PostHogProvider>
+  return children
 }

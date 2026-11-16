@@ -8,10 +8,12 @@ import {
   createProfileAction,
   getProfileByUserIdAction
 } from "@/actions/db/profiles-actions"
-import { Toaster } from "@/components/ui/toaster"
 import { AnalyticsController } from "@/components/privacy/analytics-controller"
-import { PostHogPageview } from "@/components/utilities/posthog/posthog-pageview"
-import { PostHogUserIdentify } from "@/components/utilities/posthog/posthog-user-identity"
+import {
+  PostHogPageview,
+  PostHogUserIdentify,
+  Toaster
+} from "@/components/utilities/deferred-analytics"
 import { Providers } from "@/components/utilities/providers"
 import { TailwindIndicator } from "@/components/utilities/tailwind-indicator"
 import { cn } from "@/lib/utils"
