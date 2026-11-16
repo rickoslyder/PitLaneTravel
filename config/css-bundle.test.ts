@@ -93,6 +93,36 @@ describe("css bundle split", () => {
     )
   })
 
+  it("keeps public utilities when prose and admin are compiled on the same PostCSS instance", async () => {
+    const loaded = await loadConfig({}, root)
+    const processor = postcss(loaded.plugins)
+    const proseFrom = path.join(root, "styles/prose.css")
+    const adminFrom = path.join(root, "styles/admin.css")
+    const globalFrom = path.join(root, "app/globals.css")
+    await processor.process(readFileSync(proseFrom, "utf8"), {
+      from: proseFrom
+    })
+    await processor.process(readFileSync(adminFrom, "utf8"), {
+      from: adminFrom
+    })
+    const globalCss = (
+      await processor.process(readFileSync(globalFrom, "utf8"), {
+        from: globalFrom
+      })
+    ).css
+    expect(globalCss).toContain(".bg-brand")
+    expect(globalCss).toMatch(/\.fixed\s*\{/)
+    expect(globalCss).toMatch(/scroll-behavior:\s*smooth/)
+    expect(globalCss).not.toContain(".prose{")
+    expect(globalCss).not.toContain(".caption-bottom")
+
+    const vendor = await processor.process(
+      ".mapboxgl-map{font:12px/20px sans-serif}",
+      { from: path.join(root, "styles/vendor-probe.css") }
+    )
+    expect(vendor.css).not.toContain("@layer")
+  })
+
   it("does not let public modules import admin-only or unreferenced style sources", () => {
     const blocked = [...adminOnlyModules, ...unreferencedModules].map(
       moduleSpecifier

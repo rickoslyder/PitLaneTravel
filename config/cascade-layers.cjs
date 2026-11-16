@@ -87,10 +87,24 @@ function wrapContainer(container) {
   }
 }
 
+function tailwindTagged(root) {
+  let tagged = false
+  root.walk(node => {
+    if (node.raws && node.raws.tailwind) {
+      tagged = true
+      return false
+    }
+  })
+  return tagged
+}
+
 function cascadeLayers() {
   return {
     postcssPlugin: "cascade-layers",
     Once(root) {
+      // Mapbox, the phone input, and the markdown editor have no Tailwind
+      // metadata. Leave those stylesheets unlayered.
+      if (!tailwindTagged(root)) return
       root.prepend(
         postcss.atRule({
           name: "layer",
