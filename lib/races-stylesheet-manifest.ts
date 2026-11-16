@@ -1,5 +1,10 @@
-import { readFileSync } from "node:fs"
-import path from "node:path"
+/**
+ * Build placeholder. The client compilation replaces this exact string in the
+ * emitted server bundles with the public CSS href. Vercel does not include
+ * `.next/static` in the server function, so the page cannot discover the file
+ * by reading disk.
+ */
+export const RACES_STYLESHEET_MANIFEST = "__RACES_STYLESHEET_MANIFEST__"
 
 export type RacesStylesheetManifest = {
   hrefs: string[]
@@ -9,10 +14,6 @@ export type RacesStylesheetManifest = {
 const emptyManifest: RacesStylesheetManifest = {
   hrefs: [],
   fallbackFontCss: ""
-}
-
-export function racesStylesheetManifestPath(): string {
-  return path.join(process.cwd(), ".next", "races-stylesheet-manifest.json")
 }
 
 export function parseRacesStylesheetManifest(
@@ -26,35 +27,28 @@ export function parseRacesStylesheetManifest(
   const hrefs = Array.isArray(record.hrefs)
     ? record.hrefs.filter(
         (href): href is string =>
-          typeof href === "string" && href.startsWith("/_next/static/css/")
+          typeof href === "string" &&
+          href.startsWith("/_next/static/css/") &&
+          !href.includes('"') &&
+          !href.includes("<")
       )
     : []
   const fallbackFontCss =
-    typeof record.fallbackFontCss === "string" ? record.fallbackFontCss : ""
+    typeof record.fallbackFontCss === "string" &&
+    !record.fallbackFontCss.includes("</")
+      ? record.fallbackFontCss
+      : ""
   return { hrefs, fallbackFontCss }
 }
 
-let cached: RacesStylesheetManifest | undefined
-
-/** Build-time hrefs. An empty miss is not cached: the manifest is written after compile starts. */
+/** Href recorded in the server bundle. An unreplaced token yields no links. */
 export function loadRacesStylesheetManifest(
-  filePath = racesStylesheetManifestPath()
+  raw = RACES_STYLESHEET_MANIFEST
 ): RacesStylesheetManifest {
-  if (
-    cached &&
-    cached.hrefs.length > 0 &&
-    filePath === racesStylesheetManifestPath()
-  ) {
-    return cached
-  }
-  let manifest = emptyManifest
+  if (!raw.startsWith("{")) return emptyManifest
   try {
-    manifest = parseRacesStylesheetManifest(readFileSync(filePath, "utf8"))
+    return parseRacesStylesheetManifest(raw)
   } catch {
-    manifest = emptyManifest
+    return emptyManifest
   }
-  if (manifest.hrefs.length > 0 && filePath === racesStylesheetManifestPath()) {
-    cached = manifest
-  }
-  return manifest
 }

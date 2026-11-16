@@ -6,6 +6,7 @@ import type { Config } from "tailwindcss"
 import { racesCriticalClassMarkup } from "@/lib/races-critical-classes"
 import { minifyCss } from "@/lib/minify-css"
 import tailwindConfig from "../tailwind.config"
+import cascadeLayers from "../config/cascade-layers.cjs"
 
 const root = process.cwd()
 
@@ -42,8 +43,24 @@ function blockAfterSelector(source: string, selector: string): string {
   return source.slice(at, open) + balancedBlock(source, open)
 }
 
+/**
+ * On a short phone the full sheet's space-y margin keeps Upcoming/Past below
+ * the fold. Repeat it as a real rule so the critical sheet matches even when
+ * the sibling combinator has not seen the JSON-LD script yet.
+ */
+const shortPhoneHeroMargin = `
+@media (max-width: 639px) and (max-height: 740px) {
+  html:has([data-analytics-consent-bar]) [data-races-listing] > [data-races-listing-hero] {
+    margin-top: 2rem;
+  }
+}
+`
+
 /** Light tokens plus the races consent rules. Dark theme and series-page rules stay out. */
-export function racesCriticalGlobals(css: string): string {
+export function racesCriticalGlobals(css: string): {
+  root: string
+  consent: string
+} {
   const rootRule = blockAfterSelector(css, ":root")
   const bodyPad = blockAfterSelector(
     css,
@@ -57,24 +74,30 @@ export function racesCriticalGlobals(css: string): string {
   }
   const mediaOpen = css.indexOf("{", mediaAt)
   const media = css.slice(mediaAt, mediaOpen) + balancedBlock(css, mediaOpen)
-  return `${rootRule}\n${bodyPad}\n${media}`
+  return {
+    root: rootRule,
+    consent: `${bodyPad}\n${media}\n${shortPhoneHeroMargin}`
+  }
 }
 
 export async function buildRacesCriticalCss(): Promise<string> {
   const globalsPath = path.join(root, "app/globals.css")
   const globals = readFileSync(globalsPath, "utf8")
+  const { root: rootRule, consent } = racesCriticalGlobals(globals)
   const config = tailwindConfig as Config
-  const input = "@tailwind utilities;\n"
+  // Consent rules follow the utilities so the same cascade-layers pass that
+  // wraps the public sheet puts them in the utilities layer. Unlayered
+  // critical CSS would beat the layered public sheet and leave borders unset.
+  const input = `${rootRule}\n${minimalReset}\n@tailwind utilities;\n${consent}\n`
   const processed = await postcss([
     tailwindcss({
       ...config,
       content: [{ raw: racesCriticalClassMarkup, extension: "html" }]
-    })
+    }),
+    cascadeLayers()
   ]).process(input, { from: undefined })
 
-  const css = minifyCss(
-    `${racesCriticalGlobals(globals)}\n${minimalReset}\n${processed.css}`
-  )
+  const css = minifyCss(processed.css)
   if (css.includes("</")) {
     throw new Error("Critical CSS cannot contain a closing tag")
   }

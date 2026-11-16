@@ -14,7 +14,8 @@ import { fileURLToPath } from "node:url"
 
 const require = createRequire(import.meta.url)
 const {
-  RacesStylesheetManifestPlugin
+  RacesStylesheetManifestPlugin,
+  embedRacesStylesheetManifest
 } = require("./config/races-stylesheet-manifest.cjs")
 const polyfillModule = require.resolve(
   "next/dist/build/polyfills/polyfill-module.js"
@@ -34,10 +35,7 @@ const nextConfig = {
     "/guides": ["./content/guides/**/*"],
     "/guides/[slug]": ["./content/guides/**/*"],
     "/guides/[slug]/[subpage]": ["./content/guides/**/*"],
-    "/sitemap.xml": ["./content/guides/**/*"],
-    // The href is a build artifact. .next/static is not in the server function
-    // on Vercel, so /races must not discover the sheet by reading those files.
-    "/races": ["./.next/races-stylesheet-manifest.json"]
+    "/sitemap.xml": ["./content/guides/**/*"]
   },
   images: {
     formats: ["image/avif", "image/webp"],
@@ -68,9 +66,29 @@ const nextConfig = {
       enforce: "pre",
       loader: stripBaselinePolyfillsLoader
     })
+    config.plugins ??= []
     config.plugins.push(new RacesStylesheetManifestPlugin())
     return config
   }
+}
+
+// Next rewrites server bundles again while collecting traces, after the client
+// compiler has finished. Patch the href once the main build process is done.
+// Workers exit earlier, and `next build` does not set NEXT_PHASE until page
+// data collection, which is after this file is first evaluated.
+const isMainNextBuild =
+  process.argv.includes("build") &&
+  process.env.NEXT_PRIVATE_BUILD_WORKER !== "1"
+if (isMainNextBuild) {
+  process.once("beforeExit", () => {
+    const result = embedRacesStylesheetManifest()
+    if (result.hrefs.length === 0 || result.tokenRemaining > 0) {
+      console.error(
+        "Races stylesheet href was not embedded into the server bundle"
+      )
+      process.exitCode = 1
+    }
+  })
 }
 
 export default nextConfig

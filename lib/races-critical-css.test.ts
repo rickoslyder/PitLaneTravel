@@ -35,6 +35,11 @@ describe("races critical css", () => {
     expect(racesCriticalCss).toContain(".fixed{position:fixed}")
     expect(racesCriticalCss).toContain("data-races-listing-hero")
     expect(racesCriticalCss).toContain("-webkit-line-clamp:2")
+    expect(racesCriticalCss).toContain(
+      "padding-bottom:var(--consent-bar-height,7.5rem)"
+    )
+    expect(racesCriticalCss).toContain("max-height:740px")
+    expect(racesCriticalCss).toContain("@layer utilities")
     expect(racesCriticalCss).not.toContain("</")
   })
 
@@ -64,6 +69,12 @@ describe("races critical css", () => {
     expect(read("app/races/page.tsx")).not.toContain("global-styles")
     expect(read("components/races/races-critical-css.tsx")).toContain(
       'media="print"'
+    )
+    expect(read("components/races/races-critical-css.tsx")).toContain(
+      "<noscript>"
+    )
+    expect(read("components/races/races-critical-css.tsx")).toContain(
+      "dangerouslySetInnerHTML"
     )
     expect(read("app/(marketing)/page.tsx")).not.toContain("RacesCriticalCss")
     expect(read("app/series/[slug]/page.tsx")).not.toContain("RacesCriticalCss")

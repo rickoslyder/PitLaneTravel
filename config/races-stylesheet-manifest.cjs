@@ -18,14 +18,19 @@ function fallbackFace(css) {
  * @param {{ name: string, css: string }[]} assets
  * @returns {{ hrefs: string[], fallbackFontCss: string }}
  */
+function isPublicSheet(css) {
+  return (
+    css.includes("--tw-border-spacing-x") &&
+    css.includes("[data-races-listing-hero]")
+  )
+}
+
 function manifestFromAssets(assets) {
   const hrefs = []
   let fallbackFontCss = ""
   for (const asset of assets) {
     if (!asset.name.endsWith(".css")) continue
-    const isTailwind =
-      asset.css.includes("--tw-border-spacing-x") &&
-      asset.css.includes(".text-4xl")
+    const isTailwind = isPublicSheet(asset.css)
     if (isTailwind) hrefs.push(stylesheetHref(asset.name))
     if (
       !isTailwind &&
@@ -52,29 +57,71 @@ function cssAssetsOnDisk(dir) {
   return assets
 }
 
+const MANIFEST_TOKEN = "__RACES_STYLESHEET_MANIFEST__"
+
+function javascriptFiles(dir, found) {
+  if (!fs.existsSync(dir)) return
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) javascriptFiles(full, found)
+    else if (entry.name.endsWith(".js")) found.push(full)
+  }
+}
+
+/**
+ * The public CSS hash does not exist until the client compilation finishes,
+ * and Vercel does not ship `.next/static` inside the server function. Splice
+ * the href into the already-emitted server bundles so the page can render the
+ * link without reading the filesystem.
+ */
+function embedRacesStylesheetManifest() {
+  const manifest = manifestFromAssets(
+    cssAssetsOnDisk(path.join(process.cwd(), ".next", "static", "css"))
+  )
+  if (manifest.hrefs.length === 0) {
+    return { replaced: 0, hrefs: [] }
+  }
+  const needle = JSON.stringify(MANIFEST_TOKEN)
+  const replacement = JSON.stringify(JSON.stringify(manifest))
+  const files = []
+  javascriptFiles(path.join(process.cwd(), ".next", "server"), files)
+  let replaced = 0
+  let tokenRemaining = 0
+  for (const file of files) {
+    const source = fs.readFileSync(file, "utf8")
+    if (!source.includes(MANIFEST_TOKEN)) continue
+    if (!source.includes(needle)) {
+      throw new Error(
+        `Races stylesheet token in ${file} is not a JSON string literal`
+      )
+    }
+    const next = source.split(needle).join(replacement)
+    fs.writeFileSync(file, next)
+    replaced += 1
+    if (next.includes(MANIFEST_TOKEN)) tokenRemaining += 1
+  }
+  return { replaced, hrefs: manifest.hrefs, tokenRemaining }
+}
+
 class RacesStylesheetManifestPlugin {
   apply(compiler) {
-    compiler.hooks.done.tap("RacesStylesheetManifestPlugin", () => {
-      try {
-        const manifest = manifestFromAssets(
-          cssAssetsOnDisk(path.join(process.cwd(), ".next", "static", "css"))
-        )
-        if (manifest.hrefs.length === 0) return
-        const out = path.join(
-          process.cwd(),
-          ".next",
-          "races-stylesheet-manifest.json"
-        )
-        fs.mkdirSync(path.dirname(out), { recursive: true })
-        fs.writeFileSync(out, JSON.stringify(manifest))
-      } catch {
-        // A missing client sheet must not fail the server compilation.
-      }
+    // Server and edge workers finish before the client compiler writes CSS.
+    // Patch the server bundles from the client compilation, after those files
+    // and the hashed sheet are both on disk.
+    if (compiler.name !== "client") return
+    if (compiler.options.mode !== "production") return
+    compiler.hooks.done.tap("RacesStylesheetManifestPlugin", stats => {
+      if (stats.hasErrors()) return
+      // Best effort. Next rewrites these bundles again while collecting
+      // traces; next.config repeats the embed on the main process before exit.
+      embedRacesStylesheetManifest()
     })
   }
 }
 
 module.exports = {
   RacesStylesheetManifestPlugin,
-  manifestFromAssets
+  manifestFromAssets,
+  embedRacesStylesheetManifest,
+  MANIFEST_TOKEN
 }

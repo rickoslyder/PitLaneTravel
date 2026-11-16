@@ -4,11 +4,12 @@ import { describe, expect, it } from "vitest"
 import { manifestFromAssets } from "../config/races-stylesheet-manifest.cjs"
 import {
   loadRacesStylesheetManifest,
-  parseRacesStylesheetManifest
+  parseRacesStylesheetManifest,
+  RACES_STYLESHEET_MANIFEST
 } from "@/lib/races-stylesheet-manifest"
 
 describe("races stylesheet manifest", () => {
-  it("records the Tailwind href and the local fallback face only", () => {
+  it("records the public sheet href and the local fallback face only", () => {
     const manifest = manifestFromAssets([
       {
         name: "static/css/font.css",
@@ -16,6 +17,10 @@ describe("races stylesheet manifest", () => {
       },
       {
         name: "static/css/tailwind.css",
+        css: "*,::before{--tw-border-spacing-x:0}[data-races-listing-hero]{margin-top:1rem}"
+      },
+      {
+        name: "static/css/admin.css",
         css: "*,::before{--tw-border-spacing-x:0}.text-4xl{font-size:2.25rem}"
       },
       {
@@ -32,7 +37,12 @@ describe("races stylesheet manifest", () => {
     expect(
       parseRacesStylesheetManifest(
         JSON.stringify({
-          hrefs: ["/_next/static/css/ok.css", "https://evil.example/a.css", 1],
+          hrefs: [
+            "/_next/static/css/ok.css",
+            "https://evil.example/a.css",
+            '/_next/static/css/bad".css',
+            1
+          ],
           fallbackFontCss: "@font-face{font-family:Inter Fallback}"
         })
       )
@@ -42,20 +52,23 @@ describe("races stylesheet manifest", () => {
     })
   })
 
-  it("does not cache a missing manifest or read .next/static", () => {
-    const missing = loadRacesStylesheetManifest(
-      path.join(process.cwd(), "lib/does-not-exist-races-manifest.json")
-    )
-    expect(missing.hrefs).toEqual([])
-    const again = loadRacesStylesheetManifest(
-      path.join(process.cwd(), "lib/does-not-exist-races-manifest.json")
-    )
-    expect(again.hrefs).toEqual([])
+  it("keeps the href in the server bundle instead of reading .next/static", () => {
+    expect(RACES_STYLESHEET_MANIFEST).toBe("__RACES_STYLESHEET_MANIFEST__")
+    expect(loadRacesStylesheetManifest().hrefs).toEqual([])
+    expect(
+      loadRacesStylesheetManifest(
+        JSON.stringify({
+          hrefs: ["/_next/static/css/app.css"],
+          fallbackFontCss: ""
+        })
+      ).hrefs
+    ).toEqual(["/_next/static/css/app.css"])
     const source = readFileSync(
       path.join(process.cwd(), "lib/races-stylesheet-manifest.ts"),
       "utf8"
     )
-    expect(source).toContain("hrefs.length > 0")
+    expect(source).toContain("__RACES_STYLESHEET_MANIFEST__")
+    expect(source).not.toContain("readFileSync")
     expect(source).not.toContain('.next", "static"')
     expect(
       readFileSync(
@@ -65,6 +78,6 @@ describe("races stylesheet manifest", () => {
     ).not.toContain("readdirSync")
     expect(
       readFileSync(path.join(process.cwd(), "next.config.mjs"), "utf8")
-    ).toContain("./.next/races-stylesheet-manifest.json")
+    ).not.toContain("races-stylesheet-manifest.json")
   })
 })
