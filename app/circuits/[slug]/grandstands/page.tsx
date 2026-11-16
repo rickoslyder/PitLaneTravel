@@ -4,7 +4,12 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
 import { getCircuitsWithGrandstandsAction } from "@/actions/db/grandstands-actions"
+import { CircuitFansSay } from "@/components/grandstands/circuit-fans-say"
 import { GrandstandCard } from "@/components/grandstands/grandstand-card"
+import {
+  circuitFanNotes,
+  fanLinesForStand
+} from "@/content/grandstand-fan-notes"
 import { slugify } from "@/lib/series"
 import {
   FORMULA_E_LONDON_VENUE_NOTE,
@@ -61,12 +66,13 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
   const londonVenue =
     isEvergreenFormulaELondonVenue(circuit.name) ||
     isEvergreenFormulaELondonVenue(circuit.location)
+  const fanNotes = circuitFanNotes(slug)
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-4 sm:p-8">
       <Link
         href="/circuits/grandstands"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
       >
         <ChevronLeft className="size-4" />
         All grandstand guides
@@ -81,15 +87,21 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
           compared
         </p>
         {londonVenue && (
-          <p className="max-w-3xl text-sm text-muted-foreground">
+          <p className="text-muted-foreground max-w-3xl text-sm">
             {FORMULA_E_LONDON_VENUE_NOTE}
           </p>
         )}
       </header>
 
+      {fanNotes ? <CircuitFansSay notes={fanNotes} /> : null}
+
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {ranked.map(g => (
-          <GrandstandCard key={g.id} grandstand={g} />
+          <GrandstandCard
+            key={g.id}
+            grandstand={g}
+            fanLines={fanLinesForStand(slug, slugify(g.name))}
+          />
         ))}
       </div>
     </div>

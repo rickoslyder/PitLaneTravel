@@ -175,3 +175,120 @@ test.describe("what fans wish they'd known", () => {
     ).toHaveCount(0)
   })
 })
+
+const F1_2026_CALENDAR = "https://www.formula1.com/en/racing/2026"
+const ABU_DHABI_CALENDAR =
+  "The 2026 Abu Dhabi Grand Prix is on the official F1 calendar as of 11 November 2026, as Round 23, with the race on Sunday 6 December. Check formula1.com (https://www.formula1.com/en/racing/2026) before booking non-refundable travel. If you can, book refundable or flexible fares, and a hotel you can cancel for free."
+const QATAR_CALENDAR =
+  "The 2026 Qatar Grand Prix is on the official F1 calendar as of 11 November 2026, as Round 22, with the race on Sunday 29 November. Check formula1.com (https://www.formula1.com/en/racing/2026) before booking non-refundable travel. If you can, book refundable or flexible fares, and a hotel you can cancel for free."
+
+test.describe("grandstand fans say", () => {
+  test("renders Writer's lines on the five grandstand pages and leaves the gaps blank", async ({
+    page
+  }) => {
+    const silverstone = await page.goto(
+      "/circuits/silverstone-circuit/grandstands"
+    )
+    expect(silverstone?.ok()).toBeTruthy()
+    await expect(
+      page.getByRole("heading", {
+        name: "Best grandstands at Silverstone Circuit",
+        exact: true
+      })
+    ).toBeVisible()
+    const landostand = page.locator(
+      '[data-grandstand-name="Landostand (Stowe)"]'
+    )
+    await expect(landostand).toContainText(
+      "One fan called it one of the best seats at the circuit for about £600, and said its price wasn't dynamic. The downside: it's on the opposite side from the coaches."
+    )
+    await expect(landostand).toContainText("F1 fans, 2026")
+    const landoSource = landostand.getByRole("link", {
+      name: "archived Reddit copy"
+    })
+    await expect(landoSource).toHaveAttribute(
+      "href",
+      "https://www.reddit.com/comments/1waka4w/_/p8iohh1/"
+    )
+    await expect(landoSource).toHaveAttribute("target", "_blank")
+    await expect(landoSource).toHaveAttribute("rel", "noopener noreferrer")
+
+    const montreal = await page.goto(
+      "/circuits/circuit-gilles-villeneuve/grandstands"
+    )
+    expect(montreal?.ok()).toBeTruthy()
+    const gs1 = page.locator(
+      '[data-grandstand-name="Grandstand 1 (Start-finish straight)"]'
+    )
+    await expect(gs1).toContainText(
+      "with a view over the grille and onto the track."
+    )
+    const montrealNote = page.locator("[data-fans-say-circuit]")
+    await expect(montrealNote).toContainText(
+      "General admission: another first-timer found a big grassy patch near GS34 with a clear view at the fence."
+    )
+    for (const name of [
+      "Grandstand 34 (hairpin — panoramic)",
+      "Platine (Senna S, T1–2)"
+    ]) {
+      const card = page.locator(`[data-grandstand-name="${name}"]`)
+      await expect(card).toBeVisible()
+      await expect(card.locator("[data-fans-say]")).toHaveCount(0)
+    }
+
+    const spa = await page.goto(
+      "/circuits/circuit-de-spa-francorchamps/grandstands"
+    )
+    expect(spa?.ok()).toBeTruthy()
+    const combes = page.locator('[data-grandstand-name="Combes (1-4)"]')
+    await expect(combes).toBeVisible()
+    await expect(combes.locator("[data-fans-say]")).toHaveCount(0)
+    const silver3 = page.locator('[data-grandstand-name="Silver 3 (Pouhon)"]')
+    await expect(silver3.locator("[data-fans-say]")).toBeVisible()
+    await expect(silver3).toContainText("Silver 3, 5 and 6")
+    await expect(page.locator("[data-fans-say-circuit]")).toContainText(
+      "a stand for fans aged 17–27"
+    )
+
+    const yas = await page.goto("/circuits/yas-marina-circuit/grandstands")
+    expect(yas?.ok()).toBeTruthy()
+    const yasNote = page.locator("[data-fans-say-circuit]")
+    await expect(yasNote).toContainText(ABU_DHABI_CALENDAR)
+    await expect(yasNote).toContainText("(Pit Lane note, not a fan line)")
+    const yasCalendar = yasNote.getByRole("link", { name: F1_2026_CALENDAR })
+    await expect(yasCalendar).toHaveAttribute("href", F1_2026_CALENDAR)
+    await expect(yasCalendar).toHaveAttribute("target", "_blank")
+    await expect(yasCalendar).toHaveAttribute("rel", "noopener noreferrer")
+
+    const lusail = await page.goto(
+      "/circuits/lusail-international-circuit/grandstands"
+    )
+    expect(lusail?.ok()).toBeTruthy()
+    const lusailNote = page.locator("[data-fans-say-circuit]")
+    await expect(lusailNote).toContainText(QATAR_CALENDAR)
+    const lusailCalendar = lusailNote.getByRole("link", {
+      name: F1_2026_CALENDAR
+    })
+    await expect(lusailCalendar).toHaveAttribute("href", F1_2026_CALENDAR)
+
+    for (const pathname of [
+      "/circuits/silverstone-circuit/grandstands",
+      "/circuits/circuit-gilles-villeneuve/grandstands",
+      "/circuits/circuit-de-spa-francorchamps/grandstands",
+      "/circuits/yas-marina-circuit/grandstands",
+      "/circuits/lusail-international-circuit/grandstands"
+    ]) {
+      const response = await page.goto(pathname)
+      expect(response?.ok()).toBeTruthy()
+      const body = await page.locator("body").innerText()
+      expect(body.toLowerCase()).not.toContain("1v1giqt")
+      expect(body.toLowerCase()).not.toContain("silver 1")
+      expect(body.toLowerCase()).not.toContain("gpticketshop")
+      expect(body.toLowerCase()).not.toContain("abudhabi.gp")
+      expect(body.toLowerCase()).not.toContain("abu_dhabi_gp_2025")
+      expect(body.toLowerCase()).not.toContain("anpr")
+      expect(body).not.toContain("F1 has confirmed")
+      expect(body).not.toContain("F1 has said it is monitoring")
+    }
+  })
+})

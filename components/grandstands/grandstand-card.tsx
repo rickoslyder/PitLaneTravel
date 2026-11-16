@@ -1,6 +1,8 @@
 import { SelectGrandstand } from "@/db/schema/grandstands-schema"
+import { FanSayLines } from "@/components/grandstands/circuit-fans-say"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import type { GrandstandFanLine } from "@/content/grandstand-fan-notes"
 import { Star, Sun, Umbrella, Tv, Check, X } from "lucide-react"
 
 const PRICE_TIER_LABEL: Record<string, string> = {
@@ -10,13 +12,18 @@ const PRICE_TIER_LABEL: Record<string, string> = {
 }
 
 export function GrandstandCard({
-  grandstand
+  grandstand,
+  fanLines = []
 }: {
   grandstand: SelectGrandstand
+  fanLines?: readonly GrandstandFanLine[]
 }) {
   const rating = grandstand.viewRating ?? 0
   return (
-    <Card className="flex h-full flex-col">
+    <Card
+      data-grandstand-name={grandstand.name}
+      className="flex h-full flex-col"
+    >
       {grandstand.imageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -114,6 +121,8 @@ export function GrandstandCard({
             </ul>
           </div>
         )}
+
+        <FanSayLines lines={fanLines} />
       </CardContent>
     </Card>
   )
