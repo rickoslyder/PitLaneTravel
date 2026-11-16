@@ -211,8 +211,8 @@ describe("race image fallback", () => {
       path.join(root, "components/races/race-calendar-controls.tsx"),
       "utf8"
     )
-    expect(controls.match(/data-races-series-filters/g)).toEqual([
-      "data-races-series-filters"
+    expect(controls.match(/data-races-series-filters=""/g)).toEqual([
+      'data-races-series-filters=""'
     ])
     expect(races).not.toContain("data-races-series-filters")
     expect(grid).not.toContain("data-races-series-filters")

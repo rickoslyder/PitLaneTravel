@@ -106,6 +106,24 @@ export function RaceCalendarControls({
     return () => document.removeEventListener("error", onError, true)
   }, [])
 
+  // Streamed suspense content is parked in a hidden container, then revealed
+  // into the page. If that container keeps its own series row, the calendar
+  // has two filters. Drop the hidden copy once a revealed row exists.
+  useLayoutEffect(() => {
+    const dropHiddenCopy = () => {
+      const nodes = [
+        ...document.querySelectorAll<HTMLElement>("[data-races-series-filters]")
+      ]
+      if (!nodes.some(node => !node.closest("[hidden]"))) return
+      nodes.forEach(node => {
+        if (node.closest("[hidden]")) node.remove()
+      })
+    }
+    dropHiddenCopy()
+    const timer = window.setTimeout(dropHiddenCopy, 0)
+    return () => window.clearTimeout(timer)
+  }, [])
+
   useLayoutEffect(() => {
     const root = resultsRef.current
     if (!root) return
