@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test"
+import { racesPageDescription } from "@/app/races/metadata"
 import {
   test,
   expect,
@@ -531,6 +532,13 @@ test("race grids prioritise the first real photo and omit fetchpriority auto", a
   expect(racesHtml.toLowerCase()).not.toContain('fetchpriority="auto"')
   expect(racesHtml.toLowerCase()).not.toContain('fetchpriority="high"')
   expect(racesHtml).toContain("Motorsport Race Calendar")
+
+  const head = racesHtml.slice(0, racesHtml.toLowerCase().indexOf("</head>"))
+  expect(head).toContain('name="description"')
+  expect(head).toContain(racesPageDescription)
+  expect(head).toContain('rel="preload"')
+  expect(head).toContain('as="font"')
+  expect(head).toContain(".p.woff2")
 })
 
 function linkTags(html: string, href: string, rel: string): string[] {

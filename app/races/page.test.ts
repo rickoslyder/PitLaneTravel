@@ -45,6 +45,9 @@ describe("races page metadata", () => {
     const listing = source.indexOf("async function RacesListing")
     const shell = source.slice(start, listing)
     expect(shell).toContain("<HeroSection")
+    expect(shell).toContain(
+      '<meta name="description" content={racesPageDescription} />'
+    )
     expect(shell).toContain("<Suspense")
     expect(shell).toContain('data-races-listing=""')
     expect(shell).toContain('data-races-listing-hero=""')
