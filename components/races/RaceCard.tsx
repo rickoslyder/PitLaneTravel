@@ -171,7 +171,7 @@ export function RaceCard({
             priority={imagePriority}
             sizes={
               imageSizes ??
-              "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              "(max-width: 640px) calc(100vw - 8rem), (max-width: 1024px) 50vw, 33vw"
             }
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             label={imageLabel}
