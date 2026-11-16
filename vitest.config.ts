@@ -22,7 +22,8 @@ export default defineConfig({
       "tests/e2e/typed-analytics.spec.ts",
       "tests/e2e/fan-tips.spec.ts",
       "tests/e2e/race-hero-cta.spec.ts",
-      "tests/e2e/accessibility.spec.ts"
+      "tests/e2e/accessibility.spec.ts",
+      "tests/e2e/race-hub-subpages.spec.ts"
     ]
   },
   resolve: {

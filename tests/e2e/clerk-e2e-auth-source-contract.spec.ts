@@ -42,7 +42,7 @@ describe("PLT-014 Packet B ephemeral Clerk e2e source contract", () => {
   it("selects exactly the nine production Playwright suites", () => {
     const playwright = read("playwright.config.ts")
     expect(playwright).toMatch(
-      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*,\s*["']fan-tips\.spec\.ts["']\s*,\s*["']race-hero-cta\.spec\.ts["']\s*,\s*["']accessibility\.spec\.ts["']\s*\]/
+      /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*,\s*["']fan-tips\.spec\.ts["']\s*,\s*["']race-hero-cta\.spec\.ts["']\s*,\s*["']accessibility\.spec\.ts["']\s*,\s*["']race-hub-subpages\.spec\.ts["']\s*\]/
     )
     expect(playwright).toMatch(/retries:\s*0/)
     expect(playwright).toMatch(/localhost:3100/)

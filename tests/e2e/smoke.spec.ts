@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test"
+import { racesPageDescription } from "@/app/races/metadata"
 import {
   test,
   expect,
@@ -514,18 +515,27 @@ test("home LCP image preload is in the document head once", async ({
 test("race grids prioritise the first real photo and omit fetchpriority auto", async ({
   page
 }) => {
-  for (const path of ["/races", "/series/f1"]) {
-    const response = await page.request.get(path)
-    expect(response.ok(), `${path} should be HTTP success`).toBeTruthy()
-    const html = await response.text()
-    expect(html.toLowerCase(), path).not.toContain('fetchpriority="auto"')
+  const series = await page.request.get("/series/f1")
+  expect(series.ok(), "/series/f1 should be HTTP success").toBeTruthy()
+  const seriesHtml = await series.text()
+  expect(seriesHtml.toLowerCase()).not.toContain('fetchpriority="auto"')
+  const seriesHigh = imgTags(seriesHtml).filter(img =>
+    img.toLowerCase().includes('fetchpriority="high"')
+  )
+  expect(seriesHigh).toHaveLength(1)
+  expect(seriesHigh[0].toLowerCase()).not.toContain('loading="lazy"')
 
-    const high = imgTags(html).filter(img =>
-      img.toLowerCase().includes('fetchpriority="high"')
-    )
-    expect(high, path).toHaveLength(1)
-    expect(high[0].toLowerCase(), path).not.toContain('loading="lazy"')
-  }
+  // /races LCP is the calendar h1, so card photos stay lazy and do not preload.
+  const races = await page.request.get("/races")
+  expect(races.ok(), "/races should be HTTP success").toBeTruthy()
+  const racesHtml = await races.text()
+  expect(racesHtml.toLowerCase()).not.toContain('fetchpriority="auto"')
+  expect(racesHtml.toLowerCase()).not.toContain('fetchpriority="high"')
+  expect(racesHtml).toContain("Motorsport Race Calendar")
+
+  const head = racesHtml.slice(0, racesHtml.toLowerCase().indexOf("</head>"))
+  expect(head).toContain('name="description"')
+  expect(head).toContain(racesPageDescription)
 })
 
 function linkTags(html: string, href: string, rel: string): string[] {

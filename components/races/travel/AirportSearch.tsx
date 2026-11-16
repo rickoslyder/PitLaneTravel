@@ -186,7 +186,7 @@ export function AirportSearch({
           <div className="max-h-[300px] overflow-auto">
             {loading && (
               <div className="text-muted-foreground flex items-center justify-center p-4 text-sm">
-                <Loader2 className="mr-2 size-4 animate-spin" />
+                <Loader2 className="mr-2 size-4 motion-safe:animate-spin" />
                 Searching airports...
               </div>
             )}

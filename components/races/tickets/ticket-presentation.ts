@@ -3,6 +3,8 @@
  * Pit Lane does not sell tickets and does not track another seller's stock.
  */
 
+import { sellerRedirectUrl } from "@/lib/ticket-go"
+
 export const TICKET_BUY_LABEL = "Buy from official seller"
 
 /** Race-page button that scrolls to the tickets tab. PitLane does not book the race. */
@@ -25,6 +27,14 @@ export function planYourTripAccessibleName(raceName: string): string {
 
 /** Explicit ticket.availability value. Missing rows are not this state. */
 export const NOT_ON_SALE_AVAILABILITY = "not_on_sale"
+
+/** Secondary link when a not_on_sale row stores a waitlist URL. */
+export const NOT_ON_SALE_WAITLIST_LABEL = "Join official waitlist"
+
+/** Secondary link when a not_on_sale row stores the seller's ticket page. */
+export const NOT_ON_SALE_TICKET_PAGE_LABEL = "Official ticket page"
+
+const WAITLIST_URL = /wait-?list|waiting-?list/i
 
 export function ticketSectionIntro(
   raceName: string,
@@ -72,7 +82,8 @@ export function raceDateIsBeforeToday(
 
 /**
  * Buy links stay up for available and limited stock on a race that has not
- * passed. A past race date and an explicit not_on_sale row have no button.
+ * passed. A past race date and an explicit not_on_sale row have no buy button.
+ * not_on_sale can still show the official seller link below.
  */
 export function ticketShowsBuyButton(
   availability: string,
@@ -96,6 +107,35 @@ export function ticketShowsWaitlist(
     availability !== "sold_out" &&
     availability !== NOT_ON_SALE_AVAILABILITY
   )
+}
+
+/**
+ * Label for the secondary official link on a not_on_sale card.
+ * A stored waitlist URL says so. Every other seller page stays a ticket page.
+ */
+export function notOnSaleOfficialLinkLabel(
+  resellerUrl: string | null | undefined
+): string {
+  if (resellerUrl && WAITLIST_URL.test(resellerUrl)) {
+    return NOT_ON_SALE_WAITLIST_LABEL
+  }
+  return NOT_ON_SALE_TICKET_PAGE_LABEL
+}
+
+/**
+ * Secondary outbound link for an explicit not_on_sale row that still stores
+ * a usable seller URL. Empty and non-http(s) URLs stay hidden. This is the
+ * seller's page, not Pit Lane's waitlist form.
+ */
+export function ticketShowsOfficialSellerLink(
+  availability: string,
+  resellerUrl: string | null | undefined,
+  raceDate?: string | Date | null,
+  now: Date = new Date()
+): boolean {
+  if (availability !== NOT_ON_SALE_AVAILABILITY) return false
+  if (raceDate && raceDateIsBeforeToday(raceDate, now)) return false
+  return sellerRedirectUrl(resellerUrl) !== null
 }
 
 const TRACKING_HOST = /(^|\.)prf\.hn$|(^|\.)partnerize\.com$/i

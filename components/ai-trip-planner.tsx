@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import "@/styles/prose.css"
 import { useChat } from "ai/react"
 import ReactMarkdown from "react-markdown"
 import { Button } from "@/components/ui/button"
@@ -216,7 +217,7 @@ Where would you like to go?`
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="text-muted-foreground size-8 animate-spin" />
+            <Loader2 className="text-muted-foreground size-8 motion-safe:animate-spin" />
           </div>
         </CardContent>
       </Card>
@@ -330,7 +331,7 @@ Where would you like to go?`
                           animate={{ opacity: 1, y: 0 }}
                           className="text-muted-foreground flex items-center gap-2"
                         >
-                          <Loader2 className="size-4 animate-spin" />
+                          <Loader2 className="size-4 motion-safe:animate-spin" />
                           <span className="text-sm">AI is typing...</span>
                         </motion.div>
                       )}
@@ -347,7 +348,7 @@ Where would you like to go?`
                   />
                   <Button type="submit" disabled={isTyping}>
                     {isTyping ? (
-                      <Loader2 className="size-4 animate-spin" />
+                      <Loader2 className="size-4 motion-safe:animate-spin" />
                     ) : (
                       "Send"
                     )}

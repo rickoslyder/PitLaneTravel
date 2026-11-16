@@ -11,7 +11,7 @@ function read(rel: string): string {
 }
 
 const PLAYWRIGHT_TEST_MATCH =
-  /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*,\s*["']fan-tips\.spec\.ts["']\s*,\s*["']race-hero-cta\.spec\.ts["']\s*,\s*["']accessibility\.spec\.ts["']\s*\]/
+  /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*,\s*["']fan-tips\.spec\.ts["']\s*,\s*["']race-hero-cta\.spec\.ts["']\s*,\s*["']accessibility\.spec\.ts["']\s*,\s*["']race-hub-subpages\.spec\.ts["']\s*\]/
 
 describe("PLT-016 analytics consent browser source contract", () => {
   it("selects analytics-consent.spec.ts in Playwright and excludes it from Vitest", () => {

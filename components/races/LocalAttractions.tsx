@@ -204,7 +204,7 @@ export default function LocalAttractions({ circuit }: LocalAttractionsProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="size-8 animate-spin" />
+        <Loader2 className="size-8 motion-safe:animate-spin" />
       </div>
     )
   }
@@ -231,7 +231,9 @@ export default function LocalAttractions({ circuit }: LocalAttractionsProps) {
             <Info className="size-4" />
           </Button>
           <Button onClick={syncWithGooglePlaces} disabled={syncing}>
-            {syncing ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+            {syncing ? (
+              <Loader2 className="mr-2 size-4 motion-safe:animate-spin" />
+            ) : null}
             Sync with Google Places
           </Button>
         </div>

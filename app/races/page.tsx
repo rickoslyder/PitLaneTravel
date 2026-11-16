@@ -1,5 +1,6 @@
 "use server"
 
+import { Suspense } from "react"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { HeroSection } from "@/components/races/HeroSection"
@@ -11,20 +12,23 @@ import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-a
 import { coverageByRaceId } from "@/lib/public-coverage"
 import { startOfUtcDay } from "@/lib/race-calendar-window"
 import { buildWebPageJsonLd, serializeJsonLd } from "@/lib/site-metadata"
-import { racesPageDescription, racesPageTitle } from "./metadata"
+import {
+  metadata as racesMetadata,
+  racesPageDescription,
+  racesPageTitle
+} from "./metadata"
+
+// This module is "use server", so Next rejects a non-async `metadata` export.
+// Race detail uses the same generateMetadata shape. The object, including the
+// PR 122/125 canonical and Open Graph fields, stays in ./metadata.
+export async function generateMetadata() {
+  return racesMetadata
+}
 
 export default async function RacesServerPage() {
-  const [{ userId }, racesResult, ticketedRaceIds] = await Promise.all([
-    auth(),
-    getRacesAction(),
-    listRaceIdsWithTicketListingsAction()
-  ])
-
-  const races = racesResult.data ?? []
-  const coveragePromise = getPublicCoverageSummariesAction(
-    races.map(race => race.id)
-  )
-
+  // Profile redirect stays ahead of the shell. The race query does not:
+  // the h1 is the LCP element, and it can paint before the calendar rows load.
+  const { userId } = await auth()
   if (userId) {
     // return redirect("/login")
     const { data: profile } = await getProfileByUserIdAction(userId)
@@ -33,13 +37,13 @@ export default async function RacesServerPage() {
     }
   }
 
-  const coverageResult = await coveragePromise
-  const coverageMap = coverageResult.isSuccess
-    ? coverageByRaceId(coverageResult.data)
-    : {}
-
   return (
-    <div className="flex-1 space-y-8 p-4 pt-0">
+    <div className="flex-1 space-y-8 p-4 pt-0" data-races-listing="">
+      {/* Root generateMetadata awaits package availability, and this page is
+          dynamic, so Next streams the merged description into the body.
+          Lighthouse only reads head meta. This tag is part of the shell, so
+          it is hoisted into the initial head. */}
+      <meta name="description" content={racesPageDescription} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -52,15 +56,35 @@ export default async function RacesServerPage() {
           )
         }}
       />
-      <div className="bg-background">
+      <div className="bg-background" data-races-listing-hero="">
         <HeroSection />
       </div>
-      <RacesPage
-        initialRaces={races}
-        coverageByRaceId={coverageMap}
-        asOfIso={startOfUtcDay(new Date()).toISOString()}
-        ticketedRaceIds={ticketedRaceIds ?? undefined}
-      />
+      <Suspense fallback={null}>
+        <RacesListing />
+      </Suspense>
     </div>
+  )
+}
+
+async function RacesListing() {
+  const [racesResult, ticketedRaceIds] = await Promise.all([
+    getRacesAction(),
+    listRaceIdsWithTicketListingsAction()
+  ])
+  const races = racesResult.data ?? []
+  const coverageResult = await getPublicCoverageSummariesAction(
+    races.map(race => race.id)
+  )
+  const coverageMap = coverageResult.isSuccess
+    ? coverageByRaceId(coverageResult.data)
+    : {}
+
+  return (
+    <RacesPage
+      initialRaces={races}
+      coverageByRaceId={coverageMap}
+      asOfIso={startOfUtcDay(new Date()).toISOString()}
+      ticketedRaceIds={ticketedRaceIds ?? undefined}
+    />
   )
 }

@@ -60,6 +60,12 @@ test.describe("race hero CTAs", () => {
   test("Abu Dhabi 2026 has one red Find tickets button that opens the tickets panel", async ({
     page
   }) => {
+    const outboundHops: string[] = []
+    page.on("request", request => {
+      const url = request.url()
+      if (/\/go\/|\/api\/redirect\//.test(url)) outboundHops.push(url)
+    })
+
     for (const viewport of [
       { width: 375, height: 812 },
       { width: 1440, height: 900 }
@@ -105,6 +111,36 @@ test.describe("race hero CTAs", () => {
 
     await expect(page).toHaveURL(/[?&]tab=tickets(?:&|$)/)
     await expect(page.getByText("Yas Marina grandstand")).toBeVisible()
+
+    const waitlist = page.getByRole("link", {
+      name: "Join official waitlist",
+      exact: true
+    })
+    const ticketPage = page.getByRole("link", {
+      name: "Official ticket page",
+      exact: true
+    })
+    await expect(waitlist).toBeVisible()
+    await expect(waitlist).toHaveAttribute("href", /^\/go\/\d+$/)
+    await expect(waitlist).toHaveAttribute("target", "_blank")
+    await expect(waitlist).toHaveAttribute("rel", "noopener noreferrer")
+    await expect(ticketPage).toBeVisible()
+    await expect(ticketPage).toHaveAttribute("href", /^\/go\/\d+$/)
+    await expect(ticketPage).toHaveAttribute("target", "_blank")
+    await expect(ticketPage).toHaveAttribute("rel", "noopener noreferrer")
+
+    const unlinked = page
+      .locator('[data-ticket-availability="not_on_sale"]')
+      .filter({
+        hasText: "Unlinked grandstand"
+      })
+    await expect(unlinked).toBeVisible()
+    await expect(unlinked).toContainText("Not on sale yet.")
+    await expect(unlinked.getByRole("link")).toHaveCount(0)
+    await expect(
+      page.getByRole("button", { name: "Join Waitlist", exact: true })
+    ).toHaveCount(0)
+
     await expectOneCanonical(page)
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
@@ -112,6 +148,7 @@ test.describe("race hero CTAs", () => {
     )
     expect(page.url()).not.toContain("/go/")
     expect(page.url()).not.toContain("/api/redirect")
+    expect(outboundHops).toEqual([])
   })
 
   test("Mexico City E-Prix 2027 has one red Plan your trip button and the empty note", async ({

@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Map } from "lucide-react"
 
@@ -9,10 +10,7 @@ interface TrackMapProps {
 }
 
 export function TrackMap({ trackMapUrl, name }: TrackMapProps) {
-  console.log("TrackMap props:", { trackMapUrl, name })
-
   if (!trackMapUrl) {
-    console.log("TrackMap: No URL provided, returning null")
     return null
   }
 
@@ -26,12 +24,12 @@ export function TrackMap({ trackMapUrl, name }: TrackMapProps) {
       </CardHeader>
       <CardContent>
         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
-          <img
+          <Image
             src={trackMapUrl}
             alt={`${name} track map`}
-            className="size-full object-contain"
-            loading="lazy"
-            decoding="async"
+            fill
+            sizes="(max-width: 768px) 100vw, 48rem"
+            className="object-contain"
           />
         </div>
       </CardContent>

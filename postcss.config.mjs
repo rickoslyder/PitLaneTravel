@@ -7,7 +7,9 @@ Configures PostCSS for the app.
 /** @type {import('postcss-load-config').Config} */
 const config = {
   plugins: {
-    tailwindcss: {}
+    tailwindcss: {},
+    // String path: Next.js rejects plugin instances in this file.
+    "./config/cascade-layers.cjs": {}
   }
 }
 

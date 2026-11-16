@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { RaceWithCircuit } from "@/types/database"
-import { formatRaceCalendarMonth } from "@/lib/race-datetime"
+import {
+  formatRaceCalendarMonth,
+  type RaceDateInput
+} from "@/lib/race-datetime"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 
@@ -27,8 +29,8 @@ interface FilterSheetProps {
   open: boolean
   /** Callback when the open state changes */
   onOpenChange: (open: boolean) => void
-  /** List of races to filter */
-  races: RaceWithCircuit[]
+  /** Races in the current timing, used only for month and country counts. */
+  races: readonly { date: RaceDateInput; country: string | null }[]
   /** Current filter options */
   filters: Filters
   /** Callback when a filter changes */
@@ -66,9 +68,7 @@ export function FilterSheet({
       name: "Month",
       field: "month",
       options: Array.from(
-        new Set(
-          races.map(race => formatRaceCalendarMonth(race.date))
-        )
+        new Set(races.map(race => formatRaceCalendarMonth(race.date)))
       )
         .sort((a, b) => {
           const months = [
@@ -95,7 +95,9 @@ export function FilterSheet({
     {
       name: "Country",
       field: "country",
-      options: Array.from(new Set(races.map(race => race.country)))
+      options: Array.from(
+        new Set(races.flatMap(race => (race.country ? [race.country] : [])))
+      )
         .sort()
         .map(country => ({
           label: country,

@@ -114,7 +114,7 @@ export function TripSelector({
   if (isFetching) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 className="size-6 animate-spin" />
+        <Loader2 className="size-6 motion-safe:animate-spin" />
       </div>
     )
   }

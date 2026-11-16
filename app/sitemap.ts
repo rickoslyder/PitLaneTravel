@@ -9,6 +9,7 @@ import {
 } from "@/db/schema"
 import { and, eq, isNotNull, ne } from "drizzle-orm"
 import { listGuides } from "@/lib/guides"
+import { publishedRaceHubSubpagePaths } from "@/lib/race-hub-subpages"
 import {
   isSitemapIndexableRace,
   SITEMAP_STATIC_PATHS,
@@ -49,6 +50,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: guide.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.6
+    })),
+    ...publishedRaceHubSubpagePaths().map(pathname => ({
+      url: `${BASE_URL}${pathname}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.5
     }))
   ]
 

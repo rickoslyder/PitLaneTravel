@@ -9,6 +9,7 @@ import { CircuitHistory } from "../history/CircuitHistory"
 import { TrackMap } from "../track-map"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import "@/styles/prose.css"
 
 interface RaceInfoTabProps {
   race: RaceWithDetails

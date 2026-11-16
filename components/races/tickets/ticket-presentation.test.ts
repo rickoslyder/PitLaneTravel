@@ -7,10 +7,12 @@ import {
   findTicketsAccessibleName,
   planYourTripAccessibleName,
   raceDateIsBeforeToday,
+  notOnSaleOfficialLinkLabel,
   resellerHost,
   ticketAvailabilityLabel,
   ticketSectionIntro,
   ticketShowsBuyButton,
+  ticketShowsOfficialSellerLink,
   ticketShowsWaitlist
 } from "./ticket-presentation"
 
@@ -44,7 +46,9 @@ describe("ticket availability states", () => {
       PLAN_YOUR_TRIP_LABEL,
       TICKETS_NOT_LISTED_NOTE
     ]) {
-      expect(label).not.toMatch(/Book now|Book Now|Buy tickets|Get ticket alerts/)
+      expect(label).not.toMatch(
+        /Book now|Book Now|Buy tickets|Get ticket alerts/
+      )
     }
   })
 
@@ -59,6 +63,64 @@ describe("ticket tab when nothing is listed", () => {
     expect(ticketAvailabilityLabel("not_on_sale")).toBe("Not on sale yet")
     expect(ticketShowsBuyButton("not_on_sale")).toBe(false)
     expect(ticketShowsWaitlist("not_on_sale")).toBe(false)
+  })
+})
+
+describe("not_on_sale official seller link", () => {
+  const now = new Date("2026-10-31T18:00:00.000Z")
+  const future = "2026-12-06T13:00:00.000Z"
+  const ticketPage = "https://tickets.formula1.com/en/f1-3325-brazil"
+  const waitlist = "https://tickets.example.com/abu-dhabi/waitlist"
+
+  it("offers the stored seller page without the site waitlist or a buy button", () => {
+    expect(ticketShowsBuyButton("not_on_sale", future, now)).toBe(false)
+    expect(ticketShowsWaitlist("not_on_sale", future, now)).toBe(false)
+    expect(
+      ticketShowsOfficialSellerLink("not_on_sale", ticketPage, future, now)
+    ).toBe(true)
+    expect(notOnSaleOfficialLinkLabel(ticketPage)).toBe("Official ticket page")
+    expect(
+      ticketShowsOfficialSellerLink("not_on_sale", waitlist, future, now)
+    ).toBe(true)
+    expect(notOnSaleOfficialLinkLabel(waitlist)).toBe("Join official waitlist")
+    expect(
+      notOnSaleOfficialLinkLabel("https://wait-list.example.com/race")
+    ).toBe("Join official waitlist")
+  })
+
+  it("hides the link when the stored URL is empty or not a seller http(s) URL", () => {
+    for (const resellerUrl of [
+      "",
+      "   ",
+      null,
+      undefined,
+      "javascript:alert(1)",
+      "/go/1"
+    ]) {
+      expect(
+        ticketShowsOfficialSellerLink("not_on_sale", resellerUrl, future, now)
+      ).toBe(false)
+    }
+    expect(
+      ticketShowsOfficialSellerLink("available", ticketPage, future, now)
+    ).toBe(false)
+    expect(
+      ticketShowsOfficialSellerLink("sold_out", ticketPage, future, now)
+    ).toBe(false)
+  })
+
+  it("hides the official link after the race date has passed", () => {
+    expect(
+      ticketShowsOfficialSellerLink(
+        "not_on_sale",
+        ticketPage,
+        "2025-03-16T00:00:00.000Z",
+        now
+      )
+    ).toBe(false)
+    expect(
+      ticketShowsWaitlist("not_on_sale", "2025-03-16T00:00:00.000Z", now)
+    ).toBe(false)
   })
 })
 

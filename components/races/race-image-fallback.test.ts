@@ -182,6 +182,39 @@ describe("race image fallback", () => {
     expect(grid).not.toContain("index === 0")
     expect(grid).not.toContain('fetchPriority="auto"')
     expect(series).toContain("<RaceGrid")
-    expect(races).toContain("<RaceGrid")
+    // The calendar LCP element is the h1, so its cards stay lazy and are
+    // server-rendered. Series pages still prioritise their first photo.
+    const listing = readFileSync(
+      path.join(root, "components/races/race-listing-card.tsx"),
+      "utf8"
+    )
+    expect(races).not.toMatch(/^\s*["']use client["']/m)
+    expect(races).toContain("<ListingCardView")
+    expect(listing).not.toMatch(/priority\s*:/)
+    expect(listing).not.toContain('fetchPriority="high"')
+    expect(listing).not.toContain('fetchpriority="high"')
+    const cardFrame =
+      "(max-width: 640px) calc(100vw - 8rem), (max-width: 1024px) 50vw, 33vw"
+    expect(listing).toContain(cardFrame)
+    expect(listing).not.toContain("(max-width: 640px) 100vw")
+
+    const card = readFileSync(
+      path.join(root, "components/races/RaceCard.tsx"),
+      "utf8"
+    )
+    expect(card).toContain(cardFrame)
+    expect(card).not.toContain("(max-width: 640px) 100vw")
+    expect(races).not.toContain("RaceGrid")
+    expect(races).not.toContain("RaceCard")
+
+    const controls = readFileSync(
+      path.join(root, "components/races/race-calendar-controls.tsx"),
+      "utf8"
+    )
+    expect(controls.match(/data-races-series-filters=""/g)).toEqual([
+      'data-races-series-filters=""'
+    ])
+    expect(races).not.toContain("data-races-series-filters")
+    expect(grid).not.toContain("data-races-series-filters")
   })
 })

@@ -120,10 +120,13 @@ describe("Abu Dhabi Grand Prix travel guide", () => {
       "| Promoter (abudhabigp.com) [5] | General admission | AED 745 | On sale |"
     )
     expect(guide!.body).toContain(
+      "| Promoter [5] | South Grandstand | AED 2,095 | On sale |"
+    )
+    expect(guide!.body).toContain(
       "| Promoter [5] | Premium hospitality | AED 9,795 | On sale |"
     )
     expect(guide!.body).toContain(
-      "| F1 Tickets [8] | West Grandstand | €1,333.18 | On sale |"
+      "| F1 Tickets [8] | West Grandstand | — | Sold out |"
     )
     expect(guide!.body).toContain(
       "| F1 Tickets [8] | Abu Dhabi Hill | — | Sold out |"
@@ -132,18 +135,19 @@ describe("Abu Dhabi Grand Prix travel guide", () => {
       "| F1 Tickets [8] | North Straight Grandstand | — | Sold out |"
     )
     expect(guide!.body).toContain(
-      "| F1 Tickets [8] | South Grandstand | — | Sold out |"
-    )
-    expect(guide!.body).toContain(
       "| F1 Tickets [8] | West Straight Grandstand | — | Sold out |"
     )
     expect(guide!.body).toContain(
-      "For seats sold out on F1 Tickets, check the promoter: general admission is listed from AED 745."
+      "| F1 Tickets [8] | South Grandstand | — | No longer listed |"
+    )
+    expect(guide!.body).toContain(
+      "For seats sold out or no longer listed on F1 Tickets, check the promoter: general admission is listed from AED 745, and the South Grandstand from AED 2,095."
     )
     expect(guide!.body).not.toContain("AED 7,995")
     expect(guide!.body).not.toContain("€379.28")
     expect(guide!.body).not.toContain("€736.24")
     expect(guide!.body).not.toContain("€1,311.84")
+    expect(guide!.body).not.toContain("€1,333.18")
     expect(guide!.body).not.toContain("31 Oct 2026:**")
     expect(guide!.body).toContain("https://airalo.pxf.io/PzEM6e")
     expect(guide!.body).toContain("https://f1.pxf.io/5kEv72")
