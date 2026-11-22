@@ -43,7 +43,13 @@ export function articleMarkdown(source: string): string {
   )
 }
 
-export function RaceHubArticle({ source }: { source: string }) {
+export function RaceHubArticle({
+  source,
+  markAnswerFirst = true
+}: {
+  source: string
+  markAnswerFirst?: boolean
+}) {
   let paragraph = 0
   const components: Components = {
     a: ({ href, children }) => {
@@ -60,7 +66,7 @@ export function RaceHubArticle({ source }: { source: string }) {
     },
     p: ({ children }) => {
       paragraph += 1
-      if (paragraph === 1) {
+      if (markAnswerFirst && paragraph === 1) {
         return (
           <p data-answer-first className="text-base leading-relaxed">
             {children}

@@ -1,3 +1,4 @@
+import { GuideWithFigures } from "@/components/guides/guide-with-figures"
 import { RaceHubArticle } from "@/components/guides/race-hub-article"
 import { PlanByFanTypeList } from "@/components/guides/plan-by-fan-type"
 import { AtAGlanceTable } from "@/components/guides/at-a-glance-table"
@@ -81,7 +82,16 @@ export function RaceHubSubpageView({
       {page.article ? (
         <>
           <div className="mt-4">
-            <RaceHubArticle source={page.article} />
+            <GuideWithFigures
+              routeKey={`${page.hubSlug}/${page.slug}`}
+              source={page.article}
+              renderMarkdown={(markdown, answerFirst) => (
+                <RaceHubArticle
+                  source={markdown}
+                  markAnswerFirst={answerFirst}
+                />
+              )}
+            />
           </div>
           {gaVsGrandstandHref && (
             <p className="mt-4">
