@@ -42,6 +42,7 @@ export default async function RacesServerPage() {
     <>
       <RacesCriticalCss />
       <div className="flex-1 space-y-4 p-4 pt-0" data-races-listing="">
+        <meta name="description" content={racesPageDescription} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
