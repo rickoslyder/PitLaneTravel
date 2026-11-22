@@ -121,17 +121,15 @@ export const racesCriticalClassMarkup = `
 </main>
 </div>
 <section class="fixed inset-x-0 bottom-0 z-[60] border-t border-zinc-300 bg-white text-zinc-900 shadow-[0_-6px_20px_rgba(28,25,22,0.16)]">
-<div class="mx-auto flex w-full max-w-6xl flex-col gap-2 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-2.5">
-<div class="min-w-0 flex-1 text-xs leading-4 text-zinc-800 sm:text-sm sm:leading-5">
-<h2 class="inline text-sm font-semibold leading-5 text-zinc-900"></h2>
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-0.5 px-2 pb-[max(0.125rem,env(safe-area-inset-bottom))] pt-0.5 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-2.5">
+<div class="min-w-0 text-xs leading-4 text-zinc-800 sm:flex-1 sm:text-sm sm:leading-5">
+<h2 class="inline text-xs font-semibold leading-4 text-zinc-900 sm:text-sm sm:leading-5"></h2>
 <p class="inline"></p>
 <a class="inline-block min-h-6 font-medium underline underline-offset-2"></a>
-<details class="inline">
-<summary class="inline-block min-h-6 cursor-pointer font-medium text-zinc-900"></summary>
-<p class="mt-1"></p>
-</details>
 </div>
-<div class="grid w-full shrink-0 grid-cols-2 gap-1.5 sm:flex sm:w-auto sm:gap-2">
+<div class="grid grid-cols-[auto_1fr_1fr] items-center gap-1.5 sm:flex sm:w-auto sm:gap-2">
+<summary class="inline-flex min-h-11 cursor-pointer items-center px-1 text-xs font-medium text-zinc-900 sm:px-2 sm:text-sm"></summary>
+<p class="mt-1 max-w-xl text-xs leading-4 text-zinc-800 sm:text-sm sm:leading-5"></p>
 <button class="inline-flex min-h-11 w-full items-center justify-center whitespace-nowrap rounded-md border border-zinc-900 bg-zinc-900 px-1.5 py-2 text-xs font-medium text-white sm:w-44 sm:px-3 sm:text-sm"></button>
 </div>
 </div>

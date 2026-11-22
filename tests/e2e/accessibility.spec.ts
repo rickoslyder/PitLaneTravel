@@ -862,6 +862,13 @@ test.describe("mobile chrome at 360x676", () => {
       clientHeight: node.clientHeight
     }))
     expect(fit.scrollHeight).toBeLessThanOrEqual(fit.clientHeight)
+    const closedBar = await bar.boundingBox()
+    expect(closedBar?.height ?? 999).toBeLessThanOrEqual(76)
+    for (const name of ["Accept analytics", "Reject non-essential", "Details"]) {
+      const control = bar.getByText(name, { exact: true })
+      const box = await control.boundingBox()
+      expect(box?.height ?? 0, name).toBeGreaterThanOrEqual(24)
+    }
 
     await bar.getByText("Details", { exact: true }).click()
     await expect(bar.getByText("PostHog")).toBeVisible()

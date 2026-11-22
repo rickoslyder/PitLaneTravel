@@ -102,35 +102,34 @@ export function ConsentBannerView({
           data-analytics-consent-bar=""
           className="fixed inset-x-0 bottom-0 z-[60] border-t border-zinc-300 bg-white text-zinc-900 shadow-[0_-6px_20px_rgba(28,25,22,0.16)]"
         >
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-2.5">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-0.5 px-2 pb-[max(0.125rem,env(safe-area-inset-bottom))] pt-0.5 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-2.5">
             <div
               data-analytics-consent-copy=""
-              className="min-w-0 flex-1 text-xs leading-4 text-zinc-800 sm:text-sm sm:leading-5"
+              className="min-w-0 text-xs leading-4 text-zinc-800 sm:flex-1 sm:text-sm sm:leading-5"
             >
               <h2
                 id="analytics-consent-heading"
-                className="inline text-sm font-semibold leading-5 text-zinc-900"
+                className="inline text-xs font-semibold leading-4 text-zinc-900 sm:text-sm sm:leading-5"
               >
                 Usage analytics
-              </h2>{" "}
-              <p id="analytics-consent-description" className="inline">
-                PitLane Travel can use nonessential usage analytics.{" "}
+              </h2><p id="analytics-consent-description" className="inline">. We use optional analytics.{" "}
                 <a href="/privacy" className={linkClassName}>
                   Privacy policy
-                </a>{" "}
+                </a>
               </p>
-              <details className="inline">
-                <summary className="inline-block min-h-6 cursor-pointer font-medium text-zinc-900">
+            </div>
+            <div className="grid grid-cols-[auto_1fr_1fr] items-center gap-1.5 sm:flex sm:w-auto sm:gap-2">
+              <details className="min-w-0 open:col-span-3">
+                <summary className="inline-flex min-h-11 cursor-pointer items-center px-1 text-xs font-medium text-zinc-900 sm:px-2 sm:text-sm">
                   Details
                 </summary>
-                <p className="mt-1">
-                  Vendors: PostHog, Google, Microsoft Clarity, and Vercel Speed
-                  Insights. Essential features still work if you reject. Used
-                  to understand how the site is used.
+                <p className="mt-1 max-w-xl text-xs leading-4 text-zinc-800 sm:text-sm sm:leading-5">
+                  We use optional analytics to improve the site. These are
+                  nonessential usage analytics from PostHog, Google, Microsoft
+                  Clarity, and Vercel Speed Insights. Essential features still
+                  work if you reject.
                 </p>
               </details>
-            </div>
-            <div className="grid w-full shrink-0 grid-cols-2 gap-1.5 sm:flex sm:w-auto sm:gap-2">
               <button
                 type="button"
                 className={actionClassName}
