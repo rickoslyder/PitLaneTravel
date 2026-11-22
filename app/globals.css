@@ -249,3 +249,12 @@ html:has([data-analytics-consent-bar]) body {
     max-height: 24rem;
   }
 }
+
+/* Footer and prose links need a 24px tap height without a taller line box. */
+footer a,
+.prose a {
+  display: inline-block;
+  min-height: 1.5rem;
+  line-height: 1.5rem;
+  vertical-align: top;
+}

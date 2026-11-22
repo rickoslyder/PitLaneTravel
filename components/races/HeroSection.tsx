@@ -1,6 +1,6 @@
 export function HeroSection() {
   return (
-    <div className="bg-background relative overflow-hidden py-24 sm:py-32">
+    <div className="bg-background relative overflow-hidden py-4 sm:py-32">
       <div className="absolute inset-0 -z-10 size-full bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]">
         <div className="bg-primary absolute inset-x-0 top-0 -z-10 m-auto size-[310px] rounded-full opacity-20 blur-[100px]" />
       </div>

@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useLayoutEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import {
   useAnalyticsConsent,
   type AnalyticsConsentStatus
@@ -10,7 +11,13 @@ const actionClassName =
   "inline-flex min-h-11 w-full items-center justify-center whitespace-nowrap rounded-md border border-zinc-900 bg-zinc-900 px-1.5 py-2 text-xs font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white sm:w-44 sm:px-3 sm:text-sm"
 
 const settingsClassName =
-  "inline-flex min-h-11 items-center justify-center rounded-md border border-zinc-900 bg-white px-4 py-2 text-sm font-medium text-zinc-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
+  "inline-flex min-h-6 items-center rounded-md py-1 text-sm font-medium text-zinc-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
+
+const linkClassName =
+  "inline-block min-h-6 font-medium text-zinc-900 underline underline-offset-2"
+
+const useClientLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect
 
 export type ConsentBannerViewProps = {
   status: AnalyticsConsentStatus
@@ -20,6 +27,23 @@ export type ConsentBannerViewProps = {
   onWithdraw: () => void
   onOpenSettings: () => void
   onCloseSettings: () => void
+}
+
+function PrivacySettingsDock({ children }: { children: React.ReactNode }) {
+  const [target, setTarget] = useState<HTMLElement | null>(null)
+
+  useClientLayoutEffect(() => {
+    const slot = document.querySelector<HTMLElement>(
+      "[data-privacy-settings-slot]"
+    )
+    const fallback = document.querySelector<HTMLElement>(
+      "[data-privacy-settings-fallback]"
+    )
+    setTarget(slot ?? fallback)
+  }, [])
+
+  if (target) return createPortal(children, target)
+  return <div hidden>{children}</div>
 }
 
 export function ConsentBannerView({
@@ -67,25 +91,35 @@ export function ConsentBannerView({
           data-analytics-consent-bar=""
           className="fixed inset-x-0 bottom-0 z-[60] border-t border-zinc-300 bg-white text-zinc-900 shadow-[0_-6px_20px_rgba(28,25,22,0.16)]"
         >
-          <div className="mx-auto flex w-full max-w-6xl items-center gap-2 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:gap-4 sm:px-4 sm:py-2.5">
-            <div className="max-h-20 min-w-0 flex-1 overflow-y-auto sm:max-h-none">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-2.5">
+            <div
+              data-analytics-consent-copy=""
+              className="min-w-0 flex-1 text-xs leading-4 text-zinc-800 sm:text-sm sm:leading-5"
+            >
               <h2
                 id="analytics-consent-heading"
                 className="inline text-sm font-semibold leading-5 text-zinc-900"
               >
                 Usage analytics
               </h2>{" "}
-              <p
-                id="analytics-consent-description"
-                className="inline text-xs leading-4 text-zinc-800 sm:text-sm sm:leading-5"
-              >
-                PitLane Travel can use nonessential usage analytics from
-                PostHog, Google, Microsoft Clarity, and Vercel Speed Insights to
-                understand how the site is used. Essential features still work
-                if you reject.
+              <p id="analytics-consent-description" className="inline">
+                PitLane Travel can use nonessential usage analytics. Essential
+                features still work if you reject.{" "}
+                <a href="/privacy" className={linkClassName}>
+                  Privacy policy
+                </a>{" "}
               </p>
+              <details className="inline">
+                <summary className="inline-block min-h-6 cursor-pointer font-medium text-zinc-900">
+                  Details
+                </summary>
+                <p className="mt-1">
+                  Vendors: PostHog, Google, Microsoft Clarity, and Vercel Speed
+                  Insights. Used to understand how the site is used.
+                </p>
+              </details>
             </div>
-            <div className="flex w-44 shrink-0 flex-col gap-1.5 sm:w-auto sm:flex-row sm:gap-2">
+            <div className="grid w-full shrink-0 grid-cols-2 gap-1.5 sm:flex sm:w-auto sm:gap-2">
               <button
                 type="button"
                 className={actionClassName}
@@ -106,55 +140,61 @@ export function ConsentBannerView({
       ) : null}
 
       {showSettingsButton ? (
-        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] flex flex-col items-end gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          {settingsOpen ? (
-            <section
-              id="analytics-privacy-settings"
-              aria-labelledby="analytics-privacy-settings-heading"
-              className="pointer-events-auto w-full max-w-full rounded-lg border border-zinc-200 bg-white p-4 shadow-lg sm:max-w-md"
-            >
-              <h2
-                id="analytics-privacy-settings-heading"
-                className="text-base font-semibold text-zinc-900"
+        <PrivacySettingsDock>
+          <div className="flex w-full max-w-md flex-col items-start gap-3">
+            {settingsOpen ? (
+              <section
+                id="analytics-privacy-settings"
+                aria-labelledby="analytics-privacy-settings-heading"
+                className="w-full rounded-lg border border-zinc-200 bg-white p-4 text-zinc-900 shadow-lg"
               >
-                Privacy settings
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-zinc-700">
-                These nonessential usage analytics from PostHog, Google,
-                Microsoft Clarity, and Vercel Speed Insights{" "}
-                {status === "granted" ? "are on." : "are off."}
-              </p>
-              <div className="mt-4 flex w-full max-w-full flex-col gap-3 sm:flex-row">
-                {status === "granted" ? (
-                  <button
-                    type="button"
-                    className={actionClassName}
-                    onClick={onWithdraw}
-                  >
-                    Withdraw analytics consent
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className={actionClassName}
-                    onClick={onAccept}
-                  >
-                    Accept analytics
-                  </button>
-                )}
-              </div>
-            </section>
-          ) : null}
-          <button
-            type="button"
-            className={`${settingsClassName} pointer-events-auto`}
-            aria-expanded={settingsOpen}
-            aria-controls="analytics-privacy-settings"
-            onClick={settingsOpen ? onCloseSettings : onOpenSettings}
-          >
-            Privacy settings
-          </button>
-        </div>
+                <h2
+                  id="analytics-privacy-settings-heading"
+                  className="text-base font-semibold text-zinc-900"
+                >
+                  Privacy settings
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-zinc-700">
+                  These nonessential usage analytics from PostHog, Google,
+                  Microsoft Clarity, and Vercel Speed Insights{" "}
+                  {status === "granted" ? "are on." : "are off."}{" "}
+                  <a href="/privacy" className={linkClassName}>
+                    Privacy policy
+                  </a>
+                </p>
+                <div className="mt-4 flex w-full max-w-full flex-col gap-3 sm:flex-row">
+                  {status === "granted" ? (
+                    <button
+                      type="button"
+                      className={actionClassName}
+                      onClick={onWithdraw}
+                    >
+                      Withdraw analytics consent
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className={actionClassName}
+                      onClick={onAccept}
+                    >
+                      Accept analytics
+                    </button>
+                  )}
+                </div>
+              </section>
+            ) : null}
+            <button
+              type="button"
+              className={settingsClassName}
+              data-privacy-settings=""
+              aria-expanded={settingsOpen}
+              aria-controls="analytics-privacy-settings"
+              onClick={settingsOpen ? onCloseSettings : onOpenSettings}
+            >
+              Privacy settings
+            </button>
+          </div>
+        </PrivacySettingsDock>
       ) : null}
     </>
   )

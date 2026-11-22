@@ -6,6 +6,8 @@
 export const racesCriticalClassMarkup = `
 <body class="bg-background mx-auto min-h-screen w-full antialiased motion-safe:scroll-smooth">
 <a class="sr-only">Skip</a>
+<div class="flex min-h-screen min-w-0 flex-col">
+<div class="min-h-0 w-full flex-1 lg:!top-16 lg:!bottom-auto lg:!h-[calc(100svh-4rem)]"></div>
 <div class="flex min-h-svh w-full">
 <div class="hidden lg:block lg:flex"></div>
 <main class="bg-background relative flex min-h-svh w-full min-w-0 flex-1 flex-col">
@@ -31,7 +33,7 @@ export const racesCriticalClassMarkup = `
 <div class="min-w-0 flex-1">
 <div class="flex-1 space-y-8 p-4 pt-0">
 <div class="bg-background">
-<div class="bg-background relative overflow-hidden py-24 sm:py-32">
+<div class="bg-background relative overflow-hidden py-4 sm:py-32">
 <div class="absolute inset-0 -z-10 size-full bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]">
 <div class="bg-primary absolute inset-x-0 top-0 -z-10 m-auto size-[310px] rounded-full opacity-20 blur-[100px]"></div>
 </div>
@@ -102,12 +104,17 @@ export const racesCriticalClassMarkup = `
 </main>
 </div>
 <section class="fixed inset-x-0 bottom-0 z-[60] border-t border-zinc-300 bg-white text-zinc-900 shadow-[0_-6px_20px_rgba(28,25,22,0.16)]">
-<div class="mx-auto flex w-full max-w-6xl items-center gap-2 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:gap-4 sm:px-4 sm:py-2.5">
-<div class="max-h-20 min-w-0 flex-1 overflow-y-auto sm:max-h-none">
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-2 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-2.5">
+<div class="min-w-0 flex-1 text-xs leading-4 text-zinc-800 sm:text-sm sm:leading-5">
 <h2 class="inline text-sm font-semibold leading-5 text-zinc-900"></h2>
-<p class="inline text-xs leading-4 text-zinc-800 sm:text-sm sm:leading-5"></p>
+<p class="inline"></p>
+<a class="inline-block min-h-6 font-medium underline underline-offset-2"></a>
+<details class="inline">
+<summary class="inline-block min-h-6 cursor-pointer font-medium text-zinc-900"></summary>
+<p class="mt-1"></p>
+</details>
 </div>
-<div class="flex w-44 shrink-0 flex-col gap-1.5 sm:w-auto sm:flex-row sm:gap-2">
+<div class="grid w-full shrink-0 grid-cols-2 gap-1.5 sm:flex sm:w-auto sm:gap-2">
 <button class="inline-flex min-h-11 w-full items-center justify-center whitespace-nowrap rounded-md border border-zinc-900 bg-zinc-900 px-1.5 py-2 text-xs font-medium text-white sm:w-44 sm:px-3 sm:text-sm"></button>
 </div>
 </div>

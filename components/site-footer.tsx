@@ -3,7 +3,11 @@ import { brand, brandCopy } from "@/config/brand"
 import { SERIES } from "@/config/series"
 import Link from "next/link"
 
-export function SiteFooter({ packagesLive = false }: { packagesLive?: boolean }) {
+export function SiteFooter({
+  packagesLive = false
+}: {
+  packagesLive?: boolean
+}) {
   const copy = brandCopy(packagesLive)
   return (
     <footer className="border-t">
@@ -110,6 +114,9 @@ export function SiteFooter({ packagesLive = false }: { packagesLive?: boolean })
                 >
                   Privacy Policy
                 </Link>
+              </li>
+              <li>
+                <div data-privacy-settings-slot="" />
               </li>
               <li>
                 <Link
