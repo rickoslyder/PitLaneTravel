@@ -31,7 +31,7 @@ export const racesCriticalClassMarkup = `
 </div>
 </header>
 <div class="min-w-0 flex-1">
-<div class="flex-1 space-y-8 p-4 pt-0">
+<div class="flex-1 space-y-4 p-4 pt-0">
 <div class="bg-background">
 <div class="bg-background relative overflow-hidden py-4 sm:py-32">
 <div class="absolute inset-0 -z-10 size-full bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]">

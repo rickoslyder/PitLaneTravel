@@ -1,5 +1,6 @@
 "use server"
 
+import { Suspense } from "react"
 import Header from "@/components/header"
 import { SiteFooter } from "@/components/site-footer"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
@@ -12,16 +13,26 @@ import {
 import { getPackagesAvailability } from "@/lib/packages-availability"
 import { RacesBreadcrumb } from "./_components/races-breadcrumb"
 
+async function RacesSiteHeader() {
+  const { siteWide } = await getPackagesAvailability()
+  return <Header showPackagesLink={siteWide} />
+}
+
+async function RacesSiteFooter() {
+  const { siteWide } = await getPackagesAvailability()
+  return <SiteFooter packagesLive={siteWide} />
+}
+
 export default async function RacesLayout({
   children
 }: {
   children: React.ReactNode
 }) {
-  const { siteWide } = await getPackagesAvailability()
-
   return (
     <div className="flex min-h-screen min-w-0 flex-col">
-      <Header showPackagesLink={siteWide} />
+      <Suspense fallback={<Header showPackagesLink={false} />}>
+        <RacesSiteHeader />
+      </Suspense>
       <SidebarProvider className="min-h-0 w-full flex-1">
         <AppSidebar className="lg:!bottom-auto lg:!top-16 lg:!h-[calc(100svh-4rem)]" />
         <SidebarInset id="main-content" tabIndex={-1} className="min-w-0">
@@ -38,7 +49,9 @@ export default async function RacesLayout({
             </header>
 
             <div className="min-w-0 flex-1">{children}</div>
-            <SiteFooter packagesLive={siteWide} />
+            <Suspense fallback={null}>
+              <RacesSiteFooter />
+            </Suspense>
           </div>
         </SidebarInset>
       </SidebarProvider>

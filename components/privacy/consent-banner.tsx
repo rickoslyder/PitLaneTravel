@@ -103,8 +103,7 @@ export function ConsentBannerView({
                 Usage analytics
               </h2>{" "}
               <p id="analytics-consent-description" className="inline">
-                PitLane Travel can use nonessential usage analytics. Essential
-                features still work if you reject.{" "}
+                PitLane Travel can use nonessential usage analytics.{" "}
                 <a href="/privacy" className={linkClassName}>
                   Privacy policy
                 </a>{" "}
@@ -115,7 +114,8 @@ export function ConsentBannerView({
                 </summary>
                 <p className="mt-1">
                   Vendors: PostHog, Google, Microsoft Clarity, and Vercel Speed
-                  Insights. Used to understand how the site is used.
+                  Insights. Essential features still work if you reject. Used
+                  to understand how the site is used.
                 </p>
               </details>
             </div>

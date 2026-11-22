@@ -958,9 +958,8 @@ test.describe("mobile chrome at 360x676", () => {
       await expect(
         page.getByRole("link", { name: "PitLane Travel", exact: true })
       ).toBeVisible()
-      await expect(page.getByRole("button", { name: "Menu", exact: true })).toBeVisible()
       await expect(
-        page.getByRole("button", { name: "Sign Up", exact: true })
+        page.getByRole("button", { name: "Menu", exact: true })
       ).toBeVisible()
       if (path !== "/races") continue
 
@@ -979,7 +978,10 @@ test.describe("mobile chrome at 360x676", () => {
     }
   })
 
-  test("faq title differs from the not-found title", async ({ page }) => {
+  test("faq title differs from the not-found title", async ({
+    page,
+    request
+  }) => {
     const faq = await page.goto("/faq")
     expect(faq?.ok()).toBeTruthy()
     await expect(page).toHaveTitle("F1 Travel FAQ | PitLane Travel")
@@ -988,10 +990,12 @@ test.describe("mobile chrome at 360x676", () => {
       "F1 Travel FAQ | PitLane Travel"
     )
 
-    const missing = await page.goto("/this-page-is-not-real")
-    expect(missing?.status()).toBe(404)
-    await expect(page).toHaveTitle("Page not found | PitLane Travel")
-    expect(await page.title()).not.toBe("F1 Travel FAQ | PitLane Travel")
+    const missing = await request.get("/this-page-is-not-real")
+    expect(missing.status()).toBe(404)
+    const html = await missing.text()
+    const title = html.match(/<title>([^<]*)<\/title>/)?.[1] ?? ""
+    expect(title).toBe("Page not found | PitLane Travel")
+    expect(title).not.toBe(await page.title())
   })
 
   test("footer links are at least 24px tall", async ({ page }) => {

@@ -51,7 +51,7 @@ function blockAfterSelector(source: string, selector: string): string {
 const shortPhoneHeroMargin = `
 @media (max-width: 639px) and (max-height: 740px) {
   html:has([data-analytics-consent-bar]) [data-races-listing] > [data-races-listing-hero] {
-    margin-top: 2rem;
+    margin-top: 1rem;
   }
 }
 `

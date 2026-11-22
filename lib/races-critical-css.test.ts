@@ -49,7 +49,7 @@ describe("races critical css", () => {
         expect(racesCriticalClassMarkup, `${file} ${token}`).toContain(token)
       }
     }
-    expect(racesCriticalClassMarkup).toContain("flex-1 space-y-8 p-4 pt-0")
+    expect(racesCriticalClassMarkup).toContain("flex-1 space-y-4 p-4 pt-0")
     expect(racesCriticalClassMarkup).toContain("z-[60]")
   })
 
