@@ -42,11 +42,6 @@ export default async function RacesServerPage() {
     <>
       <RacesCriticalCss />
       <div className="flex-1 space-y-4 p-4 pt-0" data-races-listing="">
-        {/* Root generateMetadata awaits package availability, and this page is
-          dynamic, so Next streams the merged description into the body.
-          Lighthouse only reads head meta. This tag is part of the shell, so
-          it is hoisted into the initial head. */}
-        <meta name="description" content={racesPageDescription} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
