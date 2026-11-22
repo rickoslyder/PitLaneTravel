@@ -156,7 +156,7 @@ test.describe("production smoke", () => {
     ).toBeVisible()
     await expect(
       page.getByRole("link", {
-        name: "Azerbaijan Grand Prix 2027 Tickets: 20% Early Bird, Best Grandstands",
+        name: "Azerbaijan Grand Prix 2027 Tickets: Best Grandstands",
         exact: true
       })
     ).toBeVisible()
@@ -208,16 +208,18 @@ test.describe("production smoke", () => {
         disclosure:
           "This page has two affiliate links: Airalo (eSIMs) and Omio (trains and buses).",
         faq: "When is WEC Launch Week 2026?",
-        omio: true
+        omio: true,
+        faqCount: 5
       },
       {
         path: "/guides/azerbaijan-grand-prix-2027-tickets-travel",
         heading:
-          "Azerbaijan Grand Prix 2027 tickets: early bird, best grandstands and planning your trip",
+          "Azerbaijan Grand Prix 2027 tickets: best grandstands and planning your trip",
         disclosure:
           "Our only affiliate link here is to Airalo, an eSIM provider.",
-        faq: "When does the Baku F1 early bird end?",
-        omio: false
+        faq: "How much are Azerbaijan Grand Prix 2027 tickets?",
+        omio: false,
+        faqCount: 4
       }
     ] as const
 
@@ -298,7 +300,10 @@ test.describe("production smoke", () => {
           true
         )
         const faq = parsed.find(block => block["@type"] === "FAQPage")
-        expect(faq?.mainEntity).toHaveLength(5)
+        expect(faq?.mainEntity).toHaveLength(item.faqCount)
+        if (item.path.endsWith("azerbaijan-grand-prix-2027-tickets-travel")) {
+          expect(html).not.toMatch(/early[- ]bird/i)
+        }
         expect(parsed.some(block => block["@type"] === "VideoObject")).toBe(
           false
         )
