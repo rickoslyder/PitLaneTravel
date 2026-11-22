@@ -127,10 +127,13 @@ describe("WEC Launch Week and Baku 2027 guides", () => {
       "All nine 2027 WEC rounds compared: dates, cheapest official tickets, Launch Week offers and which race suits you, from Silverstone's return to Le Mans."
     )
     expect(baku!.title).toBe(
-      "Azerbaijan Grand Prix 2027 Tickets: 20% Early Bird, Best Grandstands"
+      "Azerbaijan Grand Prix 2027 Tickets: Best Grandstands"
     )
     expect(baku!.description).toBe(
-      "Baku's early-bird 20% ends 16 November 2026. Compare every grandstand's price and view, and plan your trip to the 24–26 September race."
+      "Compare every grandstand's price and view, and plan your trip to the 24–26 September race."
+    )
+    expect(baku!.headline).toBe(
+      "Azerbaijan Grand Prix 2027 tickets: best grandstands and planning your trip"
     )
 
     for (const guide of [wec!, baku!]) {
@@ -147,25 +150,30 @@ describe("WEC Launch Week and Baku 2027 guides", () => {
     expect(wec!.body.match(/Not shown \(8 Nov\)/g)).toHaveLength(11)
     expect(wec!.body).toContain("**¥9,000 (25% off), 10–16 Nov**")
     expect(wec!.body).toContain("June early-bird from-price")
-    expect(baku!.body).toContain("**−20%**")
-    expect(baku!.body).toContain("VALID UNTIL 16.11.2026")
+    expect(baku!.body).not.toMatch(/early[- ]bird/i)
+    expect(baku!.body).toContain(
+      "from $490 (Filarmoniya) to $1,350 (Absheron C)"
+    )
+    expect(baku!.body).toContain("Azneft (Turn 16, $810)")
+    expect(baku!.body).toContain("Khazar ($510)")
+    expect(baku!.body).not.toContain("20%")
     expect(baku!.body).not.toContain("sjv.io")
     expect(baku!.body).not.toContain("Omio")
   })
 
   it("matches each visible FAQ to FAQPage JSON-LD and emits Article plus BreadcrumbList", () => {
     const cases = [
-      { slug: WEC_SLUG, faq: wecLaunchWeekFaq },
-      { slug: BAKU_SLUG, faq: azerbaijanGp2027Faq }
+      { slug: WEC_SLUG, faq: wecLaunchWeekFaq, faqCount: 5 },
+      { slug: BAKU_SLUG, faq: azerbaijanGp2027Faq, faqCount: 4 }
     ] as const
 
-    for (const { slug, faq } of cases) {
+    for (const { slug, faq, faqCount } of cases) {
       const guide = getGuide(slug)
       expect(guide).not.toBeNull()
       const visible = visibleFaq(guide!.body)
       expect(faq["@type"]).toBe("FAQPage")
-      expect(faq.mainEntity).toHaveLength(5)
-      expect(visible).toHaveLength(5)
+      expect(faq.mainEntity).toHaveLength(faqCount)
+      expect(visible).toHaveLength(faqCount)
       faq.mainEntity.forEach((entity, index) => {
         expect(entity.name).toBe(visible[index].name)
         expect(entity.acceptedAnswer.text).toBe(visible[index].text)
@@ -182,6 +190,10 @@ describe("WEC Launch Week and Baku 2027 guides", () => {
       expect(article).not.toHaveProperty("image")
       expect(JSON.stringify(article)).not.toContain("VideoObject")
       expect(JSON.stringify(faq)).not.toContain("VideoObject")
+      if (slug === BAKU_SLUG) {
+        expect(JSON.stringify(article)).not.toMatch(/early[- ]bird/i)
+        expect(JSON.stringify(faq)).not.toMatch(/early[- ]bird/i)
+      }
       expect(breadcrumb.itemListElement[2]).toMatchObject({
         position: 3,
         name: guide!.title,
@@ -218,7 +230,7 @@ describe("WEC Launch Week and Baku 2027 guides", () => {
       'href="/guides/azerbaijan-grand-prix-2027-tickets-travel"'
     )
     expect(indexHtml).toContain(
-      "Azerbaijan Grand Prix 2027 Tickets: 20% Early Bird, Best Grandstands"
+      "Azerbaijan Grand Prix 2027 Tickets: Best Grandstands"
     )
 
     for (const slug of NEW_SLUGS) {
@@ -247,7 +259,7 @@ describe("WEC Launch Week and Baku 2027 guides", () => {
         "FAQPage"
       ])
       const faq = blocks.find(block => block["@type"] === "FAQPage")
-      expect(faq?.mainEntity).toHaveLength(5)
+      expect(faq?.mainEntity).toHaveLength(slug === BAKU_SLUG ? 4 : 5)
       expect(html).not.toContain("VideoObject")
       expect(html).toContain('rel="sponsored nofollow noopener noreferrer"')
       expect(html).toContain('href="https://airalo.pxf.io/PzEM6e"')
@@ -261,6 +273,7 @@ describe("WEC Launch Week and Baku 2027 guides", () => {
     const bakuHtml = await renderGuide(BAKU_SLUG)
     expect(bakuHtml).not.toContain("omio")
     expect(bakuHtml).not.toContain("sjv.io")
+    expect(bakuHtml).not.toMatch(/early[- ]bird/i)
 
     const which = await renderGuide("which-race-first-2027")
     expect(which).not.toContain("<main")

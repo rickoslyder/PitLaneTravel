@@ -4,18 +4,10 @@ export const azerbaijanGp2027Faq = {
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "When does the Baku F1 early bird end?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "The promoter's 20% early-bird discount is valid until 16 November 2026, according to Baku City Circuit's official ticket page."
-      }
-    },
-    {
-      "@type": "Question",
       "name": "How much are Azerbaijan Grand Prix 2027 tickets?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Adult grandstand tickets cost from $400 (Filarmoniya) to $1,080 (Absheron C) at the early-bird price, or $490 to $1,350 at full price, including 18% VAT."
+        "text": "Adult grandstand tickets cost from $490 (Filarmoniya) to $1,350 (Absheron C), including 18% VAT."
       }
     },
     {
@@ -23,7 +15,7 @@ export const azerbaijanGp2027Faq = {
       "name": "Which is the best grandstand in Baku?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Absheron, on the main straight, has the best views of the start and pits. Azneft at Turn 16 and Khazar ($410) are the best-value seats."
+        "text": "Absheron, on the main straight, has the best views of the start and pits. Azneft at Turn 16 and Khazar ($510) are the best-value seats."
       }
     },
     {
