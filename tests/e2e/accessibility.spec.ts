@@ -911,12 +911,41 @@ test.describe("mobile chrome at 360x676", () => {
     await page.getByRole("button", { name: "Toggle Sidebar" }).click()
     const sidebar = page.locator("[data-mobile='true'][data-sidebar='sidebar']")
     await expect(sidebar).toBeVisible()
-    const sidebarBox = await sidebar.boundingBox()
-    const privacyWhileOpen = await privacy.boundingBox()
-    expect(sidebarBox).toBeTruthy()
-    expect(privacyWhileOpen).toBeTruthy()
-    expect(boxesOverlap(headingBox!, privacyWhileOpen!)).toBe(false)
-    expect(boxesOverlap(sidebarBox!, privacyWhileOpen!)).toBe(false)
+    const overlap = await page.evaluate(() => {
+      const read = (node: Element | null) => {
+        if (!(node instanceof HTMLElement)) return null
+        const rect = node.getBoundingClientRect()
+        return {
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height
+        }
+      }
+      const headingRect = read(document.querySelector("h1"))
+      const privacyRect = read(document.querySelector("[data-privacy-settings]"))
+      const sidebarRect = read(
+        document.querySelector("[data-mobile='true'][data-sidebar='sidebar']")
+      )
+      const hits = (
+        a: { x: number; y: number; width: number; height: number } | null,
+        b: { x: number; y: number; width: number; height: number } | null
+      ) => {
+        if (!a || !b) return true
+        return (
+          a.x < b.x + b.width &&
+          a.x + a.width > b.x &&
+          a.y < b.y + b.height &&
+          a.y + a.height > b.y
+        )
+      }
+      return {
+        headingOverlap: hits(headingRect, privacyRect),
+        sidebarOverlap: hits(sidebarRect, privacyRect)
+      }
+    })
+    expect(overlap.headingOverlap).toBe(false)
+    expect(overlap.sidebarOverlap).toBe(false)
   })
 
   test("races pages use the main header", async ({ page }) => {
