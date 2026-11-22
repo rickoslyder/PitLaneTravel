@@ -7,26 +7,49 @@ import {
   AccordionTrigger
 } from "@/components/ui/accordion"
 import { Card } from "@/components/ui/card"
+import { brand } from "@/config/brand"
 import { siteCopy } from "@/config/site-copy"
 import { getPackagesAvailability } from "@/lib/packages-availability"
+import { pageSeo } from "@/lib/site-metadata"
+import type { Metadata } from "next"
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { siteWide } = await getPackagesAvailability()
+  const copy = siteCopy(siteWide)
+  const title = `F1 Travel FAQ | ${brand.name}`
+  const description = copy.helpFaqsDescription
+  const seo = pageSeo("/faq")
+
+  return {
+    title,
+    description,
+    alternates: seo.alternates,
+    openGraph: {
+      title,
+      description,
+      url: seo.openGraph.url,
+      images: seo.openGraph.images
+    }
+  }
+}
 
 export default async function FAQPage() {
   const { siteWide } = await getPackagesAvailability()
   const copy = siteCopy(siteWide)
   const faqs = [
-  {
-    category: "Coverage",
-    questions: copy.faqCoverage
-  },
-  {
-    category: "Planning tools",
-    questions: copy.faqPlanning
-  },
-  {
-    category: copy.faqTravelCategory,
-    questions: copy.faqTravel
-  }
-]
+    {
+      category: "Coverage",
+      questions: copy.faqCoverage
+    },
+    {
+      category: "Planning tools",
+      questions: copy.faqPlanning
+    },
+    {
+      category: copy.faqTravelCategory,
+      questions: copy.faqTravel
+    }
+  ]
 
   return (
     <div className="container mx-auto px-4 py-16">

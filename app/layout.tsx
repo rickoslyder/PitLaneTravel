@@ -150,6 +150,11 @@ export default async function RootLayout({
 
             {children}
 
+            <div
+              data-privacy-settings-fallback=""
+              className="border-t px-4 py-3 empty:hidden"
+            />
+
             <TailwindIndicator />
 
             <Toaster />

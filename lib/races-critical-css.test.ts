@@ -31,6 +31,10 @@ describe("races critical css", () => {
     expect(racesCriticalCss).toBe(await buildRacesCriticalCss())
     expect(racesCriticalCss).toContain(".text-4xl{")
     expect(racesCriticalCss).toContain(".h-14{")
+    expect(racesCriticalCss).toContain(".left-1\\/2{")
+    expect(racesCriticalCss).toContain(".-translate-x-1\\/2{")
+    expect(racesCriticalCss).toContain(".p-2{")
+    expect(racesCriticalCss).toContain(".lg\\:hidden{")
     expect(racesCriticalCss).toContain(".sr-only{")
     expect(racesCriticalCss).toContain(".fixed{position:fixed}")
     expect(racesCriticalCss).toContain("data-races-listing-hero")
@@ -49,7 +53,7 @@ describe("races critical css", () => {
         expect(racesCriticalClassMarkup, `${file} ${token}`).toContain(token)
       }
     }
-    expect(racesCriticalClassMarkup).toContain("flex-1 space-y-8 p-4 pt-0")
+    expect(racesCriticalClassMarkup).toContain("flex-1 space-y-4 p-4 pt-0")
     expect(racesCriticalClassMarkup).toContain("z-[60]")
   })
 

@@ -824,3 +824,221 @@ test.describe("scroll handlers", () => {
     expect(end!.scale!).toBeGreaterThan(0.95)
   })
 })
+
+const PHONE = { width: 360, height: 676 } as const
+
+function boxesOverlap(
+  a: { x: number; y: number; width: number; height: number },
+  b: { x: number; y: number; width: number; height: number }
+): boolean {
+  return (
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
+  )
+}
+
+test.describe("mobile chrome at 360x676", () => {
+  test.use({ viewport: PHONE })
+
+  test("consent copy is fully readable and links to the privacy policy", async ({
+    page
+  }) => {
+    const response = await page.goto("/")
+    expect(response?.ok()).toBeTruthy()
+
+    const bar = page.locator("[data-analytics-consent-bar]")
+    const copy = page.locator("[data-analytics-consent-copy]")
+    await expect(bar).toBeVisible()
+    await expect(copy).toBeVisible()
+    await expect(
+      bar.getByRole("link", { name: "Privacy policy", exact: true })
+    ).toBeVisible()
+    await expect(bar.getByText("PostHog")).toBeHidden()
+
+    const fit = await copy.evaluate(node => ({
+      scrollHeight: node.scrollHeight,
+      clientHeight: node.clientHeight
+    }))
+    expect(fit.scrollHeight).toBeLessThanOrEqual(fit.clientHeight)
+
+    await bar.getByText("Details", { exact: true }).click()
+    await expect(bar.getByText("PostHog")).toBeVisible()
+    await expect(bar.getByText("Microsoft Clarity")).toBeVisible()
+    await expect(bar.getByText("Vercel Speed Insights")).toBeVisible()
+    await expect(
+      bar.getByText("Essential features still work if you reject.")
+    ).toBeVisible()
+
+    const openFit = await copy.evaluate(node => ({
+      scrollHeight: node.scrollHeight,
+      clientHeight: node.clientHeight
+    }))
+    expect(openFit.scrollHeight).toBeLessThanOrEqual(openFit.clientHeight)
+  })
+
+  test("privacy settings stay clear of the races heading and the open sidebar", async ({
+    page
+  }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        "pitlane.analytics-consent",
+        '{"v":1,"status":"denied"}'
+      )
+    })
+    const response = await page.goto("/races")
+    expect(response?.ok()).toBeTruthy()
+
+    const heading = page.getByRole("heading", {
+      level: 1,
+      name: "Motorsport Race Calendar",
+      exact: true
+    })
+    const privacy = page.getByRole("button", {
+      name: "Privacy settings",
+      exact: true
+    })
+    await expect(heading).toBeVisible()
+    await expect(privacy).toBeVisible()
+
+    const headingBox = await heading.boundingBox()
+    const privacyBox = await privacy.boundingBox()
+    expect(headingBox).toBeTruthy()
+    expect(privacyBox).toBeTruthy()
+    expect(boxesOverlap(headingBox!, privacyBox!)).toBe(false)
+
+    await page.getByRole("button", { name: "Toggle Sidebar" }).click()
+    const sidebar = page.locator("[data-mobile='true'][data-sidebar='sidebar']")
+    await expect(sidebar).toBeVisible()
+    const overlap = await page.evaluate(() => {
+      const read = (node: Element | null) => {
+        if (!(node instanceof HTMLElement)) return null
+        const rect = node.getBoundingClientRect()
+        return {
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height
+        }
+      }
+      const headingRect = read(document.querySelector("h1"))
+      const privacyRect = read(document.querySelector("[data-privacy-settings]"))
+      const sidebarRect = read(
+        document.querySelector("[data-mobile='true'][data-sidebar='sidebar']")
+      )
+      const hits = (
+        a: { x: number; y: number; width: number; height: number } | null,
+        b: { x: number; y: number; width: number; height: number } | null
+      ) => {
+        if (!a || !b) return true
+        return (
+          a.x < b.x + b.width &&
+          a.x + a.width > b.x &&
+          a.y < b.y + b.height &&
+          a.y + a.height > b.y
+        )
+      }
+      return {
+        headingOverlap: hits(headingRect, privacyRect),
+        sidebarOverlap: hits(sidebarRect, privacyRect)
+      }
+    })
+    expect(overlap.headingOverlap).toBe(false)
+    expect(overlap.sidebarOverlap).toBe(false)
+  })
+
+  test("privacy settings stay available after a client navigation", async ({
+    page
+  }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        "pitlane.analytics-consent",
+        '{"v":1,"status":"denied"}'
+      )
+    })
+    const home = await page.goto("/")
+    expect(home?.ok()).toBeTruthy()
+    const privacy = page.getByRole("button", {
+      name: "Privacy settings",
+      exact: true
+    })
+    await expect(privacy).toBeVisible()
+
+    await page.getByRole("button", { name: "Menu", exact: true }).click()
+    await page.getByRole("link", { name: "Races", exact: true }).click()
+    await expect(page).toHaveURL(/\/races$/)
+    await expect(privacy).toBeVisible()
+    await expect(page.locator("[data-privacy-settings]")).toHaveCount(1)
+  })
+
+  test("races pages use the main header", async ({ page }) => {
+    for (const path of [
+      "/races",
+      `/races/${E2E_FAN_TIPS_ABU_DHABI_SLUG}`
+    ]) {
+      const response = await page.goto(path)
+      expect(response?.ok(), path).toBeTruthy()
+      await expect(
+        page.getByRole("link", { name: "PitLane Travel", exact: true })
+      ).toBeVisible()
+      await expect(
+        page.getByRole("button", { name: "Menu", exact: true })
+      ).toBeVisible()
+      if (path !== "/races") continue
+
+      const gap = await page.evaluate(() => {
+        const h1 = document.querySelector("h1")
+        const bar = document.querySelector("[data-races-toolbar]")
+        if (!(h1 instanceof HTMLElement) || !(bar instanceof HTMLElement)) {
+          return null
+        }
+        return Math.round(
+          h1.getBoundingClientRect().top - bar.getBoundingClientRect().bottom
+        )
+      })
+      expect(gap, path).not.toBeNull()
+      expect(gap!, path).toBeLessThanOrEqual(80)
+    }
+  })
+
+  test("faq title differs from the not-found title", async ({
+    page,
+    request
+  }) => {
+    const faq = await page.goto("/faq")
+    expect(faq?.ok()).toBeTruthy()
+    await expect(page).toHaveTitle("F1 Travel FAQ | PitLane Travel")
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      "content",
+      "F1 Travel FAQ | PitLane Travel"
+    )
+
+    const missing = await request.get("/this-page-is-not-real")
+    expect(missing.status()).toBe(404)
+    const html = await missing.text()
+    const title = html.match(/<title>([^<]*)<\/title>/)?.[1] ?? ""
+    expect(title).toBe("Page not found | PitLane Travel")
+    expect(title).not.toBe(await page.title())
+  })
+
+  test("footer links are at least 24px tall", async ({ page }) => {
+    const response = await page.goto("/")
+    expect(response?.ok()).toBeTruthy()
+    const heights = await page.locator("footer a").evaluateAll(nodes =>
+      nodes.map(node => Math.round(node.getBoundingClientRect().height))
+    )
+    expect(heights.length).toBeGreaterThan(0)
+    for (const height of heights) {
+      expect(height).toBeGreaterThanOrEqual(24)
+    }
+
+    const guide = await page.goto("/guides/abu-dhabi-grand-prix-travel-guide")
+    expect(guide?.ok()).toBeTruthy()
+    const source = page.getByRole("link", { name: "formula1.com" }).first()
+    await expect(source).toBeVisible()
+    const box = await source.boundingBox()
+    expect(box).toBeTruthy()
+    expect(box!.height).toBeGreaterThanOrEqual(24)
+  })
+})
