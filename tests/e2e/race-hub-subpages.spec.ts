@@ -60,8 +60,15 @@ test.describe("Abu Dhabi fan-type sub-pages", () => {
 
       const disclosureFollows = await page.evaluate(() => {
         const overview = document.querySelector("[data-answer-first]")
-        return overview?.nextElementSibling?.textContent?.startsWith(
-          "Some links on this page are affiliate links."
+        const disclosure = "Some links on this page are affiliate links."
+        const next = overview?.nextElementSibling
+        if (next?.textContent?.startsWith(disclosure)) return true
+        // The hero figure sits between the opening paragraph and the note.
+        const figure = overview?.parentElement?.nextElementSibling
+        const paragraph = figure?.nextElementSibling?.querySelector("p")
+        return (
+          figure?.tagName === "FIGURE" &&
+          paragraph?.textContent?.startsWith(disclosure) === true
         )
       })
       expect(disclosureFollows, item.path).toBe(true)
