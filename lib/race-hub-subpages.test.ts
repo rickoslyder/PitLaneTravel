@@ -176,8 +176,9 @@ describe("Abu Dhabi fan-type sub-page copy", () => {
       "Abu Dhabi Grand Prix for first-timers: tickets, timings and what to expect at Yas Marina"
     )
     expect(html).toContain("Formula 2 and the AZM GT Trophy support races")
+    expect(html.match(/data-answer-first/g)).toHaveLength(1)
     expect(html).toMatch(
-      /data-answer-first[\s\S]*?<\/p>\s*<p[^>]*>Some links on this page are affiliate links\./
+      /data-answer-first[\s\S]*?<\/p>\s*<\/div>\s*<figure[^>]*data-guide-figure="hero-floodlights"[\s\S]*?<\/figure>\s*<div[^>]*>\s*<p[^>]*>Some links on this page are affiliate links\./
     )
     expect(html).toContain(
       'href="https://airalo.pxf.io/PzEM6e" rel="sponsored nofollow"'

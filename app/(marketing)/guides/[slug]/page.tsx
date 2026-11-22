@@ -1,5 +1,6 @@
 import { F1TicketSaleTable } from "@/components/guides/f1-ticket-sale-table"
 import { GuideMarkdown } from "@/components/guides/guide-markdown"
+import { GuideWithFigures } from "@/components/guides/guide-with-figures"
 import { YasMarinaLocator } from "@/components/maps/yas-marina-locator"
 import { PlanByFanType } from "@/components/guides/plan-by-fan-type"
 import { abuDhabiGrandPrixTravelGuideFaq } from "@/data/guides/abu-dhabi-grand-prix-travel-guide-faq"
@@ -29,6 +30,7 @@ import {
 } from "@/lib/guides"
 import { DEFAULT_OG_IMAGE_URL, pageSeo } from "@/lib/site-metadata"
 import type { Metadata } from "next"
+import type { ReactNode } from "react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -65,6 +67,37 @@ function bodyWithoutHeadline(body: string, headline: string): string {
   return body.slice(prefix.length).replace(/^\n+/, "")
 }
 
+function renderGuideChunk(source: string, slug: string): ReactNode {
+  if (slug === ABU_DHABI_GUIDE) {
+    const headingAt = source.indexOf(STAY_HEADING)
+    const introAt = source.indexOf(STAY_INTRO)
+    if (headingAt >= 0 && introAt > headingAt) {
+      const cut = introAt + STAY_INTRO.length
+      return (
+        <>
+          <GuideMarkdown source={source.slice(0, cut)} />
+          <YasMarinaLocator kind="stay-zones" />
+          {renderGuideChunk(source.slice(cut), slug)}
+        </>
+      )
+    }
+  }
+  if (
+    slug === "f1-2027-ticket-on-sale-dates" &&
+    source.includes(TICKET_SALE_TABLE)
+  ) {
+    const [before, after] = source.split(TICKET_SALE_TABLE)
+    return (
+      <>
+        <GuideMarkdown source={before} />
+        <F1TicketSaleTable rows={f1TicketSales2027} />
+        {after ? renderGuideChunk(after, slug) : null}
+      </>
+    )
+  }
+  return <GuideMarkdown source={source} />
+}
+
 function GuideBody({
   body,
   headline,
@@ -75,33 +108,12 @@ function GuideBody({
   slug: string
 }) {
   const source = bodyWithoutHeadline(body, headline)
-  if (slug === ABU_DHABI_GUIDE) {
-    const headingAt = source.indexOf(STAY_HEADING)
-    const introAt = source.indexOf(STAY_INTRO)
-    if (headingAt >= 0 && introAt > headingAt) {
-      const cut = introAt + STAY_INTRO.length
-      return (
-        <>
-          <GuideMarkdown source={source.slice(0, cut)} />
-          <YasMarinaLocator kind="stay-zones" />
-          <GuideMarkdown source={source.slice(cut)} />
-        </>
-      )
-    }
-  }
-  if (
-    slug !== "f1-2027-ticket-on-sale-dates" ||
-    !source.includes(TICKET_SALE_TABLE)
-  ) {
-    return <GuideMarkdown source={source} />
-  }
-  const [before, after] = source.split(TICKET_SALE_TABLE)
   return (
-    <>
-      <GuideMarkdown source={before} />
-      <F1TicketSaleTable rows={f1TicketSales2027} />
-      <GuideMarkdown source={after ?? ""} />
-    </>
+    <GuideWithFigures
+      routeKey={slug}
+      source={source}
+      renderMarkdown={markdown => renderGuideChunk(markdown, slug)}
+    />
   )
 }
 
