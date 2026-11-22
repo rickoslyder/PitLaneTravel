@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import {
   IllustrationCredit,
+  MapCredit,
   PhotoCredit,
   type GuideArt,
   type GuideFigureModel
@@ -22,6 +23,8 @@ export type GuideSegment =
   | { kind: "figure"; figure: GuideFigureModel }
 
 const CC_BY_2 = "https://creativecommons.org/licenses/by/2.0"
+const CC_BY_3 = "https://creativecommons.org/licenses/by/3.0"
+const CC_BY_SA = "https://creativecommons.org/licenses/by-sa/4.0"
 const ABU_DHABI = "abu-dhabi-grand-prix-travel-guide"
 const AFFILIATE_NOTE = "Some links on this page are affiliate links"
 
@@ -74,6 +77,10 @@ function define(input: {
 
 function illustration() {
   return <IllustrationCredit />
+}
+
+function mapCredit() {
+  return <MapCredit />
 }
 
 const FIRST_TIMERS = `${ABU_DHABI}-first-timers`
@@ -234,6 +241,309 @@ const figuresByRoute: Record<string, readonly GuideFigureDef[]> = {
       mobile: [800, 1040],
       desktop: [1600, 1020],
       anchor: { kind: "end-of-section", id: "on-the-day-with-children" }
+    })
+  ],
+  "abu-dhabi-grand-prix-travel-guide": [
+    define({
+      id: "hero-yas-sunset",
+      folder: "abu-dhabi-grand-prix-travel-guide",
+      alt: "Empty Yas Marina Circuit track at dusk, with a painted kerb and grass in the foreground and a row of floodlight masts under a blue and pink sky.",
+      caption: "Yas Marina Circuit at dusk on a non-race evening, July 2014.",
+      credit: (
+        <PhotoCredit
+          author="Cesar I. Martins"
+          license="CC BY 2.0"
+          licenseHref={CC_BY_2}
+          fileHref="https://commons.wikimedia.org/wiki/File:Por_do_sol_no_circuito_Yas_Marina_-_Sunset_at_Yas_Marina_circuit_-_Abu_Dhabi_(17173577080).jpg"
+        />
+      ),
+      mobile: [800, 600],
+      desktop: [1600, 900],
+      anchor: {
+        kind: "before-heading",
+        id: "abu-dhabi-gp-dates-and-race-times"
+      },
+      priority: true
+    }),
+    define({
+      id: "b1-session-times",
+      folder: "abu-dhabi-grand-prix-travel-guide",
+      alt: "Abu Dhabi Grand Prix 2026 schedule in local time (UTC+4): Friday 4 December, Practice 1 at 13:30 and Practice 2 at 17:00; Saturday 5 December, Practice 3 at 14:30 and Qualifying at 18:00; Sunday 6 December, the 58-lap race at 17:00. Thursday 3 December is a ticket-holder day with no F1 sessions.",
+      caption:
+        "2026 session start times, local (UTC+4) with UTC. Source: formula1.com, as cited in this guide; re-check before you travel.",
+      credit: illustration(),
+      mobile: [800, 1306],
+      desktop: [1600, 1170],
+      anchor: { kind: "after-heading", id: "abu-dhabi-gp-dates-and-race-times" }
+    }),
+    define({
+      id: "b3-exit-plan",
+      folder: "abu-dhabi-grand-prix-travel-guide",
+      alt: "Three ways to plan your exit after the Abu Dhabi race: stay for the concert at Etihad Live, eat on the island while queues ease, or agree a pick-up point away from the main gates. Fans reported long post-race waits at Yas Mall in 2024 and 2025.",
+      caption:
+        "Pick one before the race starts. Our judgement, based on the 2024–2025 fan reports cited in this guide; 2026 arrangements may differ.",
+      credit: illustration(),
+      mobile: [800, 1398],
+      desktop: [1600, 1258],
+      anchor: {
+        kind: "after-text",
+        text: "plan your exit before the race starts"
+      }
+    }),
+    define({
+      id: "b4-concert-nights",
+      folder: "abu-dhabi-grand-prix-travel-guide",
+      alt: "After-race concerts at Etihad Live, 2026: Thursday 3 December, Kings of Leon and Lewis Capaldi; Friday 4, Jennifer Lopez and Alex Warren; Saturday 5, Imagine Dragons; Sunday 6, The Chainsmokers and The Script.",
+      caption:
+        "2026 after-race concert line-up, as announced by the promoter. Entry is included for Grand Prix ticket holders; check the entry rules before you go.",
+      credit: illustration(),
+      mobile: [800, 1066],
+      desktop: [1600, 1363],
+      anchor: { kind: "after-list", id: "what-the-weekend-is-like" }
+    })
+  ],
+  // The price-ladder graphic is omitted. Its pixels say a 20% early bird
+  // runs until 23 November 2026, so the picture would go stale immediately.
+  "azerbaijan-grand-prix-2027-tickets-travel": [
+    define({
+      id: "hero-maiden-tower",
+      folder: "azerbaijan-grand-prix-2027-tickets-travel",
+      alt: "The Maiden Tower and Old City walls in Baku at dusk, lit up against a deep blue sky, with domed stone roofs and trees in front.",
+      caption:
+        "The Maiden Tower (Giz Galasi) in Baku’s Old City, September 2016. Not a race-weekend photo.",
+      credit: (
+        <PhotoCredit
+          author="Diego Delso"
+          license="CC BY-SA 4.0"
+          licenseHref={CC_BY_SA}
+          fileHref="https://commons.wikimedia.org/wiki/File:Torre_de_la_Doncella,_Baku,_Azerbaiy%C3%A1n,_2016-09-26,_DD_212-214_HDR.jpg"
+        />
+      ),
+      mobile: [800, 600],
+      desktop: [1600, 900],
+      anchor: { kind: "before-heading", id: "baku-2027-at-a-glance" }
+    }),
+    define({
+      id: "b2-baku-locator",
+      folder: "azerbaijan-grand-prix-2027-tickets-travel",
+      alt: "Two-part map of Baku. Left: Heydar Aliyev International Airport (GYD) northeast of the city centre, about 30 km by road. Right: the Baku City Circuit outline running along the seafront boulevard and around the Old City, with the Maiden Tower marked.",
+      caption:
+        "Locator only, not a route. About 30 km by road, per the F1 ticket store. Circuit: OpenStreetMap relation 11266687. © OpenStreetMap contributors (ODbL) · Made with Natural Earth.",
+      credit: mapCredit(),
+      mobile: [800, 1676],
+      desktop: [1600, 1345],
+      anchor: { kind: "after-heading", id: "airport-to-the-city" }
+    }),
+    define({
+      id: "b3-bulvar-night",
+      folder: "azerbaijan-grand-prix-2027-tickets-travel",
+      alt: "Baku’s seafront promenade at night, with lamps lighting the paving, a few people walking and the Caspian Sea to the right.",
+      caption:
+        "The Bulvar seafront promenade at night, May 2010. The circuit runs along it.",
+      credit: (
+        <PhotoCredit
+          author="kikiwis"
+          license="CC BY 3.0"
+          licenseHref={CC_BY_3}
+          fileHref="https://commons.wikimedia.org/wiki/File:Seaside_promenad._Baku._Azerbaijan._%D0%9D%D0%B0%D0%B1%D0%B5%D1%80%D0%B5%D0%B6%D0%BD%D0%B0%D1%8F._%D0%91%D0%B0%D0%BA%D1%83._%D0%90%D0%B7%D0%B5%D1%80%D0%B1%D0%B0%D0%B9%D0%B4%D0%B6%D0%B0%D0%BD_-_panoramio.jpg"
+        />
+      ),
+      mobile: [800, 600],
+      desktop: [1600, 1067],
+      anchor: { kind: "after-list", id: "where-to-stay" }
+    })
+  ],
+  "f1-2027-ticket-on-sale-dates": [
+    define({
+      id: "hero-status-board",
+      folder: "f1-2027-ticket-on-sale-dates",
+      alt: "2027 F1 ticket status for all 24 races as of 9 November 2026. On sale: Bahrain, Saudi Arabia, Australia, Miami, Monaco, Britain, Austria, Belgium, Hungary, Italy, Madrid, Azerbaijan, Austin and São Paulo. Sale date set: Japan 15 November, Singapore 11 November, Mexico City 11 November. Portugal phase 2 to be confirmed. Not announced: China, Türkiye, Las Vegas, Qatar and Abu Dhabi. Canada’s public sale postponed.",
+      caption:
+        "2027 ticket status for every race, as of 9 Nov 2026. Some dates have since passed; check each promoter. Portugal, Hungary’s opening date and São Paulo’s phases are reported, not confirmed.",
+      credit: illustration(),
+      mobile: [800, 1880],
+      desktop: [1600, 2235],
+      anchor: { kind: "before-heading", id: "next-sales-to-watch" }
+    }),
+    define({
+      id: "b1-sale-day-checklist",
+      folder: "f1-2027-ticket-on-sale-dates",
+      alt: "Sale-day checklist: pick a race and a back-up; make your seller account before sale day; know the ticket limit; set your alarm in UK time; use one account, one device and one browser without refreshing; buy only from the official seller.",
+      caption:
+        "How to get ready for an F1 ticket sale. Queue advice is Ticketmaster’s for Melbourne and works for most sales.",
+      credit: illustration(),
+      mobile: [800, 1776],
+      desktop: [1600, 1538],
+      anchor: { kind: "after-heading", id: "how-to-get-ready-for-a-sale" }
+    }),
+    define({
+      id: "b2-who-sells-what",
+      folder: "f1-2027-ticket-on-sale-dates",
+      alt: "Three places F1 tickets come from: the race promoter, the main seller, which sets dates and prices and is usually first; Formula 1’s official ticket store, where prices can differ; and package sellers such as F1 Experiences, where a deposit isn’t a ticket.",
+      caption:
+        "Who sells what. Compare the promoter and the F1 store on the day you buy.",
+      credit: illustration(),
+      mobile: [800, 1364],
+      desktop: [1600, 1140],
+      anchor: {
+        kind: "after-heading",
+        id: "who-sells-what-promoter-f1-store-or-package"
+      }
+    })
+  ],
+  "two-races-one-trip-2027": [
+    define({
+      id: "hero-europe-route-map",
+      folder: "two-races-one-trip-2027",
+      alt: "Map of western Europe showing the 2027 three-series run: Formula E at Brands Hatch (29–30 May, provisional) or MotoGP at Mugello (28–30 May, provisional), then F1 in Monaco (4–6 June), then the 24 Hours of Le Mans (race 12–13 June), joined in order by straight lines.",
+      caption:
+        "Late May to mid-June 2027. Lines show the order, not routes. MotoGP and Formula E dates are provisional. © OpenStreetMap contributors (ODbL) · Made with Natural Earth.",
+      credit: mapCredit(),
+      mobile: [800, 1546],
+      desktop: [1600, 1820],
+      anchor: {
+        kind: "before-heading",
+        id: "the-quick-answer-the-best-two-race-trips-in-2027"
+      }
+    }),
+    define({
+      id: "b1-pairings-timeline",
+      folder: "two-races-one-trip-2027",
+      alt: "Timeline from April to September 2027 of the eight best two-race pairings, with free days between events: 1 Monaco F1 then Le Mans; 2 MotoGP Mugello then Monaco; 3 Formula E Brands Hatch then Monaco; 4 Monza then Misano; 5 Zandvoort then Assen; 6 Canada, the Indy 500 and Detroit; 7 Long Beach, MotoGP Austin and Miami; 8 Silverstone then Sachsenring or Austria. Provisional dates are hatched.",
+      caption:
+        "The eight pairings on one 2027 timeline. Hatched bars are provisional dates. Sources: official series calendars, checked 31 Oct 2026.",
+      credit: illustration(),
+      mobile: [800, 1664],
+      desktop: [1600, 1913],
+      anchor: {
+        kind: "after-table",
+        id: "the-quick-answer-the-best-two-race-trips-in-2027"
+      }
+    }),
+    define({
+      id: "b2-clash-weekends",
+      folder: "two-races-one-trip-2027",
+      alt: "Seven 2027 clash weekends: 30 April to 2 May, F1 Miami and Formula E Monaco; 13 to 16 May, WEC Spa and MotoGP France; 28 to 30 May, the biggest clash, the Indy 500, MotoGP Mugello and Formula E Brands Hatch; 9 to 13 June, Le Mans and MotoGP Catalunya; 9 to 11 July, F1 Austria, MotoGP Sachsenring and WEC São Paulo; 10 to 12 September, F1 Madrid, MotoGP Misano and WEC COTA; 22 to 24 October, F1 Austin and MotoGP Malaysia.",
+      caption:
+        "Weekends where you can only pick one. MotoGP and Formula E dates are provisional.",
+      credit: illustration(),
+      mobile: [800, 1932],
+      desktop: [1600, 1720],
+      anchor: {
+        kind: "after-heading",
+        id: "weekends-that-clash-in-2027-so-you-can-only-pick-one"
+      }
+    }),
+    define({
+      id: "b3-north-america-map",
+      folder: "two-races-one-trip-2027",
+      alt: "Map of the Great Lakes region showing F1 in Montréal (21–23 May 2027), the Indy 500 at Indianapolis (30 May) and IndyCar in Detroit (4–6 June), joined in order by straight lines.",
+      caption:
+        "Three series in under three weeks. Lines show the order, not routes. © OpenStreetMap contributors (ODbL) · Made with Natural Earth.",
+      credit: mapCredit(),
+      mobile: [800, 1316],
+      desktop: [1600, 1520],
+      anchor: {
+        kind: "after-list",
+        id: "north-america-canada-the-indy-500-and-detroit"
+      }
+    })
+  ],
+  "wec-2027-launch-week": [
+    define({
+      id: "hero-silverstone-wing",
+      folder: "wec-2027-launch-week",
+      alt: "The Silverstone Wing pit building seen across the circuit’s grass and tarmac under a dusky blue sky.",
+      caption:
+        "The Silverstone Wing, October 2011. The 6 Hours of Silverstone returns on 23–25 April 2027.",
+      credit: (
+        <PhotoCredit
+          author="Supermac1961"
+          license="CC BY 2.0"
+          licenseHref={CC_BY_2}
+          fileHref="https://commons.wikimedia.org/wiki/File:The_Silverstone_%27Wing%27_as_seen_from_the_Porsche_Experience_Centre_-_Flickr_-_Supermac1961.jpg"
+        />
+      ),
+      mobile: [800, 600],
+      desktop: [1600, 900],
+      anchor: {
+        kind: "before-heading",
+        id: "wec-launch-week-2027-at-a-glance"
+      },
+      priority: true
+    }),
+    define({
+      id: "b1-season-calendar",
+      folder: "wec-2027-launch-week",
+      alt: "The 2027 WEC calendar: Qatar 25–27 March; Imola 9–11 April, from €55; Silverstone 23–25 April, from £95; Spa 13–15 May, from €65; Le Mans 9–13 June, week pass €126; São Paulo 9–11 July; COTA 10–12 September; Fuji 24–26 September, ¥12,000 for a three-day general admission pass; and Bahrain 4–6 November. Imola, Silverstone, Spa and Le Mans are marked as reachable from the UK without a long-haul flight.",
+      caption:
+        "2027 WEC rounds. Prices are official from-prices (June 2026 for Imola, Silverstone and Spa); check the seller for today’s price.",
+      credit: illustration(),
+      mobile: [800, 2014],
+      desktop: [1600, 1728],
+      anchor: { kind: "after-heading", id: "all-nine-2027-rounds-compared" }
+    }),
+    define({
+      id: "b2-uk-reach-map",
+      folder: "wec-2027-launch-week",
+      alt: "Map of the UK and western Europe marking London as a reference point and four 2027 WEC rounds: Silverstone (drive or train), Spa (Eurostar and train, or drive), Le Mans (ferry or Eurostar) and Imola (short-haul flight).",
+      caption:
+        "Getting to the European rounds from the UK, as summarised in this guide. Locator only, not routes. © OpenStreetMap contributors (ODbL) · Made with Natural Earth.",
+      credit: mapCredit(),
+      mobile: [800, 1354],
+      desktop: [1600, 1630],
+      anchor: { kind: "after-heading", id: "getting-there-from-the-uk" }
+    })
+  ],
+  "which-race-first-2027": [
+    define({
+      id: "hero-five-weekends",
+      folder: "which-race-first-2027",
+      alt: "Five kinds of first race: Formula 1 for the biggest spectacle (British GP, 2–4 July 2027); MotoGP for the closest racing (Mugello, 28–30 May, provisional); Le Mans for a 24-hour festival (race 12–13 June); Formula E for an easy race day (Brands Hatch, 29–30 May, provisional); and the Indy 500 for scale and tradition (30 May).",
+      caption:
+        "Pick the series by the weekend you want. Our editorial summary; MotoGP and Formula E dates are provisional.",
+      credit: illustration(),
+      mobile: [800, 1486],
+      desktop: [1600, 1820],
+      anchor: {
+        kind: "before-heading",
+        id: "the-quick-answer-match-the-series-to-the-weekend-you-want"
+      }
+    }),
+    define({
+      id: "b1-fan-type-cards",
+      folder: "which-race-first-2027",
+      alt: "Which first race suits you? On a budget: MotoGP at Silverstone or Formula E at Brands Hatch. With kids: Formula E. With a partner who isn’t a fan: Monaco. A group of mates: Le Mans or the British Grand Prix. MotoGP-curious F1 fan: Mugello. One bucket-list trip: the Indy 500 or Le Mans.",
+      caption: "Fan-type picks: our editorial judgement.",
+      credit: illustration(),
+      mobile: [800, 1524],
+      desktop: [1600, 1348],
+      anchor: { kind: "after-heading", id: "which-first-race-suits-you" }
+    }),
+    define({
+      id: "b2-weekend-shape",
+      folder: "which-race-first-2027",
+      alt: "Comparison of the five series as a trip. Formula 1 and MotoGP: three days, loud, long days. Le Mans: a week-long event with a 24-hour race, never quiet, hard work with small children. Formula E: one day per race, quiet, the easiest with kids. Indy 500: one race day plus build-up days, loud, with a huge crowd.",
+      caption:
+        "Editorial judgement, not measured data, from the comparison table above.",
+      credit: illustration(),
+      mobile: [800, 1470],
+      desktop: [1600, 1493],
+      anchor: {
+        kind: "after-table",
+        id: "how-the-five-series-compare-as-a-trip"
+      }
+    }),
+    define({
+      id: "b3-first-race-calendar",
+      folder: "which-race-first-2027",
+      alt: "Calendar from April to August 2027 of good first races: Long Beach 16–18 April; Monaco E-Prix 1–2 May (provisional); Mugello 28–30 May (provisional); Brands Hatch 29–30 May (provisional); Indy 500 30 May; Monaco Grand Prix 4–6 June; Le Mans 9–13 June; British Grand Prix 2–4 July; MotoGP British Grand Prix 13–15 August (provisional). The 28–30 May clash is highlighted.",
+      caption:
+        "Good first events in 2027. MotoGP and Formula E dates are provisional.",
+      credit: illustration(),
+      mobile: [800, 1232],
+      desktop: [1600, 1420],
+      anchor: { kind: "after-heading", id: "two-series-one-trip-in-2027" }
     })
   ]
 }

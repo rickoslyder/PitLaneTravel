@@ -3,15 +3,16 @@ import path from "node:path"
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
-import { firstTimersPage } from "@/content/race-hub-subpages/first-timers"
-import { whatToBringPage } from "@/content/race-hub-subpages/what-to-bring"
-import { withKidsPage } from "@/content/race-hub-subpages/with-kids"
 import { GuideFigure } from "@/components/guides/guide-figure"
 import {
   guideFigureAssetPaths,
   guideFigureCopy,
   segmentGuide
 } from "@/components/guides/guide-figures"
+import { firstTimersPage } from "@/content/race-hub-subpages/first-timers"
+import { whatToBringPage } from "@/content/race-hub-subpages/what-to-bring"
+import { withKidsPage } from "@/content/race-hub-subpages/with-kids"
+import { getGuide } from "@/lib/guides"
 
 const root = process.cwd()
 
@@ -19,6 +20,14 @@ function figureIds(routeKey: string, source: string): string[] {
   return segmentGuide(routeKey, source).flatMap(segment =>
     segment.kind === "figure" ? [segment.figure.id] : []
   )
+}
+
+function guideSource(slug: string): string {
+  const guide = getGuide(slug)
+  if (!guide) throw new Error(`missing guide ${slug}`)
+  const prefix = `# ${guide.headline}`
+  if (!guide.body.startsWith(prefix)) return guide.body
+  return guide.body.slice(prefix.length).replace(/^\n+/, "")
 }
 
 describe("guide figures", () => {
@@ -119,5 +128,66 @@ describe("guide figures", () => {
       const file = path.join(root, "public", asset.replace(/^\//, ""))
       expect(existsSync(file), asset).toBe(true)
     }
+  })
+
+  it("places the other guide figures and leaves out the Baku price ladder", () => {
+    expect(
+      figureIds(
+        "abu-dhabi-grand-prix-travel-guide",
+        guideSource("abu-dhabi-grand-prix-travel-guide")
+      )
+    ).toEqual([
+      "hero-yas-sunset",
+      "b1-session-times",
+      "b3-exit-plan",
+      "b4-concert-nights"
+    ])
+    expect(
+      figureIds(
+        "azerbaijan-grand-prix-2027-tickets-travel",
+        guideSource("azerbaijan-grand-prix-2027-tickets-travel")
+      )
+    ).toEqual(["hero-maiden-tower", "b2-baku-locator", "b3-bulvar-night"])
+    expect(
+      figureIds(
+        "f1-2027-ticket-on-sale-dates",
+        guideSource("f1-2027-ticket-on-sale-dates")
+      )
+    ).toEqual([
+      "hero-status-board",
+      "b1-sale-day-checklist",
+      "b2-who-sells-what"
+    ])
+    expect(
+      figureIds(
+        "two-races-one-trip-2027",
+        guideSource("two-races-one-trip-2027")
+      )
+    ).toEqual([
+      "hero-europe-route-map",
+      "b1-pairings-timeline",
+      "b3-north-america-map",
+      "b2-clash-weekends"
+    ])
+    expect(
+      figureIds("wec-2027-launch-week", guideSource("wec-2027-launch-week"))
+    ).toEqual([
+      "hero-silverstone-wing",
+      "b1-season-calendar",
+      "b2-uk-reach-map"
+    ])
+    expect(
+      figureIds("which-race-first-2027", guideSource("which-race-first-2027"))
+    ).toEqual([
+      "hero-five-weekends",
+      "b2-weekend-shape",
+      "b1-fan-type-cards",
+      "b3-first-race-calendar"
+    ])
+
+    const ids = guideFigureCopy().map(copy => copy.id)
+    expect(ids).not.toContain("b1-price-ladder")
+    expect(guideFigureAssetPaths().join("\n")).not.toContain("price-ladder")
+    expect(ids).toHaveLength(33)
   })
 })
