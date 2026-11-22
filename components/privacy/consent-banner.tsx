@@ -29,20 +29,31 @@ export type ConsentBannerViewProps = {
   onCloseSettings: () => void
 }
 
+function privacySettingsTarget(): HTMLElement | null {
+  const slots = document.querySelectorAll<HTMLElement>(
+    "[data-privacy-settings-slot]"
+  )
+  for (const slot of slots) {
+    if (slot.isConnected) return slot
+  }
+  return document.querySelector<HTMLElement>("[data-privacy-settings-fallback]")
+}
+
 function PrivacySettingsDock({ children }: { children: React.ReactNode }) {
   const [target, setTarget] = useState<HTMLElement | null>(null)
 
   useClientLayoutEffect(() => {
-    const slot = document.querySelector<HTMLElement>(
-      "[data-privacy-settings-slot]"
-    )
-    const fallback = document.querySelector<HTMLElement>(
-      "[data-privacy-settings-fallback]"
-    )
-    setTarget(slot ?? fallback)
+    const apply = () => {
+      const next = privacySettingsTarget()
+      setTarget(current => (current === next ? current : next))
+    }
+    apply()
+    const observer = new MutationObserver(apply)
+    observer.observe(document.body, { childList: true, subtree: true })
+    return () => observer.disconnect()
   }, [])
 
-  if (target) return createPortal(children, target)
+  if (target?.isConnected) return createPortal(children, target)
   return <div hidden>{children}</div>
 }
 

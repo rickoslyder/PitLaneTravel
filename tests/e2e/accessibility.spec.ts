@@ -948,6 +948,30 @@ test.describe("mobile chrome at 360x676", () => {
     expect(overlap.sidebarOverlap).toBe(false)
   })
 
+  test("privacy settings stay available after a client navigation", async ({
+    page
+  }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        "pitlane.analytics-consent",
+        '{"v":1,"status":"denied"}'
+      )
+    })
+    const home = await page.goto("/")
+    expect(home?.ok()).toBeTruthy()
+    const privacy = page.getByRole("button", {
+      name: "Privacy settings",
+      exact: true
+    })
+    await expect(privacy).toBeVisible()
+
+    await page.getByRole("button", { name: "Menu", exact: true }).click()
+    await page.getByRole("link", { name: "Races", exact: true }).click()
+    await expect(page).toHaveURL(/\/races$/)
+    await expect(privacy).toBeVisible()
+    await expect(page.locator("[data-privacy-settings]")).toHaveCount(1)
+  })
+
   test("races pages use the main header", async ({ page }) => {
     for (const path of [
       "/races",

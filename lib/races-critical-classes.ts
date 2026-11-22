@@ -6,6 +6,23 @@
 export const racesCriticalClassMarkup = `
 <body class="bg-background mx-auto min-h-screen w-full antialiased motion-safe:scroll-smooth">
 <a class="sr-only">Skip</a>
+<header class="sticky top-0 z-50 bg-background">
+<div class="mx-auto flex max-w-screen-2xl items-center justify-between p-2">
+<a class="flex min-w-0 items-center gap-2">
+<svg class="text-foreground size-7 shrink-0"></svg>
+<span class="truncate text-base font-semibold tracking-tight"></span>
+</a>
+<nav class="absolute left-1/2 hidden -translate-x-1/2 font-semibold lg:flex">
+<a class="whitespace-nowrap rounded-full px-2 py-1 text-sm"></a>
+</nav>
+<div class="flex items-center gap-2">
+<button class="bg-foreground text-background h-9 rounded-md px-3 text-sm font-medium"></button>
+<div class="lg:hidden">
+<svg class="size-5"></svg>
+</div>
+</div>
+</div>
+</header>
 <div class="flex min-h-screen min-w-0 flex-col">
 <div class="min-h-0 w-full flex-1 lg:!top-16 lg:!bottom-auto lg:!h-[calc(100svh-4rem)]"></div>
 <div class="flex min-h-svh w-full">
