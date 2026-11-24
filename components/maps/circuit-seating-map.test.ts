@@ -36,7 +36,12 @@ function circles(file: string) {
 describe("circuit seating map data", () => {
   it("registers Yas Marina and keeps every pin on its artwork", () => {
     const maps = listCircuitSeatingMaps()
-    expect(maps.map(map => map.circuitSlug)).toEqual(["yas-marina-circuit"])
+    expect(maps.map(map => map.circuitSlug).sort()).toEqual([
+      "autodromo-nazionale-monza",
+      "circuit-de-monaco",
+      "silverstone-circuit",
+      "yas-marina-circuit"
+    ])
 
     for (const map of maps) {
       expect(map.art.desktop.width).toBeGreaterThan(0)
