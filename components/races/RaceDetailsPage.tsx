@@ -44,6 +44,7 @@ import { guideSlugForRace } from "@/lib/race-guide-links"
 import { raceHasFinished } from "@/lib/finished-race"
 import { FinishedRaceNotice } from "@/components/races/finished-race-notice"
 import { FanTipsSection } from "@/components/races/fan-tips/fan-tips-section"
+import { WhereToSit } from "@/components/races/where-to-sit"
 
 // Create a loading component
 function TabLoadingSpinner() {
@@ -98,6 +99,8 @@ interface RaceDetailsPageProps {
   coverage?: PublicCoverageSummary | null
   /** Server-known ticket or package rows. Unknown stays "listed" so Find tickets is not hidden by a failed lookup. */
   ticketListings?: TicketListingState
+  /** Circuit grandstand guide. Omitted when that circuit has no stand notes. */
+  grandstandHref?: string | null
 }
 
 interface TabOption {
@@ -138,7 +141,8 @@ export function RaceDetailsPage({
   userId,
   history,
   coverage,
-  ticketListings = "listed"
+  ticketListings = "listed",
+  grandstandHref
 }: RaceDetailsPageProps) {
   const searchParams = useSearchParams()
   const { announce, announcerRef, Announcer } = useAnnouncer()
@@ -339,6 +343,12 @@ export function RaceDetailsPage({
           </Link>
         </div>
       )}
+
+      {grandstandHref ? (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+          <WhereToSit href={grandstandHref} circuitName={race.circuit?.name} />
+        </div>
+      ) : null}
 
       {race.status === "cancelled" && (
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">

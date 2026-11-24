@@ -7,6 +7,7 @@ import { RaceWithCircuitAndSeries } from "@/types/database"
 import { and, eq, gte, lte, ne, sql } from "drizzle-orm"
 import { InsertRace, SelectRace } from "@/db/schema/races-schema"
 import { AuthError, requireAdmin } from "@/lib/auth"
+import type { CircuitRaceCandidate } from "@/lib/circuit-race-links"
 import { deriveRaceStatus } from "@/lib/race-status"
 import type { RaceStatusValue } from "@/services/providers/types"
 
@@ -606,5 +607,34 @@ export async function getRaceBySlugAction(slug: string): Promise<ActionState<Rac
     console.error("[Races] Error message:", error instanceof Error ? error.message : "Unknown")
     console.error("[Races] Error stack:", error instanceof Error ? error.stack : "Unknown")
     return { isSuccess: false, message: "Failed to get race" }
+  }
+}
+
+/** Slim rows used to link a circuit's grandstand guide to its next open race. */
+export async function getRacesAtCircuitAction(
+  circuitId: string
+): Promise<ActionState<CircuitRaceCandidate[]>> {
+  try {
+    const rows = await db
+      .select({
+        id: racesTable.id,
+        name: racesTable.name,
+        slug: racesTable.slug,
+        date: racesTable.date,
+        status: racesTable.status,
+        weekendStart: racesTable.weekendStart,
+        weekendEnd: racesTable.weekendEnd
+      })
+      .from(racesTable)
+      .where(eq(racesTable.circuitId, circuitId))
+
+    return {
+      isSuccess: true,
+      message: "Races at circuit retrieved successfully",
+      data: rows
+    }
+  } catch (error) {
+    console.error("Error getting races at circuit:", error)
+    return { isSuccess: false, message: "Failed to get races at circuit" }
   }
 }

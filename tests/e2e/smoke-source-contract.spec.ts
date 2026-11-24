@@ -90,7 +90,7 @@ describe("PLT-009 smoke locator and anonymous-boundary source contract", () => {
       /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*,\s*["']fan-tips\.spec\.ts["']\s*,\s*["']race-hero-cta\.spec\.ts["']\s*,\s*["']accessibility\.spec\.ts["']\s*,\s*["']race-hub-subpages\.spec\.ts["']\s*,\s*["']content-hygiene\.spec\.ts["']\s*,\s*["']guide-maps\.spec\.ts["']\s*\]/
     )
     expect(playwright).toMatch(/retries:\s*0/)
-    expect(smoke.match(/test\(/g)?.length).toBe(15)
+    expect(smoke.match(/test\(/g)?.length).toBe(17)
     expect(smoke).toMatch(/\/sitemap\.xml/)
     expect(smoke).toMatch(/tab=info/)
     expect(smoke).toMatch(/page\.goto\(\s*["']\/guides["']\s*\)/)

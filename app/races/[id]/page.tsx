@@ -7,6 +7,7 @@ import {
   getRaceBySlugAction
 } from "@/actions/db/races-actions"
 import { getCircuitWithDetailsAction } from "@/actions/db/circuits-actions"
+import { getGrandstandsByCircuitAction } from "@/actions/db/grandstands-actions"
 import { getUserTripForRaceAction } from "@/actions/db/trips-actions"
 import { notFound } from "next/navigation"
 import { RaceDetailsPage } from "@/components/races/RaceDetailsPage"
@@ -27,6 +28,7 @@ import {
   serializeJsonLd
 } from "@/lib/site-metadata"
 import { raceHasTicketListingsAction } from "@/actions/db/ticket-listing-actions"
+import { grandstandHrefForCircuit } from "@/lib/circuit-race-links"
 
 const RACE_TABS = [
   "info",
@@ -155,15 +157,21 @@ export default async function RacePage({
   const raceRow = data.race
   const circuitData = data.circuit
 
-  const [historyResult, coverageResult, tripResult, hasTicketListings] =
-    await Promise.all([
-      getRaceHistoryAction(raceRow.id),
-      getPublicCoverageSummariesAction([raceRow.id]),
-      userId
-        ? getUserTripForRaceAction(userId, raceRow.id)
-        : Promise.resolve(null),
-      raceHasTicketListingsAction(raceRow.id)
-    ])
+  const [
+    historyResult,
+    coverageResult,
+    tripResult,
+    hasTicketListings,
+    grandstandsResult
+  ] = await Promise.all([
+    getRaceHistoryAction(raceRow.id),
+    getPublicCoverageSummariesAction([raceRow.id]),
+    userId
+      ? getUserTripForRaceAction(userId, raceRow.id)
+      : Promise.resolve(null),
+    raceHasTicketListingsAction(raceRow.id),
+    getGrandstandsByCircuitAction(circuitData.id)
+  ])
   const coverage = coverageResult.isSuccess
     ? (coverageResult.data[0] ?? null)
     : null
@@ -285,6 +293,14 @@ export default async function RacePage({
         history={historyResult.isSuccess ? historyResult.data : undefined}
         coverage={coverage}
         ticketListings={ticketListings}
+        grandstandHref={
+          grandstandsResult.isSuccess
+            ? grandstandHrefForCircuit(
+                circuitData.name,
+                grandstandsResult.data.length
+              )
+            : null
+        }
       />
       {/* <LocalAttractions circuit={circuitData} /> */}
     </div>
