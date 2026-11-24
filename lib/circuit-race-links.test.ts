@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   grandstandHrefForCircuit,
+  grandstandHrefForRace,
   grandstandPagePath,
   partOfRaceGuideLabel,
   racePagePath,
@@ -17,6 +18,7 @@ function race(
 ): CircuitRaceCandidate {
   return {
     slug: "monaco-grand-prix-f1-2027",
+    seriesSlug: "f1",
     date: new Date("2027-05-23T13:00:00.000Z"),
     status: "upcoming",
     weekendStart: new Date("2027-05-21T08:00:00.000Z"),
@@ -157,6 +159,86 @@ describe("upcoming race links", () => {
     )
 
     expect(link?.href).toBe("/races/safe-grand-prix")
+  })
+
+  it("keeps Monaco grandstand links on the later Formula 1 race, not the earlier E-Prix", () => {
+    const ePrix = race({
+      id: "monaco-e",
+      name: "Monaco E-Prix 2027",
+      slug: "monaco-e-prix-2027-formula-e-2027",
+      seriesSlug: "formula-e",
+      date: new Date("2027-05-01T13:00:00.000Z"),
+      weekendStart: new Date("2027-04-30T08:00:00.000Z"),
+      weekendEnd: new Date("2027-05-01T16:00:00.000Z")
+    })
+    const grandPrix = race({
+      id: "monaco-f1",
+      name: "Monaco Grand Prix 2027",
+      slug: "monaco-grand-prix-f1-2027",
+      seriesSlug: "f1",
+      date: new Date("2027-06-06T13:00:00.000Z"),
+      weekendStart: new Date("2027-06-04T08:00:00.000Z"),
+      weekendEnd: new Date("2027-06-06T16:00:00.000Z")
+    })
+
+    const link = upcomingRaceLink([ePrix, grandPrix], NOW)
+
+    expect(link).toEqual({
+      name: "Monaco Grand Prix 2027",
+      href: "/races/monaco-grand-prix-f1-2027",
+      ticketsHref: "/races/monaco-grand-prix-f1-2027?tab=tickets"
+    })
+    expect(upcomingRaceLink([ePrix], NOW)).toBeNull()
+    expect(
+      upcomingRaceLink([ePrix, grandPrix], NOW, { seriesSlug: "formula-e" })
+    ).toEqual({
+      name: "Monaco E-Prix 2027",
+      href: "/races/monaco-e-prix-2027-formula-e-2027",
+      ticketsHref: "/races/monaco-e-prix-2027-formula-e-2027?tab=tickets"
+    })
+    expect(
+      upcomingRaceLink([grandPrix], NOW, { seriesSlug: "formula-e" })
+    ).toBeNull()
+  })
+
+  it("shows where to sit only on the series the notes describe", () => {
+    const href = "/circuits/circuit-de-monaco/grandstands"
+    expect(
+      grandstandHrefForRace({
+        circuitName: "Circuit de Monaco",
+        grandstandCount: 5,
+        raceSeriesSlug: "f1"
+      })
+    ).toBe(href)
+    expect(
+      grandstandHrefForRace({
+        circuitName: "Circuit de Monaco",
+        grandstandCount: 5,
+        raceSeriesSlug: "formula-e"
+      })
+    ).toBeNull()
+    expect(
+      grandstandHrefForRace({
+        circuitName: "Circuit de Monaco",
+        grandstandCount: 5,
+        raceSeriesSlug: "motogp"
+      })
+    ).toBeNull()
+    expect(
+      grandstandHrefForRace({
+        circuitName: "Circuit de Monaco",
+        grandstandCount: 0,
+        raceSeriesSlug: "f1"
+      })
+    ).toBeNull()
+    expect(
+      grandstandHrefForRace({
+        circuitName: "Circuit de Monaco",
+        grandstandCount: 5,
+        raceSeriesSlug: "formula-e",
+        notesSeriesSlug: "formula-e"
+      })
+    ).toBe(href)
   })
 
   it("builds only internal race and grandstand paths", () => {

@@ -30,7 +30,7 @@ import {
   serializeJsonLd
 } from "@/lib/site-metadata"
 import { raceHasTicketListingsAction } from "@/actions/db/ticket-listing-actions"
-import { grandstandHrefForCircuit } from "@/lib/circuit-race-links"
+import { grandstandHrefForRace } from "@/lib/circuit-race-links"
 
 const RACE_TABS = [
   "info",
@@ -302,10 +302,11 @@ export default async function RacePage({
         ticketListings={ticketListings}
         grandstandHref={
           grandstandsResult.isSuccess
-            ? grandstandHrefForCircuit(
-                circuitData.name,
-                grandstandsResult.data.length
-              )
+            ? grandstandHrefForRace({
+                circuitName: circuitData.name,
+                grandstandCount: grandstandsResult.data.length,
+                raceSeriesSlug: raceRow.series?.slug
+              })
             : null
         }
       />

@@ -13,10 +13,17 @@ export const WHERE_TO_SIT_LABEL = "Where to sit"
 
 const PATH_SEGMENT = /^[A-Za-z0-9-]+$/
 
+/**
+ * Published grandstand notes describe Formula 1 seating. A guide uses another
+ * series only when that series is named explicitly.
+ */
+export const GRANDSTAND_NOTES_SERIES_SLUG = "f1"
+
 export type CircuitRaceCandidate = {
   id: string
   name: string
   slug: string | null
+  seriesSlug: string | null
   date: Date
   status: RaceStatusValue
   weekendStart: Date | null
@@ -118,12 +125,33 @@ export function grandstandHrefForCircuit(
   return grandstandPagePath(circuitName)
 }
 
-/** Soonest open race, as internal guide and tickets-tab paths. */
+/** Series the seating notes belong to. Unspecified notes stay on Formula 1. */
+export function grandstandNotesSeriesSlug(
+  explicitSeriesSlug?: string | null
+): string {
+  const slug = explicitSeriesSlug?.trim().toLowerCase() ?? ""
+  return slug && PATH_SEGMENT.test(slug) ? slug : GRANDSTAND_NOTES_SERIES_SLUG
+}
+
+function raceMatchesNotes(
+  race: CircuitRaceCandidate,
+  notesSeriesSlug: string
+): boolean {
+  return (race.seriesSlug ?? "").trim().toLowerCase() === notesSeriesSlug
+}
+
+/**
+ * Soonest open race for the series these grandstand notes describe.
+ * Formula 1 unless a series is passed explicitly. No cross-series fallback.
+ */
 export function upcomingRaceLink(
   races: readonly CircuitRaceCandidate[],
-  now: Date
+  now: Date,
+  options?: { seriesSlug?: string | null }
 ): UpcomingRaceLink | null {
-  for (const race of rankOpenRaces(races, now)) {
+  const notesSeriesSlug = grandstandNotesSeriesSlug(options?.seriesSlug)
+  const matching = races.filter(race => raceMatchesNotes(race, notesSeriesSlug))
+  for (const race of rankOpenRaces(matching, now)) {
     const name = race.name.trim()
     if (!name) continue
     const href = racePagePath(race)
@@ -132,4 +160,17 @@ export function upcomingRaceLink(
     return { name, href, ticketsHref }
   }
   return null
+}
+
+/** Grandstand guide link for a race page. Hidden unless the race's series matches the notes. */
+export function grandstandHrefForRace(input: {
+  circuitName: string
+  grandstandCount: number
+  raceSeriesSlug: string | null | undefined
+  notesSeriesSlug?: string | null
+}): string | null {
+  const notes = grandstandNotesSeriesSlug(input.notesSeriesSlug)
+  const raceSeries = input.raceSeriesSlug?.trim().toLowerCase() ?? ""
+  if (raceSeries !== notes) return null
+  return grandstandHrefForCircuit(input.circuitName, input.grandstandCount)
 }

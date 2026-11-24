@@ -107,7 +107,7 @@ test.describe("production smoke", () => {
       }
     })
 
-    const guidePath = `/races/${E2E_RACE_IN_PROGRESS_SLUG}`
+    const guidePath = `/races/${E2E_RACE_SLUG}`
     const ticketsPath = `${guidePath}?tab=tickets`
     const response = await page.goto("/circuits/synthetic-e2e-circuit/grandstands")
     expect(response?.ok(), "seeded grandstands should be HTTP success").toBeTruthy()
@@ -117,7 +117,7 @@ test.describe("production smoke", () => {
       exact: true
     })
     const guide = page.getByRole("link", {
-      name: `Part of the ${E2E_RACE_IN_PROGRESS_NAME} guide`,
+      name: `Part of the ${E2E_RACE_NAME} guide`,
       exact: true
     })
     await expect(tickets).toBeVisible()
@@ -127,7 +127,9 @@ test.describe("production smoke", () => {
     await expect(page.getByText("PitLane Travel does not sell tickets.")).toBeVisible()
 
     await tickets.click()
-    await expect(page).toHaveURL(/\/races\/plt-e2e-synthetic-motogp-live\?tab=tickets(?:&|$)/)
+    await expect(page).toHaveURL(
+      new RegExp(`/races/${E2E_RACE_SLUG}\\?tab=tickets(?:&|$)`)
+    )
     await expect(page.getByRole("tab", { name: "Tickets" })).toHaveAttribute(
       "data-state",
       "active"
@@ -174,6 +176,13 @@ test.describe("production smoke", () => {
     expect(imageless?.ok()).toBeTruthy()
     await expect(
       page.getByRole("heading", { name: E2E_IMAGELESS_RACE_NAME, exact: true })
+    ).toBeVisible()
+    await expect(page.getByRole("link", { name: /^Where to sit/ })).toHaveCount(0)
+
+    const otherSeries = await page.goto(`/races/${E2E_RACE_IN_PROGRESS_SLUG}`)
+    expect(otherSeries?.ok()).toBeTruthy()
+    await expect(
+      page.getByRole("heading", { name: E2E_RACE_IN_PROGRESS_NAME, exact: true })
     ).toBeVisible()
     await expect(page.getByRole("link", { name: /^Where to sit/ })).toHaveCount(0)
   })
