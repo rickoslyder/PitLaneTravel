@@ -13,7 +13,8 @@ const publicLayouts = [
   "app/not-found.tsx",
   "app/packages/layout.tsx",
   "app/series/layout.tsx",
-  "app/circuits/layout.tsx"
+  "app/circuits/layout.tsx",
+  "app/races/layout.tsx"
 ] as const
 
 const toolLayouts = [
@@ -35,10 +36,12 @@ describe("public shell", () => {
     expect(readSource("app/races/compare/layout.tsx")).not.toContain(
       "AppSidebar"
     )
-    const racesLayout = readSource("app/races/layout.tsx")
-    expect(racesLayout).toContain("AppSidebar")
-    expect(racesLayout).toContain("SidebarInset")
-    expect(racesLayout).toContain("min-w-0")
+    expect(readSource("app/races/compare/layout.tsx")).not.toContain(
+      "PublicShell"
+    )
+    expect(readSource("app/races/[id]/layout.tsx")).not.toContain("PublicShell")
+    expect(readSource("app/races/not-found.tsx")).not.toContain("PublicShell")
+    expect(readSource("app/races/not-found.tsx")).not.toContain("<main")
     expect(readSource("components/public-shell.tsx")).toContain(
       "overflow-x-clip"
     )

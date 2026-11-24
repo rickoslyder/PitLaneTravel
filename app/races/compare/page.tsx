@@ -1,6 +1,8 @@
 import { Metadata } from "next"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { RaceCompare } from "@/components/races/race-compare"
+import { RaceTrail } from "@/components/races/race-trail"
+import { raceCompareTrail } from "@/lib/race-trail"
 
 export const metadata: Metadata = {
   title: "Compare Race Weekends | PitLane Travel",
@@ -13,12 +15,14 @@ export default async function CompareRacesPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-8">
+      <RaceTrail items={raceCompareTrail} />
       <header className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">
           Compare Race Weekends
         </h1>
         <p className="text-muted-foreground">
-          Pick two or three races to compare side by side and decide where to go.
+          Pick two or three races to compare side by side and decide where to
+          go.
         </p>
       </header>
       <RaceCompare races={races ?? []} />

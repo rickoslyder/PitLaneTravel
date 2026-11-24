@@ -1,6 +1,7 @@
 import { Separator } from "@/components/ui/separator"
 import { brand, brandCopy } from "@/config/brand"
 import { SERIES } from "@/config/series"
+import { racePlanningLinks } from "@/lib/race-trail"
 import Link from "next/link"
 
 export function SiteFooter({
@@ -47,6 +48,16 @@ export function SiteFooter({
                   Race Calendar
                 </Link>
               </li>
+              {racePlanningLinks.map(link => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link
                   href="/guides"

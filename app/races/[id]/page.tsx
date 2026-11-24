@@ -10,6 +10,8 @@ import { getCircuitWithDetailsAction } from "@/actions/db/circuits-actions"
 import { getUserTripForRaceAction } from "@/actions/db/trips-actions"
 import { notFound } from "next/navigation"
 import { RaceDetailsPage } from "@/components/races/RaceDetailsPage"
+import { RaceTrail } from "@/components/races/race-trail"
+import { raceDetailTrail } from "@/lib/race-trail"
 import LocalAttractions from "@/components/races/LocalAttractions"
 import { RaceWithDetails } from "@/types/race"
 import { getRaceHistoryAction } from "@/actions/db/race-history-actions"
@@ -267,8 +269,13 @@ export default async function RacePage({
     addressCountry: circuitData?.country ?? raceRow.country
   })
 
+  const racePath = raceRow.slug
+    ? `/races/${raceRow.slug}`
+    : `/races/${resolvedParams.id}`
+
   return (
     <div className="space-y-8 sm:container sm:py-8">
+      <RaceTrail items={raceDetailTrail(raceRow.name, racePath)} />
       {sportsEvent ? (
         <script
           type="application/ld+json"
