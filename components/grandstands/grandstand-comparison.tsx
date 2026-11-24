@@ -69,15 +69,19 @@ function FilterSelect({
 
 export function GrandstandComparison({
   circuitName,
-  grandstands
+  grandstands,
+  filters: controlledFilters,
+  onFiltersChange
 }: {
   circuitName: string
   grandstands: SelectGrandstand[]
+  filters?: GrandstandFilters
+  onFiltersChange?: (filters: GrandstandFilters) => void
 }) {
   const sync = useSeatingSync()
-  const [filters, setFilters] = useState<GrandstandFilters>(
-    EMPTY_GRANDSTAND_FILTERS
-  )
+  const [uncontrolledFilters, setUncontrolledFilters] =
+    useState<GrandstandFilters>(EMPTY_GRANDSTAND_FILTERS)
+  const filters = controlledFilters ?? uncontrolledFilters
   const visible = useMemo(
     () => filterGrandstands(grandstands, filters),
     [grandstands, filters]
@@ -96,7 +100,9 @@ export function GrandstandComparison({
   )
 
   function setFilter(key: keyof GrandstandFilters, value: string) {
-    setFilters(current => ({ ...current, [key]: value }))
+    const next = { ...filters, [key]: value }
+    onFiltersChange?.(next)
+    if (controlledFilters === undefined) setUncontrolledFilters(next)
   }
 
   return (

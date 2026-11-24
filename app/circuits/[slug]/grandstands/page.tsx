@@ -6,12 +6,11 @@ import { ChevronLeft } from "lucide-react"
 import { getCircuitsWithGrandstandsAction } from "@/actions/db/grandstands-actions"
 import { getRacesAtCircuitAction } from "@/actions/db/races-actions"
 import { GrandstandPriceLegend } from "@/components/grandstands/grandstand-card"
-import { GrandstandComparison } from "@/components/grandstands/grandstand-comparison"
+import { GrandstandGuide } from "@/components/grandstands/grandstand-guide"
 import {
   GrandstandRaceGuideLink,
   GrandstandTicketsCta
 } from "@/components/grandstands/grandstand-race-links"
-import { CircuitSeatingMap } from "@/components/maps/circuit-seating-map"
 import { SeatingSyncProvider } from "@/components/maps/seating-sync"
 import { getCircuitSeatingMap } from "@/data/circuit-seating-maps"
 import { upcomingRaceLink } from "@/lib/circuit-race-links"
@@ -74,19 +73,6 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
     (a, b) => (b.viewRating ?? 0) - (a.viewRating ?? 0)
   )
   const preparedMap = getCircuitSeatingMap(slug)
-  const seatingGrandstands = ranked.map(grandstand => ({
-    slug: grandstand.slug,
-    name: grandstand.name
-  }))
-  const seatingMap = (
-    <CircuitSeatingMap
-      circuitName={circuit.name}
-      circuitSlug={slug}
-      map={preparedMap}
-      trackMapUrl={circuit.trackMapUrl}
-      grandstands={seatingGrandstands}
-    />
-  )
   const londonVenue =
     isEvergreenFormulaELondonVenue(circuit.name) ||
     isEvergreenFormulaELondonVenue(circuit.location)
@@ -123,8 +109,13 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
       <GrandstandTicketsCta race={raceLink} />
 
       <SeatingSyncProvider>
-        {seatingMap}
-        <GrandstandComparison circuitName={circuit.name} grandstands={ranked} />
+        <GrandstandGuide
+          circuitName={circuit.name}
+          circuitSlug={slug}
+          map={preparedMap}
+          trackMapUrl={circuit.trackMapUrl}
+          grandstands={ranked}
+        />
       </SeatingSyncProvider>
     </div>
   )

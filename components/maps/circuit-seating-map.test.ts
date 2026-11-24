@@ -144,6 +144,35 @@ describe("CircuitSeatingMap", () => {
     expect(html).not.toMatch(/\b(Scout|Grawk|Grok|Writer|Studio)\b/)
   })
 
+  it("disables pins for grandstands that are not in the current list", () => {
+    const main = yasMarinaSeatingMap.pins[0]
+    const html = renderToStaticMarkup(
+      createElement(CircuitSeatingMap, {
+        circuitName: "Yas Marina Circuit",
+        circuitSlug: "yas-marina-circuit",
+        map: yasMarinaSeatingMap,
+        trackMapUrl: null,
+        grandstands: [{ slug: main.slug, name: main.grandstandName }]
+      })
+    )
+    const buttons = html
+      .split("<button")
+      .slice(1)
+      .map(chunk => chunk.slice(0, chunk.indexOf(">")))
+      .filter(chunk => chunk.includes("data-seating-pin="))
+
+    expect(buttons).toHaveLength(6)
+    const enabled = buttons.filter(
+      chunk => !/(?:^|\s)disabled(?:=|\s|>|$)/.test(chunk)
+    )
+    expect(enabled).toHaveLength(1)
+    expect(enabled[0]).toContain(`data-seating-pin="${main.slug}"`)
+    expect(enabled[0]).toContain(`aria-controls="grandstand-${main.slug}"`)
+    expect(
+      buttons.filter(chunk => chunk.includes("aria-controls="))
+    ).toHaveLength(1)
+  })
+
   it("renders a track map with a grandstand list and no pins", () => {
     const html = renderToStaticMarkup(
       createElement(CircuitSeatingMap, {
