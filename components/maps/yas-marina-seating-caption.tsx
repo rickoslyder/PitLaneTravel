@@ -2,7 +2,8 @@ import type { LocatorKeyItem } from "@/components/maps/locator-frame"
 import {
   LocatorAreaKey,
   LocatorCredits,
-  locatorLinkClass
+  locatorLinkClass,
+  seatingKeyTitleClass
 } from "@/components/maps/locator-frame"
 
 const NORTH_GRANDSTAND_HREF =
@@ -24,7 +25,11 @@ export function YasMarinaSeatingDetails({
         on 8 November 2026. Hill marker is approximate, not an entrance. Not a
         seat-view, shade or access-route map.
       </p>
-      <LocatorAreaKey title="Seating key" items={items} />
+      <LocatorAreaKey
+        title="Seating key"
+        items={items}
+        titleClassName={seatingKeyTitleClass}
+      />
       <LocatorCredits naturalEarth={false} />
     </>
   )

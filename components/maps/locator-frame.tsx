@@ -6,9 +6,13 @@ const OSM_DERIVED_HREF = "/data/maps/yas-marina-osm-derived.json"
 
 export const locatorLinkClass = "text-foreground underline underline-offset-2"
 
+/** Small-label teal shared by the seating maps. */
+export const seatingKeyTitleClass = "font-medium text-[#08797e]"
+
 export type LocatorArt = {
   svg: string
   png: string
+  webp?: string
   width: number
   height: number
 }
@@ -46,14 +50,16 @@ export function LocatorCredits({ naturalEarth }: { naturalEarth: boolean }) {
 
 export function LocatorAreaKey({
   title,
-  items
+  items,
+  titleClassName
 }: {
   title: string
   items: LocatorKeyItem[]
+  titleClassName?: string
 }) {
   return (
     <div>
-      <p className="text-foreground font-medium">{title}</p>
+      <p className={titleClassName ?? "text-foreground font-medium"}>{title}</p>
       <ol className="mt-2 list-decimal space-y-1 pl-5">
         {items.map(item => (
           <li key={item.name}>
@@ -89,6 +95,15 @@ export function LocatorInlineArt({
         width={mobile.width}
         height={mobile.height}
       />
+      {mobile.webp ? (
+        <source
+          media="(max-width: 639px)"
+          srcSet={mobile.webp}
+          type="image/webp"
+          width={mobile.width}
+          height={mobile.height}
+        />
+      ) : null}
       <source
         media="(max-width: 639px)"
         srcSet={mobile.png}
@@ -102,6 +117,14 @@ export function LocatorInlineArt({
         width={desktop.width}
         height={desktop.height}
       />
+      {desktop.webp ? (
+        <source
+          srcSet={desktop.webp}
+          type="image/webp"
+          width={desktop.width}
+          height={desktop.height}
+        />
+      ) : null}
       <img
         src={desktop.png}
         alt={alt}

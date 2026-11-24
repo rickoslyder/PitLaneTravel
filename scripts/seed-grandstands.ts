@@ -16,6 +16,8 @@ import { slugify } from "@/lib/series"
 
 interface GrandstandSeed {
   name: string
+  /** Stable public slug. Set when the display name is corrected so a reseed does not mint a new slug. */
+  slug?: string
   priceTier?: string
   viewRating?: number
   covered?: boolean
@@ -48,7 +50,7 @@ async function main() {
     }
 
     for (const s of stands) {
-      const slug = slugify(s.name)
+      const slug = s.slug ?? slugify(s.name)
       const [existing] = await db
         .select({ id: grandstandsTable.id })
         .from(grandstandsTable)
