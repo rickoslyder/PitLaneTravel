@@ -5,7 +5,10 @@ import { notFound } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
 import { getCircuitsWithGrandstandsAction } from "@/actions/db/grandstands-actions"
 import { getRacesAtCircuitAction } from "@/actions/db/races-actions"
-import { GrandstandCard } from "@/components/grandstands/grandstand-card"
+import {
+  GrandstandCard,
+  GrandstandPriceLegend
+} from "@/components/grandstands/grandstand-card"
 import {
   GrandstandRaceGuideLink,
   GrandstandTicketsCta
@@ -98,6 +101,9 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
             {FORMULA_E_LONDON_VENUE_NOTE}
           </p>
         )}
+        {ranked.some(stand => stand.priceTier) ? (
+          <GrandstandPriceLegend />
+        ) : null}
       </header>
 
       <GrandstandTicketsCta race={raceLink} />

@@ -3,6 +3,7 @@ import { Metadata } from "next"
 import Link from "next/link"
 import { getCircuitsWithGrandstandsAction } from "@/actions/db/grandstands-actions"
 import { siteCopy } from "@/config/site-copy"
+import { grandstandComparedPhrase } from "@/lib/grandstand-copy"
 import { getPackagesAvailability } from "@/lib/packages-availability"
 import { slugify } from "@/lib/series"
 
@@ -48,7 +49,7 @@ export default async function GrandstandsPage() {
                 <span className="font-medium">
                   {circuit.grandstands.length}
                 </span>{" "}
-                stored grandstand notes
+                {grandstandComparedPhrase(circuit.grandstands.length)}
               </p>
             </Link>
           ))}

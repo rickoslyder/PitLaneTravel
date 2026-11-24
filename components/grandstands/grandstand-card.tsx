@@ -1,12 +1,20 @@
-import { SelectGrandstand } from "@/db/schema/grandstands-schema"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, Sun, Umbrella, Tv, Check, X } from "lucide-react"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { SelectGrandstand } from "@/db/schema/grandstands-schema"
+import {
+  GRANDSTAND_PRICE_LEGEND,
+  formatBestFor,
+  formatPriceTier,
+  formatSunExposure
+} from "@/lib/grandstand-copy"
+import { Check, Star, Sun, Tv, Umbrella, X } from "lucide-react"
 
-const PRICE_TIER_LABEL: Record<string, string> = {
-  budget: "£",
-  mid: "££",
-  premium: "£££"
+export function GrandstandPriceLegend() {
+  return (
+    <p className="bg-muted/40 text-muted-foreground max-w-3xl rounded-md border px-3 py-2 text-sm">
+      {GRANDSTAND_PRICE_LEGEND}
+    </p>
+  )
 }
 
 export function GrandstandCard({
@@ -15,6 +23,9 @@ export function GrandstandCard({
   grandstand: SelectGrandstand
 }) {
   const rating = grandstand.viewRating ?? 0
+  const bestFor = formatBestFor(grandstand.bestFor)
+  const priceTier = formatPriceTier(grandstand.priceTier)
+  const sun = formatSunExposure(grandstand.sunExposure)
   return (
     <Card className="flex h-full flex-col">
       {grandstand.imageUrl && (
@@ -28,11 +39,11 @@ export function GrandstandCard({
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold">{grandstand.name}</h3>
-          {grandstand.priceTier && (
+          {priceTier ? (
             <Badge variant="secondary" className="shrink-0">
-              {PRICE_TIER_LABEL[grandstand.priceTier] ?? grandstand.priceTier}
+              {priceTier}
             </Badge>
-          )}
+          ) : null}
         </div>
         {rating > 0 && (
           <div
@@ -53,14 +64,10 @@ export function GrandstandCard({
         )}
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3 text-sm">
-        {grandstand.bestFor && (
-          <p className="text-primary font-medium">
-            Best for {grandstand.bestFor}
-          </p>
-        )}
-        {grandstand.description && (
+        {bestFor ? <p className="text-primary font-medium">{bestFor}</p> : null}
+        {grandstand.description ? (
           <p className="text-muted-foreground">{grandstand.description}</p>
-        )}
+        ) : null}
 
         {grandstand.viewsOf && grandstand.viewsOf.length > 0 && (
           <div className="flex flex-wrap gap-1">
@@ -81,12 +88,12 @@ export function GrandstandCard({
             )}
             {grandstand.covered ? "Covered" : "Uncovered"}
           </span>
-          {grandstand.sunExposure && (
+          {sun ? (
             <span className="inline-flex items-center gap-1">
               <Sun className="size-3.5" />
-              {grandstand.sunExposure} sun
+              {sun}
             </span>
-          )}
+          ) : null}
           {grandstand.hasBigScreen && (
             <span className="inline-flex items-center gap-1">
               <Tv className="size-3.5" /> Big screen
