@@ -325,4 +325,80 @@ test.describe("prepared geographic locators", () => {
     await expectNoHorizontalOverflow(page, "seating map at desktop")
     await expectShortDialogStillScrolls(page, "Expand seating map")
   })
+
+  test("seating pins follow the grandstand cards at phone and desktop widths", async ({
+    page
+  }) => {
+    async function expectPinsInsideMap(label: string) {
+      const figure = page.locator('[data-locator="yas-marina-seating"]')
+      await figure.scrollIntoViewIfNeeded()
+      const img = figure.locator('img[data-locator-art="inline"]')
+      const pin = figure.getByRole("button", {
+        name: "1, Main, Start / finish"
+      })
+      await expect(pin).toBeVisible()
+      const boxes = await Promise.all([img.boundingBox(), pin.boundingBox()])
+      const imageBox = boxes[0]
+      const pinBox = boxes[1]
+      expect(imageBox, label).toBeTruthy()
+      expect(pinBox, label).toBeTruthy()
+      expect(pinBox!.x).toBeGreaterThanOrEqual(imageBox!.x - 1)
+      expect(pinBox!.y).toBeGreaterThanOrEqual(imageBox!.y - 1)
+      expect(pinBox!.x + pinBox!.width).toBeLessThanOrEqual(
+        imageBox!.x + imageBox!.width + 1
+      )
+      expect(pinBox!.y + pinBox!.height).toBeLessThanOrEqual(
+        imageBox!.y + imageBox!.height + 1
+      )
+    }
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    const response = await page.goto(STANDS)
+    expect(response?.ok()).toBeTruthy()
+    await expectPinsInsideMap("390")
+    await expectNoHorizontalOverflow(page, "seating map at 390")
+
+    const mainPin = page.getByRole("button", {
+      name: "1, Main, Start / finish"
+    })
+    const westPin = page.getByRole("button", { name: "2, West, Turns 6–7" })
+    const mainCard = page.locator("#grandstand-main")
+    const westCard = page.locator("#grandstand-west")
+
+    await expect
+      .poll(async () => {
+        await mainPin.focus()
+        await page.keyboard.press("ArrowDown")
+        return westPin.evaluate(node => node === document.activeElement)
+      })
+      .toBe(true)
+    await expect(westPin).toBeFocused()
+    await page.keyboard.press("Enter")
+    await expect(westCard).toBeFocused()
+    await expect(westCard).toHaveAttribute("data-active", "true")
+    await expect(westPin).toHaveAttribute("data-active", "true")
+    const highlight = await westCard.evaluate(element => {
+      const overlay = getComputedStyle(element, "::after")
+      return {
+        content: overlay.content,
+        shadow: overlay.boxShadow,
+        zIndex: overlay.zIndex
+      }
+    })
+    expect(highlight.content).not.toBe("none")
+    expect(highlight.shadow).not.toBe("none")
+    expect(Number(highlight.zIndex)).toBeGreaterThan(0)
+
+    await mainCard.hover()
+    await expect(mainCard).toHaveAttribute("data-active", "true")
+    await expect(mainPin).toHaveAttribute("data-active", "true")
+    await expect(westPin).toHaveAttribute("data-active", "false")
+
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await expectPinsInsideMap("1440")
+    await expectNoHorizontalOverflow(page, "seating map at 1440")
+    await mainPin.click()
+    await expect(mainCard).toBeFocused()
+    await expect(mainCard).toHaveAttribute("data-active", "true")
+  })
 })
