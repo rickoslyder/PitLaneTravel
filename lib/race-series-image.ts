@@ -11,6 +11,7 @@
  * reads a new database column, so the cards work before any later migration.
  */
 
+import { RACE_CARD_PHOTOS } from "@/data/race-card-photos"
 import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { isMissingRaceImage } from "@/lib/race-image"
 import { slugify } from "@/lib/series"
@@ -18,8 +19,15 @@ import { slugify } from "@/lib/series"
 /** Series whose venue photo lives on `circuits.image_url`. */
 export const CIRCUIT_PHOTO_SERIES_SLUG = "f1"
 
+export type RaceImageCredit = {
+  author: string
+  licence: string
+  licenceUrl: string
+  commonsUrl: string
+}
+
 export type RaceSeriesImageOverride = {
-  /** Public image URL. The image loader must already allow the host. */
+  /** Public image URL. Local files are served from this site. */
   imageUrl: string
   /** One event. Checked before a series-and-circuit entry. */
   raceSlug?: string
@@ -27,18 +35,30 @@ export type RaceSeriesImageOverride = {
   seriesSlug?: string
   /** Circuit name. Required together with seriesSlug. */
   circuitName?: string
+  /** What the photograph shows. Used instead of the card caption. */
+  alt?: string
+  credit?: RaceImageCredit
 }
 
 /**
- * Series-correct photos. Add a row when a licensed file is ready.
- * Leave this empty until then: non-F1 races use the designed card.
- *
- * @example
- * { raceSlug: "qatar-grand-prix-motogp-2027", imageUrl: "https://…" }
- * { seriesSlug: "formula-e", circuitName: "Circuit de Monaco", imageUrl: "https://…" }
+ * Licensed photographs for races that must not use the Formula 1 venue photo.
+ * One row per race. The files live on this site.
  */
 export const RACE_SERIES_IMAGE_OVERRIDES: readonly RaceSeriesImageOverride[] =
-  []
+  RACE_CARD_PHOTOS.flatMap(photo => {
+    const credit: RaceImageCredit = {
+      author: photo.author,
+      licence: photo.licence,
+      licenceUrl: photo.licenceUrl,
+      commonsUrl: photo.commonsUrl
+    }
+    return photo.races.map(race => ({
+      raceSlug: race.slug,
+      imageUrl: photo.src,
+      alt: photo.alt,
+      credit
+    }))
+  })
 
 export type RaceCardImageSource = {
   id?: string
@@ -77,6 +97,7 @@ export type RaceCardFallback = {
 export type RaceCardImage = {
   src: string | null
   alt: string
+  credit: RaceImageCredit | null
   fallback: RaceCardFallback
 }
 
@@ -110,7 +131,7 @@ function usableImage(src: string | null | undefined): string | null {
 function matchingOverride(
   source: RaceCardImageSource,
   overrides: readonly RaceSeriesImageOverride[]
-): string | null {
+): RaceSeriesImageOverride | null {
   const raceSlug = clean(source.slug)
   if (raceSlug) {
     const byRace = overrides.find(
@@ -119,22 +140,23 @@ function matchingOverride(
         sameKey(entry.raceSlug, raceSlug) &&
         usableImage(entry.imageUrl)
     )
-    if (byRace) return usableImage(byRace.imageUrl)
+    if (byRace) return byRace
   }
 
   const seriesSlug = clean(source.series?.slug)
   const circuitName = clean(source.circuit?.name)
   if (!seriesSlug || !circuitName) return null
-  const byCircuit = overrides.find(
-    entry =>
-      !entry.raceSlug &&
-      entry.seriesSlug &&
-      entry.circuitName &&
-      sameKey(entry.seriesSlug, seriesSlug) &&
-      sameKey(entry.circuitName, circuitName) &&
-      usableImage(entry.imageUrl)
+  return (
+    overrides.find(
+      entry =>
+        !entry.raceSlug &&
+        entry.seriesSlug &&
+        entry.circuitName &&
+        sameKey(entry.seriesSlug, seriesSlug) &&
+        sameKey(entry.circuitName, circuitName) &&
+        usableImage(entry.imageUrl)
+    ) ?? null
   )
-  return byCircuit ? usableImage(byCircuit.imageUrl) : null
 }
 
 export function resolveRaceImage(
@@ -144,7 +166,7 @@ export function resolveRaceImage(
   const racePhoto = usableImage(source.raceImageUrl)
   if (racePhoto) return racePhoto
   const override = matchingOverride(source, overrides)
-  if (override) return override
+  if (override) return usableImage(override.imageUrl)
   if (!seriesUsesCircuitPhoto(source.series)) return null
   return usableImage(source.circuit?.image_url)
 }
@@ -177,6 +199,11 @@ export function raceCardImage(
   overrides?: readonly RaceSeriesImageOverride[]
 ): RaceCardImage {
   const src = resolveRaceImage(source, overrides)
+  const override = usableImage(source.raceImageUrl)
+    ? null
+    : matchingOverride(source, overrides ?? RACE_SERIES_IMAGE_OVERRIDES)
+  const credited =
+    override && src === usableImage(override.imageUrl) ? override : null
   const circuitName = clean(source.circuit?.name)
   const series = clean(source.series?.short_name)
   const country = clean(source.country) || clean(source.circuit?.country)
@@ -190,16 +217,18 @@ export function raceCardImage(
       )
     : null
   const title = clean(source.name) || circuitName || "Race"
-  const alt = raceImageAlt({
+  const described = raceImageAlt({
     name: title,
     circuitName,
     series,
     country,
     dateLabel
   })
+  const alt = credited?.alt?.trim() || described
   return {
     src,
     alt,
+    credit: credited?.credit ?? null,
     fallback: {
       title,
       circuitName: circuitName && circuitName !== title ? circuitName : null,
@@ -207,7 +236,7 @@ export function raceCardImage(
       accentColor: clean(source.series?.accent_color),
       country,
       dateLabel,
-      alt
+      alt: described
     }
   }
 }

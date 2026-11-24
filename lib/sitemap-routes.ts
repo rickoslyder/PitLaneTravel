@@ -25,7 +25,8 @@ export const SITEMAP_STATIC_PATHS = [
   "/help",
   "/cancellation",
   "/privacy",
-  "/terms"
+  "/terms",
+  "/image-credits"
 ] as const
 
 export type SitemapStaticPath = (typeof SITEMAP_STATIC_PATHS)[number]
@@ -53,7 +54,8 @@ export const SITEMAP_STATIC_ROUTE_META: Record<
   "/help": { changeFrequency: "monthly", priority: 0.5 },
   "/cancellation": { changeFrequency: "yearly", priority: 0.3 },
   "/privacy": { changeFrequency: "yearly", priority: 0.3 },
-  "/terms": { changeFrequency: "yearly", priority: 0.3 }
+  "/terms": { changeFrequency: "yearly", priority: 0.3 },
+  "/image-credits": { changeFrequency: "yearly", priority: 0.3 }
 }
 
 export function staticSitemapUrl(path: SitemapStaticPath): string {

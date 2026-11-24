@@ -10,6 +10,7 @@ import {
 import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { RaceCircuitImage } from "@/components/races/race-circuit-image"
 import { raceCardImage } from "@/lib/race-series-image"
+import { RacePhotoCredit } from "@/components/races/race-photo-credit"
 import { CalendarDays, MapPin, Share2, Timer } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -294,6 +295,11 @@ export function RaceHero({
           </div>
         </div>
       </div>
+      {showPhoto && cardImage.credit ? (
+        <div className="absolute inset-x-0 bottom-0 z-20">
+          <RacePhotoCredit credit={cardImage.credit} />
+        </div>
+      ) : null}
     </div>
   )
 }

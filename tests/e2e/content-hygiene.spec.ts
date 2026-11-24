@@ -22,6 +22,7 @@ test.describe("public HTML hides internal research references", () => {
     const paths = [
       "/",
       "/races",
+      "/image-credits",
       "/faq",
       "/guides",
       ...listGuides().map(guide => `/guides/${guide.slug}`),

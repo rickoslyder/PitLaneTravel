@@ -1,4 +1,6 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { RacePhotoCredit } from "@/components/races/race-photo-credit"
+import type { RaceImageCredit } from "@/lib/race-series-image"
 import { buttonVariants } from "@/components/ui/button"
 import { CoverageBadge } from "@/components/coverage/coverage-badge"
 import { RaceImageFallback } from "@/components/races/race-image-fallback"
@@ -42,6 +44,7 @@ export type ListingCardModel = {
   coverage?: PublicCoverageSummary
   listingState?: TicketListingState
   image: ListingCardImage | null
+  photoCredit?: RaceImageCredit | null
   fallbackTitle: string
   fallbackCircuit?: string | null
   fallbackSeries: string | null
@@ -173,6 +176,11 @@ export function ListingCardView({ model }: { model: ListingCardModel }) {
                 }}
               />
             ) : null}
+            {model.image && model.photoCredit ? (
+              <div className="absolute inset-x-0 bottom-0 z-10">
+                <RacePhotoCredit credit={model.photoCredit} />
+              </div>
+            ) : null}
             <div className={cn(model.image && "hidden")}>
               <RaceImageFallback
                 title={model.fallbackTitle}
@@ -243,8 +251,10 @@ export const raceListingListStyles = `
 [data-race-view="list"] .race-listing-content{padding-bottom:.5rem;row-gap:.375rem}
 [data-race-view="list"] .race-listing-title-row > [data-coverage-badge]{margin-top:0}
 .race-listing-title-row > [data-coverage-badge]{margin-top:.625rem}
-.race-listing-photo[data-race-photo-failed] .race-listing-img{display:none !important}
+.race-listing-photo[data-race-photo-failed] .race-listing-img,
+.race-listing-photo[data-race-photo-failed] .race-photo-credit{display:none !important}
 .race-listing-photo[data-race-photo-failed] > .hidden{display:block !important}
+[data-race-view="list"] .race-photo-credit{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 [data-race-view="list"] .race-listing-photo [data-race-fallback-copy]{padding:.375rem !important}
 [data-race-view="list"] .race-listing-photo [data-race-image-fallback] p{font-size:10px !important;line-height:1.15 !important;-webkit-line-clamp:2}
 [data-race-view="list"] .race-listing-photo [data-race-fallback-detail],
