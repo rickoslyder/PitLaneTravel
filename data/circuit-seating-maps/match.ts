@@ -70,3 +70,16 @@ export function showCircuitSeatingMap(input: {
   if (input.map) return true
   return hasTrackMapUrl(input.trackMapUrl)
 }
+
+/** Honest caption for an official circuit diagram with no stand markers. */
+export function circuitMapCaption(circuitName: string): string {
+  return `Circuit map of ${circuitName}. This shows the circuit layout, not a seating map.`
+}
+
+export function circuitMapAlt(circuitName: string): string {
+  return `Circuit map of ${circuitName}`
+}
+
+export function circuitMapEmptyCopy(circuitName: string): string {
+  return `No circuit map for ${circuitName}.`
+}

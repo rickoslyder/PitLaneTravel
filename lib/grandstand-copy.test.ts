@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest"
 import {
   GRANDSTAND_PRICE_LEGEND,
   formatBestFor,
+  formatCoverSun,
   formatPriceTier,
   formatSunExposure,
+  formatViewRating,
   grandstandComparedPhrase
 } from "./grandstand-copy"
 
@@ -49,6 +51,25 @@ describe("formatSunExposure", () => {
     expect(formatSunExposure("afternoon")).toBe("Afternoon sun")
     expect(formatSunExposure("")).toBe("")
     expect(formatSunExposure(null)).toBe("")
+  })
+})
+
+describe("formatCoverSun", () => {
+  it("pairs the roof with the sun label", () => {
+    expect(formatCoverSun(true, "shaded")).toBe("Covered, Shaded")
+    expect(formatCoverSun(true, "full sun")).toBe("Covered, Full sun")
+    expect(formatCoverSun(false, "afternoon")).toBe("Uncovered, Afternoon sun")
+    expect(formatCoverSun(false, null)).toBe("Uncovered")
+    expect(formatCoverSun(true, "shaded sun")).not.toMatch(/shaded sun/i)
+  })
+})
+
+describe("formatViewRating", () => {
+  it("prints a score out of five and skips a missing rating", () => {
+    expect(formatViewRating(4)).toBe("4/5")
+    expect(formatViewRating(4.2)).toBe("4/5")
+    expect(formatViewRating(0)).toBe("")
+    expect(formatViewRating(null)).toBe("")
   })
 })
 

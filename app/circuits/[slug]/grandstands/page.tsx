@@ -84,6 +84,19 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
     map: preparedMap,
     trackMapUrl: circuit.trackMapUrl
   })
+  const seatingGrandstands = ranked.map(grandstand => ({
+    slug: grandstand.slug,
+    name: grandstand.name
+  }))
+  const seatingMap = (
+    <CircuitSeatingMap
+      circuitName={circuit.name}
+      circuitSlug={slug}
+      map={preparedMap}
+      trackMapUrl={circuit.trackMapUrl}
+      grandstands={seatingGrandstands}
+    />
+  )
   const londonVenue =
     isEvergreenFormulaELondonVenue(circuit.name) ||
     isEvergreenFormulaELondonVenue(circuit.location)
@@ -121,16 +134,7 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
 
       {showMap ? (
         <SeatingSyncProvider>
-          <CircuitSeatingMap
-            circuitName={circuit.name}
-            circuitSlug={slug}
-            map={preparedMap}
-            trackMapUrl={circuit.trackMapUrl}
-            grandstands={ranked.map(grandstand => ({
-              slug: grandstand.slug,
-              name: grandstand.name
-            }))}
-          />
+          {seatingMap}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {ranked.map(grandstand => (
               <GrandstandCardFrame key={grandstand.id} slug={grandstand.slug}>
@@ -140,11 +144,14 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
           </div>
         </SeatingSyncProvider>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {ranked.map(grandstand => (
-            <GrandstandCard key={grandstand.id} grandstand={grandstand} />
-          ))}
-        </div>
+        <>
+          {seatingMap}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {ranked.map(grandstand => (
+              <GrandstandCard key={grandstand.id} grandstand={grandstand} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   )

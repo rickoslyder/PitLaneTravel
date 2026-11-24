@@ -57,6 +57,22 @@ export function formatSunExposure(value: string | null | undefined): string {
   return SUN_EXPOSURE_LABEL[key] ?? key.charAt(0).toUpperCase() + key.slice(1)
 }
 
+/** One cover line, so "Covered" and "Full sun" read as a pair. */
+export function formatCoverSun(
+  covered: boolean,
+  sunExposure: string | null | undefined
+): string {
+  const cover = covered ? "Covered" : "Uncovered"
+  const sun = formatSunExposure(sunExposure)
+  return sun ? `${cover}, ${sun}` : cover
+}
+
+/** Numeric view score. Empty when the stand has no rating. */
+export function formatViewRating(value: number | null | undefined): string {
+  if (value == null || !Number.isFinite(value) || value <= 0) return ""
+  return `${Math.round(value)}/5`
+}
+
 /**
  * Relative price band. Stored rows have no typical price, and the currency
  * column is a default rather than the circuit's currency, so this never
