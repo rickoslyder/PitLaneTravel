@@ -72,15 +72,9 @@ export const silverstoneSeatingMap: CircuitSeatingMapConfig = {
   art: { mobile: MOBILE, desktop: DESKTOP },
   markers: "overlay",
   note: "Based on the 2025 official layout. Numbers mark guide areas, not the circuit's own stand numbers. Abbey, Copse, Becketts and Club Corner are area markers. The Landostand is the Stowe area: that plan shows blocks A to D, so it has no single numbered point. Not a seat view, shade or access map.",
-  credit: {
-    before: "Areas follow the ",
-    href: "https://www.silverstone.co.uk/sites/default/files/pdf/British%20Grand%20Prix%202025%20Map.pdf",
-    label: "Silverstone 2025 British Grand Prix spectator map",
-    after: "."
-  },
   expandLabel: "Expand seating map",
   title: "Silverstone seating locator",
-  dialogDescription: "Full seating locator with its key and source.",
+  dialogDescription: "Full seating locator with its key.",
   keyTitle: "Seating key",
   pins: [
     pin("Abbey (A/B)", "1", "Abbey A/B", [52.72, 69.92], [52.68, 64.78]),

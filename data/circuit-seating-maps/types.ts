@@ -53,15 +53,6 @@ export type SeatingPin = {
   mobile: SeatingPinPoint
 }
 
-export type SeatingCredit = {
-  /** Sentence fragment before the source link. */
-  before: string
-  href: string
-  /** Visible name of the official plan. */
-  label: string
-  after?: string
-}
-
 export type CircuitSeatingMapConfig = {
   circuitSlug: string
   alt: string
@@ -83,8 +74,6 @@ export type CircuitSeatingMapConfig = {
   caption?: "yas-marina-seating"
   /** Short public note under the map. */
   note?: string
-  /** Official circuit or organiser plan. */
-  credit?: SeatingCredit
   expandLabel?: string
   title?: string
   dialogDescription?: string

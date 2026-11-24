@@ -324,6 +324,34 @@ describe("CircuitSeatingMap", () => {
     ).toHaveLength(1)
   })
 
+  it("disables drawn markers that the filter has hidden", () => {
+    const visible = monacoSeatingMap.pins[0]
+    const html = renderToStaticMarkup(
+      createElement(CircuitSeatingMap, {
+        circuitName: "Circuit de Monaco",
+        circuitSlug: "circuit-de-monaco",
+        map: monacoSeatingMap,
+        grandstands: [{ slug: visible.slug, name: visible.grandstandName }]
+      })
+    )
+    const buttons = html
+      .split("<button")
+      .slice(1)
+      .map(chunk => chunk.slice(0, chunk.indexOf(">")))
+      .filter(
+        chunk =>
+          chunk.includes("data-seating-pin=") &&
+          chunk.includes('data-pin-placement="inline"')
+      )
+
+    expect(buttons).toHaveLength(monacoSeatingMap.pins.length)
+    const enabled = buttons.filter(
+      chunk => !/(?:^|\s)disabled(?:=|\s|>|$)/.test(chunk)
+    )
+    expect(enabled).toHaveLength(1)
+    expect(enabled[0]).toContain(`data-seating-pin="${visible.slug}"`)
+  })
+
   it("renders a track map with a grandstand list and no pins", () => {
     const html = renderToStaticMarkup(
       createElement(CircuitSeatingMap, {
@@ -360,16 +388,16 @@ describe("CircuitSeatingMap", () => {
   it("renders an empty state with no image when no map is available", () => {
     const html = renderToStaticMarkup(
       createElement(CircuitSeatingMap, {
-        circuitName: "Circuit de Monaco",
-        circuitSlug: "circuit-de-monaco",
+        circuitName: "Madring",
+        circuitSlug: "madring",
         map: null,
         trackMapUrl: " ",
-        grandstands: [{ slug: "tribune-t", name: "Tribune T" }]
+        grandstands: [{ slug: "gold-1", name: "Gold 1" }]
       })
     )
 
     expect(html).toContain('data-circuit-map="empty"')
-    expect(html).toContain("No circuit map for Circuit de Monaco.")
+    expect(html).toContain("No circuit map for Madring.")
     expect(html).not.toMatch(/<img\b/)
     expect(html).not.toContain("data-seating-pin=")
     expect(html).not.toContain("seating map")
@@ -394,8 +422,10 @@ describe("CircuitSeatingMap", () => {
       expect(html).toContain(`data-circuit-seating-map="${map.circuitSlug}"`)
       expect(html).toContain(`data-seating-pins="${map.pins.length}"`)
       expect(html).toContain(map.alt)
-      expect(html).toContain(map.credit?.href)
-      expect(html).toContain(map.credit?.label)
+      expect(html).not.toContain("circuit layout, not a seating map")
+      expect(html).not.toContain("acm.mc")
+      expect(html).not.toContain("silverstone.co.uk")
+      expect(html).not.toContain("monzanet.it")
       expect(html).toContain("text-[#08797e]")
       expect(html).toContain('type="image/webp"')
       expect(html).toContain("--pin-d:")

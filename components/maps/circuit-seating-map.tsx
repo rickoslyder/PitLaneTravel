@@ -14,7 +14,6 @@ import {
 import {
   LocatorAreaKey,
   LocatorInlineArt,
-  locatorLinkClass,
   seatingKeyTitleClass
 } from "@/components/maps/locator-frame"
 import { YasMarinaSeatingDetails } from "@/components/maps/yas-marina-seating-caption"
@@ -33,7 +32,6 @@ import {
 } from "@/data/circuit-seating-maps/match"
 import type {
   CircuitSeatingMapConfig,
-  SeatingCredit,
   SeatingPin
 } from "@/data/circuit-seating-maps/types"
 
@@ -76,18 +74,6 @@ function pinLabel(pin: SeatingPin, index: number, overlay: boolean): string {
   return `${index + 1}, ${pin.label}, ${pin.detail}`
 }
 
-function SeatingCreditLine({ credit }: { credit: SeatingCredit }) {
-  return (
-    <p>
-      {credit.before}
-      <a className={locatorLinkClass} href={credit.href}>
-        {credit.label}
-      </a>
-      {credit.after ?? ""}
-    </p>
-  )
-}
-
 function MapDetails({ map }: { map: CircuitSeatingMapConfig }) {
   const items = keyItems(map)
   if (map.caption === "yas-marina-seating") {
@@ -96,7 +82,6 @@ function MapDetails({ map }: { map: CircuitSeatingMapConfig }) {
   return (
     <>
       {map.note ? <p>{map.note}</p> : null}
-      {map.credit ? <SeatingCreditLine credit={map.credit} /> : null}
       <LocatorAreaKey
         title={map.keyTitle ?? "Grandstands"}
         items={items}

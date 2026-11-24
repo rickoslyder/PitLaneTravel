@@ -73,15 +73,9 @@ export const monacoSeatingMap: CircuitSeatingMapConfig = {
   art: { mobile: MOBILE, desktop: DESKTOP },
   markers: "overlay",
   note: "North-up area locator. Markers sit on the grandstand areas, not on individual seats. K is the Quai Albert 1er block on the harbour side of the start straight. L is at the Swimming Pool (Piscine Rainier III), not the Nouvelle Chicane. Not a seat view, shade or access map.",
-  credit: {
-    before: "Areas follow the ",
-    href: "https://acm.mc/wp-content/uploads/2025/05/Plan_Circuit_GPF12027_1920x1800-1-scaled.jpg",
-    label: "Automobile Club de Monaco 2027 circuit plan",
-    after: "."
-  },
   expandLabel: "Expand seating map",
   title: "Circuit de Monaco seating locator",
-  dialogDescription: "Full seating locator with its key and source.",
+  dialogDescription: "Full seating locator with its key.",
   keyTitle: "Seating key",
   pins: [
     pin(

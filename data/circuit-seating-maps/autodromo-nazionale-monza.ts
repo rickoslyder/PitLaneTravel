@@ -71,15 +71,9 @@ export const monzaSeatingMap: CircuitSeatingMapConfig = {
   art: { mobile: MOBILE, desktop: DESKTOP },
   markers: "overlay",
   note: "Area locator for four grandstands. 18 (Uscita Ascari A) and 20 (Rettilineo Parabolica Esterna) are separate stands on opposite sides of the track. The 2026 plan does not show a grandstand 19. 18 and 20 are not marked here. Not a seat view, shade or access map.",
-  credit: {
-    before: "Areas follow the ",
-    href: "https://www.monzanet.it/wp-content/uploads/2026/06/GP_F1_2026_LISTINO_PREZZI_6_17.pdf",
-    label: "Autodromo Nazionale Monza 2026 grandstand map",
-    after: "."
-  },
   expandLabel: "Expand seating map",
   title: "Monza seating locator",
-  dialogDescription: "Full seating locator with its key and source.",
+  dialogDescription: "Full seating locator with its key.",
   keyTitle: "Seating key",
   pins: [
     pin(
