@@ -3,7 +3,10 @@ import path from "node:path"
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
-import { CircuitSeatingMap } from "@/components/maps/circuit-seating-map"
+import {
+  CircuitSeatingMap,
+  ExpandedSeatingArtwork
+} from "@/components/maps/circuit-seating-map"
 import { listCircuitSeatingMaps } from "@/data/circuit-seating-maps"
 import {
   activeSlugForPin,
@@ -412,5 +415,31 @@ describe("CircuitSeatingMap", () => {
     expect(monaco).toContain("North-up")
     expect(monaco).toContain("Piscine Rainier III")
     expect(monaco).toContain("not the Nouvelle Chicane")
+  })
+
+  it("draws desktop markers on the expanded seating artwork", () => {
+    for (const map of [monacoSeatingMap, silverstoneSeatingMap, monzaSeatingMap]) {
+      const html = renderToStaticMarkup(
+        createElement(ExpandedSeatingArtwork, {
+          map,
+          grandstands: map.pins.map(pin => ({
+            slug: pin.slug,
+            name: pin.grandstandName
+          }))
+        })
+      )
+      expect(html).toContain('data-locator-art="expanded"')
+      expect(html).toContain(`src="${map.art.desktop.svg}"`)
+      expect(html.match(/data-pin-placement="expanded"/g)).toHaveLength(
+        map.pins.length
+      )
+      expect(html).not.toContain("max-sm:left-[var(--pin-x-mobile)]")
+      for (const pin of map.pins) {
+        expect(html).toContain(`>${pin.label}<`)
+        expect(html).toContain(
+          `--pin-x:${pinPercent(pin.desktop.x, map.art.desktop.width)}`
+        )
+      }
+    }
   })
 })

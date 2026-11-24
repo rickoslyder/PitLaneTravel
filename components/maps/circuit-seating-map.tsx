@@ -108,14 +108,18 @@ function MapDetails({ map }: { map: CircuitSeatingMapConfig }) {
 
 function SeatingPins({
   map,
-  grandstands
+  grandstands,
+  placement = "inline"
 }: {
   map: CircuitSeatingMapConfig
   grandstands: readonly SeatingGrandstandRef[]
+  /** Expanded art is always the desktop image, including on a phone. */
+  placement?: "inline" | "expanded"
 }) {
   const sync = useSeatingSync()
   const groupRef = useRef<HTMLDivElement>(null)
   const overlay = map.markers === "overlay"
+  const desktopOnly = placement === "expanded"
   if (map.pins.length === 0) return null
 
   function moveFocus(event: KeyboardEvent<HTMLButtonElement>, index: number) {
@@ -188,8 +192,9 @@ function SeatingPins({
           <button
             key={pin.slug}
             type="button"
-            id={`seating-pin-${map.circuitSlug}-${pin.slug}`}
+            id={`seating-pin-${placement}-${map.circuitSlug}-${pin.slug}`}
             data-seating-pin={pin.slug}
+            data-pin-placement={placement}
             data-active={active ? "true" : "false"}
             aria-label={pinLabel(pin, index, overlay)}
             aria-controls={navigable ? grandstandAnchorId(slug) : undefined}
@@ -223,14 +228,46 @@ function SeatingPins({
             }}
             className={
               overlay
-                ? "pointer-events-auto absolute left-[var(--pin-x)] top-[var(--pin-y)] flex aspect-square w-[var(--pin-d)] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#b64a27] p-0 text-[10px] font-bold leading-none text-white ring-2 ring-[#f7f4eb] hover:ring-[#e10600] focus-visible:outline-none focus-visible:ring-[#e10600] disabled:pointer-events-none disabled:opacity-40 data-[active=true]:ring-[#e10600] max-sm:left-[var(--pin-x-mobile)] max-sm:top-[var(--pin-y-mobile)] max-sm:w-[var(--pin-d-mobile)] sm:text-[13px]"
-                : "pointer-events-auto absolute left-[var(--pin-x)] top-[var(--pin-y)] size-11 -translate-x-1/2 -translate-y-1/2 rounded-full bg-transparent p-0 hover:ring-2 hover:ring-inset hover:ring-[#e10600] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e10600] disabled:pointer-events-none disabled:opacity-40 data-[active=true]:ring-2 data-[active=true]:ring-inset data-[active=true]:ring-[#e10600] max-sm:left-[var(--pin-x-mobile)] max-sm:top-[var(--pin-y-mobile)]"
+                ? `pointer-events-auto absolute left-[var(--pin-x)] top-[var(--pin-y)] flex aspect-square w-[var(--pin-d)] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#b64a27] p-0 text-[10px] font-bold leading-none text-white ring-2 ring-[#f7f4eb] hover:ring-[#e10600] focus-visible:outline-none focus-visible:ring-[#e10600] disabled:pointer-events-none disabled:opacity-40 data-[active=true]:ring-[#e10600] sm:text-[13px] ${desktopOnly ? "" : "max-sm:left-[var(--pin-x-mobile)] max-sm:top-[var(--pin-y-mobile)] max-sm:w-[var(--pin-d-mobile)]"}`
+                : `pointer-events-auto absolute left-[var(--pin-x)] top-[var(--pin-y)] size-11 -translate-x-1/2 -translate-y-1/2 rounded-full bg-transparent p-0 hover:ring-2 hover:ring-inset hover:ring-[#e10600] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e10600] disabled:pointer-events-none disabled:opacity-40 data-[active=true]:ring-2 data-[active=true]:ring-inset data-[active=true]:ring-[#e10600] ${desktopOnly ? "" : "max-sm:left-[var(--pin-x-mobile)] max-sm:top-[var(--pin-y-mobile)]"}`
             }
           >
             {overlay ? pin.label : null}
           </button>
         )
       })}
+    </div>
+  )
+}
+
+export function ExpandedSeatingArtwork({
+  map,
+  grandstands
+}: {
+  map: CircuitSeatingMapConfig
+  grandstands: readonly SeatingGrandstandRef[]
+}) {
+  const desktop = map.art.desktop
+  return (
+    <div
+      className="relative"
+      style={{ width: desktop.width }}
+      data-expanded-map=""
+    >
+      <img
+        src={desktop.svg}
+        alt={map.alt}
+        width={desktop.width}
+        height={desktop.height}
+        decoding="async"
+        data-locator-art="expanded"
+        style={{
+          width: desktop.width,
+          height: "auto",
+          maxWidth: "none"
+        }}
+      />
+      <SeatingPins map={map} grandstands={grandstands} placement="expanded" />
     </div>
   )
 }
@@ -285,19 +322,7 @@ function IllustratedMap({
                 data-locator-scroll=""
                 className="min-h-0 flex-1 overflow-auto"
               >
-                <img
-                  src={desktop.svg}
-                  alt={map.alt}
-                  width={desktop.width}
-                  height={desktop.height}
-                  decoding="async"
-                  data-locator-art="expanded"
-                  style={{
-                    width: desktop.width,
-                    height: "auto",
-                    maxWidth: "none"
-                  }}
-                />
+                <ExpandedSeatingArtwork map={map} grandstands={grandstands} />
                 <div className="text-muted-foreground mt-4 space-y-3 text-sm leading-relaxed">
                   <MapDetails map={map} />
                 </div>
