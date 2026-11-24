@@ -4,7 +4,10 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
 import { getCircuitsWithGrandstandsAction } from "@/actions/db/grandstands-actions"
-import { GrandstandCard } from "@/components/grandstands/grandstand-card"
+import {
+  GrandstandCard,
+  GrandstandPriceLegend
+} from "@/components/grandstands/grandstand-card"
 import { YasMarinaLocator } from "@/components/maps/yas-marina-locator"
 import { slugify } from "@/lib/series"
 import {
@@ -86,6 +89,9 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
             {FORMULA_E_LONDON_VENUE_NOTE}
           </p>
         )}
+        {ranked.some(stand => stand.priceTier) ? (
+          <GrandstandPriceLegend />
+        ) : null}
       </header>
 
       {slug === "yas-marina-circuit" ? (
