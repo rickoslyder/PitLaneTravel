@@ -36,6 +36,7 @@ async function querySeriesCalendar(
       weekendEnd: racesTable.weekendEnd,
       cancellationReason: racesTable.cancellationReason,
       seriesShortName: seriesTable.shortName,
+      seriesSlug: seriesTable.slug,
       seriesAccent: seriesTable.accentColor,
       circuitName: circuitsTable.name,
       circuitLocation: circuitsTable.location,
@@ -71,6 +72,7 @@ async function querySeriesCalendar(
     series: row.seriesShortName
       ? {
           short_name: row.seriesShortName,
+          slug: row.seriesSlug,
           accent_color: row.seriesAccent
         }
       : null,

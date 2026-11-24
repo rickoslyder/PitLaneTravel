@@ -9,6 +9,7 @@ import {
 } from "date-fns"
 import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { RaceCircuitImage } from "@/components/races/race-circuit-image"
+import { raceCardImage } from "@/lib/race-series-image"
 import { CalendarDays, MapPin, Share2, Timer } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -112,6 +113,7 @@ export function RaceHero({
 
   const seriesHeading = seriesDisplayName(race.series)
   const finished = raceHasFinished(race, new Date())
+  const cardImage = raceCardImage(race)
 
   const handleShare = async () => {
     const shareData = {
@@ -135,15 +137,16 @@ export function RaceHero({
 
   return (
     <div className="relative h-[75vh] min-h-[500px] w-full min-w-0 overflow-hidden">
-      {race.circuit?.image_url ? (
+      {cardImage.src ? (
         <div className="absolute inset-0">
           <RaceCircuitImage
-            src={race.circuit.image_url}
-            alt={race.name}
+            src={cardImage.src}
+            alt={cardImage.alt}
             fill
             priority
             sizes="100vw"
             className="object-cover"
+            fallback={cardImage.fallback}
           />
           <div className="from-background/90 via-background/25 absolute inset-0 bg-gradient-to-t to-transparent" />
           <div className="absolute inset-0 bg-black/30" />

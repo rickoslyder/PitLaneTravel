@@ -11,12 +11,4 @@ export function isMissingRaceImage(src: string | null | undefined): boolean {
   )
 }
 
-/** First card that can paint a photo. Imageless fallbacks are skipped. */
-export function firstRaceIdWithImage(
-  races: readonly {
-    id: string
-    circuit?: { image_url?: string | null } | null
-  }[]
-): string | undefined {
-  return races.find(race => !isMissingRaceImage(race.circuit?.image_url))?.id
-}
+export { firstRaceIdWithImage } from "@/lib/race-series-image"

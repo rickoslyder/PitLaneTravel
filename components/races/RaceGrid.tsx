@@ -2,7 +2,7 @@
 
 import type { SeriesCalendarRace } from "@/lib/series-card-image"
 import { useRouter } from "next/navigation"
-import { firstRaceIdWithImage } from "@/lib/race-image"
+import { firstRaceIdWithImage } from "@/lib/race-series-image"
 import { RaceCard } from "./RaceCard"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import type { TicketListingState } from "@/components/races/tickets/ticket-availability"

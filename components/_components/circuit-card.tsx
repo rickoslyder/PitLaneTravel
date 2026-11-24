@@ -4,10 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
-import {
-  RaceCircuitImage,
-  raceCardImageLabel
-} from "@/components/races/race-circuit-image"
+import { RaceCircuitImage } from "@/components/races/race-circuit-image"
+import { raceCardImage } from "@/lib/race-series-image"
 import { RaceWithCircuitAndSeries } from "@/types/database"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -26,17 +24,18 @@ interface CircuitCardProps {
 }
 
 export function CircuitCard({ race }: CircuitCardProps) {
+  const image = raceCardImage(race)
   return (
     <Card className="overflow-hidden">
       <div className="relative h-64 w-full overflow-hidden">
         <RaceCircuitImage
-          src={race.circuit?.image_url}
-          alt={`${race.circuit?.name ?? "Circuit"} circuit`}
+          src={image.src}
+          alt={image.alt}
           fill
           className="object-cover transition-transform duration-300 hover:scale-105"
           sizes="(max-width: 768px) 100vw, 50vw"
           priority={false}
-          label={raceCardImageLabel(race)}
+          fallback={image.fallback}
         />
       </div>
       <CardHeader>

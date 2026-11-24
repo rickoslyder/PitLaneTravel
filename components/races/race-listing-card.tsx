@@ -7,7 +7,7 @@ import {
   formatRaceCalendarDate,
   formatRaceCalendarMonth
 } from "@/lib/race-datetime"
-import { isMissingRaceImage } from "@/lib/race-image"
+import { raceCardImage } from "@/lib/race-series-image"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import type { RaceTiming } from "@/lib/race-calendar-window"
 import type { RaceWithCircuitAndSeries } from "@/types/database"
@@ -31,12 +31,12 @@ export function toListingCardModel(
   const seriesSlug = race.series?.slug ?? "f1"
   const cancelled = race.status === "cancelled"
   const href = `/races/${race.slug || race.id}`
-  const fallbackTitle = race.circuit?.name || race.name
+  const visual = raceCardImage(race)
   let image: ListingCardImage | null = null
-  if (!isMissingRaceImage(race.circuit?.image_url)) {
+  if (visual.src) {
     const { props } = getImageProps({
-      src: race.circuit?.image_url as string,
-      alt: fallbackTitle,
+      src: visual.src,
+      alt: visual.alt,
       fill: true,
       sizes: LISTING_IMAGE_SIZES,
       quality: 65
@@ -45,7 +45,7 @@ export function toListingCardModel(
       src: props.src,
       srcSet: props.srcSet,
       sizes: props.sizes || LISTING_IMAGE_SIZES,
-      alt: fallbackTitle
+      alt: visual.alt
     }
   }
 
@@ -72,8 +72,12 @@ export function toListingCardModel(
     coverage,
     listingState,
     image,
-    fallbackTitle,
-    fallbackSeries: race.series?.short_name ?? null,
-    fallbackCountry: race.country || race.circuit?.country || null
+    fallbackTitle: visual.fallback.title,
+    fallbackCircuit: visual.fallback.circuitName,
+    fallbackSeries: visual.fallback.series,
+    fallbackAccent: visual.fallback.accentColor,
+    fallbackCountry: visual.fallback.country,
+    fallbackDate: visual.fallback.dateLabel,
+    fallbackAlt: visual.alt
   }
 }

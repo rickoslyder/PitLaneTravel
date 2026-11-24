@@ -14,7 +14,7 @@ describe("upcoming race card image", () => {
     expect(source).not.toContain("placeholder.jpg")
     expect(source).not.toContain('from "next/image"')
     expect(source).toContain("RaceCircuitImage")
-    expect(source).toContain("raceCardImageLabel")
+    expect(source).toContain("raceCardImage")
     expect(source).toContain("data-race-card")
     expect(source).toContain("formatRaceCalendarDate")
     expect(source).not.toContain("toLocaleDateString")

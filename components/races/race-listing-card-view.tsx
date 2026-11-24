@@ -43,8 +43,12 @@ export type ListingCardModel = {
   listingState?: TicketListingState
   image: ListingCardImage | null
   fallbackTitle: string
+  fallbackCircuit?: string | null
   fallbackSeries: string | null
+  fallbackAccent?: string | null
   fallbackCountry: string | null
+  fallbackDate?: string | null
+  fallbackAlt?: string | null
 }
 
 function ListingCtas({ model }: { model: ListingCardModel }) {
@@ -172,8 +176,12 @@ export function ListingCardView({ model }: { model: ListingCardModel }) {
             <div className={cn(model.image && "hidden")}>
               <RaceImageFallback
                 title={model.fallbackTitle}
+                circuitName={model.fallbackCircuit}
                 series={model.fallbackSeries}
+                accentColor={model.fallbackAccent}
                 country={model.fallbackCountry}
+                dateLabel={model.fallbackDate}
+                alt={model.fallbackAlt}
               />
             </div>
           </div>
@@ -237,8 +245,10 @@ export const raceListingListStyles = `
 .race-listing-title-row > [data-coverage-badge]{margin-top:.625rem}
 .race-listing-photo[data-race-photo-failed] .race-listing-img{display:none !important}
 .race-listing-photo[data-race-photo-failed] > .hidden{display:block !important}
-[data-race-view="list"] .race-listing-photo [data-race-image-fallback]{padding:.375rem}
-[data-race-view="list"] .race-listing-photo [data-race-image-fallback] p{font-size:10px;line-height:1.15;-webkit-line-clamp:2}
+[data-race-view="list"] .race-listing-photo [data-race-fallback-copy]{padding:.375rem !important}
+[data-race-view="list"] .race-listing-photo [data-race-image-fallback] p{font-size:10px !important;line-height:1.15 !important;-webkit-line-clamp:2}
+[data-race-view="list"] .race-listing-photo [data-race-fallback-detail],
+[data-race-view="list"] .race-listing-photo [data-race-fallback-mark]{display:none !important}
 @media (min-width:640px){
   [data-race-view="list"] [data-race-card]{flex-direction:row;align-items:center;justify-content:space-between}
   [data-race-view="list"] .race-listing-main{flex-direction:row;align-items:center;gap:1.5rem}
