@@ -10,6 +10,7 @@ import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import { racesForTiming, type RaceTiming } from "@/lib/race-calendar-window"
 import { seriesTabs } from "@/lib/race-listing-filter"
 import type { RaceWithCircuitAndSeries } from "@/types/database"
+import Link from "next/link"
 
 interface RacesPageProps {
   initialRaces: RaceWithCircuitAndSeries[]
@@ -69,6 +70,14 @@ export function RacesPage({
               />
             ))}
           </RaceCalendarControls>
+          <p className="text-muted-foreground mt-6 text-center text-sm">
+            <Link
+              href="/image-credits"
+              className="underline underline-offset-2"
+            >
+              Photograph credits
+            </Link>
+          </p>
         </div>
       </div>
     </>

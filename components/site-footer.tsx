@@ -145,6 +145,14 @@ export function SiteFooter({
                   Cancellation Policy
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/image-credits"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  Photograph credits
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

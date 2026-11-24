@@ -3,6 +3,8 @@
 import { useState } from "react"
 import Image from "next/image"
 import { isMissingRaceImage } from "@/lib/race-image"
+import type { RaceImageCredit } from "@/lib/race-series-image"
+import { RacePhotoCredit } from "@/components/races/race-photo-credit"
 import {
   RaceImageFallback,
   type RaceImageFallbackProps
@@ -24,6 +26,8 @@ interface RaceCircuitImageProps {
    * series-resolved photo from `raceCardImage`.
    */
   fallback?: RaceImageFallbackProps
+  /** Shown with a hosted photograph. Omitted for venue photos without a credit. */
+  credit?: RaceImageCredit | null
   /**
    * A real URL failed to load. The parent replaces this image, so the light
    * card is not painted underneath other type.
@@ -46,6 +50,7 @@ export function RaceCircuitImage({
   quality = 65,
   compact = false,
   fallback,
+  credit,
   onLoadError
 }: RaceCircuitImageProps) {
   const [failed, setFailed] = useState(false)
@@ -72,33 +77,48 @@ export function RaceCircuitImage({
     )
   }
 
+  const creditNode = credit ? (
+    <div
+      className={compact ? undefined : "absolute inset-x-0 bottom-0 z-10"}
+      onClick={event => event.stopPropagation()}
+    >
+      <RacePhotoCredit credit={credit} visuallyHidden={compact} />
+    </div>
+  ) : null
+
   if (fill) {
     return (
-      <Image
-        src={src as string}
-        alt={alt}
-        fill
-        sizes={sizes ?? "100vw"}
-        quality={quality}
-        className={className}
-        onError={reportFailure}
-        {...(priority
-          ? { priority: true, fetchPriority: "high" as const }
-          : {})}
-      />
+      <>
+        <Image
+          src={src as string}
+          alt={alt}
+          fill
+          sizes={sizes ?? "100vw"}
+          quality={quality}
+          className={className}
+          onError={reportFailure}
+          {...(priority
+            ? { priority: true, fetchPriority: "high" as const }
+            : {})}
+        />
+        {creditNode}
+      </>
     )
   }
 
   return (
-    <img
-      src={src as string}
-      alt={alt}
-      className={className}
-      decoding="async"
-      {...(priority
-        ? { fetchPriority: "high" as const }
-        : { loading: "lazy" as const })}
-      onError={reportFailure}
-    />
+    <>
+      <img
+        src={src as string}
+        alt={alt}
+        className={className}
+        decoding="async"
+        {...(priority
+          ? { fetchPriority: "high" as const }
+          : { loading: "lazy" as const })}
+        onError={reportFailure}
+      />
+      {creditNode}
+    </>
   )
 }

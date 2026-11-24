@@ -110,6 +110,7 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
                           sizes="(min-width: 1536px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                           quality={65}
                           className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          credit={image.credit}
                           fallback={image.fallback}
                         />
                       </div>

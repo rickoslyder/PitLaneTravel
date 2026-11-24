@@ -72,12 +72,13 @@ export function toListingCardModel(
     coverage,
     listingState,
     image,
+    photoCredit: visual.credit,
     fallbackTitle: visual.fallback.title,
     fallbackCircuit: visual.fallback.circuitName,
     fallbackSeries: visual.fallback.series,
     fallbackAccent: visual.fallback.accentColor,
     fallbackCountry: visual.fallback.country,
     fallbackDate: visual.fallback.dateLabel,
-    fallbackAlt: visual.alt
+    fallbackAlt: visual.fallback.alt
   }
 }

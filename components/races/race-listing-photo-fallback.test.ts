@@ -51,6 +51,37 @@ describe("listing photo fallback", () => {
     expect(html).toMatch(
       /<h3[^>]*>Australian Grand Prix<\/h3><div[^>]*data-coverage-badge=""/
     )
+    expect(html).toContain('loading="lazy"')
+    expect(html).not.toContain("data-race-photo-credit")
+  })
+
+  it("keeps a hosted credit inside the 16:9 frame and lazy-loads the photo", () => {
+    const html = renderToStaticMarkup(
+      createElement(ListingCardView, {
+        model: {
+          ...model,
+          image: {
+            ...model.image!,
+            alt: "A Formula E car on track"
+          },
+          photoCredit: {
+            author: "Morio",
+            licence: "CC BY-SA 4.0",
+            licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+            commonsUrl: "https://commons.wikimedia.org/wiki/File:Example.jpg"
+          }
+        }
+      })
+    )
+    expect(html).toContain("aspect-[16/9]")
+    expect(html).toContain('loading="lazy"')
+    expect(html).toContain("data-race-photo-credit")
+    expect(html).toContain("CC BY-SA 4.0")
+    expect(html).toContain("https://creativecommons.org/licenses/by-sa/4.0")
+    expect(html).toContain("Wikimedia Commons")
+    expect(html.indexOf("aspect-[16/9]")).toBeLessThan(
+      html.indexOf("data-race-photo-credit")
+    )
   })
 
   it("reveals that card from one error listener instead of a client image per card", () => {
