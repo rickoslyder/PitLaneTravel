@@ -85,6 +85,11 @@ describe("race hero fallback contrast", () => {
     expect(hero).toContain('src="/assets/placeholder.jpg"')
     expect(hero).toContain("bg-black/70")
     expect(hero).toContain("data-race-hero-scrim")
+    expect(hero).toContain(
+      "const showPhoto = Boolean(cardImage.src) && !photoFailed"
+    )
+    expect(hero).toContain("onLoadError={() => setPhotoFailed(true)}")
+    expect(hero).not.toContain("fallback={cardImage.fallback}")
     expect(hero).toContain("raceHasFinished")
     expect(notice).toContain("This race has finished.")
     expect(notice).toContain("See upcoming {seriesName} races.")

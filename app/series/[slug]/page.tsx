@@ -11,7 +11,7 @@ import {
   listSeriesTicketedRaceIdsAction
 } from "@/actions/db/series-calendar-actions"
 import { isActiveRaceStatus } from "@/lib/race-status"
-import { firstRaceIdWithImage } from "@/lib/race-image"
+import { firstRaceIdWithImage, raceCardImage } from "@/lib/race-series-image"
 import {
   SERIES_CARD_LCP_PRELOAD_MEDIA,
   SERIES_CARD_SIZES,
@@ -88,9 +88,10 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
           .sort((a, b) => a - b)
           .map(year => formatFormulaESeason(year))
       : []
-  const lcpSrc = upcoming.find(
+  const priorityRace = upcoming.find(
     race => race.id === firstRaceIdWithImage(upcoming)
-  )?.circuit?.image_url
+  )
+  const lcpSrc = priorityRace ? raceCardImage(priorityRace).src : null
   const lcpHref =
     typeof lcpSrc === "string" && lcpSrc.trim()
       ? seriesCardMobileImageHref(lcpSrc)

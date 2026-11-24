@@ -9,10 +9,8 @@ import { useState, useSyncExternalStore } from "react"
 import { cn } from "@/lib/utils"
 import { formatRaceCalendarDate } from "@/lib/race-datetime"
 import { CoverageBadge } from "@/components/coverage/coverage-badge"
-import {
-  RaceCircuitImage,
-  raceCardImageLabel
-} from "@/components/races/race-circuit-image"
+import { RaceCircuitImage } from "@/components/races/race-circuit-image"
+import { raceCardImage } from "@/lib/race-series-image"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import {
   UPCOMING_RACES_SSR_VISIBLE_COUNT,
@@ -89,68 +87,71 @@ export function UpcomingRaces({ races, coverageByRaceId }: UpcomingRacesProps) {
             </Button>
 
             <div className="mx-auto grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-              {visibleRaces.map((race, index) => (
-                <div
-                  key={race.id}
-                  className={cn(
-                    "lg:col-span-1",
-                    // On lg screens, if this is the 4th item, hide it
-                    index === 3 && "lg:hidden 2xl:block"
-                  )}
-                >
-                  <Card
-                    data-race-card=""
-                    className="group h-full overflow-hidden"
+              {visibleRaces.map((race, index) => {
+                const image = raceCardImage(race)
+                return (
+                  <div
+                    key={race.id}
+                    className={cn(
+                      "lg:col-span-1",
+                      // On lg screens, if this is the 4th item, hide it
+                      index === 3 && "lg:hidden 2xl:block"
+                    )}
                   >
-                    <div className="relative aspect-[16/9]">
-                      <RaceCircuitImage
-                        src={race.circuit?.image_url}
-                        alt={race.circuit?.name || race.name || "Race circuit"}
-                        fill
-                        sizes="(min-width: 1536px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                        quality={65}
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        label={raceCardImageLabel(race)}
-                      />
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="mb-2 text-xl font-semibold">
-                        {race.name}
-                      </h3>
-                      {coverageByRaceId?.[race.id] && (
-                        <div className="mb-2">
-                          <CoverageBadge
-                            summary={coverageByRaceId[race.id]}
-                            compact
-                          />
-                        </div>
-                      )}
-                      <p className="text-muted-foreground mb-2">
-                        {race.circuit?.location}
-                      </p>
-                      <p className="text-sm">
-                        {formatRaceCalendarDate(
-                          race.date,
-                          {
-                            weekday: "long",
-                            month: "long",
-                            day: "numeric"
-                          },
-                          race.circuit?.timezone_id
+                    <Card
+                      data-race-card=""
+                      className="group h-full overflow-hidden"
+                    >
+                      <div className="relative aspect-[16/9]">
+                        <RaceCircuitImage
+                          src={image.src}
+                          alt={image.alt}
+                          fill
+                          sizes="(min-width: 1536px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                          quality={65}
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          fallback={image.fallback}
+                        />
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="mb-2 text-xl font-semibold">
+                          {race.name}
+                        </h3>
+                        {coverageByRaceId?.[race.id] && (
+                          <div className="mb-2">
+                            <CoverageBadge
+                              summary={coverageByRaceId[race.id]}
+                              compact
+                            />
+                          </div>
                         )}
-                      </p>
-                    </CardContent>
-                    <CardFooter className="p-4 pt-0">
-                      <Button asChild className="w-full" variant="outline">
-                        <Link href={`/races/${race.slug || race.id}`}>
-                          <Flag className="mr-2 size-4" />
-                          View Race Details
-                        </Link>
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </div>
-              ))}
+                        <p className="text-muted-foreground mb-2">
+                          {race.circuit?.location}
+                        </p>
+                        <p className="text-sm">
+                          {formatRaceCalendarDate(
+                            race.date,
+                            {
+                              weekday: "long",
+                              month: "long",
+                              day: "numeric"
+                            },
+                            race.circuit?.timezone_id
+                          )}
+                        </p>
+                      </CardContent>
+                      <CardFooter className="p-4 pt-0">
+                        <Button asChild className="w-full" variant="outline">
+                          <Link href={`/races/${race.slug || race.id}`}>
+                            <Flag className="mr-2 size-4" />
+                            View Race Details
+                          </Link>
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  </div>
+                )
+              })}
             </div>
 
             <Button

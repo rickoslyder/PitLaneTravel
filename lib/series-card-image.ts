@@ -54,7 +54,11 @@ export type SeriesCalendarRace = {
   status: "in_progress" | "upcoming" | "completed" | "cancelled"
   weekend_end?: string | null
   cancellation_reason?: string | null
-  series?: { short_name: string; accent_color: string | null } | null
+  series?: {
+    short_name: string
+    slug?: string | null
+    accent_color: string | null
+  } | null
   circuit: {
     name: string
     location: string

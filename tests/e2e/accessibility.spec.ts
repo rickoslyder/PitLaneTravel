@@ -386,10 +386,13 @@ test.describe("accessibility", () => {
 
     const below = await page.evaluate(() => {
       const cards = [...document.querySelectorAll("[data-race-card]")]
+      // Designed cards have no photo. The full sheet is what adds the
+      // image transition, so measure a below-fold card that still has one.
       const card =
-        cards.find(
-          el => el.getBoundingClientRect().top >= window.innerHeight
-        ) ?? null
+        cards.find(el => {
+          if (el.getBoundingClientRect().top < window.innerHeight) return false
+          return el.querySelector(".race-listing-img") instanceof HTMLElement
+        }) ?? null
       if (!(card instanceof HTMLElement)) return null
       const img = card.querySelector(".race-listing-img")
       return {
@@ -402,7 +405,7 @@ test.describe("accessibility", () => {
             : ""
       }
     })
-    expect(below, "a race card starts below the fold").not.toBeNull()
+    expect(below, "a photo card starts below the fold").not.toBeNull()
     expect(below!.top).toBeGreaterThanOrEqual(below!.innerHeight)
     expect(below!.borderTopWidth).toBe("1px")
     expect(below!.transition).toContain("transform")

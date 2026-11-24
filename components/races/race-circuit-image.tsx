@@ -3,7 +3,10 @@
 import { useState } from "react"
 import Image from "next/image"
 import { isMissingRaceImage } from "@/lib/race-image"
-import { RaceImageFallback } from "@/components/races/race-image-fallback"
+import {
+  RaceImageFallback,
+  type RaceImageFallbackProps
+} from "@/components/races/race-image-fallback"
 
 interface RaceCircuitImageProps {
   src: string | null | undefined
@@ -16,16 +19,22 @@ interface RaceCircuitImageProps {
   quality?: number
   /** Square list thumbnail. Grid and home cards use the panel fallback. */
   compact?: boolean
-  label?: {
-    title?: string | null
-    series?: string | null
-    country?: string | null
-  }
+  /**
+   * Designed card shown when `src` is missing. `src` must already be the
+   * series-resolved photo from `raceCardImage`.
+   */
+  fallback?: RaceImageFallbackProps
+  /**
+   * A real URL failed to load. The parent replaces this image, so the light
+   * card is not painted underneath other type.
+   */
+  onLoadError?: () => void
 }
 
 /**
  * Race and circuit photos. A missing, generic, or broken URL shows the
- * designed monochrome card. Real photos still go through next/image.
+ * designed card unless `onLoadError` takes over a failed load.
+ * Real photos still go through next/image.
  */
 export function RaceCircuitImage({
   src,
@@ -36,17 +45,28 @@ export function RaceCircuitImage({
   priority = false,
   quality = 65,
   compact = false,
-  label
+  fallback,
+  onLoadError
 }: RaceCircuitImageProps) {
   const [failed, setFailed] = useState(false)
-  const title = label?.title?.trim() || alt
+  const title = fallback?.title?.trim() || alt
+
+  const reportFailure = () => {
+    setFailed(true)
+    onLoadError?.()
+  }
 
   if (isMissingRaceImage(src) || failed) {
+    if (failed && onLoadError) return null
     return (
       <RaceImageFallback
         title={title}
-        series={label?.series}
-        country={label?.country}
+        circuitName={fallback?.circuitName}
+        series={fallback?.series}
+        accentColor={fallback?.accentColor}
+        country={fallback?.country}
+        dateLabel={fallback?.dateLabel}
+        alt={fallback?.alt || alt}
         compact={compact}
       />
     )
@@ -61,7 +81,7 @@ export function RaceCircuitImage({
         sizes={sizes ?? "100vw"}
         quality={quality}
         className={className}
-        onError={() => setFailed(true)}
+        onError={reportFailure}
         {...(priority
           ? { priority: true, fetchPriority: "high" as const }
           : {})}
@@ -78,20 +98,7 @@ export function RaceCircuitImage({
       {...(priority
         ? { fetchPriority: "high" as const }
         : { loading: "lazy" as const })}
-      onError={() => setFailed(true)}
+      onError={reportFailure}
     />
   )
-}
-
-export function raceCardImageLabel(race: {
-  name: string
-  country?: string | null
-  series?: { short_name?: string | null } | null
-  circuit?: { name?: string | null; country?: string | null } | null
-}) {
-  return {
-    title: race.circuit?.name || race.name,
-    series: race.series?.short_name,
-    country: race.country || race.circuit?.country
-  }
 }

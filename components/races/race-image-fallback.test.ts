@@ -3,13 +3,17 @@ import path from "node:path"
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
-import { contrastRatio } from "@/lib/color-contrast"
 import { countryFlagEmoji } from "@/lib/country-flag"
-import { firstRaceIdWithImage, isMissingRaceImage } from "@/lib/race-image"
+import { isMissingRaceImage } from "@/lib/race-image"
+import { firstRaceIdWithImage } from "@/lib/race-series-image"
+import { SERIES } from "@/config/series"
+import { contrastRatio, readableTextOn } from "@/lib/color-contrast"
 import { RaceCircuitImage } from "@/components/races/race-circuit-image"
 import {
   RACE_FALLBACK_INK,
+  RACE_FALLBACK_MUTED,
   RACE_FALLBACK_PAPER,
+  RACE_FALLBACK_RED,
   RaceImageFallback
 } from "@/components/races/race-image-fallback"
 
@@ -37,18 +41,26 @@ describe("missing race image", () => {
     expect(isMissingRaceImage("/android-chrome-512x512.png")).toBe(false)
   })
 
-  it("prioritises the first card that has a photo, not the first index", () => {
+  it("prioritises the first F1 card that has a photo, not a shared venue photo", () => {
     const races = [
       {
         id: "portugal",
+        series: { slug: "f1", short_name: "F1" },
         circuit: { image_url: null }
       },
       {
         id: "placeholder",
+        series: { slug: "f1", short_name: "F1" },
         circuit: { image_url: "/assets/placeholder.jpg" }
       },
       {
+        id: "motogp-spain",
+        series: { slug: "motogp", short_name: "MotoGP" },
+        circuit: { image_url: "/images/barcelona.jpg" }
+      },
+      {
         id: "spain",
+        series: { slug: "f1", short_name: "F1" },
         circuit: { image_url: "/images/barcelona.jpg" }
       }
     ]
@@ -62,30 +74,54 @@ describe("missing race image", () => {
 })
 
 describe("race image fallback", () => {
-  it("keeps paper on ink at or above 4.5:1", () => {
+  it("keeps ink and muted type on paper, and badge text, at or above 4.5:1", () => {
     expect(
-      contrastRatio(RACE_FALLBACK_PAPER, RACE_FALLBACK_INK)
+      contrastRatio(RACE_FALLBACK_INK, RACE_FALLBACK_PAPER)
     ).toBeGreaterThanOrEqual(4.5)
+    expect(
+      contrastRatio(RACE_FALLBACK_MUTED, RACE_FALLBACK_PAPER)
+    ).toBeGreaterThanOrEqual(4.5)
+    expect(contrastRatio("#ffffff", RACE_FALLBACK_RED)).toBeGreaterThanOrEqual(
+      4.5
+    )
+    for (const series of SERIES) {
+      const text = readableTextOn(series.accentColor)
+      expect(contrastRatio(text, series.accentColor)).toBeGreaterThanOrEqual(
+        4.5
+      )
+    }
   })
 
-  it("renders the circuit name, series, and flag without a photo or wordmark", () => {
+  it("renders the race, circuit, series, country, and date on paper", () => {
     const html = renderToStaticMarkup(
       createElement(RaceImageFallback, {
-        title: "Portimão Circuit",
+        title: "Portuguese Grand Prix",
+        circuitName: "Portimão Circuit",
         series: "MotoGP",
-        country: "Portugal"
+        country: "Portugal",
+        dateLabel: "Mar 22, 2027",
+        alt: "MotoGP Portuguese Grand Prix at Portimão Circuit, Portugal, Mar 22, 2027"
       })
     )
 
     expect(html).toContain("data-race-image-fallback")
+    expect(html).toContain(RACE_FALLBACK_PAPER)
+    expect(html).toContain(RACE_FALLBACK_RED)
+    expect(html).not.toContain(`background-color:${RACE_FALLBACK_INK}`)
+    expect(html).toContain("Portuguese Grand Prix")
     expect(html).toContain("Portimão Circuit")
     expect(html).toContain("MotoGP")
     expect(html).toContain("🇵🇹")
     expect(html).toContain("Portugal")
+    expect(html).toContain("Mar 22, 2027")
+    expect(html).toContain(
+      "MotoGP Portuguese Grand Prix at Portimão Circuit, Portugal, Mar 22, 2027"
+    )
+    expect(html).toContain("data-race-fallback-mark")
     expect(html).not.toContain("placeholder.jpg")
     expect(html).not.toContain("<img")
     expect(html).not.toMatch(/PitLane|Pit Lane/i)
-    expect(html).not.toMatch(/formula\s*1|ferrari|mclaren|mercedes/i)
+    expect(html).not.toMatch(/ferrari|mclaren|mercedes/i)
   })
 
   it("omits a flag when the country is not already known", () => {
@@ -105,7 +141,7 @@ describe("race image fallback", () => {
       createElement(RaceCircuitImage, {
         src: null,
         alt: "Portimão Circuit",
-        label: {
+        fallback: {
           title: "Portimão Circuit",
           series: "MotoGP",
           country: "Portugal"
@@ -120,7 +156,7 @@ describe("race image fallback", () => {
       createElement(RaceCircuitImage, {
         src: "/assets/placeholder.jpg",
         alt: "Portimão Circuit",
-        label: { title: "Portimão Circuit", series: "MotoGP" }
+        fallback: { title: "Portimão Circuit", series: "MotoGP" }
       })
     )
     expect(generic).toContain("data-race-image-fallback")
