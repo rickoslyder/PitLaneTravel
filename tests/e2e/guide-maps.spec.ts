@@ -377,6 +377,17 @@ test.describe("prepared geographic locators", () => {
     await expect(westCard).toBeFocused()
     await expect(westCard).toHaveAttribute("data-active", "true")
     await expect(westPin).toHaveAttribute("data-active", "true")
+    const highlight = await westCard.evaluate(element => {
+      const overlay = getComputedStyle(element, "::after")
+      return {
+        content: overlay.content,
+        shadow: overlay.boxShadow,
+        zIndex: overlay.zIndex
+      }
+    })
+    expect(highlight.content).not.toBe("none")
+    expect(highlight.shadow).not.toBe("none")
+    expect(Number(highlight.zIndex)).toBeGreaterThan(0)
 
     await mainCard.hover()
     await expect(mainCard).toHaveAttribute("data-active", "true")

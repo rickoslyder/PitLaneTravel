@@ -85,8 +85,9 @@ export function GrandstandCardFrame({
         sync?.setHoverSlug(null)
       }}
       className={cn(
-        "h-full scroll-mt-24 rounded-lg outline-none",
-        active && "ring-2 ring-inset ring-[#e10600]"
+        "relative h-full scroll-mt-24 rounded-lg outline-none",
+        active &&
+          "after:pointer-events-none after:absolute after:inset-0 after:z-10 after:rounded-lg after:ring-2 after:ring-inset after:ring-[#e10600] after:content-['']"
       )}
     >
       {children}
