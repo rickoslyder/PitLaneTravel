@@ -25,6 +25,9 @@ const PRICE_TIER_LABEL: Record<string, string> = {
 export const GRANDSTAND_PRICE_LEGEND =
   "Budget, Mid-range and Premium compare grandstands at the same circuit. They are relative bands, not ticket prices."
 
+/** How the comparison table should be read. No check date: none is stored. */
+export const GRANDSTAND_METHOD_NOTE = `${GRANDSTAND_PRICE_LEGEND} View is a score out of 5 for the view from that stand.`
+
 function sentenceRemainder(remainder: string): string {
   const [first = "", ...rest] = remainder.split(" ")
   const word =
