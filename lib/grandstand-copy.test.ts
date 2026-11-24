@@ -8,23 +8,22 @@ import {
 } from "./grandstand-copy"
 
 describe("formatBestFor", () => {
-  it("strips a leading Best or Best for so the prefix is never doubled", () => {
-    expect(formatBestFor("Best action — heavy braking into Stowe")).toBe(
-      "Best for action — heavy braking into Stowe"
-    )
+  it("keeps a stored Best label and only adds the prefix when it is missing", () => {
+    expect(formatBestFor("Best overall")).toBe("Best overall")
+    expect(formatBestFor("Best for first-timers")).toBe("Best for first-timers")
+    expect(formatBestFor("first-timers")).toBe("Best for first-timers")
     expect(formatBestFor("Best overall — the harbour front")).toBe(
-      "Best for overall — the harbour front"
+      "Best overall — the harbour front"
     )
-    expect(formatBestFor("Best for first-timers — Turn 1 & lap starts")).toBe(
-      "Best for first-timers — Turn 1 & lap starts"
+    expect(formatBestFor("Best action — heavy braking into Stowe")).toBe(
+      "Best action — heavy braking into Stowe"
     )
-    expect(formatBestFor("Best for Best action")).toBe("Best for action")
-    expect(formatBestFor("  BEST FOR  First-timers  ")).toBe(
-      "Best for first-timers"
+    expect(formatBestFor("best for first-timers — Turn 1")).toBe(
+      "Best for first-timers — Turn 1"
     )
   })
 
-  it("keeps a single prefix and sentence-cases notes that do not start with Best", () => {
+  it("sentence-cases notes that do not start with Best", () => {
     expect(formatBestFor("High-speed cornering")).toBe(
       "Best for high-speed cornering"
     )
@@ -35,7 +34,6 @@ describe("formatBestFor", () => {
       formatBestFor("Photography & comfort — the classic Casino backdrop")
     ).toBe("Best for photography & comfort — the classic Casino backdrop")
     expect(formatBestFor("")).toBe("")
-    expect(formatBestFor("Best")).toBe("")
     expect(formatBestFor(null)).toBe("")
   })
 })

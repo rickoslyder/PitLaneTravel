@@ -3,7 +3,7 @@
  * "Best" or "Best for", and sun/price values are stored as short codes.
  */
 
-const LEADING_BEST = /^(?:best\s+for|best)(?=\s|$)/i
+const STARTS_WITH_BEST = /^best\b/i
 
 const SUN_EXPOSURE_LABEL: Record<string, string> = {
   shaded: "Shaded",
@@ -34,14 +34,20 @@ function sentenceRemainder(remainder: string): string {
   return [word, ...rest].join(" ")
 }
 
-/** One "Best for" prefix, with the note's own leading "Best" / "Best for" removed. */
+/**
+ * Notes that already start with "Best" are a complete label ("Best overall",
+ * "Best for first-timers"). Leave them, with the opening capitalised.
+ * Other notes get a single "Best for " prefix.
+ */
 export function formatBestFor(value: string | null | undefined): string {
-  let remainder = (value ?? "").trim().replace(/\s+/g, " ")
-  while (LEADING_BEST.test(remainder)) {
-    remainder = remainder.replace(LEADING_BEST, "").trim()
+  const trimmed = (value ?? "").trim().replace(/\s+/g, " ")
+  if (!trimmed) return ""
+  if (STARTS_WITH_BEST.test(trimmed)) {
+    return trimmed.replace(/^best(\s+for)?/i, (_match, forPart?: string) =>
+      forPart ? "Best for" : "Best"
+    )
   }
-  if (!remainder) return ""
-  return `Best for ${sentenceRemainder(remainder)}`
+  return `Best for ${sentenceRemainder(trimmed)}`
 }
 
 /** Readable sun label. "shaded" stays "Shaded"; "full" becomes "Full sun". */

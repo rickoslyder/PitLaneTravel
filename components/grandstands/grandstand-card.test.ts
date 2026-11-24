@@ -38,7 +38,8 @@ describe("GrandstandCard public copy", () => {
   it("does not double Best for, and leaves the description as written", () => {
     const description = stand().description
     const html = render(stand())
-    expect(html).toContain("Best for overall — the harbour front")
+    expect(html).toContain("Best overall — the harbour front")
+    expect(html).not.toContain("Best for overall")
     expect(html).not.toContain("Best for Best")
     expect(html).toContain(description!)
     expect(html).toContain("Premium")
