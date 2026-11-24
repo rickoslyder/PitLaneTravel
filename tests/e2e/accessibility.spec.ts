@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test"
 import { racesPageDescription, racesPageTitle } from "@/app/races/metadata"
 import {
+  E2E_FAN_TIPS_ABU_DHABI_NAME,
   E2E_FAN_TIPS_ABU_DHABI_SLUG,
-  E2E_RACE_NAME,
   E2E_RACE_SLUG,
   expect,
   test
@@ -989,14 +989,14 @@ test.describe("mobile chrome at 360x676", () => {
         expect(visible).toContain("Home")
         expect(visible).toContain("Races")
       } else {
-        expect(names).toEqual(["Home", "Races", E2E_RACE_NAME])
+        expect(names).toEqual(["Home", "Races", E2E_FAN_TIPS_ABU_DHABI_NAME])
         await expect(
           crumb.getByRole("link", { name: "Races", exact: true })
         ).toBeVisible()
         await expect(
-          crumb.getByText(E2E_RACE_NAME, { exact: true })
+          crumb.getByText(E2E_FAN_TIPS_ABU_DHABI_NAME, { exact: true })
         ).toBeVisible()
-        expect(visible).toContain(E2E_RACE_NAME)
+        expect(visible).toContain(E2E_FAN_TIPS_ABU_DHABI_NAME)
       }
       for (const name of names ?? []) {
         expect(visible, path).toContain(name)

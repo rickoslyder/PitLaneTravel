@@ -437,11 +437,11 @@ async function assertConsentBarClearsHero(
 
   const bar = page.locator("[data-analytics-consent-bar]")
   const cluster = page.locator("[data-hero-cta-cluster]")
-  const findRace = page.getByRole("link", {
+  const findRace = cluster.getByRole("link", {
     name: "Find your race",
     exact: true
   })
-  const compare = page.getByRole("link", {
+  const compare = cluster.getByRole("link", {
     name: /Compare races|See F1 & MotoGP packages/
   })
   await expect(findRace).toBeVisible()
