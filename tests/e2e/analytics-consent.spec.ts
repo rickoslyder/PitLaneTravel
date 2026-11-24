@@ -437,11 +437,11 @@ async function assertConsentBarClearsHero(
 
   const bar = page.locator("[data-analytics-consent-bar]")
   const cluster = page.locator("[data-hero-cta-cluster]")
-  const findRace = page.getByRole("link", {
+  const findRace = cluster.getByRole("link", {
     name: "Find your race",
     exact: true
   })
-  const compare = page.getByRole("link", {
+  const compare = cluster.getByRole("link", {
     name: /Compare races|See F1 & MotoGP packages/
   })
   await expect(findRace).toBeVisible()
@@ -457,11 +457,20 @@ async function assertConsentBarClearsHero(
 
   const barBox = await bar.boundingBox()
   expect(barBox, `${label} consent bar`).toBeTruthy()
-  expect(barBox!.height, `${label} consent bar height`).toBeLessThanOrEqual(160)
+  expect(barBox!.height, `${label} consent bar height`).toBeLessThanOrEqual(
+    viewport.width < 640 ? 76 : 96
+  )
   expect(
     Math.abs(barBox!.y + barBox!.height - viewport.height),
     `${label} consent bar should sit on the viewport bottom`
   ).toBeLessThanOrEqual(1)
+  if (viewport.width >= 1024) {
+    expect(barBox!.width, `${label} consent bar width`).toBeLessThanOrEqual(528)
+    expect(
+      barBox!.x,
+      `${label} consent bar sits in the corner`
+    ).toBeGreaterThan(viewport.width * 0.4)
+  }
 
   for (const link of [findRace, compare]) {
     const box = await link.boundingBox()
@@ -702,9 +711,7 @@ async function expectPostConsentPageview(page: Page): Promise<void> {
     .toBe(true)
 }
 
-async function openSecondPage(
-  context: BrowserContext
-): Promise<{
+async function openSecondPage(context: BrowserContext): Promise<{
   page: Page
   guard: { assertClean: () => void }
   requests: ObservedRequest[]

@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test"
 import { racesPageDescription, racesPageTitle } from "@/app/races/metadata"
 import {
+  E2E_FAN_TIPS_ABU_DHABI_NAME,
   E2E_FAN_TIPS_ABU_DHABI_SLUG,
   E2E_RACE_SLUG,
   expect,
@@ -864,7 +865,11 @@ test.describe("mobile chrome at 360x676", () => {
     expect(fit.scrollHeight).toBeLessThanOrEqual(fit.clientHeight)
     const closedBar = await bar.boundingBox()
     expect(closedBar?.height ?? 999).toBeLessThanOrEqual(76)
-    for (const name of ["Accept analytics", "Reject non-essential", "Details"]) {
+    for (const name of [
+      "Accept analytics",
+      "Reject non-essential",
+      "Details"
+    ]) {
       const control = bar.getByText(name, { exact: true })
       const box = await control.boundingBox()
       expect(box?.height ?? 0, name).toBeGreaterThanOrEqual(24)
@@ -885,9 +890,7 @@ test.describe("mobile chrome at 360x676", () => {
     expect(openFit.scrollHeight).toBeLessThanOrEqual(openFit.clientHeight)
   })
 
-  test("privacy settings stay clear of the races heading and the open sidebar", async ({
-    page
-  }) => {
+  test("privacy settings stay clear of the races heading", async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem(
         "pitlane.analytics-consent",
@@ -908,51 +911,16 @@ test.describe("mobile chrome at 360x676", () => {
     })
     await expect(heading).toBeVisible()
     await expect(privacy).toBeVisible()
+    await expect(
+      page.getByRole("button", { name: "Toggle Sidebar" })
+    ).toHaveCount(0)
+    await expect(page.locator("[data-sidebar='sidebar']")).toHaveCount(0)
 
     const headingBox = await heading.boundingBox()
     const privacyBox = await privacy.boundingBox()
     expect(headingBox).toBeTruthy()
     expect(privacyBox).toBeTruthy()
     expect(boxesOverlap(headingBox!, privacyBox!)).toBe(false)
-
-    await page.getByRole("button", { name: "Toggle Sidebar" }).click()
-    const sidebar = page.locator("[data-mobile='true'][data-sidebar='sidebar']")
-    await expect(sidebar).toBeVisible()
-    const overlap = await page.evaluate(() => {
-      const read = (node: Element | null) => {
-        if (!(node instanceof HTMLElement)) return null
-        const rect = node.getBoundingClientRect()
-        return {
-          x: rect.x,
-          y: rect.y,
-          width: rect.width,
-          height: rect.height
-        }
-      }
-      const headingRect = read(document.querySelector("h1"))
-      const privacyRect = read(document.querySelector("[data-privacy-settings]"))
-      const sidebarRect = read(
-        document.querySelector("[data-mobile='true'][data-sidebar='sidebar']")
-      )
-      const hits = (
-        a: { x: number; y: number; width: number; height: number } | null,
-        b: { x: number; y: number; width: number; height: number } | null
-      ) => {
-        if (!a || !b) return true
-        return (
-          a.x < b.x + b.width &&
-          a.x + a.width > b.x &&
-          a.y < b.y + b.height &&
-          a.y + a.height > b.y
-        )
-      }
-      return {
-        headingOverlap: hits(headingRect, privacyRect),
-        sidebarOverlap: hits(sidebarRect, privacyRect)
-      }
-    })
-    expect(overlap.headingOverlap).toBe(false)
-    expect(overlap.sidebarOverlap).toBe(false)
   })
 
   test("privacy settings stay available after a client navigation", async ({
@@ -980,10 +948,7 @@ test.describe("mobile chrome at 360x676", () => {
   })
 
   test("races pages use the main header", async ({ page }) => {
-    for (const path of [
-      "/races",
-      `/races/${E2E_FAN_TIPS_ABU_DHABI_SLUG}`
-    ]) {
+    for (const path of ["/races", `/races/${E2E_FAN_TIPS_ABU_DHABI_SLUG}`]) {
       const response = await page.goto(path)
       expect(response?.ok(), path).toBeTruthy()
       await expect(
@@ -992,20 +957,50 @@ test.describe("mobile chrome at 360x676", () => {
       await expect(
         page.getByRole("button", { name: "Menu", exact: true })
       ).toBeVisible()
-      if (path !== "/races") continue
+      await expect(
+        page.getByRole("button", { name: "Toggle Sidebar" })
+      ).toHaveCount(0)
+      await expect(page.locator("main")).toHaveCount(1)
 
-      const gap = await page.evaluate(() => {
-        const h1 = document.querySelector("h1")
-        const bar = document.querySelector("[data-races-toolbar]")
-        if (!(h1 instanceof HTMLElement) || !(bar instanceof HTMLElement)) {
-          return null
-        }
-        return Math.round(
-          h1.getBoundingClientRect().top - bar.getBoundingClientRect().bottom
+      const crumb = page.getByRole("navigation", { name: "breadcrumb" })
+      await expect(
+        crumb.getByRole("link", { name: "Home", exact: true })
+      ).toBeVisible()
+      await expect(crumb).not.toContainText("Race Calendar")
+
+      const blocks = await page
+        .locator('script[type="application/ld+json"]')
+        .allTextContents()
+      const breadcrumb = blocks
+        .map(
+          block =>
+            JSON.parse(block) as {
+              "@type"?: string
+              itemListElement?: Array<{ name?: string; item?: string }>
+            }
         )
-      })
-      expect(gap, path).not.toBeNull()
-      expect(gap!, path).toBeLessThanOrEqual(80)
+        .find(block => block["@type"] === "BreadcrumbList")
+      const names = breadcrumb?.itemListElement?.map(entry => entry.name)
+      const visible = (await crumb.innerText()).replace(/\s+/g, " ")
+
+      if (path === "/races") {
+        expect(names).toEqual(["Home", "Races"])
+        await expect(crumb.getByText("Races", { exact: true })).toBeVisible()
+        expect(visible).toContain("Home")
+        expect(visible).toContain("Races")
+      } else {
+        expect(names).toEqual(["Home", "Races", E2E_FAN_TIPS_ABU_DHABI_NAME])
+        await expect(
+          crumb.getByRole("link", { name: "Races", exact: true })
+        ).toBeVisible()
+        await expect(
+          crumb.getByText(E2E_FAN_TIPS_ABU_DHABI_NAME, { exact: true })
+        ).toBeVisible()
+        expect(visible).toContain(E2E_FAN_TIPS_ABU_DHABI_NAME)
+      }
+      for (const name of names ?? []) {
+        expect(visible, path).toContain(name)
+      }
     }
   })
 
@@ -1032,9 +1027,11 @@ test.describe("mobile chrome at 360x676", () => {
   test("footer links are at least 24px tall", async ({ page }) => {
     const response = await page.goto("/")
     expect(response?.ok()).toBeTruthy()
-    const heights = await page.locator("footer a").evaluateAll(nodes =>
-      nodes.map(node => Math.round(node.getBoundingClientRect().height))
-    )
+    const heights = await page
+      .locator("footer a")
+      .evaluateAll(nodes =>
+        nodes.map(node => Math.round(node.getBoundingClientRect().height))
+      )
     expect(heights.length).toBeGreaterThan(0)
     for (const height of heights) {
       expect(height).toBeGreaterThanOrEqual(24)

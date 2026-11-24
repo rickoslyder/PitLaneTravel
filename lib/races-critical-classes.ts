@@ -23,30 +23,27 @@ export const racesCriticalClassMarkup = `
 </div>
 </div>
 </header>
-<div class="flex min-h-screen min-w-0 flex-col">
-<div class="min-h-0 w-full flex-1 lg:!top-16 lg:!bottom-auto lg:!h-[calc(100svh-4rem)]"></div>
-<div class="flex min-h-svh w-full">
-<div class="hidden lg:block lg:flex"></div>
-<main class="bg-background relative flex min-h-svh w-full min-w-0 flex-1 flex-col">
-<div class="flex min-h-screen flex-col">
-<header class="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b backdrop-blur">
-<div class="flex h-14 min-w-0 items-center gap-2 px-3 sm:gap-4 sm:px-4">
-<button class="inline-flex size-7 shrink-0 items-center justify-center rounded-md -ml-1 sm:-ml-2">
-<span class="size-4"></span>
-</button>
-<div class="bg-border h-6 w-[1px] shrink-0"></div>
-<div class="flex min-w-0 flex-1 items-center justify-between gap-2">
+<div class="flex min-h-screen min-w-0 flex-col overflow-x-clip">
+<main class="min-w-0 flex-1">
+<div class="flex-1 space-y-4 p-4 pt-0">
+<div class="flex min-w-0 flex-col gap-2 py-3">
+<div class="flex min-w-0 items-start justify-between gap-2">
 <nav class="min-w-0">
 <ol class="text-muted-foreground flex flex-wrap items-center gap-1.5 break-words text-sm sm:gap-2.5">
 <li class="inline-flex items-center gap-1.5">
-<a class="transition-colors"></a>
+<a class="hover:text-foreground transition-colors"></a>
 </li>
 <li class="[&>svg]:size-3.5"></li>
+<li class="inline-flex items-center gap-1.5">
+<span class="text-foreground font-normal"></span>
+</li>
 </ol>
 </nav>
 </div>
+<nav class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+<a class="inline-flex min-h-6 items-center font-medium text-foreground underline-offset-2 hover:underline"></a>
+</nav>
 </div>
-</header>
 <div class="min-w-0 flex-1">
 <div class="flex-1 space-y-4 p-4 pt-0">
 <div class="bg-background">
@@ -120,17 +117,17 @@ export const racesCriticalClassMarkup = `
 </div>
 </main>
 </div>
-<section class="fixed inset-x-0 bottom-0 z-[60] border-t border-zinc-300 bg-white text-zinc-900 shadow-[0_-6px_20px_rgba(28,25,22,0.16)]">
-<div class="mx-auto flex w-full max-w-6xl flex-col gap-0.5 px-2 pb-[max(0.125rem,env(safe-area-inset-bottom))] pt-0.5 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-2.5">
-<div class="min-w-0 text-xs leading-4 text-zinc-800 sm:flex-1 sm:text-sm sm:leading-5">
-<h2 class="inline text-xs font-semibold leading-4 text-zinc-900 sm:text-sm sm:leading-5"></h2>
+<section class="fixed inset-x-0 bottom-0 z-[60] border-t border-brand bg-background text-foreground shadow-[0_-4px_16px_rgba(28,25,22,0.12)] sm:left-auto sm:w-[min(32rem,calc(100%-1rem))] sm:rounded-tl-lg sm:border-l">
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-0.5 px-2 pb-[max(0.125rem,env(safe-area-inset-bottom))] pt-0.5 sm:max-w-none sm:px-3 sm:py-2">
+<div class="min-w-0 text-xs leading-4 text-foreground sm:flex-1 sm:text-sm sm:leading-5">
+<h2 class="inline text-xs font-semibold leading-4 text-foreground sm:text-sm sm:leading-5"></h2>
 <p class="inline"></p>
-<a class="inline-block min-h-6 font-medium underline underline-offset-2"></a>
+<a class="inline-block min-h-6 font-medium text-foreground underline underline-offset-2"></a>
 </div>
 <div class="grid grid-cols-[auto_1fr_1fr] items-center gap-1.5 sm:flex sm:w-auto sm:gap-2">
-<summary class="inline-flex min-h-11 cursor-pointer items-center px-1 text-xs font-medium text-zinc-900 sm:px-2 sm:text-sm"></summary>
-<p class="mt-1 max-w-xl text-xs leading-4 text-zinc-800 sm:text-sm sm:leading-5"></p>
-<button class="inline-flex min-h-11 w-full items-center justify-center whitespace-nowrap rounded-md border border-zinc-900 bg-zinc-900 px-1.5 py-2 text-xs font-medium text-white sm:w-44 sm:px-3 sm:text-sm"></button>
+<summary class="inline-flex min-h-8 cursor-pointer items-center px-1 text-xs font-medium text-foreground sm:px-2 sm:text-sm"></summary>
+<p class="mt-1 max-w-xl text-xs leading-4 text-foreground sm:text-sm sm:leading-5"></p>
+<button class="inline-flex min-h-8 w-full items-center justify-center whitespace-nowrap rounded-md border border-foreground bg-foreground px-1.5 py-1 text-xs font-medium text-background sm:w-44 sm:px-3 sm:text-sm"></button>
 </div>
 </div>
 </section>
@@ -139,5 +136,7 @@ export const racesCriticalClassMarkup = `
 /** Static className attributes these files must keep represented in the markup. */
 export const racesCriticalClassSources = [
   "components/races/HeroSection.tsx",
+  "components/races/race-trail.tsx",
+  "components/public-shell.tsx",
   "app/races/layout.tsx"
 ] as const

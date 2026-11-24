@@ -8,13 +8,13 @@ import {
 } from "@/lib/analytics-consent"
 
 const actionClassName =
-  "inline-flex min-h-11 w-full items-center justify-center whitespace-nowrap rounded-md border border-zinc-900 bg-zinc-900 px-1.5 py-2 text-xs font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white sm:w-44 sm:px-3 sm:text-sm"
+  "inline-flex min-h-8 w-full items-center justify-center whitespace-nowrap rounded-md border border-foreground bg-foreground px-1.5 py-1 text-xs font-medium text-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-background sm:w-44 sm:px-3 sm:text-sm"
 
 const settingsClassName =
-  "inline-flex min-h-6 items-center rounded-md py-1 text-sm font-medium text-zinc-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
+  "inline-flex min-h-6 items-center rounded-md py-1 text-sm font-medium text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
 
 const linkClassName =
-  "inline-block min-h-6 font-medium text-zinc-900 underline underline-offset-2"
+  "inline-block min-h-6 font-medium text-foreground underline underline-offset-2"
 
 const useClientLayoutEffect =
   typeof window === "undefined" ? useEffect : useLayoutEffect
@@ -100,30 +100,39 @@ export function ConsentBannerView({
           role="region"
           aria-labelledby="analytics-consent-heading"
           data-analytics-consent-bar=""
-          className="fixed inset-x-0 bottom-0 z-[60] border-t border-zinc-300 bg-white text-zinc-900 shadow-[0_-6px_20px_rgba(28,25,22,0.16)]"
+          className="border-brand bg-background text-foreground fixed inset-x-0 bottom-0 z-[60] border-t shadow-[0_-4px_16px_rgba(28,25,22,0.12)] sm:left-auto sm:w-[min(32rem,calc(100%-1rem))] sm:rounded-tl-lg sm:border-l"
         >
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-0.5 px-2 pb-[max(0.125rem,env(safe-area-inset-bottom))] pt-0.5 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-2.5">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-0.5 px-2 pb-[max(0.125rem,env(safe-area-inset-bottom))] pt-0.5 sm:max-w-none sm:px-3 sm:py-2">
             <div
               data-analytics-consent-copy=""
-              className="min-w-0 text-xs leading-4 text-zinc-800 sm:flex-1 sm:text-sm sm:leading-5"
+              className="text-foreground min-w-0 text-xs leading-4 sm:flex-1 sm:text-sm sm:leading-5"
             >
-              <h2
-                id="analytics-consent-heading"
-                className="inline text-xs font-semibold leading-4 text-zinc-900 sm:text-sm sm:leading-5"
-              >
-                Usage analytics
-              </h2><p id="analytics-consent-description" className="inline">. We use optional analytics.{" "}
-                <a href="/privacy" className={linkClassName}>
-                  Privacy policy
-                </a>
-              </p>
+              {[
+                <h2
+                  key="heading"
+                  id="analytics-consent-heading"
+                  className="text-foreground inline text-xs font-semibold leading-4 sm:text-sm sm:leading-5"
+                >
+                  Usage analytics
+                </h2>,
+                <p
+                  key="description"
+                  id="analytics-consent-description"
+                  className="inline"
+                >
+                  {". We use optional analytics. "}
+                  <a href="/privacy" className={linkClassName}>
+                    Privacy policy
+                  </a>
+                </p>
+              ]}
             </div>
             <div className="grid grid-cols-[auto_1fr_1fr] items-center gap-1.5 sm:flex sm:w-auto sm:gap-2">
               <details className="min-w-0 open:col-span-3">
-                <summary className="inline-flex min-h-11 cursor-pointer items-center px-1 text-xs font-medium text-zinc-900 sm:px-2 sm:text-sm">
+                <summary className="text-foreground inline-flex min-h-8 cursor-pointer items-center px-1 text-xs font-medium sm:px-2 sm:text-sm">
                   Details
                 </summary>
-                <p className="mt-1 max-w-xl text-xs leading-4 text-zinc-800 sm:text-sm sm:leading-5">
+                <p className="text-foreground mt-1 max-w-xl text-xs leading-4 sm:text-sm sm:leading-5">
                   We use optional analytics to improve the site. These are
                   nonessential usage analytics from PostHog, Google, Microsoft
                   Clarity, and Vercel Speed Insights. Essential features still
@@ -156,15 +165,15 @@ export function ConsentBannerView({
               <section
                 id="analytics-privacy-settings"
                 aria-labelledby="analytics-privacy-settings-heading"
-                className="w-full rounded-lg border border-zinc-200 bg-white p-4 text-zinc-900 shadow-lg"
+                className="border-border bg-background text-foreground w-full rounded-lg border p-4 shadow-lg"
               >
                 <h2
                   id="analytics-privacy-settings-heading"
-                  className="text-base font-semibold text-zinc-900"
+                  className="text-foreground text-base font-semibold"
                 >
                   Privacy settings
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-zinc-700">
+                <p className="text-foreground mt-2 text-sm leading-6">
                   These nonessential usage analytics from PostHog, Google,
                   Microsoft Clarity, and Vercel Speed Insights{" "}
                   {status === "granted" ? "are on." : "are off."}{" "}

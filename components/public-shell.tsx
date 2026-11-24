@@ -3,7 +3,8 @@ import { SiteFooter } from "@/components/site-footer"
 import { getPackagesAvailability } from "@/lib/packages-availability"
 
 /**
- * Public pages: one top nav and one footer. Planning tools keep the sidebar.
+ * Public pages, including the race calendar: one top nav and one footer.
+ * Planning tools keep the sidebar.
  */
 export async function PublicShell({ children }: { children: React.ReactNode }) {
   const { siteWide } = await getPackagesAvailability()

@@ -8,6 +8,8 @@ import {
 import { getRaceHistoryAction } from "@/actions/db/race-history-actions"
 import { notFound } from "next/navigation"
 import { RaceHistoryPage } from "@/components/races/RaceHistoryPage"
+import { RaceTrail } from "@/components/races/race-trail"
+import { raceHistoryTrail } from "@/lib/race-trail"
 import { Metadata } from "next"
 import {
   buildRaceHistoryDescription,
@@ -102,8 +104,11 @@ export default async function RaceHistoryRoute({
     return notFound()
   }
 
+  const racePath = data.race.slug ? `/races/${data.race.slug}` : `/races/${id}`
+
   return (
     <div className="container py-8">
+      <RaceTrail items={raceHistoryTrail(data.race.name, racePath)} />
       <RaceHistoryPage race={data.race} history={data.history} />
     </div>
   )

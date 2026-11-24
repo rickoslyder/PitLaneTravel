@@ -4,8 +4,10 @@ import { Suspense } from "react"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { HeroSection } from "@/components/races/HeroSection"
+import { RaceTrail } from "@/components/races/race-trail"
 import { RacesCriticalCss } from "@/components/races/races-critical-css"
 import { RacesPage } from "@/components/races/RacesPage"
+import { racesIndexTrail } from "@/lib/race-trail"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { listRaceIdsWithTicketListingsAction } from "@/actions/db/ticket-listing-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
@@ -54,6 +56,7 @@ export default async function RacesServerPage() {
             )
           }}
         />
+        <RaceTrail items={racesIndexTrail} />
         <div className="bg-background" data-races-listing-hero="">
           <HeroSection />
         </div>

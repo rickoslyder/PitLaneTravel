@@ -303,6 +303,8 @@ describe("PLT-016 analytics consent browser source contract", () => {
     expect(banner).toMatch(/data-analytics-consent-bar/)
     expect(banner).toMatch(/role="region"/)
     expect(banner).toMatch(/fixed inset-x-0 bottom-0 z-\[60\]/)
+    expect(banner).toMatch(/sm:left-auto/)
+    expect(banner).toMatch(/sm:w-\[min\(32rem,calc\(100%-1rem\)\)\]/)
     expect(banner).toMatch(/safe-area-inset-bottom/)
     expect(banner).not.toMatch(/pb-(1[6-9]|[2-9]\d)/)
     expect(banner).not.toMatch(/overflow(?:-x|-y)?-hidden/)
