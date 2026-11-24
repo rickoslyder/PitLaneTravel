@@ -146,12 +146,10 @@ export function isOpenCountdownRace(
   if (!isActiveRaceStatus(race.status)) return false
   const nowMs = now.getTime()
   if (!Number.isFinite(nowMs)) return false
-  const dateMs = instantMs(race.date)
-  // race.date is the countdown target. Once it has passed, the timer stops.
-  if (dateMs == null || dateMs <= nowMs) return false
+  // Stay on the race until the weekend end. race.date is only the countdown target.
+  if (instantMs(race.date) == null) return false
   const endMs = countdownWeekendEndMs(race)
-  if (endMs == null || endMs <= nowMs) return false
-  return true
+  return endMs != null && endMs > nowMs
 }
 
 export function selectNextCountdownRace<T extends CountdownRaceFields>(

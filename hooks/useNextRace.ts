@@ -75,6 +75,12 @@ export function useNextRace(input?: UseNextRaceInput) {
     if (seed) return timeLeftUntil(seed.date)
     return emptyCountdown()
   })
+  const [countdownActive, setCountdownActive] = useState(() => {
+    const parts = seed?.initialTime
+    return Boolean(
+      parts && (parts.days || parts.hours || parts.minutes || parts.seconds)
+    )
+  })
   const [isLoading, setIsLoading] = useState(!seeded)
   const [error, setError] = useState<string | null>(null)
   const racesRef = useRef<CountdownRace[]>(seed ? racesFromSeed(seed) : [])
@@ -123,14 +129,19 @@ export function useNextRace(input?: UseNextRaceInput) {
 
     const tick = () => {
       const now = new Date()
-      // race.date is the countdown target. A passed target, or a weekend that
-      // has already ended, rolls to the next open race in the loaded list.
+      // race.date is the countdown target. The card stays until the weekend
+      // end, then rolls to the next open race in the loaded list.
       const next = selectNextCountdownRace(racesRef.current, now) ?? null
       setNextRace(current =>
         sameCountdownRace(current, next) ? current : next
       )
-      if (!next) return
-      setTimeLeft(timeLeftUntil(next.date, now))
+      if (!next) {
+        setCountdownActive(false)
+        return
+      }
+      const live = new Date(next.date).getTime() > now.getTime()
+      setCountdownActive(live)
+      setTimeLeft(live ? timeLeftUntil(next.date, now) : emptyCountdown())
     }
 
     tick()
@@ -141,6 +152,7 @@ export function useNextRace(input?: UseNextRaceInput) {
   return {
     ...timeLeft,
     raceName: nextRace?.name || "",
+    countdownActive,
     isLoading,
     error,
     nextRace // Return the full race object in case we need more details

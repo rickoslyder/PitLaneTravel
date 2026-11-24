@@ -199,7 +199,7 @@ describe("isActiveRaceStatus", () => {
 })
 
 describe("selectNextCountdownRace", () => {
-  it("classifies from derived status and uses date only as a future countdown target", () => {
+  it("stays on an open weekend, then moves to the next active race", () => {
     const now = new Date("2026-07-05T00:00:00.000Z")
     const inProgressPastDate = {
       id: "current",
@@ -232,22 +232,31 @@ describe("selectNextCountdownRace", () => {
         ],
         now
       )?.id
-    ).toBe("next")
-  })
-
-  it("does not select an in-progress weekend whose race.date has passed", () => {
-    const now = new Date("2026-07-05T00:00:00.000Z")
+    ).toBe("current")
     expect(
       selectNextCountdownRace(
         [
-          {
-            id: "current",
-            status: "in_progress" as const,
-            date: "2026-07-04T12:00:00.000Z"
-          }
+          inProgressPastDate,
+          cancelledFutureDate,
+          completedFutureDate,
+          nextUpcoming
         ],
-        now
-      )
+        new Date("2026-07-05T12:00:00.000Z")
+      )?.id
+    ).toBe("next")
+  })
+
+  it("keeps an in-progress weekend until its end", () => {
+    const race = {
+      id: "current",
+      status: "in_progress" as const,
+      date: "2026-07-04T12:00:00.000Z"
+    }
+    expect(
+      selectNextCountdownRace([race], new Date("2026-07-05T00:00:00.000Z"))?.id
+    ).toBe("current")
+    expect(
+      selectNextCountdownRace([race], new Date("2026-07-05T12:00:00.000Z"))
     ).toBeUndefined()
   })
 

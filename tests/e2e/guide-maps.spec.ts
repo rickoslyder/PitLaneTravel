@@ -269,7 +269,9 @@ test.describe("prepared geographic locators", () => {
       )
     })
     expect(aboveCards).toBe(true)
-    await expect(page.getByRole("heading", { level: 3 })).toHaveCount(6)
+    await expect(
+      page.locator("main").getByRole("heading", { level: 3 })
+    ).toHaveCount(6)
 
     const img = figure.locator('img[data-locator-art="inline"]')
     await expect(img).toHaveAttribute("alt", SEATING_ALT)

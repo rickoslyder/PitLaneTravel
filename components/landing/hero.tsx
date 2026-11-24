@@ -37,8 +37,16 @@ function CountdownDigit({ value }: { value: number | undefined }) {
 }
 
 export function HeroCountdown({ countdown }: { countdown: HeroCountdownSeed }) {
-  const { days, hours, minutes, seconds, raceName, isLoading, nextRace } =
-    useNextRace({ seed: countdown })
+  const {
+    days,
+    hours,
+    minutes,
+    seconds,
+    raceName,
+    countdownActive,
+    isLoading,
+    nextRace
+  } = useNextRace({ seed: countdown })
 
   if (isLoading || !nextRace) return null
 
@@ -52,42 +60,44 @@ export function HeroCountdown({ countdown }: { countdown: HeroCountdownSeed }) {
               Next Race: <span className="font-bold">{raceName}</span>
             </span>
           </div>
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
-              <CountdownDigit value={days} />
-              <div className="text-xs text-white/70 sm:text-sm">DAYS</div>
+          {countdownActive ? (
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
+                <CountdownDigit value={days} />
+                <div className="text-xs text-white/70 sm:text-sm">DAYS</div>
+              </div>
+              <div
+                className="text-xl font-bold text-white/50 motion-safe:animate-pulse sm:text-2xl"
+                aria-hidden="true"
+              >
+                :
+              </div>
+              <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
+                <CountdownDigit value={hours} />
+                <div className="text-xs text-white/70 sm:text-sm">HOURS</div>
+              </div>
+              <div
+                className="text-xl font-bold text-white/50 motion-safe:animate-pulse sm:text-2xl"
+                aria-hidden="true"
+              >
+                :
+              </div>
+              <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
+                <CountdownDigit value={minutes} />
+                <div className="text-xs text-white/70 sm:text-sm">MINS</div>
+              </div>
+              <div
+                className="text-xl font-bold text-white/50 motion-safe:animate-pulse sm:text-2xl"
+                aria-hidden="true"
+              >
+                :
+              </div>
+              <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
+                <CountdownDigit value={seconds} />
+                <div className="text-xs text-white/70 sm:text-sm">SECS</div>
+              </div>
             </div>
-            <div
-              className="text-xl font-bold text-white/50 motion-safe:animate-pulse sm:text-2xl"
-              aria-hidden="true"
-            >
-              :
-            </div>
-            <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
-              <CountdownDigit value={hours} />
-              <div className="text-xs text-white/70 sm:text-sm">HOURS</div>
-            </div>
-            <div
-              className="text-xl font-bold text-white/50 motion-safe:animate-pulse sm:text-2xl"
-              aria-hidden="true"
-            >
-              :
-            </div>
-            <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
-              <CountdownDigit value={minutes} />
-              <div className="text-xs text-white/70 sm:text-sm">MINS</div>
-            </div>
-            <div
-              className="text-xl font-bold text-white/50 motion-safe:animate-pulse sm:text-2xl"
-              aria-hidden="true"
-            >
-              :
-            </div>
-            <div className="flex min-w-[2.75rem] flex-col items-center sm:min-w-[3.5rem]">
-              <CountdownDigit value={seconds} />
-              <div className="text-xs text-white/70 sm:text-sm">SECS</div>
-            </div>
-          </div>
+          ) : null}
           {nextRace.circuit && (
             <div className="flex items-center space-x-2 text-white/90">
               <MapPin className="size-3 sm:size-4" />
