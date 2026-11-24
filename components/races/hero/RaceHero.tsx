@@ -114,6 +114,8 @@ export function RaceHero({
   const seriesHeading = seriesDisplayName(race.series)
   const finished = raceHasFinished(race, new Date())
   const cardImage = raceCardImage(race)
+  const [photoFailed, setPhotoFailed] = useState(false)
+  const showPhoto = Boolean(cardImage.src) && !photoFailed
 
   const handleShare = async () => {
     const shareData = {
@@ -137,7 +139,7 @@ export function RaceHero({
 
   return (
     <div className="relative h-[75vh] min-h-[500px] w-full min-w-0 overflow-hidden">
-      {cardImage.src ? (
+      {showPhoto ? (
         <div className="absolute inset-0">
           <RaceCircuitImage
             src={cardImage.src}
@@ -146,7 +148,7 @@ export function RaceHero({
             priority
             sizes="100vw"
             className="object-cover"
-            fallback={cardImage.fallback}
+            onLoadError={() => setPhotoFailed(true)}
           />
           <div className="from-background/90 via-background/25 absolute inset-0 bg-gradient-to-t to-transparent" />
           <div className="absolute inset-0 bg-black/30" />

@@ -24,11 +24,17 @@ interface RaceCircuitImageProps {
    * series-resolved photo from `raceCardImage`.
    */
   fallback?: RaceImageFallbackProps
+  /**
+   * A real URL failed to load. The parent replaces this image, so the light
+   * card is not painted underneath other type.
+   */
+  onLoadError?: () => void
 }
 
 /**
  * Race and circuit photos. A missing, generic, or broken URL shows the
- * designed monochrome card. Real photos still go through next/image.
+ * designed card unless `onLoadError` takes over a failed load.
+ * Real photos still go through next/image.
  */
 export function RaceCircuitImage({
   src,
@@ -39,12 +45,19 @@ export function RaceCircuitImage({
   priority = false,
   quality = 65,
   compact = false,
-  fallback
+  fallback,
+  onLoadError
 }: RaceCircuitImageProps) {
   const [failed, setFailed] = useState(false)
   const title = fallback?.title?.trim() || alt
 
+  const reportFailure = () => {
+    setFailed(true)
+    onLoadError?.()
+  }
+
   if (isMissingRaceImage(src) || failed) {
+    if (failed && onLoadError) return null
     return (
       <RaceImageFallback
         title={title}
@@ -68,7 +81,7 @@ export function RaceCircuitImage({
         sizes={sizes ?? "100vw"}
         quality={quality}
         className={className}
-        onError={() => setFailed(true)}
+        onError={reportFailure}
         {...(priority
           ? { priority: true, fetchPriority: "high" as const }
           : {})}
@@ -85,7 +98,7 @@ export function RaceCircuitImage({
       {...(priority
         ? { fetchPriority: "high" as const }
         : { loading: "lazy" as const })}
-      onError={() => setFailed(true)}
+      onError={reportFailure}
     />
   )
 }
