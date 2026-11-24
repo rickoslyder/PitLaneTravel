@@ -6,9 +6,11 @@ import {
   E2E_CIRCUIT_NAME,
   E2E_IMAGELESS_CIRCUIT_NAME,
   E2E_IMAGELESS_RACE_NAME,
+  E2E_IMAGELESS_RACE_SLUG,
   E2E_RACE_CANCELLED_SLUG,
   E2E_RACE_COMPLETED_SLUG,
   E2E_RACE_IN_PROGRESS_NAME,
+  E2E_RACE_IN_PROGRESS_SLUG,
   E2E_RACE_NAME,
   E2E_RACE_SLUG
 } from "./fixtures"
@@ -92,6 +94,88 @@ test.describe("production smoke", () => {
     await expect(
       page.getByRole("heading", { name: E2E_CIRCUIT_NAME, exact: true })
     ).toBeVisible()
+  })
+
+  test("grandstand page links the next open race, and hides that link when none exists", async ({
+    page
+  }) => {
+    const outboundHops: string[] = []
+    page.on("request", request => {
+      const url = request.url()
+      if (url.includes("/go/") || url.includes("/api/redirect/")) {
+        outboundHops.push(url)
+      }
+    })
+
+    const guidePath = `/races/${E2E_RACE_IN_PROGRESS_SLUG}`
+    const ticketsPath = `${guidePath}?tab=tickets`
+    const response = await page.goto("/circuits/synthetic-e2e-circuit/grandstands")
+    expect(response?.ok(), "seeded grandstands should be HTTP success").toBeTruthy()
+
+    const tickets = page.getByRole("link", {
+      name: "Tickets for this race",
+      exact: true
+    })
+    const guide = page.getByRole("link", {
+      name: `Part of the ${E2E_RACE_IN_PROGRESS_NAME} guide`,
+      exact: true
+    })
+    await expect(tickets).toBeVisible()
+    await expect(tickets).toHaveAttribute("href", ticketsPath)
+    await expect(guide).toBeVisible()
+    await expect(guide).toHaveAttribute("href", guidePath)
+    await expect(page.getByText("PitLane Travel does not sell tickets.")).toBeVisible()
+
+    await tickets.click()
+    await expect(page).toHaveURL(/\/races\/plt-e2e-synthetic-motogp-live\?tab=tickets(?:&|$)/)
+    await expect(page.getByRole("tab", { name: "Tickets" })).toHaveAttribute(
+      "data-state",
+      "active"
+    )
+    expect(outboundHops).toEqual([])
+
+    const quiet = await page.goto("/circuits/yas-marina-circuit/grandstands")
+    expect(quiet?.ok(), "Yas Marina grandstands should be HTTP success").toBeTruthy()
+    await expect(
+      page.getByRole("heading", {
+        name: "Best grandstands at Yas Marina Circuit",
+        exact: true
+      })
+    ).toBeVisible()
+    await expect(
+      page.getByRole("link", { name: "Tickets for this race", exact: true })
+    ).toHaveCount(0)
+    await expect(page.getByRole("link", { name: /^Part of the / })).toHaveCount(0)
+    expect(outboundHops).toEqual([])
+  })
+
+  test("race page links where to sit only when the circuit has grandstands", async ({
+    page
+  }) => {
+    const grandstandsPath = "/circuits/synthetic-e2e-circuit/grandstands"
+    const response = await page.goto(`/races/${E2E_RACE_SLUG}`)
+    expect(response?.ok()).toBeTruthy()
+
+    const where = page.getByRole("link", { name: /^Where to sit/ })
+    await expect(where).toBeVisible()
+    await expect(where).toHaveAttribute("href", grandstandsPath)
+    await expect(where).toContainText(E2E_CIRCUIT_NAME)
+
+    await where.click()
+    await expect(page).toHaveURL(/\/circuits\/synthetic-e2e-circuit\/grandstands$/)
+    await expect(
+      page.getByRole("heading", {
+        name: `Best grandstands at ${E2E_CIRCUIT_NAME}`,
+        exact: true
+      })
+    ).toBeVisible()
+
+    const imageless = await page.goto(`/races/${E2E_IMAGELESS_RACE_SLUG}`)
+    expect(imageless?.ok()).toBeTruthy()
+    await expect(
+      page.getByRole("heading", { name: E2E_IMAGELESS_RACE_NAME, exact: true })
+    ).toBeVisible()
+    await expect(page.getByRole("link", { name: /^Where to sit/ })).toHaveCount(0)
   })
 
   test("race compare is served and can pick the seeded race", async ({
