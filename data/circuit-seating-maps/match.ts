@@ -1,0 +1,72 @@
+import type { SeatingPin } from "@/data/circuit-seating-maps/types"
+
+export type SeatingGrandstandRef = {
+  slug: string
+  name: string
+}
+
+export function grandstandAnchorId(slug: string): string {
+  return `grandstand-${slug}`
+}
+
+/** Pin centre as a percentage of the artwork, for CSS `left` / `top`. */
+export function pinPercent(pixel: number, size: number): string {
+  if (size <= 0) return "0%"
+  return `${((pixel / size) * 100).toFixed(4)}%`
+}
+
+export function pinMatchesGrandstand(
+  pin: Pick<SeatingPin, "slug" | "label" | "grandstandName">,
+  grandstand: SeatingGrandstandRef
+): boolean {
+  return (
+    grandstand.slug === pin.slug ||
+    grandstand.name === pin.grandstandName ||
+    grandstand.name === pin.label
+  )
+}
+
+export function resolvePinGrandstand(
+  pin: Pick<SeatingPin, "slug" | "label" | "grandstandName">,
+  grandstands: readonly SeatingGrandstandRef[]
+): SeatingGrandstandRef | null {
+  return (
+    grandstands.find(grandstand => grandstand.slug === pin.slug) ??
+    grandstands.find(grandstand => grandstand.name === pin.grandstandName) ??
+    grandstands.find(grandstand => grandstand.name === pin.label) ??
+    null
+  )
+}
+
+/** Slug to mark active: the stand on this page, or the pin slug when none matches. */
+export function activeSlugForPin(
+  pin: Pick<SeatingPin, "slug" | "label" | "grandstandName">,
+  grandstands: readonly SeatingGrandstandRef[]
+): string {
+  return resolvePinGrandstand(pin, grandstands)?.slug ?? pin.slug
+}
+
+export function isPinActive(
+  pin: Pick<SeatingPin, "slug" | "label" | "grandstandName">,
+  activeSlug: string | null,
+  grandstands: readonly SeatingGrandstandRef[]
+): boolean {
+  if (!activeSlug) return false
+  const active = grandstands.find(grandstand => grandstand.slug === activeSlug)
+  if (!active) return pin.slug === activeSlug
+  return pinMatchesGrandstand(pin, active)
+}
+
+export function hasTrackMapUrl(
+  trackMapUrl: string | null | undefined
+): trackMapUrl is string {
+  return Boolean(trackMapUrl?.trim())
+}
+
+export function showCircuitSeatingMap(input: {
+  map: unknown
+  trackMapUrl?: string | null
+}): boolean {
+  if (input.map) return true
+  return hasTrackMapUrl(input.trackMapUrl)
+}

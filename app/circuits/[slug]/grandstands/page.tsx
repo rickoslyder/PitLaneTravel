@@ -10,7 +10,13 @@ import {
   GrandstandRaceGuideLink,
   GrandstandTicketsCta
 } from "@/components/grandstands/grandstand-race-links"
-import { YasMarinaLocator } from "@/components/maps/yas-marina-locator"
+import { CircuitSeatingMap } from "@/components/maps/circuit-seating-map"
+import {
+  GrandstandCardFrame,
+  SeatingSyncProvider
+} from "@/components/maps/seating-sync"
+import { getCircuitSeatingMap } from "@/data/circuit-seating-maps"
+import { showCircuitSeatingMap } from "@/data/circuit-seating-maps/match"
 import { upcomingRaceLink } from "@/lib/circuit-race-links"
 import { slugify } from "@/lib/series"
 import {
@@ -70,6 +76,11 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
   const ranked = [...circuit.grandstands].sort(
     (a, b) => (b.viewRating ?? 0) - (a.viewRating ?? 0)
   )
+  const preparedMap = getCircuitSeatingMap(slug)
+  const showMap = showCircuitSeatingMap({
+    map: preparedMap,
+    trackMapUrl: circuit.trackMapUrl
+  })
   const londonVenue =
     isEvergreenFormulaELondonVenue(circuit.name) ||
     isEvergreenFormulaELondonVenue(circuit.location)
@@ -78,7 +89,7 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
     <div className="mx-auto max-w-7xl space-y-8 p-4 sm:p-8">
       <Link
         href="/circuits/grandstands"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
       >
         <ChevronLeft className="size-4" />
         All grandstand guides
@@ -94,7 +105,7 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
         </p>
         <GrandstandRaceGuideLink race={raceLink} />
         {londonVenue && (
-          <p className="max-w-3xl text-sm text-muted-foreground">
+          <p className="text-muted-foreground max-w-3xl text-sm">
             {FORMULA_E_LONDON_VENUE_NOTE}
           </p>
         )}
@@ -102,15 +113,33 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
 
       <GrandstandTicketsCta race={raceLink} />
 
-      {slug === "yas-marina-circuit" ? (
-        <YasMarinaLocator kind="seating" />
-      ) : null}
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {ranked.map(g => (
-          <GrandstandCard key={g.id} grandstand={g} />
-        ))}
-      </div>
+      {showMap ? (
+        <SeatingSyncProvider>
+          <CircuitSeatingMap
+            circuitName={circuit.name}
+            circuitSlug={slug}
+            map={preparedMap}
+            trackMapUrl={circuit.trackMapUrl}
+            grandstands={ranked.map(grandstand => ({
+              slug: grandstand.slug,
+              name: grandstand.name
+            }))}
+          />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {ranked.map(grandstand => (
+              <GrandstandCardFrame key={grandstand.id} slug={grandstand.slug}>
+                <GrandstandCard grandstand={grandstand} />
+              </GrandstandCardFrame>
+            ))}
+          </div>
+        </SeatingSyncProvider>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {ranked.map(grandstand => (
+            <GrandstandCard key={grandstand.id} grandstand={grandstand} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
