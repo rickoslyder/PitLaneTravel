@@ -30,7 +30,7 @@ function circles(file: string) {
 describe("circuit seating map data", () => {
   it("registers Yas Marina and keeps every pin on its artwork", () => {
     const maps = listCircuitSeatingMaps()
-    expect(maps.map(map => map.circuitSlug)).toContain("yas-marina-circuit")
+    expect(maps.map(map => map.circuitSlug)).toEqual(["yas-marina-circuit"])
 
     for (const map of maps) {
       expect(map.art.desktop.width).toBeGreaterThan(0)
@@ -159,18 +159,25 @@ describe("CircuitSeatingMap", () => {
     )
 
     expect(html).toContain('data-circuit-seating-map="silverstone-circuit"')
+    expect(html).toContain('data-circuit-map="circuit"')
     expect(html).toContain('data-seating-pins="0"')
-    expect(html).toContain('alt="Silverstone Circuit track map"')
-    expect(html).toContain("Grandstand positions are not marked on this map.")
+    expect(html).toContain('alt="Circuit map of Silverstone Circuit"')
+    expect(html).toContain(
+      "Circuit map of Silverstone Circuit. This shows the circuit layout, not a seating map."
+    )
+    expect(html).toContain(">Jump to a grandstand<")
     expect(html).toContain(">Club Corner (B/C)<")
     expect(html).toContain(">Woodcote<")
+    expect(html).toContain(encodeURIComponent(TRACK_MAP))
+    expect(html).toContain("aspect-[16/9]")
     expect(html).not.toContain("data-seating-pin=")
+    expect(html).not.toContain("Expand seating map")
     expect(html).not.toContain("/go/")
     expect(html).not.toContain("/api/redirect/")
     expect(html.toLowerCase()).not.toContain("fetchpriority")
   })
 
-  it("renders nothing without artwork or a track map", () => {
+  it("renders an empty state with no image when no map is available", () => {
     const html = renderToStaticMarkup(
       createElement(CircuitSeatingMap, {
         circuitName: "Circuit de Monaco",
@@ -181,6 +188,12 @@ describe("CircuitSeatingMap", () => {
       })
     )
 
-    expect(html).toBe("")
+    expect(html).toContain('data-circuit-map="empty"')
+    expect(html).toContain("No circuit map for Circuit de Monaco.")
+    expect(html).not.toMatch(/<img\b/)
+    expect(html).not.toContain("data-seating-pin=")
+    expect(html).not.toContain("seating map")
+    expect(html).not.toContain("/go/")
+    expect(html).not.toContain("/api/redirect/")
   })
 })

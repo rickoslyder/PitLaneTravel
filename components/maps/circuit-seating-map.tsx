@@ -19,6 +19,9 @@ import { YasMarinaSeatingDetails } from "@/components/maps/yas-marina-seating-ca
 import { focusGrandstand, useSeatingSync } from "@/components/maps/seating-sync"
 import {
   activeSlugForPin,
+  circuitMapAlt,
+  circuitMapCaption,
+  circuitMapEmptyCopy,
   grandstandAnchorId,
   hasTrackMapUrl,
   isPinActive,
@@ -248,6 +251,29 @@ function IllustratedMap({
   )
 }
 
+function CircuitMapEmpty({
+  circuitName,
+  circuitSlug
+}: {
+  circuitName: string
+  circuitSlug: string
+}) {
+  return (
+    <figure
+      data-circuit-seating-map={circuitSlug}
+      data-circuit-map="empty"
+      data-seating-pins="0"
+      className="my-6 max-w-full"
+    >
+      <div className="bg-card rounded-lg border px-5 py-8">
+        <p className="text-foreground text-sm font-medium">
+          {circuitMapEmptyCopy(circuitName)}
+        </p>
+      </div>
+    </figure>
+  )
+}
+
 function TrackMapOnly({
   circuitName,
   circuitSlug,
@@ -264,26 +290,24 @@ function TrackMapOnly({
   return (
     <figure
       data-circuit-seating-map={circuitSlug}
+      data-circuit-map="circuit"
       data-seating-pins="0"
       className="my-6 max-w-full"
     >
       <div className="bg-card relative aspect-[16/9] w-full overflow-hidden rounded-lg border">
         <Image
           src={trackMapUrl}
-          alt={`${circuitName} track map`}
+          alt={circuitMapAlt(circuitName)}
           fill
           sizes="(max-width: 640px) 100vw, 76rem"
           className="object-contain"
         />
       </div>
       <figcaption className="text-muted-foreground mt-3 space-y-3 text-sm leading-relaxed">
-        <p>
-          Track map for {circuitName}. Grandstand positions are not marked on
-          this map.
-        </p>
+        <p>{circuitMapCaption(circuitName)}</p>
         {grandstands.length > 0 ? (
           <div>
-            <p className="text-foreground font-medium">Grandstands</p>
+            <p className="text-foreground font-medium">Jump to a grandstand</p>
             <ul className="mt-2 space-y-1">
               {grandstands.map(grandstand => {
                 const active = sync?.activeSlug === grandstand.slug
@@ -331,7 +355,11 @@ export function CircuitSeatingMap({
   if (map?.art) {
     return <IllustratedMap map={map} grandstands={grandstands} />
   }
-  if (!hasTrackMapUrl(trackMapUrl)) return null
+  if (!hasTrackMapUrl(trackMapUrl)) {
+    return (
+      <CircuitMapEmpty circuitName={circuitName} circuitSlug={circuitSlug} />
+    )
+  }
   return (
     <TrackMapOnly
       circuitName={circuitName}

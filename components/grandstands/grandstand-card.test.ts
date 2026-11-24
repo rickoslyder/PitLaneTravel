@@ -64,6 +64,52 @@ describe("GrandstandCard public copy", () => {
     expect(html).toContain("Covered")
   })
 
+  it("leads with the name and a key-facts row", () => {
+    const description = stand().description!
+    const html = render(stand())
+    const nameAt = html.indexOf(">Grandstand K<")
+    const factsAt = html.indexOf('data-grandstand-facts="true"')
+    const descriptionAt = html.indexOf(description)
+
+    expect(nameAt).toBeGreaterThan(-1)
+    expect(factsAt).toBeGreaterThan(nameAt)
+    expect(descriptionAt).toBeGreaterThan(factsAt)
+    expect(html).toContain('data-fact="cover"')
+    expect(html).toContain("Uncovered, Shaded")
+    expect(html).toContain('data-fact="view"')
+    expect(html).toContain("4/5")
+    expect(html).toContain('aria-label="4 out of 5"')
+    expect(html).toContain('data-fact="price"')
+    expect(html).toContain("Premium")
+    expect(html).toContain('data-fact="best-for"')
+    expect(html).toContain("Best overall — the harbour front")
+    expect(html).toContain("Big screen")
+    expect(html).toContain("Looks onto ")
+    expect(html).toContain("Tabac")
+    expect(html).toContain(description)
+    expect(html).not.toContain("Best for Best")
+    expect(html).not.toMatch(/<img\b/)
+    expect(html).not.toMatch(/unsplash|placeholder|picsum|stock/i)
+    expect(html).not.toMatch(/[£$€]/)
+  })
+
+  it("shows a photo only when the stand already has one", () => {
+    const bare = render(stand({ imageUrl: "  " }))
+    expect(bare).not.toMatch(/<img\b/)
+    expect(bare).not.toContain("data-grandstand-photo")
+
+    const photo = "https://example.com/stands/grandstand-k.jpg"
+    const html = render(stand({ imageUrl: photo }))
+    const factsAt = html.indexOf("data-grandstand-facts")
+    const photoAt = html.indexOf("data-grandstand-photo")
+
+    expect(photoAt).toBeGreaterThan(factsAt)
+    expect(html).toContain("aspect-[16/9]")
+    expect(html).toContain('alt="Grandstand K"')
+    expect(html).toContain(encodeURIComponent(photo))
+    expect(html).not.toMatch(/unsplash|placeholder|picsum/i)
+  })
+
   it("shows the price-band legend without amounts", () => {
     const html = renderToStaticMarkup(createElement(GrandstandPriceLegend))
     expect(html).toContain("Budget, Mid-range and Premium")

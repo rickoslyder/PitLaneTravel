@@ -1,13 +1,14 @@
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import Image from "next/image"
+import { Card } from "@/components/ui/card"
 import { SelectGrandstand } from "@/db/schema/grandstands-schema"
 import {
   GRANDSTAND_PRICE_LEGEND,
   formatBestFor,
+  formatCoverSun,
   formatPriceTier,
-  formatSunExposure
+  formatViewRating
 } from "@/lib/grandstand-copy"
-import { Check, Star, Sun, Tv, Umbrella, X } from "lucide-react"
+import { Check, X } from "lucide-react"
 
 export function GrandstandPriceLegend() {
   return (
@@ -17,111 +18,155 @@ export function GrandstandPriceLegend() {
   )
 }
 
+function Fact({
+  label,
+  value,
+  fact,
+  valueLabel
+}: {
+  label: string
+  value: string
+  fact: string
+  valueLabel?: string
+}) {
+  return (
+    <>
+      <dt
+        data-fact={fact}
+        className="text-muted-foreground text-[0.6875rem] font-medium uppercase tracking-[0.08em]"
+      >
+        {label}
+      </dt>
+      <dd className="text-foreground min-w-0 text-sm font-medium leading-snug">
+        {value ? <span aria-label={valueLabel}>{value}</span> : "—"}
+      </dd>
+    </>
+  )
+}
+
+function standPhoto(imageUrl: string | null | undefined): string {
+  return (imageUrl ?? "").trim()
+}
+
 export function GrandstandCard({
   grandstand
 }: {
   grandstand: SelectGrandstand
 }) {
-  const rating = grandstand.viewRating ?? 0
   const bestFor = formatBestFor(grandstand.bestFor)
+  const cover = formatCoverSun(grandstand.covered, grandstand.sunExposure)
+  const view = formatViewRating(grandstand.viewRating)
   const priceTier = formatPriceTier(grandstand.priceTier)
-  const sun = formatSunExposure(grandstand.sunExposure)
+  const photo = standPhoto(grandstand.imageUrl)
+  const views = (grandstand.viewsOf ?? [])
+    .map(viewOf => viewOf.trim())
+    .filter(Boolean)
+  const pros = grandstand.pros ?? []
+  const cons = grandstand.cons ?? []
+
   return (
-    <Card className="flex h-full flex-col">
-      {grandstand.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={grandstand.imageUrl}
-          alt={grandstand.name}
-          className="h-40 w-full rounded-t-lg object-cover"
-        />
-      )}
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold">{grandstand.name}</h3>
-          {priceTier ? (
-            <Badge variant="secondary" className="shrink-0">
-              {priceTier}
-            </Badge>
-          ) : null}
-        </div>
-        {rating > 0 && (
+    <Card
+      data-grandstand-card={grandstand.slug}
+      className="flex h-full flex-col overflow-hidden"
+    >
+      <div className="flex flex-1 flex-col gap-4 p-5">
+        <h3 className="text-foreground text-lg font-semibold leading-snug tracking-tight">
+          {grandstand.name}
+        </h3>
+
+        <dl
+          data-grandstand-facts="true"
+          className="grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-4 gap-y-2 border-y py-3"
+        >
+          <Fact label="Cover" value={cover} fact="cover" />
+          <Fact
+            label="View"
+            value={view}
+            fact="view"
+            valueLabel={view ? `${view.replace("/5", "")} out of 5` : undefined}
+          />
+          <Fact label="Price" value={priceTier} fact="price" />
+          <Fact
+            label="Screen"
+            value={grandstand.hasBigScreen ? "Big screen" : "No big screen"}
+            fact="screen"
+          />
+          <Fact label="Best for" value={bestFor} fact="best-for" />
+        </dl>
+
+        {photo ? (
           <div
-            className="flex items-center gap-0.5"
-            aria-label={`${rating} of 5`}
+            data-grandstand-photo
+            className="bg-background relative aspect-[16/9] w-full overflow-hidden rounded-md"
           >
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className={
-                  i < rating
-                    ? "size-4 fill-yellow-400 text-yellow-400"
-                    : "text-muted-foreground/30 size-4"
-                }
-              />
-            ))}
+            <Image
+              src={photo}
+              alt={grandstand.name}
+              fill
+              sizes="(max-width: 768px) 100vw, 24rem"
+              className="object-cover"
+            />
           </div>
-        )}
-      </CardHeader>
-      <CardContent className="flex flex-1 flex-col gap-3 text-sm">
-        {bestFor ? <p className="text-primary font-medium">{bestFor}</p> : null}
-        {grandstand.description ? (
-          <p className="text-muted-foreground">{grandstand.description}</p>
         ) : null}
 
-        {grandstand.viewsOf && grandstand.viewsOf.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {grandstand.viewsOf.map(v => (
-              <Badge key={v} variant="outline" className="text-xs">
-                {v}
-              </Badge>
-            ))}
-          </div>
-        )}
+        {grandstand.description ? (
+          <p className="text-foreground text-sm leading-relaxed">
+            {grandstand.description}
+          </p>
+        ) : null}
 
-        <div className="text-muted-foreground flex flex-wrap gap-3 text-xs">
-          <span className="inline-flex items-center gap-1">
-            {grandstand.covered ? (
-              <Umbrella className="size-3.5" />
-            ) : (
-              <Sun className="size-3.5" />
-            )}
-            {grandstand.covered ? "Covered" : "Uncovered"}
-          </span>
-          {sun ? (
-            <span className="inline-flex items-center gap-1">
-              <Sun className="size-3.5" />
-              {sun}
-            </span>
-          ) : null}
-          {grandstand.hasBigScreen && (
-            <span className="inline-flex items-center gap-1">
-              <Tv className="size-3.5" /> Big screen
-            </span>
-          )}
-        </div>
+        {views.length > 0 ? (
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            <span className="text-foreground font-medium">Looks onto </span>
+            {views.join(", ")}
+          </p>
+        ) : null}
 
-        {(grandstand.pros?.length || grandstand.cons?.length) && (
-          <div className="mt-auto grid grid-cols-2 gap-2 border-t pt-3 text-xs">
-            <ul className="space-y-1">
-              {grandstand.pros?.map(p => (
-                <li key={p} className="flex items-start gap-1">
-                  <Check className="mt-0.5 size-3 shrink-0 text-green-600" />
-                  <span>{p}</span>
-                </li>
-              ))}
-            </ul>
-            <ul className="space-y-1">
-              {grandstand.cons?.map(c => (
-                <li key={c} className="flex items-start gap-1">
-                  <X className="mt-0.5 size-3 shrink-0 text-[#991b1b]" />
-                  <span>{c}</span>
-                </li>
-              ))}
-            </ul>
+        {pros.length > 0 || cons.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4 border-t pt-4 text-sm">
+            <div className="min-w-0">
+              {pros.length > 0 ? (
+                <>
+                  <p className="text-muted-foreground text-[0.6875rem] font-medium uppercase tracking-[0.08em]">
+                    Pros
+                  </p>
+                  <ul className="mt-2 space-y-1.5">
+                    {pros.map(pro => (
+                      <li key={pro} className="flex items-start gap-1.5">
+                        <Check
+                          className="mt-0.5 size-3.5 shrink-0 text-green-700"
+                          aria-hidden="true"
+                        />
+                        <span>{pro}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
+            </div>
+            <div className="min-w-0">
+              {cons.length > 0 ? (
+                <>
+                  <p className="text-muted-foreground text-[0.6875rem] font-medium uppercase tracking-[0.08em]">
+                    Cons
+                  </p>
+                  <ul className="mt-2 space-y-1.5">
+                    {cons.map(con => (
+                      <li key={con} className="flex items-start gap-1.5">
+                        <X
+                          className="mt-0.5 size-3.5 shrink-0 text-[#991b1b]"
+                          aria-hidden="true"
+                        />
+                        <span>{con}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
+            </div>
           </div>
-        )}
-      </CardContent>
+        ) : null}
+      </div>
     </Card>
   )
 }
