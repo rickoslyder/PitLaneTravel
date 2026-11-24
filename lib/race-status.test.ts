@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  countdownWeekendEndMs,
   deriveRaceStatus,
   isActiveRaceStatus,
   selectNextCountdownRace
@@ -16,12 +17,12 @@ describe("deriveRaceStatus", () => {
       weekendEnd
     }
 
-    expect(deriveRaceStatus({ ...race, status: "cancelled" }, weekendStart)).toBe(
-      "cancelled"
-    )
-    expect(deriveRaceStatus({ ...race, status: "upcoming" }, weekendStart)).toBe(
-      "in_progress"
-    )
+    expect(
+      deriveRaceStatus({ ...race, status: "cancelled" }, weekendStart)
+    ).toBe("cancelled")
+    expect(
+      deriveRaceStatus({ ...race, status: "upcoming" }, weekendStart)
+    ).toBe("in_progress")
   })
 
   it("classifies the instant before start as upcoming", () => {
@@ -70,9 +71,16 @@ describe("deriveRaceStatus", () => {
     const start = new Date("2026-11-01T22:00:00.000Z")
     const end = new Date("2026-11-02T06:00:00.000Z")
     const afterMidnight = new Date("2026-11-02T00:30:00.000Z")
-    const race = { status: "upcoming" as const, date: start, weekendStart: start, weekendEnd: end }
+    const race = {
+      status: "upcoming" as const,
+      date: start,
+      weekendStart: start,
+      weekendEnd: end
+    }
 
-    expect(deriveRaceStatus(race, new Date(start.getTime() - 1))).toBe("upcoming")
+    expect(deriveRaceStatus(race, new Date(start.getTime() - 1))).toBe(
+      "upcoming"
+    )
     expect(deriveRaceStatus(race, afterMidnight)).toBe("in_progress")
     expect(deriveRaceStatus(race, end)).toBe("completed")
   })
@@ -81,14 +89,16 @@ describe("deriveRaceStatus", () => {
     const date = new Date("2026-08-01T14:00:00.000Z")
     const race = { status: "upcoming" as const, date }
 
-    expect(deriveRaceStatus(race, new Date(date.getTime() - 1))).toBe("upcoming")
+    expect(deriveRaceStatus(race, new Date(date.getTime() - 1))).toBe(
+      "upcoming"
+    )
     expect(deriveRaceStatus(race, date)).toBe("in_progress")
-    expect(deriveRaceStatus(race, new Date(date.getTime() + 24 * 60 * 60 * 1000 - 1))).toBe(
-      "in_progress"
-    )
-    expect(deriveRaceStatus(race, new Date(date.getTime() + 24 * 60 * 60 * 1000))).toBe(
-      "completed"
-    )
+    expect(
+      deriveRaceStatus(race, new Date(date.getTime() + 24 * 60 * 60 * 1000 - 1))
+    ).toBe("in_progress")
+    expect(
+      deriveRaceStatus(race, new Date(date.getTime() + 24 * 60 * 60 * 1000))
+    ).toBe("completed")
   })
 
   it("uses race date as start when weekendStart is missing", () => {
@@ -96,7 +106,9 @@ describe("deriveRaceStatus", () => {
     const weekendEnd = new Date("2026-08-03T18:00:00.000Z")
     const race = { status: "upcoming" as const, date, weekendEnd }
 
-    expect(deriveRaceStatus(race, new Date(date.getTime() - 1))).toBe("upcoming")
+    expect(deriveRaceStatus(race, new Date(date.getTime() - 1))).toBe(
+      "upcoming"
+    )
     expect(deriveRaceStatus(race, date)).toBe("in_progress")
     expect(deriveRaceStatus(race, weekendEnd)).toBe("completed")
   })
@@ -107,7 +119,9 @@ describe("deriveRaceStatus", () => {
     const fallbackEnd = new Date(date.getTime() + 24 * 60 * 60 * 1000)
     const race = { status: "upcoming" as const, date, weekendStart }
 
-    expect(deriveRaceStatus(race, new Date(weekendStart.getTime() - 1))).toBe("upcoming")
+    expect(deriveRaceStatus(race, new Date(weekendStart.getTime() - 1))).toBe(
+      "upcoming"
+    )
     expect(deriveRaceStatus(race, weekendStart)).toBe("in_progress")
     expect(deriveRaceStatus(race, fallbackEnd)).toBe("completed")
   })
@@ -125,7 +139,9 @@ describe("deriveRaceStatus", () => {
     expect(() => deriveRaceStatus({ ...race, date: invalid }, date)).toThrow(
       "Invalid race status timestamps"
     )
-    expect(() => deriveRaceStatus(race, invalid)).toThrow("Invalid race status timestamps")
+    expect(() => deriveRaceStatus(race, invalid)).toThrow(
+      "Invalid race status timestamps"
+    )
     expect(() =>
       deriveRaceStatus({ ...race, weekendStart: invalid }, date)
     ).toThrow("Invalid race status timestamps")
@@ -161,7 +177,12 @@ describe("deriveRaceStatus", () => {
     ).toBe("cancelled")
     expect(
       deriveRaceStatus(
-        { status: "cancelled", date: start, weekendStart: start, weekendEnd: end },
+        {
+          status: "cancelled",
+          date: start,
+          weekendStart: start,
+          weekendEnd: end
+        },
         start
       )
     ).toBe("cancelled")
@@ -203,7 +224,12 @@ describe("selectNextCountdownRace", () => {
 
     expect(
       selectNextCountdownRace(
-        [inProgressPastDate, cancelledFutureDate, completedFutureDate, nextUpcoming],
+        [
+          inProgressPastDate,
+          cancelledFutureDate,
+          completedFutureDate,
+          nextUpcoming
+        ],
         now
       )?.id
     ).toBe("next")
@@ -213,9 +239,67 @@ describe("selectNextCountdownRace", () => {
     const now = new Date("2026-07-05T00:00:00.000Z")
     expect(
       selectNextCountdownRace(
-        [{ id: "current", status: "in_progress" as const, date: "2026-07-04T12:00:00.000Z" }],
+        [
+          {
+            id: "current",
+            status: "in_progress" as const,
+            date: "2026-07-04T12:00:00.000Z"
+          }
+        ],
         now
       )
     ).toBeUndefined()
+  })
+
+  it("skips a future race whose weekend has already ended and keeps date order", () => {
+    const now = new Date("2026-11-24T17:00:00.000Z")
+    const staleValencia = {
+      id: "valencia",
+      status: "upcoming" as const,
+      date: "2026-11-29T00:00:00.000Z",
+      weekendEnd: "2026-11-22T18:00:00.000Z"
+    }
+    const qatar = {
+      id: "qatar",
+      status: "upcoming" as const,
+      date: "2026-11-29T16:00:00.000Z"
+    }
+    const abuDhabi = {
+      id: "abu-dhabi",
+      status: "upcoming" as const,
+      date: "2026-12-06T13:00:00.000Z"
+    }
+
+    expect(
+      selectNextCountdownRace([abuDhabi, staleValencia, qatar], now)?.id
+    ).toBe("qatar")
+  })
+
+  it("ends a date-only calendar day in the circuit zone, otherwise 24 hours after a real start", () => {
+    const dateOnly = new Date("2026-11-29T00:00:00.000Z")
+    expect(
+      countdownWeekendEndMs({
+        status: "upcoming",
+        date: dateOnly
+      })
+    ).toBe(dateOnly.getTime() + 24 * 60 * 60 * 1000)
+    expect(
+      new Date(
+        countdownWeekendEndMs({
+          status: "upcoming",
+          date: dateOnly,
+          timeZone: "America/Los_Angeles"
+        }) ?? 0
+      ).toISOString()
+    ).toBe("2026-11-30T08:00:00.000Z")
+    expect(
+      new Date(
+        countdownWeekendEndMs({
+          status: "upcoming",
+          date: "2026-11-29T16:00:00.000Z",
+          timeZone: "Asia/Qatar"
+        }) ?? 0
+      ).toISOString()
+    ).toBe("2026-11-30T16:00:00.000Z")
   })
 })

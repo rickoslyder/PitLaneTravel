@@ -15,7 +15,10 @@ type CountdownRace = {
   name: string
   date: Date | string
   status: RaceStatusValue
-  circuit: { name: string } | null
+  weekendEnd?: string | null
+  weekend_end?: string | null
+  timeZone?: string | null
+  circuit: { name: string; timezone_id?: string | null } | null
 }
 
 /** When provided, the countdown is painted from server data and does not refetch. */
@@ -23,20 +26,49 @@ export type UseNextRaceInput = {
   seed: HeroCountdownSeed | null
 }
 
-function raceFromSeed(seed: HeroCountdownSeed): CountdownRace {
+function raceFromCandidate(candidate: {
+  name: string
+  date: string
+  circuitName: string | null
+  weekendEnd?: string | null
+  timeZone?: string | null
+}): CountdownRace {
   return {
-    name: seed.name,
-    date: new Date(seed.date),
+    name: candidate.name,
+    date: candidate.date,
     status: "upcoming",
-    circuit: seed.circuitName ? { name: seed.circuitName } : null
+    weekendEnd: candidate.weekendEnd ?? null,
+    timeZone: candidate.timeZone ?? null,
+    circuit: candidate.circuitName
+      ? { name: candidate.circuitName, timezone_id: candidate.timeZone ?? null }
+      : null
   }
+}
+
+function racesFromSeed(seed: HeroCountdownSeed): CountdownRace[] {
+  if (seed.candidates && seed.candidates.length > 0) {
+    return seed.candidates.map(raceFromCandidate)
+  }
+  return [raceFromCandidate(seed)]
+}
+
+function sameCountdownRace(
+  current: CountdownRace | null,
+  next: CountdownRace | null
+): boolean {
+  if (current === next) return true
+  if (!current || !next) return false
+  return (
+    current.name === next.name &&
+    new Date(current.date).getTime() === new Date(next.date).getTime()
+  )
 }
 
 export function useNextRace(input?: UseNextRaceInput) {
   const seeded = input !== undefined
   const seed = input?.seed ?? null
   const [nextRace, setNextRace] = useState<CountdownRace | null>(() =>
-    seed ? raceFromSeed(seed) : null
+    seed ? raceFromCandidate(seed) : null
   )
   const [timeLeft, setTimeLeft] = useState<CountdownParts>(() => {
     if (seed?.initialTime) return seed.initialTime
@@ -45,11 +77,11 @@ export function useNextRace(input?: UseNextRaceInput) {
   })
   const [isLoading, setIsLoading] = useState(!seeded)
   const [error, setError] = useState<string | null>(null)
-  const racesRef = useRef<CountdownRace[]>(seed ? [raceFromSeed(seed)] : [])
+  const racesRef = useRef<CountdownRace[]>(seed ? racesFromSeed(seed) : [])
 
   useEffect(() => {
     if (seeded) {
-      racesRef.current = seed ? [raceFromSeed(seed)] : []
+      racesRef.current = seed ? racesFromSeed(seed) : []
       return
     }
 
@@ -75,25 +107,30 @@ export function useNextRace(input?: UseNextRaceInput) {
     }
 
     fetchRaces()
-  }, [seeded, seed?.circuitName, seed?.date, seed?.name])
+  }, [
+    seeded,
+    seed,
+    seed?.circuitName,
+    seed?.date,
+    seed?.name,
+    seed?.weekendEnd,
+    seed?.timeZone,
+    seed?.candidates
+  ])
 
   useEffect(() => {
     if (!nextRace) return
 
     const tick = () => {
       const now = new Date()
-      const raceDate = new Date(nextRace.date)
-      const difference = raceDate.getTime() - now.getTime()
-
-      // Date passed: pick the next future countdown target from the already-loaded
-      // list. Do not refetch every second — an in-progress weekend whose race.date
-      // has passed would otherwise loop and hide the next future race.
-      if (difference < 0) {
-        setNextRace(selectNextCountdownRace(racesRef.current, now) ?? null)
-        return
-      }
-
-      setTimeLeft(timeLeftUntil(raceDate, now))
+      // race.date is the countdown target. A passed target, or a weekend that
+      // has already ended, rolls to the next open race in the loaded list.
+      const next = selectNextCountdownRace(racesRef.current, now) ?? null
+      setNextRace(current =>
+        sameCountdownRace(current, next) ? current : next
+      )
+      if (!next) return
+      setTimeLeft(timeLeftUntil(next.date, now))
     }
 
     tick()

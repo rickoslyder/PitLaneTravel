@@ -54,6 +54,20 @@ const nextConfig = {
   // posthog-js is prebuilt, so browserslist cannot remove the Math.trunc
   // polyfill Lighthouse reports from its chunk. The loader drops that
   // assignment only.
+  async redirects() {
+    return [
+      {
+        source: "/blog",
+        destination: "/guides",
+        permanent: true
+      },
+      {
+        source: "/blog/:path*",
+        destination: "/guides",
+        permanent: true
+      }
+    ]
+  },
   webpack(config) {
     config.resolve.alias = {
       ...config.resolve.alias,

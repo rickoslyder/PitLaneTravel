@@ -12,7 +12,8 @@ const publicLayouts = [
   "app/(marketing)/layout.tsx",
   "app/not-found.tsx",
   "app/packages/layout.tsx",
-  "app/series/layout.tsx"
+  "app/series/layout.tsx",
+  "app/circuits/layout.tsx"
 ] as const
 
 const toolLayouts = [
@@ -43,6 +44,15 @@ describe("public shell", () => {
     )
     expect(readSource("components/public-shell.tsx")).toContain("<Header")
     expect(readSource("components/public-shell.tsx")).toContain("<SiteFooter")
+    expect(readSource("components/public-shell.tsx")).toContain(
+      '<main id="main-content"'
+    )
+    expect(readSource("app/circuits/grandstands/page.tsx")).not.toContain(
+      "<main"
+    )
+    expect(
+      readSource("app/circuits/[slug]/grandstands/page.tsx")
+    ).not.toContain("<main")
   })
 
   it("keeps the sidebar on signed-in planning tools and hides missing Saved and Recent routes", () => {
