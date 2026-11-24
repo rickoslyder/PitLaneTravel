@@ -13,10 +13,10 @@ import {
   HeroStats
 } from "@/components/landing/hero"
 import { getRacesAction } from "@/actions/db/races-actions"
-import { isActiveRaceStatus, selectNextCountdownRace } from "@/lib/race-status"
+import { isActiveRaceStatus } from "@/lib/race-status"
 import { getPublicCoverageSummariesAction } from "@/actions/db/public-coverage-actions"
 import { coverageByRaceId } from "@/lib/public-coverage"
-import dynamic from "next/dynamic"
+import nextDynamic from "next/dynamic"
 import CircuitExplorerSkeleton from "@/components/skeletons/circuit-explorer-skeleton"
 import { Metadata } from "next"
 import { brand, brandCopy } from "@/config/brand"
@@ -27,24 +27,26 @@ import {
   pageSeo,
   serializeJsonLd
 } from "@/lib/site-metadata"
-import { timeLeftUntil, type HeroCountdownSeed } from "@/lib/countdown"
+import { buildHeroCountdownSeed } from "@/lib/countdown"
 import {
   HOME_HERO_MOBILE_AVIF_HREF,
   HOME_HERO_MOBILE_AVIF_PRELOAD
 } from "@/lib/home-hero-image"
 
-const UpcomingRaces = dynamic(() =>
+export const dynamic = "force-dynamic"
+
+const UpcomingRaces = nextDynamic(() =>
   import("@/components/landing/upcoming-races").then(mod => mod.UpcomingRaces)
 )
-const WhyChooseFeaturesSection = dynamic(
+const WhyChooseFeaturesSection = nextDynamic(
   () => import("@/components/WhyChooseFeaturesSection")
 )
-const FeaturesSection = dynamic(() =>
+const FeaturesSection = nextDynamic(() =>
   import("@/components/landing/features").then(mod => mod.FeaturesSection)
 )
-const FaqSection = dynamic(() => import("@/components/FaqSection"))
-const CtaSection = dynamic(() => import("@/components/CtaSection"))
-const DynamicCircuitExplorer = dynamic(
+const FaqSection = nextDynamic(() => import("@/components/FaqSection"))
+const CtaSection = nextDynamic(() => import("@/components/CtaSection"))
+const DynamicCircuitExplorer = nextDynamic(
   () => import("@/components/CircuitExplorer"),
   {
     loading: () => <CircuitExplorerSkeleton />
@@ -76,25 +78,6 @@ export async function generateMetadata(): Promise<Metadata> {
       title: homeTitle,
       description: copy.shortDescription
     }
-  }
-}
-
-function countdownSeed(
-  race:
-    | {
-        name: string
-        date: Date | string
-        circuit?: { name?: string | null } | null
-      }
-    | undefined,
-  now: Date
-): HeroCountdownSeed | null {
-  if (!race) return null
-  return {
-    name: race.name,
-    date: new Date(race.date).toISOString(),
-    circuitName: race.circuit?.name ?? null,
-    initialTime: timeLeftUntil(race.date, now)
   }
 }
 
@@ -163,11 +146,7 @@ async function HomeCountdown({
   const upcomingRaces = (races ?? []).filter(race =>
     isActiveRaceStatus(race.status)
   )
-  const now = new Date()
-  const countdown = countdownSeed(
-    selectNextCountdownRace(upcomingRaces, now),
-    now
-  )
+  const countdown = buildHeroCountdownSeed(upcomingRaces, new Date())
   if (!countdown) return null
   return <HeroCountdown countdown={countdown} />
 }
