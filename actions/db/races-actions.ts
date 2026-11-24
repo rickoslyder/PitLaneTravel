@@ -620,12 +620,14 @@ export async function getRacesAtCircuitAction(
         id: racesTable.id,
         name: racesTable.name,
         slug: racesTable.slug,
+        seriesSlug: seriesTable.slug,
         date: racesTable.date,
         status: racesTable.status,
         weekendStart: racesTable.weekendStart,
         weekendEnd: racesTable.weekendEnd
       })
       .from(racesTable)
+      .leftJoin(seriesTable, eq(racesTable.seriesId, seriesTable.id))
       .where(eq(racesTable.circuitId, circuitId))
 
     return {
