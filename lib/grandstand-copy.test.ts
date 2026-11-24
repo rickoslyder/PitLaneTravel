@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  GRANDSTAND_METHOD_NOTE,
   GRANDSTAND_PRICE_LEGEND,
   formatBestFor,
   formatCoverSun,
@@ -84,6 +85,17 @@ describe("formatPriceTier", () => {
     expect(GRANDSTAND_PRICE_LEGEND).toMatch(/not ticket prices/)
     expect(GRANDSTAND_PRICE_LEGEND).not.toMatch(/[£$€]/)
     expect(formatPriceTier("premium")).not.toMatch(/[£$€]/)
+  })
+})
+
+describe("GRANDSTAND_METHOD_NOTE", () => {
+  it("reuses the price legend and states the view score without a check date", () => {
+    expect(GRANDSTAND_METHOD_NOTE).toContain(GRANDSTAND_PRICE_LEGEND)
+    expect(GRANDSTAND_METHOD_NOTE).toMatch(/score out of 5/)
+    expect(GRANDSTAND_METHOD_NOTE).not.toMatch(/last checked/i)
+    expect(GRANDSTAND_METHOD_NOTE).not.toMatch(/\bupdatedAt\b/)
+    expect(GRANDSTAND_METHOD_NOTE).not.toMatch(/\d{4}-\d{2}-\d{2}/)
+    expect(GRANDSTAND_METHOD_NOTE).not.toMatch(/[£$€]/)
   })
 })
 

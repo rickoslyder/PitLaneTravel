@@ -26,6 +26,7 @@ import {
   hasTrackMapUrl,
   isPinActive,
   pinPercent,
+  resolvePinGrandstand,
   type SeatingGrandstandRef
 } from "@/data/circuit-seating-maps/match"
 import type {
@@ -84,20 +85,42 @@ function SeatingPins({
 
   function moveFocus(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     const key = event.key
-    const last = map.pins.length - 1
-    let next = index
-    if (key === "ArrowRight" || key === "ArrowDown")
-      next = index === last ? 0 : index + 1
-    else if (key === "ArrowLeft" || key === "ArrowUp")
-      next = index === 0 ? last : index - 1
-    else if (key === "Home") next = 0
-    else if (key === "End") next = last
-    else return
+    const buttons = [
+      ...(groupRef.current?.querySelectorAll<HTMLButtonElement>(
+        "button[data-seating-pin]"
+      ) ?? [])
+    ]
+    const last = buttons.length - 1
+    if (last < 0) return
+    const enabled = (candidate: number) => !buttons[candidate]?.disabled
+    let next = -1
+    if (key === "Home" || key === "End") {
+      const step = key === "Home" ? 1 : -1
+      const start = key === "Home" ? 0 : last
+      for (let cursor = start; cursor >= 0 && cursor <= last; cursor += step) {
+        if (enabled(cursor)) {
+          next = cursor
+          break
+        }
+      }
+    } else if (
+      key === "ArrowRight" ||
+      key === "ArrowDown" ||
+      key === "ArrowLeft" ||
+      key === "ArrowUp"
+    ) {
+      const step = key === "ArrowRight" || key === "ArrowDown" ? 1 : -1
+      for (let hop = 1; hop <= buttons.length; hop += 1) {
+        const candidate = (index + step * hop + buttons.length) % buttons.length
+        if (enabled(candidate)) {
+          next = candidate
+          break
+        }
+      }
+    } else return
+    if (next < 0) return
     event.preventDefault()
-    const buttons = groupRef.current?.querySelectorAll<HTMLButtonElement>(
-      "button[data-seating-pin]"
-    )
-    buttons?.[next]?.focus()
+    buttons[next]?.focus()
   }
 
   return (
@@ -112,8 +135,11 @@ function SeatingPins({
         between grandstands.
       </p>
       {map.pins.map((pin, index) => {
-        const slug = activeSlugForPin(pin, grandstands)
-        const active = isPinActive(pin, sync?.activeSlug ?? null, grandstands)
+        const match = resolvePinGrandstand(pin, grandstands)
+        const navigable = match != null
+        const slug = match?.slug ?? activeSlugForPin(pin, grandstands)
+        const active =
+          navigable && isPinActive(pin, sync?.activeSlug ?? null, grandstands)
         const style = {
           "--pin-x": pinPercent(pin.desktop.x, map.art.desktop.width),
           "--pin-y": pinPercent(pin.desktop.y, map.art.desktop.height),
@@ -129,11 +155,12 @@ function SeatingPins({
             data-seating-pin={pin.slug}
             data-active={active ? "true" : "false"}
             aria-label={pinLabel(pin, index)}
-            aria-controls={grandstandAnchorId(slug)}
+            aria-controls={navigable ? grandstandAnchorId(slug) : undefined}
             aria-current={active ? "true" : undefined}
+            disabled={!navigable}
             style={style}
             onPointerEnter={event => {
-              if (event.pointerType === "touch") return
+              if (!navigable || event.pointerType === "touch") return
               sync?.setHoverSlug(slug)
             }}
             onPointerLeave={event => {
@@ -153,10 +180,11 @@ function SeatingPins({
             }}
             onKeyDown={event => moveFocus(event, index)}
             onClick={() => {
+              if (!navigable) return
               sync?.selectSlug(slug)
               focusGrandstand(slug)
             }}
-            className="pointer-events-auto absolute left-[var(--pin-x)] top-[var(--pin-y)] size-11 -translate-x-1/2 -translate-y-1/2 rounded-full bg-transparent p-0 hover:ring-2 hover:ring-inset hover:ring-[#e10600] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e10600] data-[active=true]:ring-2 data-[active=true]:ring-inset data-[active=true]:ring-[#e10600] max-sm:left-[var(--pin-x-mobile)] max-sm:top-[var(--pin-y-mobile)]"
+            className="pointer-events-auto absolute left-[var(--pin-x)] top-[var(--pin-y)] size-11 -translate-x-1/2 -translate-y-1/2 rounded-full bg-transparent p-0 hover:ring-2 hover:ring-inset hover:ring-[#e10600] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#e10600] disabled:pointer-events-none disabled:opacity-40 data-[active=true]:ring-2 data-[active=true]:ring-inset data-[active=true]:ring-[#e10600] max-sm:left-[var(--pin-x-mobile)] max-sm:top-[var(--pin-y-mobile)]"
           />
         )
       })}
