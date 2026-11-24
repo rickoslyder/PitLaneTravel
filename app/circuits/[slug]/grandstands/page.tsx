@@ -4,8 +4,14 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ChevronLeft } from "lucide-react"
 import { getCircuitsWithGrandstandsAction } from "@/actions/db/grandstands-actions"
+import { getRacesAtCircuitAction } from "@/actions/db/races-actions"
 import { GrandstandCard } from "@/components/grandstands/grandstand-card"
+import {
+  GrandstandRaceGuideLink,
+  GrandstandTicketsCta
+} from "@/components/grandstands/grandstand-race-links"
 import { YasMarinaLocator } from "@/components/maps/yas-marina-locator"
+import { upcomingRaceLink } from "@/lib/circuit-race-links"
 import { slugify } from "@/lib/series"
 import {
   FORMULA_E_LONDON_VENUE_NOTE,
@@ -56,6 +62,11 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
   const circuit = await findCircuit(slug)
   if (!circuit) return notFound()
 
+  const races = await getRacesAtCircuitAction(circuit.id)
+  const raceLink = races.isSuccess
+    ? upcomingRaceLink(races.data, new Date())
+    : null
+
   const ranked = [...circuit.grandstands].sort(
     (a, b) => (b.viewRating ?? 0) - (a.viewRating ?? 0)
   )
@@ -81,12 +92,15 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
           {circuit.location}, {circuit.country} · {ranked.length} stands
           compared
         </p>
+        <GrandstandRaceGuideLink race={raceLink} />
         {londonVenue && (
           <p className="max-w-3xl text-sm text-muted-foreground">
             {FORMULA_E_LONDON_VENUE_NOTE}
           </p>
         )}
       </header>
+
+      <GrandstandTicketsCta race={raceLink} />
 
       {slug === "yas-marina-circuit" ? (
         <YasMarinaLocator kind="seating" />
