@@ -133,6 +133,7 @@
       },
       {
         "name": "Grandstand K (Quai Albert 1er)",
+        "slug": "grandstand-k-tabac-port-hercule",
         "viewRating": 4,
         "covered": false,
         "hasBigScreen": true,
@@ -175,6 +176,7 @@
       },
       {
         "name": "Grandstand L (Swimming Pool)",
+        "slug": "grandstand-l-nouvelle-chicane",
         "viewRating": 3,
         "covered": false,
         "hasBigScreen": true,
@@ -382,6 +384,7 @@
       },
       {
         "name": "Grandstands 18 and 20 (separate stands)",
+        "slug": "grandstands-18-20-uscita-ascari",
         "viewRating": 4,
         "covered": true,
         "hasBigScreen": false,
@@ -1578,6 +1581,7 @@
       },
       {
         "name": "Turn 3 Grandstand — Koval Zone (Turns 3-4, Koval Straight)",
+        "slug": "turn-3-grandstand-east-harmon-zone-turns-3-4-koval-straight",
         "viewRating": 4,
         "covered": false,
         "hasBigScreen": true,
@@ -1623,6 +1627,7 @@
       },
       {
         "name": "Lewis Hamilton Grandstand — Performance Zone (Turn 17, Harmon Straight)",
+        "slug": "west-harmon-grandstand-west-harmon-zone-turns-14-17-area-harmon-straight",
         "viewRating": 3,
         "covered": false,
         "hasBigScreen": true,

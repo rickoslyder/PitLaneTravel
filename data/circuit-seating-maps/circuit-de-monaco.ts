@@ -54,12 +54,12 @@ function pin(
   detail: string,
   desktop: [number, number],
   mobile: [number, number],
-  alsoNames?: readonly string[]
+  stable?: { slug: string; alsoNames: readonly string[] }
 ): SeatingPin {
   return {
-    slug: slugify(grandstandName),
+    slug: stable?.slug ?? slugify(grandstandName),
     grandstandName,
-    alsoNames,
+    alsoNames: stable?.alsoNames,
     label,
     detail,
     ...at(desktop, mobile)
@@ -104,7 +104,10 @@ export const monacoSeatingMap: CircuitSeatingMapConfig = {
       "Quai Albert 1er, start straight",
       [24.61, 29.92],
       [24.94, 27.67],
-      ["Grandstand K (Tabac / Port Hercule)"]
+      {
+        slug: "grandstand-k-tabac-port-hercule",
+        alsoNames: ["Grandstand K (Tabac / Port Hercule)"]
+      }
     ),
     pin(
       "Grandstand L (Swimming Pool)",
@@ -112,7 +115,10 @@ export const monacoSeatingMap: CircuitSeatingMapConfig = {
       "Swimming Pool",
       [16.64, 50.58],
       [17.06, 46.06],
-      ["Grandstand L (Nouvelle Chicane)"]
+      {
+        slug: "grandstand-l-nouvelle-chicane",
+        alsoNames: ["Grandstand L (Nouvelle Chicane)"]
+      }
     ),
     pin(
       "Grandstand T (Pool exit / Rascasse)",

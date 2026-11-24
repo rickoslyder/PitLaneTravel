@@ -49,7 +49,8 @@ describe("circuit seating map data", () => {
         expect(pin.mobile.x).toBeLessThan(map.art.mobile.width)
         expect(pin.mobile.y).toBeGreaterThan(0)
         expect(pin.mobile.y).toBeLessThan(map.art.mobile.height)
-        expect(pin.slug).toBe(slugify(pin.grandstandName))
+        const previousName = pin.alsoNames?.[0]
+        expect(pin.slug).toBe(slugify(previousName ?? pin.grandstandName))
       }
     }
   })
@@ -126,8 +127,59 @@ describe("circuit seating map data", () => {
     ]
     const k = monacoSeatingMap.pins.find(pin => pin.label === "K")
     const l = monacoSeatingMap.pins.find(pin => pin.label === "L")
+    expect(k?.slug).toBe("grandstand-k-tabac-port-hercule")
+    expect(l?.slug).toBe("grandstand-l-nouvelle-chicane")
     expect(resolvePinGrandstand(k!, [stands[0]])?.slug).toBe(stands[0].slug)
     expect(resolvePinGrandstand(l!, [stands[1]])?.slug).toBe(stands[1].slug)
+    expect(
+      resolvePinGrandstand(k!, [{ slug: k!.slug, name: k!.grandstandName }])
+        ?.slug
+    ).toBe(k!.slug)
+    expect(
+      resolvePinGrandstand(l!, [{ slug: l!.slug, name: l!.grandstandName }])
+        ?.slug
+    ).toBe(l!.slug)
+  })
+
+  it("keeps corrected guide names on the existing grandstand slugs", () => {
+    const seed = JSON.parse(
+      readFileSync(path.join(root, "data/seeds/grandstands.json"), "utf8")
+    ) as {
+      circuits: Record<string, { name: string; slug?: string }[]>
+    }
+    const stable = [
+      [
+        "Circuit de Monaco",
+        "Grandstand K (Quai Albert 1er)",
+        "grandstand-k-tabac-port-hercule"
+      ],
+      [
+        "Circuit de Monaco",
+        "Grandstand L (Swimming Pool)",
+        "grandstand-l-nouvelle-chicane"
+      ],
+      [
+        "Autodromo Nazionale Monza",
+        "Grandstands 18 and 20 (separate stands)",
+        "grandstands-18-20-uscita-ascari"
+      ],
+      [
+        "Las Vegas Strip Circuit",
+        "Turn 3 Grandstand — Koval Zone (Turns 3-4, Koval Straight)",
+        "turn-3-grandstand-east-harmon-zone-turns-3-4-koval-straight"
+      ],
+      [
+        "Las Vegas Strip Circuit",
+        "Lewis Hamilton Grandstand — Performance Zone (Turn 17, Harmon Straight)",
+        "west-harmon-grandstand-west-harmon-zone-turns-14-17-area-harmon-straight"
+      ]
+    ] as const
+
+    for (const [circuit, name, slug] of stable) {
+      const row = seed.circuits[circuit].find(stand => stand.name === name)
+      expect(row?.slug, name).toBe(slug)
+      expect(slugify(name)).not.toBe(slug)
+    }
   })
 
   it("matches the seeded Monaco, Silverstone and Monza names", () => {
