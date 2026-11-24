@@ -23,6 +23,7 @@
 export type SeatingArt = {
   svg: string
   png: string
+  webp?: string
   width: number
   height: number
 }
@@ -37,7 +38,12 @@ export type SeatingPin = {
   slug: string
   /** Full grandstand name in the seating guide. */
   grandstandName: string
-  /** Short name printed on the map key. */
+  /**
+   * Earlier guide headings for the same stand. Used only to keep the pin
+   * paired with a card whose stored name has not been updated yet.
+   */
+  alsoNames?: readonly string[]
+  /** Short name printed on the map key and, for overlay markers, in the circle. */
   label: string
   /** Short note printed beside that name. */
   detail: string
@@ -45,6 +51,15 @@ export type SeatingPin = {
   desktop: SeatingPinPoint
   /** Circle centre, in pixels, on `art.mobile`. */
   mobile: SeatingPinPoint
+}
+
+export type SeatingCredit = {
+  /** Sentence fragment before the source link. */
+  before: string
+  href: string
+  /** Visible name of the official plan. */
+  label: string
+  after?: string
 }
 
 export type CircuitSeatingMapConfig = {
@@ -59,8 +74,17 @@ export type CircuitSeatingMapConfig = {
     mobile: SeatingArt
     desktop: SeatingArt
   }
+  /**
+   * `artwork` pins are already drawn on the image. `overlay` draws the
+   * numbered circles from `pins`, with separate desktop and mobile positions.
+   */
+  markers?: "artwork" | "overlay"
   /** Prepared prose. Omit to use the generated key from `pins`. */
   caption?: "yas-marina-seating"
+  /** Short public note under the map. */
+  note?: string
+  /** Official circuit or organiser plan. */
+  credit?: SeatingCredit
   expandLabel?: string
   title?: string
   dialogDescription?: string

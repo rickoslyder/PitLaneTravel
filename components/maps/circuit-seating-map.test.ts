@@ -12,6 +12,9 @@ import {
   resolvePinGrandstand,
   showCircuitSeatingMap
 } from "@/data/circuit-seating-maps/match"
+import { monzaSeatingMap } from "@/data/circuit-seating-maps/autodromo-nazionale-monza"
+import { monacoSeatingMap } from "@/data/circuit-seating-maps/circuit-de-monaco"
+import { silverstoneSeatingMap } from "@/data/circuit-seating-maps/silverstone-circuit"
 import { yasMarinaSeatingMap } from "@/data/circuit-seating-maps/yas-marina-circuit"
 import { slugify } from "@/lib/series"
 
@@ -96,6 +99,94 @@ describe("circuit seating map data", () => {
     expect(isPinActive(main, "main", [stands[0]])).toBe(true)
     expect(isPinActive(main, "west", [stands[0]])).toBe(false)
     expect(pinPercent(394.9, 1200)).toBe("32.9083%")
+  })
+
+  it("keeps Monaco north-up and pairs renamed stands with the earlier headings", () => {
+    for (const file of [
+      "public/images/maps/circuit-de-monaco-seating-desktop.svg",
+      "public/images/maps/circuit-de-monaco-seating-375.svg"
+    ]) {
+      const text = readFileSync(path.join(root, file), "utf8")
+      const sainte = text.match(/y="([\d.]+)"[^>]*>Sainte-Dévote/)
+      const rascasse = text.match(/y="([\d.]+)"[^>]*>Rascasse/)
+      expect(sainte, file).toBeTruthy()
+      expect(rascasse, file).toBeTruthy()
+      expect(Number(sainte?.[1])).toBeLessThan(Number(rascasse?.[1]))
+    }
+
+    const stands = [
+      {
+        slug: "grandstand-k-tabac-port-hercule",
+        name: "Grandstand K (Tabac / Port Hercule)"
+      },
+      {
+        slug: "grandstand-l-nouvelle-chicane",
+        name: "Grandstand L (Nouvelle Chicane)"
+      }
+    ]
+    const k = monacoSeatingMap.pins.find(pin => pin.label === "K")
+    const l = monacoSeatingMap.pins.find(pin => pin.label === "L")
+    expect(resolvePinGrandstand(k!, [stands[0]])?.slug).toBe(stands[0].slug)
+    expect(resolvePinGrandstand(l!, [stands[1]])?.slug).toBe(stands[1].slug)
+  })
+
+  it("matches the seeded Monaco, Silverstone and Monza names", () => {
+    const seed = JSON.parse(
+      readFileSync(path.join(root, "data/seeds/grandstands.json"), "utf8")
+    ) as { circuits: Record<string, { name: string }[]> }
+    const cases = [
+      ["Circuit de Monaco", monacoSeatingMap],
+      ["Silverstone Circuit", silverstoneSeatingMap],
+      ["Autodromo Nazionale Monza", monzaSeatingMap]
+    ] as const
+
+    for (const [circuit, map] of cases) {
+      const names = seed.circuits[circuit].map(stand => stand.name)
+      for (const pin of map.pins) {
+        expect(names, pin.grandstandName).toContain(pin.grandstandName)
+      }
+    }
+
+    expect(silverstoneSeatingMap.pins.map(pin => pin.label)).toEqual([
+      "1",
+      "2",
+      "3",
+      "4"
+    ])
+    expect(
+      silverstoneSeatingMap.pins.some(pin =>
+        pin.grandstandName.includes("Lando")
+      )
+    ).toBe(false)
+    expect(silverstoneSeatingMap.note).toContain("2025 official layout")
+    expect(silverstoneSeatingMap.note).toContain("no single numbered point")
+    expect(monzaSeatingMap.note).toContain("not marked")
+    expect(monzaSeatingMap.pins.some(pin => pin.label === "18")).toBe(false)
+    expect(monzaSeatingMap.pins.some(pin => pin.label === "19")).toBe(false)
+    expect(monzaSeatingMap.pins.some(pin => pin.label === "20")).toBe(false)
+
+    const yas = readFileSync(
+      path.join(root, "public/images/maps/yas-marina-seating-desktop.svg"),
+      "utf8"
+    )
+    expect(yas).toContain('fill="#08797e"')
+    expect(yas).toContain('stroke="#486466"')
+    expect(yas).not.toContain("#087e83")
+
+    for (const file of [
+      "public/images/maps/circuit-de-monaco-seating-desktop.svg",
+      "public/images/maps/circuit-de-monaco-seating-375.svg",
+      "public/images/maps/silverstone-seating-desktop.svg",
+      "public/images/maps/silverstone-seating-375.svg",
+      "public/images/maps/monza-seating-desktop.svg",
+      "public/images/maps/monza-seating-375.svg"
+    ]) {
+      const text = readFileSync(path.join(root, file), "utf8")
+      expect(text, file).toContain('stroke="#486466"')
+      expect(text, file).not.toMatch(
+        /handoff|\/cursor\/|\/agent\/|inkscape|sodipodi|qa-preview/
+      )
+    }
   })
 
   it("shows a prepared map, or a track map, and skips a blank url", () => {
@@ -224,5 +315,50 @@ describe("CircuitSeatingMap", () => {
     expect(html).not.toContain("seating map")
     expect(html).not.toContain("/go/")
     expect(html).not.toContain("/api/redirect/")
+  })
+
+  it("draws Monaco, Silverstone and Monza pins from separate desktop and mobile positions", () => {
+    const maps = [monacoSeatingMap, silverstoneSeatingMap, monzaSeatingMap]
+    for (const map of maps) {
+      const html = renderToStaticMarkup(
+        createElement(CircuitSeatingMap, {
+          circuitName: map.circuitSlug,
+          circuitSlug: map.circuitSlug,
+          map,
+          grandstands: map.pins.map(pin => ({
+            slug: pin.slug,
+            name: pin.grandstandName
+          }))
+        })
+      )
+      expect(html).toContain(`data-circuit-seating-map="${map.circuitSlug}"`)
+      expect(html).toContain(`data-seating-pins="${map.pins.length}"`)
+      expect(html).toContain(map.alt)
+      expect(html).toContain(map.credit?.href)
+      expect(html).toContain(map.credit?.label)
+      expect(html).toContain("text-[#08797e]")
+      expect(html).toContain('type="image/webp"')
+      expect(html).toContain("--pin-d:")
+      expect(html).toContain("--pin-d-mobile:")
+      expect(html).not.toContain("/go/")
+      expect(html).not.toContain("/api/redirect/")
+      expect(html).not.toMatch(/\b(Scout|Grawk|Grok|Writer|Studio)\b/)
+      for (const pin of map.pins) {
+        expect(html).toContain(`data-seating-pin="${pin.slug}"`)
+        expect(html).toContain(`aria-label="${pin.label}, ${pin.detail}"`)
+      }
+    }
+
+    const monaco = renderToStaticMarkup(
+      createElement(CircuitSeatingMap, {
+        circuitName: "Circuit de Monaco",
+        circuitSlug: "circuit-de-monaco",
+        map: monacoSeatingMap,
+        grandstands: []
+      })
+    )
+    expect(monaco).toContain("North-up")
+    expect(monaco).toContain("Piscine Rainier III")
+    expect(monaco).toContain("not the Nouvelle Chicane")
   })
 })

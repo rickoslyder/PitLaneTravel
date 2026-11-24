@@ -15,39 +15,47 @@ export function pinPercent(pixel: number, size: number): string {
   return `${((pixel / size) * 100).toFixed(4)}%`
 }
 
-export function pinMatchesGrandstand(
-  pin: Pick<SeatingPin, "slug" | "label" | "grandstandName">,
+type PinIdentity = Pick<
+  SeatingPin,
+  "slug" | "label" | "grandstandName" | "alsoNames"
+>
+
+function sameStand(
+  pin: PinIdentity,
   grandstand: SeatingGrandstandRef
 ): boolean {
   return (
     grandstand.slug === pin.slug ||
     grandstand.name === pin.grandstandName ||
-    grandstand.name === pin.label
+    grandstand.name === pin.label ||
+    (pin.alsoNames?.includes(grandstand.name) ?? false)
   )
 }
 
+export function pinMatchesGrandstand(
+  pin: PinIdentity,
+  grandstand: SeatingGrandstandRef
+): boolean {
+  return sameStand(pin, grandstand)
+}
+
 export function resolvePinGrandstand(
-  pin: Pick<SeatingPin, "slug" | "label" | "grandstandName">,
+  pin: PinIdentity,
   grandstands: readonly SeatingGrandstandRef[]
 ): SeatingGrandstandRef | null {
-  return (
-    grandstands.find(grandstand => grandstand.slug === pin.slug) ??
-    grandstands.find(grandstand => grandstand.name === pin.grandstandName) ??
-    grandstands.find(grandstand => grandstand.name === pin.label) ??
-    null
-  )
+  return grandstands.find(grandstand => sameStand(pin, grandstand)) ?? null
 }
 
 /** Slug to mark active: the stand on this page, or the pin slug when none matches. */
 export function activeSlugForPin(
-  pin: Pick<SeatingPin, "slug" | "label" | "grandstandName">,
+  pin: PinIdentity,
   grandstands: readonly SeatingGrandstandRef[]
 ): string {
   return resolvePinGrandstand(pin, grandstands)?.slug ?? pin.slug
 }
 
 export function isPinActive(
-  pin: Pick<SeatingPin, "slug" | "label" | "grandstandName">,
+  pin: PinIdentity,
   activeSlug: string | null,
   grandstands: readonly SeatingGrandstandRef[]
 ): boolean {

@@ -15,6 +15,7 @@ import type {
 const DESKTOP = {
   svg: "/images/maps/yas-marina-seating-desktop.svg",
   png: "/images/maps/yas-marina-seating-desktop.png",
+  webp: "/images/maps/yas-marina-seating-desktop.webp",
   width: 1200,
   height: 960
 } as const
@@ -22,6 +23,7 @@ const DESKTOP = {
 const MOBILE = {
   svg: "/images/maps/yas-marina-seating-375.svg",
   png: "/images/maps/yas-marina-seating-375.png",
+  webp: "/images/maps/yas-marina-seating-375.webp",
   width: 375,
   height: 1045
 } as const
