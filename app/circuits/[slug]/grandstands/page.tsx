@@ -12,6 +12,7 @@ import {
   GrandstandTicketsCta
 } from "@/components/grandstands/grandstand-race-links"
 import { SeatingSyncProvider } from "@/components/maps/seating-sync"
+import { circuitFanNotes } from "@/content/grandstand-fan-notes"
 import { getCircuitSeatingMap } from "@/data/circuit-seating-maps"
 import { upcomingRaceLink } from "@/lib/circuit-race-links"
 import { slugify } from "@/lib/series"
@@ -76,6 +77,7 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
   const londonVenue =
     isEvergreenFormulaELondonVenue(circuit.name) ||
     isEvergreenFormulaELondonVenue(circuit.location)
+  const fanNotes = circuitFanNotes(slug)
 
   return (
     <div className="mx-auto min-w-0 max-w-7xl space-y-8 p-4 sm:p-8">
@@ -115,6 +117,7 @@ export default async function CircuitGrandstandsPage({ params }: PageProps) {
           map={preparedMap}
           trackMapUrl={circuit.trackMapUrl}
           grandstands={ranked}
+          fanNotes={fanNotes}
         />
       </SeatingSyncProvider>
     </div>

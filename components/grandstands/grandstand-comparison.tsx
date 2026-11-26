@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { GrandstandCard } from "@/components/grandstands/grandstand-card"
+import { fanLinesForStand } from "@/content/grandstand-fan-notes"
 import {
   focusGrandstand,
   GrandstandCardFrame,
@@ -25,6 +26,7 @@ import {
   formatViewRating,
   GRANDSTAND_METHOD_NOTE
 } from "@/lib/grandstand-copy"
+import { slugify } from "@/lib/series"
 
 function cell(value: string): string {
   return value || "—"
@@ -69,11 +71,13 @@ function FilterSelect({
 
 export function GrandstandComparison({
   circuitName,
+  circuitSlug,
   grandstands,
   filters: controlledFilters,
   onFiltersChange
 }: {
   circuitName: string
+  circuitSlug?: string
   grandstands: SelectGrandstand[]
   filters?: GrandstandFilters
   onFiltersChange?: (filters: GrandstandFilters) => void
@@ -223,7 +227,14 @@ export function GrandstandComparison({
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {visible.map(grandstand => (
           <GrandstandCardFrame key={grandstand.id} slug={grandstand.slug}>
-            <GrandstandCard grandstand={grandstand} />
+            <GrandstandCard
+              grandstand={grandstand}
+              fanLines={
+                circuitSlug
+                  ? fanLinesForStand(circuitSlug, slugify(grandstand.name))
+                  : []
+              }
+            />
           </GrandstandCardFrame>
         ))}
       </div>
