@@ -2,6 +2,7 @@ import Image from "next/image"
 import { Card } from "@/components/ui/card"
 import { SelectGrandstand } from "@/db/schema/grandstands-schema"
 import {
+  GRANDSTAND_CARD_BEST_FOR_LABEL,
   GRANDSTAND_PRICE_LEGEND,
   formatBestFor,
   formatCoverSun,
@@ -91,7 +92,11 @@ export function GrandstandCard({
             value={grandstand.hasBigScreen ? "Big screen" : "No big screen"}
             fact="screen"
           />
-          <Fact label="Best for" value={bestFor} fact="best-for" />
+          <Fact
+            label={GRANDSTAND_CARD_BEST_FOR_LABEL}
+            value={bestFor}
+            fact="best-for"
+          />
         </dl>
 
         {photo ? (

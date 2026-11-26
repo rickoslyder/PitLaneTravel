@@ -1,7 +1,10 @@
+import { readFileSync } from "node:fs"
+import path from "node:path"
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { describe, expect, it } from "vitest"
 import type { SelectGrandstand } from "@/db/schema/grandstands-schema"
+import { formatBestFor } from "@/lib/grandstand-copy"
 import { GrandstandCard, GrandstandPriceLegend } from "./grandstand-card"
 
 function stand(overrides: Partial<SelectGrandstand> = {}): SelectGrandstand {
@@ -34,13 +37,38 @@ function render(grandstand: SelectGrandstand): string {
   return renderToStaticMarkup(createElement(GrandstandCard, { grandstand }))
 }
 
+function decode(html: string): string {
+  return html
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#x27;|&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+}
+
+/** Label and value of the best-for fact, in reading order. */
+function bestForReading(html: string): string {
+  const label = html.match(/data-fact="best-for"[^>]*>\s*([^<]*?)\s*</)
+  const block = html.match(
+    /data-fact="best-for"[\s\S]*?<dd[^>]*>([\s\S]*?)<\/dd>/
+  )
+  const raw = block?.[1] ?? ""
+  const span = raw.match(/<span[^>]*>([\s\S]*?)<\/span>/)
+  const value = decode((span?.[1] ?? raw).replace(/<[^>]+>/g, "")).trim()
+  return `${label?.[1]?.trim() ?? ""} ${value}`.trim()
+}
+
 describe("GrandstandCard public copy", () => {
   it("does not double Best for, and leaves the description as written", () => {
     const description = stand().description
     const html = render(stand())
     expect(html).toContain("Best overall — the harbour front")
+    expect(bestForReading(html)).toBe(
+      "Highlight Best overall — the harbour front"
+    )
     expect(html).not.toContain("Best for overall")
     expect(html).not.toContain("Best for Best")
+    expect(bestForReading(html)).not.toMatch(/best for best/i)
     expect(html).toContain(description!)
     expect(html).toContain("Premium")
     expect(html).toContain("Shaded")
@@ -58,7 +86,11 @@ describe("GrandstandCard public copy", () => {
       })
     )
     expect(html).toContain("Best for first-timers — Turn 1 &amp; lap starts")
+    expect(bestForReading(html)).toBe(
+      "Highlight Best for first-timers — Turn 1 & lap starts"
+    )
     expect(html).not.toContain("Best for Best")
+    expect(bestForReading(html)).not.toMatch(/best for best/i)
     expect(html).toContain("Full sun")
     expect(html).toContain("Budget")
     expect(html).toContain("Covered")
@@ -108,6 +140,56 @@ describe("GrandstandCard public copy", () => {
     expect(html).toContain('alt="Grandstand K"')
     expect(html).toContain(encodeURIComponent(photo))
     expect(html).not.toMatch(/unsplash|placeholder|picsum/i)
+  })
+
+  it("does not read Best for Best when the note opens with Best views", () => {
+    const note = "Best views of the harbour and the yacht club"
+    const html = render(stand({ bestFor: note }))
+    expect(bestForReading(html)).toBe(`Highlight ${note}`)
+    expect(html).toContain(">Highlight<")
+    expect(html).not.toMatch(/Best for Best views/)
+    expect(bestForReading(html)).not.toMatch(/best for best/i)
+  })
+
+  it("keeps that label for every seeded grandstand", () => {
+    const seed = JSON.parse(
+      readFileSync(
+        path.join(process.cwd(), "data/seeds/grandstands.json"),
+        "utf8"
+      )
+    ) as {
+      circuits: Record<string, { name: string; bestFor?: string | null }[]>
+    }
+    const circuits = [
+      "Yas Marina Circuit",
+      "Silverstone Circuit",
+      "Circuit de Monaco",
+      "Autodromo Nazionale Monza",
+      "Madring"
+    ]
+
+    for (const circuit of circuits) {
+      expect(seed.circuits[circuit]?.length).toBeGreaterThan(0)
+    }
+
+    for (const [circuit, grandstands] of Object.entries(seed.circuits)) {
+      for (const grandstand of grandstands) {
+        const html = render(
+          stand({
+            name: grandstand.name,
+            slug: `${circuit}-${grandstand.name}`,
+            bestFor: grandstand.bestFor ?? ""
+          })
+        )
+        const reading = bestForReading(html)
+        expect(reading, `${circuit} / ${grandstand.name}`).toBe(
+          `Highlight ${formatBestFor(grandstand.bestFor)}`.trim()
+        )
+        expect(reading, `${circuit} / ${grandstand.name}`).not.toMatch(
+          /best for best/i
+        )
+      }
+    }
   })
 
   it("shows the price-band legend without amounts", () => {

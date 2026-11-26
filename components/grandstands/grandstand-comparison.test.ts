@@ -76,6 +76,9 @@ describe("GrandstandComparison table", () => {
     expect(html).toContain('for="grandstand-filter-cover"')
     expect(html).toContain('for="grandstand-filter-price"')
     expect(html).toContain('for="grandstand-filter-best-for"')
+    expect(html).toMatch(
+      /for="grandstand-filter-best-for"[^>]*>\s*Best for\s*</
+    )
     expect(html).toContain('aria-live="polite"')
     expect(html).toContain("Showing 2 of 2 grandstands.")
     expect(html).toContain(GRANDSTAND_METHOD_NOTE)

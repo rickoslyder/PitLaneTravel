@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  GRANDSTAND_CARD_BEST_FOR_LABEL,
   GRANDSTAND_METHOD_NOTE,
   GRANDSTAND_PRICE_LEGEND,
   formatBestFor,
@@ -9,6 +10,17 @@ import {
   formatViewRating,
   grandstandComparedPhrase
 } from "./grandstand-copy"
+
+describe("GRANDSTAND_CARD_BEST_FOR_LABEL", () => {
+  it("does not collide with a note that already starts with Best", () => {
+    expect(GRANDSTAND_CARD_BEST_FOR_LABEL).toBe("Highlight")
+    expect(GRANDSTAND_CARD_BEST_FOR_LABEL).not.toMatch(/^best\b/i)
+    const note = formatBestFor("Best views of the harbour")
+    expect(`${GRANDSTAND_CARD_BEST_FOR_LABEL} ${note}`).not.toMatch(
+      /best for best/i
+    )
+  })
+})
 
 describe("formatBestFor", () => {
   it("keeps a stored Best label and only adds the prefix when it is missing", () => {
