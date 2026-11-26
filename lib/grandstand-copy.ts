@@ -25,6 +25,14 @@ const PRICE_TIER_LABEL: Record<string, string> = {
 export const GRANDSTAND_PRICE_LEGEND =
   "Budget, Mid-range and Premium compare grandstands at the same circuit. They are relative bands, not ticket prices."
 
+/**
+ * Label on the grandstand card. The note beside it is already a complete
+ * phrase ("Best views of …", "Best overall — …", "Best for first-timers — …"),
+ * so the label cannot also be "Best for". The comparison filter and its
+ * column keep that name.
+ */
+export const GRANDSTAND_CARD_BEST_FOR_LABEL = "Highlight"
+
 /** How the comparison table should be read. No check date: none is stored. */
 export const GRANDSTAND_METHOD_NOTE = `${GRANDSTAND_PRICE_LEGEND} View is a score out of 5 for the view from that stand.`
 
