@@ -33,8 +33,7 @@ export const dynamic = "force-dynamic"
  * by isSitemapIndexableRace. There is no season, series, or row limit.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Static paths live in lib/sitemap-routes.ts. /packages is omitted there:
-  // the page stays noindex,follow until flight packages launch.
+  // Static paths, including /packages, live in lib/sitemap-routes.ts.
   const staticRoutes: MetadataRoute.Sitemap = SITEMAP_STATIC_PATHS.map(
     path => ({
       url: staticSitemapUrl(path),

@@ -4,11 +4,8 @@ import { SITE_ORIGIN } from "@/lib/site-metadata"
 export { SITE_ORIGIN }
 
 /**
- * Indexable static paths.
- *
- * /packages is intentionally absent. Flight packages stay unlisted before
- * launch, and app/packages/page.tsx is noindex,follow. Listing the URL here
- * would ask crawlers to index a page we told them not to index.
+ * Indexable static paths. /packages is included. Finished races, cancelled
+ * races, and auth-gated routes stay out of the sitemap elsewhere.
  */
 export const SITEMAP_STATIC_PATHS = [
   "/",
@@ -17,6 +14,7 @@ export const SITEMAP_STATIC_PATHS = [
   "/races/compare",
   "/circuits/grandstands",
   "/flights",
+  "/packages",
   "/hotels",
   "/transport",
   "/about",
@@ -46,6 +44,7 @@ export const SITEMAP_STATIC_ROUTE_META: Record<
   "/races/compare": { changeFrequency: "weekly", priority: 0.8 },
   "/circuits/grandstands": { changeFrequency: "weekly", priority: 0.9 },
   "/flights": { changeFrequency: "daily", priority: 0.8 },
+  "/packages": { changeFrequency: "weekly", priority: 0.7 },
   "/hotels": { changeFrequency: "weekly", priority: 0.7 },
   "/transport": { changeFrequency: "weekly", priority: 0.7 },
   "/about": { changeFrequency: "monthly", priority: 0.6 },

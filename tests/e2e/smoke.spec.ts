@@ -413,7 +413,7 @@ test.describe("production smoke", () => {
     }
   })
 
-  test("sitemap omits noindex /packages, lists /cancellation, and drops finished races", async ({
+  test("sitemap lists /packages and /cancellation, and drops finished races", async ({
     request
   }) => {
     // The production build runs before this fixture inserts races. A sitemap
@@ -423,7 +423,7 @@ test.describe("production smoke", () => {
     const xml = await response.text()
 
     expect(xml).toContain("https://www.pitlanetravel.com/cancellation")
-    expect(xml).not.toContain("https://www.pitlanetravel.com/packages")
+    expect(xml).toContain("https://www.pitlanetravel.com/packages")
     expect(xml).toContain(
       `https://www.pitlanetravel.com/races/${E2E_RACE_SLUG}`
     )
