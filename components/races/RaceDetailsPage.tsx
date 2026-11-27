@@ -42,7 +42,11 @@ import { FreshnessNote } from "@/components/coverage/freshness-note"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import { guideSlugForRace } from "@/lib/race-guide-links"
 import { raceHasFinished } from "@/lib/finished-race"
-import { pendingRaceTab, RACE_TAB_EVENT } from "@/lib/race-tab-event"
+import {
+  clearPendingRaceTab,
+  RACE_TAB_EVENT,
+  takePendingRaceTab
+} from "@/lib/race-tab-event"
 import { FinishedRaceNotice } from "@/components/races/finished-race-notice"
 import { FanTipsSection } from "@/components/races/fan-tips/fan-tips-section"
 import { WhereToSit } from "@/components/races/where-to-sit"
@@ -234,13 +238,22 @@ export function RaceDetailsPage({
   handleTabChangeRef.current = handleTabChange
 
   useEffect(() => {
-    const apply = (value: string | undefined) => {
-      if (value) handleTabChangeRef.current(value)
+    const known = (value: string | null) =>
+      Boolean(value && TAB_OPTIONS.some(tab => tab.value === value))
+    const explicit = new URLSearchParams(window.location.search).get("tab")
+    if (known(explicit)) {
+      // A ?tab= link wins over a tab remembered from this or another race.
+      clearPendingRaceTab()
+      if (explicit !== activeTab) handleTabChangeRef.current(explicit as string)
+    } else {
+      const pending = takePendingRaceTab(window.location.pathname)
+      if (known(pending) && pending !== activeTab) {
+        handleTabChangeRef.current(pending as string)
+      }
     }
-    apply(pendingRaceTab())
     const onTab = (event: Event) => {
       const tab = (event as CustomEvent<string>).detail
-      if (typeof tab === "string") apply(tab)
+      if (typeof tab === "string") handleTabChangeRef.current(tab)
     }
     window.addEventListener(RACE_TAB_EVENT, onTab)
     return () => window.removeEventListener(RACE_TAB_EVENT, onTab)

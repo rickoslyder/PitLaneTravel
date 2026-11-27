@@ -6,8 +6,6 @@ import { HeroSection } from "@/components/races/HeroSection"
 import { RaceTrail } from "@/components/races/race-trail"
 import { RacesCriticalCss } from "@/components/races/races-critical-css"
 import { RacesPage } from "@/components/races/RacesPage"
-import { SiteFooter } from "@/components/site-footer"
-import { getPackagesAvailability } from "@/lib/packages-availability"
 import { racesIndexTrail } from "@/lib/race-trail"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { listRaceIdsWithTicketListingsAction } from "@/actions/db/ticket-listing-actions"
@@ -30,8 +28,8 @@ export async function generateMetadata() {
 }
 
 export default async function RacesServerPage() {
-  // The calendar and the footer are one response. A streamed grid used to
-  // paint the shell footer in the first viewport, then push it to the bottom.
+  // The calendar is in this response, not a later suspense slot. The shell
+  // footer stays outside <main>, after the grid, so it is not painted above it.
   const userId = await getAuthedUserId()
   if (userId) {
     // return redirect("/login")
@@ -41,10 +39,7 @@ export default async function RacesServerPage() {
     }
   }
 
-  const [listing, { siteWide }] = await Promise.all([
-    loadRacesListing(),
-    getPackagesAvailability()
-  ])
+  const listing = await loadRacesListing()
 
   return (
     <>
@@ -68,7 +63,6 @@ export default async function RacesServerPage() {
         </div>
         {listing}
       </div>
-      <SiteFooter packagesLive={siteWide} />
     </>
   )
 }

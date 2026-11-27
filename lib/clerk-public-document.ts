@@ -23,9 +23,11 @@ export function shouldSkipClerkHandshake(input: {
   pathname: string
   cookie: string | null
   nextAction: string | null
+  authorization: string | null
 }): boolean {
   if (input.method !== "GET" && input.method !== "HEAD") return false
   if (input.nextAction) return false
+  if (input.authorization?.trim()) return false
   const pathname = input.pathname
   if (
     pathname.startsWith("/api") ||

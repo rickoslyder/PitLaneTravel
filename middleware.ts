@@ -62,7 +62,8 @@ export default function middleware(req: NextRequest, event: NextFetchEvent) {
       method: req.method,
       pathname: req.nextUrl.pathname,
       cookie: req.headers.get("cookie"),
-      nextAction: req.headers.get("next-action")
+      nextAction: req.headers.get("next-action"),
+      authorization: req.headers.get("authorization")
     })
   ) {
     return continueWithPathname(req)

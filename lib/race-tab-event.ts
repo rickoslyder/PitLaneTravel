@@ -1,23 +1,45 @@
 export const RACE_TAB_EVENT = "plt-race-tab"
 
-type RaceTabWindow = Window & { __pltRaceTab?: string }
+type StoredRaceTab = { pathname: string; tab: string }
+
+type RaceTabWindow = Window & { __pltRaceTab?: StoredRaceTab }
+
+function tabWindow(): RaceTabWindow | undefined {
+  if (typeof window === "undefined") return undefined
+  return window as RaceTabWindow
+}
 
 /** The hero paints before the tab panel. A click updates the URL and the panel. */
 export function publishRaceTab(tab: string) {
-  const view = window as RaceTabWindow
-  view.__pltRaceTab = tab
-  const url = new URL(window.location.href)
+  const view = tabWindow()
+  if (!view) return
+  const url = new URL(view.location.href)
+  view.__pltRaceTab = { pathname: url.pathname, tab }
   url.searchParams.set("tab", tab)
   const query = url.searchParams.toString()
-  window.history.replaceState(
-    window.history.state,
+  view.history.replaceState(
+    view.history.state,
     "",
     `${url.pathname}${query ? `?${query}` : ""}`
   )
-  window.dispatchEvent(new CustomEvent(RACE_TAB_EVENT, { detail: tab }))
+  view.dispatchEvent(new CustomEvent(RACE_TAB_EVENT, { detail: tab }))
 }
 
-export function pendingRaceTab(): string | undefined {
-  if (typeof window === "undefined") return undefined
-  return (window as RaceTabWindow).__pltRaceTab
+export function clearPendingRaceTab() {
+  const view = tabWindow()
+  if (!view) return
+  delete view.__pltRaceTab
+}
+
+/**
+ * Tab chosen on this race before the panel mounted. A value stored for
+ * another pathname is dropped. The stored tab is cleared as it is read.
+ */
+export function takePendingRaceTab(pathname: string): string | undefined {
+  const view = tabWindow()
+  if (!view) return undefined
+  const stored = view.__pltRaceTab
+  delete view.__pltRaceTab
+  if (!stored || stored.pathname !== pathname) return undefined
+  return stored.tab
 }

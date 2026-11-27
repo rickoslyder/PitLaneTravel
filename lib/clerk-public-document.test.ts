@@ -11,7 +11,8 @@ describe("shouldSkipClerkHandshake", () => {
         method: "GET",
         pathname: "/",
         cookie: null,
-        nextAction: null
+        nextAction: null,
+        authorization: null
       })
     ).toBe(true)
     expect(
@@ -19,7 +20,8 @@ describe("shouldSkipClerkHandshake", () => {
         method: "GET",
         pathname: "/races/australian-grand-prix-2027-f1-2027",
         cookie: "",
-        nextAction: null
+        nextAction: null,
+        authorization: null
       })
     ).toBe(true)
   })
@@ -30,7 +32,8 @@ describe("shouldSkipClerkHandshake", () => {
         method: "GET",
         pathname: "/",
         cookie: "__session=abc",
-        nextAction: null
+        nextAction: null,
+        authorization: null
       })
     ).toBe(false)
     expect(
@@ -38,7 +41,8 @@ describe("shouldSkipClerkHandshake", () => {
         method: "GET",
         pathname: "/races",
         cookie: "__client_uat=1710000000",
-        nextAction: null
+        nextAction: null,
+        authorization: null
       })
     ).toBe(false)
     expect(
@@ -46,7 +50,8 @@ describe("shouldSkipClerkHandshake", () => {
         method: "GET",
         pathname: "/",
         cookie: "__client_uat=0",
-        nextAction: null
+        nextAction: null,
+        authorization: null
       })
     ).toBe(true)
     expect(
@@ -54,7 +59,8 @@ describe("shouldSkipClerkHandshake", () => {
         method: "POST",
         pathname: "/",
         cookie: null,
-        nextAction: null
+        nextAction: null,
+        authorization: null
       })
     ).toBe(false)
     expect(
@@ -62,7 +68,8 @@ describe("shouldSkipClerkHandshake", () => {
         method: "GET",
         pathname: "/admin",
         cookie: null,
-        nextAction: null
+        nextAction: null,
+        authorization: null
       })
     ).toBe(false)
     expect(
@@ -70,7 +77,8 @@ describe("shouldSkipClerkHandshake", () => {
         method: "GET",
         pathname: "/api/health",
         cookie: null,
-        nextAction: null
+        nextAction: null,
+        authorization: null
       })
     ).toBe(false)
     expect(
@@ -78,7 +86,17 @@ describe("shouldSkipClerkHandshake", () => {
         method: "GET",
         pathname: "/",
         cookie: null,
-        nextAction: "abc"
+        nextAction: "abc",
+        authorization: null
+      })
+    ).toBe(false)
+    expect(
+      shouldSkipClerkHandshake({
+        method: "GET",
+        pathname: "/",
+        cookie: null,
+        nextAction: null,
+        authorization: "Bearer token"
       })
     ).toBe(false)
   })
