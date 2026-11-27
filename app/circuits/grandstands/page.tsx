@@ -24,9 +24,9 @@ export default async function GrandstandsPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-10 p-4 sm:p-8">
       <header className="space-y-3 text-center">
-        <Binoculars className="mx-auto size-12 text-primary" />
+        <Binoculars className="text-primary mx-auto size-12" />
         <h1 className="text-4xl font-bold tracking-tight">Grandstand Guides</h1>
-        <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+        <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
           {copy.grandstandLede}
         </p>
       </header>
@@ -37,12 +37,12 @@ export default async function GrandstandsPage() {
             <Link
               key={circuit.id}
               href={`/circuits/${slugify(circuit.name)}/grandstands`}
-              className="group rounded-lg border p-5 transition-colors hover:border-primary hover:bg-muted/40"
+              className="hover:border-primary hover:bg-muted/40 group rounded-lg border p-5 transition-colors"
             >
-              <h2 className="font-semibold group-hover:text-primary">
+              <h2 className="group-hover:text-primary font-semibold">
                 {circuit.name}
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {circuit.location}, {circuit.country}
               </p>
               <p className="mt-3 text-sm">
@@ -55,7 +55,7 @@ export default async function GrandstandsPage() {
           ))}
         </div>
       ) : (
-        <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
+        <div className="text-muted-foreground rounded-lg border border-dashed p-12 text-center">
           <p className="text-lg font-medium">
             Seat guides for this circuit are on the way.
           </p>

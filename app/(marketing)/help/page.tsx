@@ -51,11 +51,11 @@ export default async function HelpPage() {
     ...route,
     icon:
       route.href === "/races" ? (
-        <Calendar className="size-5 text-foreground" />
+        <Calendar className="text-foreground size-5" />
       ) : route.href === "/races/compare" ? (
-        <GitCompare className="size-5 text-foreground" />
+        <GitCompare className="text-foreground size-5" />
       ) : (
-        <MapPin className="size-5 text-foreground" />
+        <MapPin className="text-foreground size-5" />
       )
   }))
   const resources: GuideProps[] = [
@@ -63,19 +63,19 @@ export default async function HelpPage() {
       title: "FAQs",
       description: copy.helpFaqsDescription,
       href: "/faq",
-      icon: <FileQuestion className="size-5 text-foreground" />
+      icon: <FileQuestion className="text-foreground size-5" />
     },
     {
       title: "Contact",
       description: copy.helpContactDescription,
       href: "/contact",
-      icon: <MessageCircle className="size-5 text-foreground" />
+      icon: <MessageCircle className="text-foreground size-5" />
     },
     {
       title: "About Us",
       description: copy.helpAboutDescription,
       href: "/about",
-      icon: <Info className="size-5 text-foreground" />
+      icon: <Info className="text-foreground size-5" />
     }
   ]
   const policies: GuideProps[] = [
@@ -83,19 +83,19 @@ export default async function HelpPage() {
       title: "Terms of Service",
       description: copy.helpTermsDescription,
       href: "/terms",
-      icon: <ScrollText className="size-5 text-foreground" />
+      icon: <ScrollText className="text-foreground size-5" />
     },
     {
       title: "Privacy Policy",
       description: "Learn how we handle and protect your information.",
       href: "/privacy",
-      icon: <Book className="size-5 text-foreground" />
+      icon: <Book className="text-foreground size-5" />
     },
     {
       title: "Cancellation Policy",
       description: copy.helpCancellationDescription,
       href: "/cancellation",
-      icon: <HelpCircle className="size-5 text-foreground" />
+      icon: <HelpCircle className="text-foreground size-5" />
     }
   ]
 
