@@ -26,7 +26,7 @@ export function OfficialTicketLink({
       <a href={safeHref} target="_blank" rel="noopener noreferrer">
         {label}
       </a>
-      <p className="max-w-md text-sm leading-6 text-muted-foreground">{note}</p>
+      <p className="text-muted-foreground max-w-md text-sm leading-6">{note}</p>
     </div>
   )
 }
@@ -47,7 +47,7 @@ export function TicketsEmptyState({
       <div className="bg-muted rounded-full p-3">
         <Ticket className="text-muted-foreground size-6" aria-hidden="true" />
       </div>
-      <p className="max-w-md text-sm leading-6 text-muted-foreground">
+      <p className="text-muted-foreground max-w-md text-sm leading-6">
         {emptyTicketsMessage(raceName)}
       </p>
       {officialTicketUrl && officialLinkLabel && officialLinkNote ? (
