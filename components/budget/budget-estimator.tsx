@@ -141,11 +141,11 @@ export function BudgetEstimator() {
             <span className="font-semibold">Total</span>
             <span className="text-xl font-bold">{gbp(result.total)}</span>
           </div>
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center justify-between text-sm">
             <span>Per person</span>
             <span>{gbp(result.perPerson)}</span>
           </div>
-          <p className="pt-2 text-xs text-muted-foreground">
+          <p className="text-muted-foreground pt-2 text-xs">
             Estimates are indicative. Ticket and flight prices vary by circuit,
             demand and how early you book.
           </p>
