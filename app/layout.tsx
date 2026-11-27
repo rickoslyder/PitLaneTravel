@@ -144,16 +144,29 @@ export default async function RootLayout({
                 }}
               />
             ) : null}
+            {deferRacesCss && fontManifest.fontPreloadHref ? (
+              <link
+                rel="preload"
+                as="font"
+                href={fontManifest.fontPreloadHref}
+                crossOrigin="anonymous"
+                type="font/woff2"
+              />
+            ) : null}
             {deferRacesCss ? (
               <style
                 data-races-critical=""
-                dangerouslySetInnerHTML={{ __html: racesCriticalCss }}
+                dangerouslySetInnerHTML={{
+                  __html: `${racesInlineFontCss()}${racesCriticalCss}`
+                }}
               />
             ) : null}
             {deferRacesCss ? (
               <script
                 id="races-critical-css-unblock"
-                dangerouslySetInnerHTML={{ __html: racesCriticalUnblockScript }}
+                dangerouslySetInnerHTML={{
+                  __html: racesCriticalUnblockScript(fontManifest.fontHref)
+                }}
               />
             ) : null}
           </head>

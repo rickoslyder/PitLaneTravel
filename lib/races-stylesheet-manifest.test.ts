@@ -13,7 +13,7 @@ describe("races stylesheet manifest", () => {
     const manifest = manifestFromAssets([
       {
         name: "static/css/font.css",
-        css: '@font-face{font-family:Inter;src:url(/_next/static/media/inter.woff2) format("woff2")}@font-face{font-family:Inter Fallback;src:local("Arial");size-adjust:107.12%}'
+        css: '@font-face{font-family:Inter;font-display:swap;src:url(/_next/static/media/inter.p.woff2) format("woff2");unicode-range:u+0000-00ff}@font-face{font-family:Inter Fallback;src:local("Arial");size-adjust:107.12%}'
       },
       {
         name: "static/css/tailwind.css",
@@ -35,6 +35,9 @@ describe("races stylesheet manifest", () => {
     expect(manifest.fontHref).toBe("/_next/static/css/font.css")
     expect(manifest.fallbackFontCss).toContain("Inter Fallback")
     expect(manifest.fallbackFontCss).not.toContain("woff2")
+    expect(manifest.optionalFontCss).toContain("font-display:optional")
+    expect(manifest.optionalFontCss).not.toContain("swap")
+    expect(manifest.fontPreloadHref).toBe("/_next/static/media/inter.p.woff2")
   })
 
   it("rejects hrefs that are not built stylesheets", () => {
@@ -53,7 +56,9 @@ describe("races stylesheet manifest", () => {
     ).toEqual({
       hrefs: ["/_next/static/css/ok.css"],
       fallbackFontCss: "@font-face{font-family:Inter Fallback}",
-      fontHref: ""
+      fontHref: "",
+      optionalFontCss: "",
+      fontPreloadHref: ""
     })
   })
 

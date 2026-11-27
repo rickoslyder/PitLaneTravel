@@ -11,12 +11,28 @@ export type RacesStylesheetManifest = {
   fallbackFontCss: string
   /** Inter sheet. Deferred until load on pages whose LCP is a photo. */
   fontHref: string
+  /** Latin Inter face with font-display:optional, for /races. */
+  optionalFontCss: string
+  /** Woff2 to preload with that face. */
+  fontPreloadHref: string
 }
 
 const emptyManifest: RacesStylesheetManifest = {
   hrefs: [],
   fallbackFontCss: "",
-  fontHref: ""
+  fontHref: "",
+  optionalFontCss: "",
+  fontPreloadHref: ""
+}
+
+function isFontFileHref(href: unknown): href is string {
+  return (
+    typeof href === "string" &&
+    href.startsWith("/_next/static/media/") &&
+    href.endsWith(".woff2") &&
+    !href.includes('"') &&
+    !href.includes("<")
+  )
 }
 
 function isStylesheetHref(href: unknown): href is string {
@@ -39,6 +55,8 @@ export function parseRacesStylesheetManifest(
     hrefs?: unknown
     fallbackFontCss?: unknown
     fontHref?: unknown
+    optionalFontCss?: unknown
+    fontPreloadHref?: unknown
   }
   const hrefs = Array.isArray(record.hrefs)
     ? record.hrefs.filter(isStylesheetHref)
@@ -49,7 +67,17 @@ export function parseRacesStylesheetManifest(
       ? record.fallbackFontCss
       : ""
   const fontHref = isStylesheetHref(record.fontHref) ? record.fontHref : ""
-  return { hrefs, fallbackFontCss, fontHref }
+  const optionalFontCss =
+    typeof record.optionalFontCss === "string" &&
+    record.optionalFontCss.startsWith("@font-face") &&
+    record.optionalFontCss.includes("font-display:optional") &&
+    !record.optionalFontCss.includes("</")
+      ? record.optionalFontCss
+      : ""
+  const fontPreloadHref = isFontFileHref(record.fontPreloadHref)
+    ? record.fontPreloadHref
+    : ""
+  return { hrefs, fallbackFontCss, fontHref, optionalFontCss, fontPreloadHref }
 }
 
 /** Href recorded in the server bundle. An unreplaced token yields no links. */
