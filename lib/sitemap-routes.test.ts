@@ -8,9 +8,12 @@ import {
 } from "./sitemap-routes"
 
 describe("sitemap static paths", () => {
-  it("omits unlisted /packages and includes /cancellation", () => {
-    expect(SITEMAP_STATIC_PATHS).not.toContain("/packages")
+  it("includes /packages and /cancellation", () => {
+    expect(SITEMAP_STATIC_PATHS).toContain("/packages")
     expect(SITEMAP_STATIC_PATHS).toContain("/cancellation")
+    expect(staticSitemapUrl("/packages")).toBe(
+      "https://www.pitlanetravel.com/packages"
+    )
     expect(staticSitemapUrl("/cancellation")).toBe(
       "https://www.pitlanetravel.com/cancellation"
     )
@@ -20,8 +23,8 @@ describe("sitemap static paths", () => {
       path.join(process.cwd(), "lib/sitemap-routes.ts"),
       "utf8"
     )
-    expect(source).toMatch(/noindex,follow/)
-    expect(source).toContain("app/packages/page.tsx")
+    expect(source).not.toMatch(/noindex/)
+    expect(source).toContain('"/packages"')
   })
 })
 

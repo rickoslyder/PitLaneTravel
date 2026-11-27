@@ -1,17 +1,34 @@
 import { Metadata } from "next"
 import Link from "next/link"
 import { Package } from "lucide-react"
+import { brand } from "@/config/brand"
 import { siteCopy } from "@/config/site-copy"
 import { getPackagesAvailability } from "@/lib/packages-availability"
+import { pageSeo } from "@/lib/site-metadata"
 
 const none = siteCopy(false)
+const title = none.packagesTitle
+const description = none.packagesDescription
+const seo = pageSeo("/packages")
 
 export const metadata: Metadata = {
-  title: none.packagesTitle,
-  description: none.packagesDescription,
-  // Unlisted until flight packages launch. noindex,follow stays; the URL is
-  // also omitted from the sitemap so crawlers are not asked to index it.
-  robots: { index: false, follow: true }
+  title,
+  description,
+  alternates: seo.alternates,
+  openGraph: {
+    title,
+    description,
+    type: "website",
+    url: seo.openGraph.url,
+    locale: "en_GB",
+    siteName: brand.name,
+    images: seo.openGraph.images
+  },
+  twitter: {
+    card: "summary",
+    title,
+    description
+  }
 }
 
 export default async function PackagesPage() {
