@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server"
+import { getAuthedUserId } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { FlightSearchContainer } from "./_components/flight-search-container"
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default async function FlightsPage() {
-  const { userId } = await auth()
+  const userId = await getAuthedUserId()
   // if (!userId) redirect("/login")
 
   const { data: races, isSuccess } = await getRacesAction({

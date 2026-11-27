@@ -47,6 +47,7 @@ describe("races page metadata", () => {
     expect(shell).toContain("<HeroSection")
     expect(shell).not.toContain('<meta name="description"')
     expect(shell).toContain("<Suspense")
+    expect(shell).toContain('minHeight: "100vh"')
     expect(shell).toContain('data-races-listing=""')
     expect(shell).toContain('data-races-listing-hero=""')
     expect(shell).toContain("<RacesCriticalCss")

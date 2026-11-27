@@ -46,7 +46,7 @@ describe("middleware authorizedParties wiring", () => {
       /\.\.\.\(authorizedParties \? \{ authorizedParties \} : \{\}\)/
     )
     expect(middlewareSource).toMatch(
-      /export default clerkMiddleware\s*\([\s\S]*clerkMiddlewareNetworklessOptions\s*\(\s*\)/
+      /clerkMiddleware\s*\([\s\S]*clerkMiddlewareNetworklessOptions\s*\(\s*\)/
     )
     expect(middlewareSource).toMatch(/\/admin\(\.\*\)/)
     expect(middlewareSource).toMatch(/\/trips\(\.\*\)/)

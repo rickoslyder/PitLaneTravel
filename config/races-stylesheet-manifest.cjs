@@ -14,10 +14,6 @@ function fallbackFace(css) {
   return faces.filter(face => /fallback/i.test(face)).join("")
 }
 
-/**
- * @param {{ name: string, css: string }[]} assets
- * @returns {{ hrefs: string[], fallbackFontCss: string }}
- */
 function isPublicSheet(css) {
   return (
     css.includes("--tw-border-spacing-x") &&
@@ -25,9 +21,14 @@ function isPublicSheet(css) {
   )
 }
 
+/**
+ * @param {{ name: string, css: string }[]} assets
+ * @returns {{ hrefs: string[], fallbackFontCss: string, fontHref: string }}
+ */
 function manifestFromAssets(assets) {
   const hrefs = []
   let fallbackFontCss = ""
+  let fontHref = ""
   for (const asset of assets) {
     if (!asset.name.endsWith(".css")) continue
     const isTailwind = isPublicSheet(asset.css)
@@ -36,9 +37,12 @@ function manifestFromAssets(assets) {
       asset.css.includes("@font-face") &&
       /Inter Fallback/.test(asset.css)
     if (isTailwind || isInterFallback) hrefs.push(stylesheetHref(asset.name))
-    if (isInterFallback) fallbackFontCss = fallbackFace(asset.css)
+    if (isInterFallback) {
+      fallbackFontCss = fallbackFace(asset.css)
+      fontHref = stylesheetHref(asset.name)
+    }
   }
-  return { hrefs, fallbackFontCss }
+  return { hrefs, fallbackFontCss, fontHref }
 }
 
 function cssAssetsOnDisk(dir) {

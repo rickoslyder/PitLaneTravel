@@ -44,13 +44,17 @@ describe("PLT-009 loopback origin alignment", () => {
 
 describe("production middleware remains Clerk-backed without a rewrite intern", () => {
   const root = process.cwd()
-  const middlewareSource = readFileSync(path.join(root, "middleware.ts"), "utf8")
+  const middlewareSource = readFileSync(
+    path.join(root, "middleware.ts"),
+    "utf8"
+  )
 
   it("exports clerkMiddleware as the production default and still calls auth()", () => {
     expect(middlewareSource).toMatch(
       /import\s*\{\s*clerkMiddleware[\s\S]*\}\s*from\s*["']@clerk\/nextjs\/server["']/
     )
-    expect(middlewareSource).toMatch(/export default clerkMiddleware\s*\(/)
+    expect(middlewareSource).toMatch(/clerkMiddleware\s*\(/)
+    expect(middlewareSource).toMatch(/shouldSkipClerkHandshake/)
     expect(middlewareSource).toMatch(/isProtectedRoute\(req\)/)
     expect(middlewareSource).toMatch(/await auth\(\)/)
     expect(middlewareSource).toMatch(/redirect_url/)
@@ -61,7 +65,7 @@ describe("production middleware remains Clerk-backed without a rewrite intern", 
       /from\s+["']@\/lib\/clerk-middleware-options["']/
     )
     expect(middlewareSource).toMatch(
-      /export default clerkMiddleware\s*\([\s\S]*clerkMiddlewareNetworklessOptions\s*\(\s*\)/
+      /clerkMiddleware\s*\([\s\S]*clerkMiddlewareNetworklessOptions\s*\(\s*\)/
     )
     expect(middlewareSource).not.toMatch(/process\.env\.CLERK_JWT_KEY/)
   })
@@ -72,7 +76,9 @@ describe("production middleware remains Clerk-backed without a rewrite intern", 
       /export default async function middleware/
     )
     expect(
-      existsSync(path.join(root, "lib/intern-same-origin-middleware-rewrite.ts"))
+      existsSync(
+        path.join(root, "lib/intern-same-origin-middleware-rewrite.ts")
+      )
     ).toBe(false)
     expect(
       existsSync(

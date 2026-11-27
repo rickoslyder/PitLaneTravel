@@ -42,6 +42,7 @@ import { FreshnessNote } from "@/components/coverage/freshness-note"
 import type { PublicCoverageSummary } from "@/lib/public-coverage"
 import { guideSlugForRace } from "@/lib/race-guide-links"
 import { raceHasFinished } from "@/lib/finished-race"
+import { pendingRaceTab, RACE_TAB_EVENT } from "@/lib/race-tab-event"
 import { FinishedRaceNotice } from "@/components/races/finished-race-notice"
 import { FanTipsSection } from "@/components/races/fan-tips/fan-tips-section"
 import { WhereToSit } from "@/components/races/where-to-sit"
@@ -101,6 +102,11 @@ interface RaceDetailsPageProps {
   ticketListings?: TicketListingState
   /** Circuit grandstand guide. Omitted when that circuit has no stand notes. */
   grandstandHref?: string | null
+  /**
+   * The route paints the hero before this panel so the photo is in the first
+   * HTML chunk. The panel then omits its own copy.
+   */
+  showHero?: boolean
 }
 
 interface TabOption {
@@ -142,7 +148,8 @@ export function RaceDetailsPage({
   history,
   coverage,
   ticketListings = "listed",
-  grandstandHref
+  grandstandHref,
+  showHero = true
 }: RaceDetailsPageProps) {
   const searchParams = useSearchParams()
   const { announce, announcerRef, Announcer } = useAnnouncer()
@@ -222,6 +229,22 @@ export function RaceDetailsPage({
       }
     }
   }
+
+  const handleTabChangeRef = useRef(handleTabChange)
+  handleTabChangeRef.current = handleTabChange
+
+  useEffect(() => {
+    const apply = (value: string | undefined) => {
+      if (value) handleTabChangeRef.current(value)
+    }
+    apply(pendingRaceTab())
+    const onTab = (event: Event) => {
+      const tab = (event as CustomEvent<string>).detail
+      if (typeof tab === "string") apply(tab)
+    }
+    window.addEventListener(RACE_TAB_EVENT, onTab)
+    return () => window.removeEventListener(RACE_TAB_EVENT, onTab)
+  }, [])
 
   const handleScrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" })
@@ -309,20 +332,25 @@ export function RaceDetailsPage({
 
   return (
     <div
-      className="min-h-screen w-full min-w-0 overflow-x-clip"
+      className={cn(
+        "w-full min-w-0 overflow-x-clip",
+        showHero && "min-h-screen"
+      )}
       role="region"
       aria-label={`${race.name} details`}
     >
       <Announcer ref={announcerRef} />
       <ProgressIndicator />
 
-      <RaceHero
-        race={race}
-        userId={userId}
-        existingTripId={existingTripId}
-        onTabChange={handleTabChange}
-        ticketListings={ticketListings}
-      />
+      {showHero ? (
+        <RaceHero
+          race={race}
+          userId={userId}
+          existingTripId={existingTripId}
+          onTabChange={handleTabChange}
+          ticketListings={ticketListings}
+        />
+      ) : null}
 
       {coverage && (
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">

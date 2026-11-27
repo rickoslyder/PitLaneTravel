@@ -5,9 +5,14 @@ Contains middleware for protecting routes, checking user authentication, and red
 */
 
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
-import { NextResponse } from "next/server"
+import {
+  NextResponse,
+  type NextFetchEvent,
+  type NextRequest
+} from "next/server"
 import { parseClerkAuthorizedParties } from "@/lib/clerk-authorized-parties"
 import { clerkMiddlewareNetworklessOptions } from "@/lib/clerk-middleware-options"
+import { shouldSkipClerkHandshake } from "@/lib/clerk-public-document"
 
 // Routes that require an authenticated session. Server actions and route handlers
 // still enforce their own authorization (see lib/auth.ts); this is defense-in-depth.
@@ -24,7 +29,15 @@ const authorizedParties = parseClerkAuthorizedParties(
   process.env.CLERK_AUTHORIZED_PARTIES
 )
 
-export default clerkMiddleware(
+function continueWithPathname(req: NextRequest) {
+  const requestHeaders = new Headers(req.headers)
+  requestHeaders.set("x-pathname", req.nextUrl.pathname)
+  return NextResponse.next({
+    request: { headers: requestHeaders }
+  })
+}
+
+const clerk = clerkMiddleware(
   async (auth, req) => {
     if (isProtectedRoute(req)) {
       const { userId } = await auth()
@@ -35,17 +48,27 @@ export default clerkMiddleware(
       }
     }
 
-    const requestHeaders = new Headers(req.headers)
-    requestHeaders.set("x-pathname", req.nextUrl.pathname)
-    return NextResponse.next({
-      request: { headers: requestHeaders }
-    })
+    return continueWithPathname(req)
   },
   {
     ...clerkMiddlewareNetworklessOptions(),
     ...(authorizedParties ? { authorizedParties } : {})
   }
 )
+
+export default function middleware(req: NextRequest, event: NextFetchEvent) {
+  if (
+    shouldSkipClerkHandshake({
+      method: req.method,
+      pathname: req.nextUrl.pathname,
+      cookie: req.headers.get("cookie"),
+      nextAction: req.headers.get("next-action")
+    })
+  ) {
+    return continueWithPathname(req)
+  }
+  return clerk(req, event)
+}
 
 // Keep the matcher pattern for static assets
 export const config = {

@@ -113,11 +113,12 @@ describe("clerkMiddlewareNetworklessOptions", () => {
     expect(middlewareSource).toMatch(
       /import\s*\{\s*clerkMiddleware[\s\S]*\}\s*from\s*["']@clerk\/nextjs\/server["']/
     )
-    expect(middlewareSource).toMatch(/export default clerkMiddleware\s*\(/)
+    expect(middlewareSource).toMatch(/clerkMiddleware\s*\(/)
+    expect(middlewareSource).toMatch(/shouldSkipClerkHandshake/)
     expect(middlewareSource).toMatch(/await auth\(\)/)
     expect(middlewareSource).toMatch(/isProtectedRoute\(req\)/)
     expect(middlewareSource).toMatch(
-      /export default clerkMiddleware\s*\([\s\S]*clerkMiddlewareNetworklessOptions\s*\(\s*\)/
+      /clerkMiddleware\s*\([\s\S]*clerkMiddlewareNetworklessOptions\s*\(\s*\)/
     )
     expect(middlewareSource).not.toMatch(/process\.env\.(NODE_ENV|VERCEL_ENV)/)
     expect(middlewareSource).not.toMatch(/process\.env\.CI\b/)
@@ -133,9 +134,12 @@ describe("Clerk networkless verification stays cryptographic and fail-closed", (
       privateKeyEncoding: { type: "pkcs8", format: "pem" }
     })
 
-    const secretKey = ["sk_", "live", "_", "ci_invalid_synthetic_not_production"].join(
-      ""
-    )
+    const secretKey = [
+      "sk_",
+      "live",
+      "_",
+      "ci_invalid_synthetic_not_production"
+    ].join("")
 
     const client = createClerkClient({
       publishableKey: "pk_live_Y2kuaW52YWxpZCQ=",
@@ -196,10 +200,7 @@ describe("synthetic CI jwt public key is public-only", () => {
   })
 
   it("puts the public key in CI env without secret context or private bytes", () => {
-    const ci = readFileSync(
-      path.join(root, ".github/workflows/ci.yml"),
-      "utf8"
-    )
+    const ci = readFileSync(path.join(root, ".github/workflows/ci.yml"), "utf8")
     expect(ci).toMatch(/permissions:\s*\n\s*contents:\s*read/)
     expect(ci).not.toMatch(/\$\{\{\s*secrets\./)
     expect(ci).toMatch(/CLERK_JWT_KEY:/)
@@ -215,7 +216,9 @@ describe("synthetic CI jwt public key is public-only", () => {
 
   it("does not restore the quarantined rewrite intern", () => {
     expect(
-      existsSync(path.join(root, "lib/intern-same-origin-middleware-rewrite.ts"))
+      existsSync(
+        path.join(root, "lib/intern-same-origin-middleware-rewrite.ts")
+      )
     ).toBe(false)
   })
 })

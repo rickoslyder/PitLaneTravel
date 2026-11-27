@@ -32,6 +32,7 @@ describe("races stylesheet manifest", () => {
       "/_next/static/css/font.css",
       "/_next/static/css/tailwind.css"
     ])
+    expect(manifest.fontHref).toBe("/_next/static/css/font.css")
     expect(manifest.fallbackFontCss).toContain("Inter Fallback")
     expect(manifest.fallbackFontCss).not.toContain("woff2")
   })
@@ -51,7 +52,8 @@ describe("races stylesheet manifest", () => {
       )
     ).toEqual({
       hrefs: ["/_next/static/css/ok.css"],
-      fallbackFontCss: "@font-face{font-family:Inter Fallback}"
+      fallbackFontCss: "@font-face{font-family:Inter Fallback}",
+      fontHref: ""
     })
   })
 

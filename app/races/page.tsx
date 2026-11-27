@@ -1,7 +1,7 @@
 "use server"
 
 import { Suspense } from "react"
-import { auth } from "@clerk/nextjs/server"
+import { getAuthedUserId } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { HeroSection } from "@/components/races/HeroSection"
 import { RaceTrail } from "@/components/races/race-trail"
@@ -31,7 +31,7 @@ export async function generateMetadata() {
 export default async function RacesServerPage() {
   // Profile redirect stays ahead of the shell. The race query does not:
   // the h1 is the LCP element, and it can paint before the calendar rows load.
-  const { userId } = await auth()
+  const userId = await getAuthedUserId()
   if (userId) {
     // return redirect("/login")
     const { data: profile } = await getProfileByUserIdAction(userId)
@@ -60,11 +60,24 @@ export default async function RacesServerPage() {
         <div className="bg-background" data-races-listing-hero="">
           <HeroSection />
         </div>
-        <Suspense fallback={null}>
+        <Suspense fallback={<RacesListingFallback />}>
           <RacesListing />
         </Suspense>
       </div>
     </>
+  )
+}
+
+function RacesListingFallback() {
+  // The footer is in the first HTML chunk. Without a reserved block it sits
+  // in the viewport, then the streamed calendar pushes it. 100vh keeps that
+  // shift below the fold. Inline height does not wait for the deferred sheet.
+  return (
+    <div
+      data-races-listing-body=""
+      aria-hidden="true"
+      style={{ minHeight: "100vh" }}
+    />
   )
 }
 

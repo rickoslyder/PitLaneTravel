@@ -1,7 +1,8 @@
 "use server"
 
 import { cache } from "react"
-import { auth } from "@clerk/nextjs/server"
+import { Suspense } from "react"
+import { getAuthedUserId } from "@/lib/auth"
 import {
   getRaceByIdAction,
   getRaceBySlugAction
@@ -11,6 +12,7 @@ import { getGrandstandsByCircuitAction } from "@/actions/db/grandstands-actions"
 import { getUserTripForRaceAction } from "@/actions/db/trips-actions"
 import { notFound } from "next/navigation"
 import { RaceDetailsPage } from "@/components/races/RaceDetailsPage"
+import { RaceHeroIsland } from "@/components/races/race-hero-island"
 import { RaceTrail } from "@/components/races/race-trail"
 import { raceDetailTrail } from "@/lib/race-trail"
 import LocalAttractions from "@/components/races/LocalAttractions"
@@ -31,6 +33,11 @@ import {
 } from "@/lib/site-metadata"
 import { raceHasTicketListingsAction } from "@/actions/db/ticket-listing-actions"
 import { grandstandHrefForRace } from "@/lib/circuit-race-links"
+import { raceCardImage } from "@/lib/race-series-image"
+import {
+  RACE_HERO_LCP_PRELOAD_MEDIA,
+  raceHeroLcpHref
+} from "@/lib/race-hero-lcp"
 
 const RACE_TABS = [
   "info",
@@ -70,20 +77,12 @@ const getRaceData = cache(async function getRaceData(id: string) {
     }
   }
 
-  if (!raceResult.isSuccess) {
-    return null
-  }
-
-  const circuitResult = await getCircuitWithDetailsAction(
-    raceResult.data.circuit_id
-  )
-  if (!circuitResult.isSuccess) {
+  if (!raceResult.isSuccess || !raceResult.data.circuit) {
     return null
   }
 
   return {
-    race: raceResult.data,
-    circuit: circuitResult.data
+    race: raceResult.data
   }
 })
 
@@ -100,7 +99,8 @@ export async function generateMetadata({
     }
   }
 
-  const { race, circuit } = data
+  const { race } = data
+  const circuit = race.circuit
   const copy = buildRacePageMetadata({
     raceName: race.name,
     series: race.series,
@@ -147,17 +147,91 @@ export default async function RacePage({
     params,
     searchParams
   ])
-  const [{ userId }, data] = await Promise.all([
-    auth(),
+  const [userId, data] = await Promise.all([
+    getAuthedUserId(),
     getRaceData(resolvedParams.id)
   ])
 
-  if (!data?.circuit) {
+  if (!data?.race.circuit) {
     return notFound()
   }
 
   const raceRow = data.race
-  const circuitData = data.circuit
+  const hasTicketListings = await raceHasTicketListingsAction(raceRow.id)
+  const heroImage = raceCardImage(raceRow)
+  const heroPreload = raceHeroLcpHref(heroImage.src)
+  const racePath = raceRow.slug
+    ? `/races/${raceRow.slug}`
+    : `/races/${resolvedParams.id}`
+  const sportsEvent = buildSportsEventJsonLd({
+    name: raceRow.name,
+    startDate: raceRow.date,
+    endDate: raceRow.weekend_end,
+    status: raceRow.status,
+    url: racePath,
+    sport: raceRow.series?.name ?? null,
+    locationName: raceRow.circuit?.name ?? null,
+    addressLocality: raceRow.circuit?.location ?? null,
+    addressCountry: raceRow.circuit?.country ?? raceRow.country
+  })
+
+  return (
+    <div className="space-y-8 sm:container sm:py-8">
+      {heroPreload ? (
+        <link
+          rel="preload"
+          as="image"
+          href={heroPreload}
+          media={RACE_HERO_LCP_PRELOAD_MEDIA}
+          fetchPriority="high"
+        />
+      ) : null}
+      <RaceTrail items={raceDetailTrail(raceRow.name, racePath)} />
+      {sportsEvent ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(sportsEvent)
+          }}
+        />
+      ) : null}
+      <RaceHeroIsland
+        race={raceRow}
+        ticketListings={hasTicketListings ? "listed" : "empty"}
+      />
+      <Suspense
+        fallback={<div aria-hidden="true" style={{ minHeight: "50vh" }} />}
+      >
+        <RaceDetailsLoaded
+          id={resolvedParams.id}
+          userId={userId}
+          initialTab={requestedRaceTab(resolvedSearch.tab)}
+        />
+      </Suspense>
+    </div>
+  )
+}
+
+async function RaceDetailsLoaded({
+  id,
+  userId,
+  initialTab
+}: {
+  id: string
+  userId: string | null
+  initialTab: string | undefined
+}) {
+  const data = await getRaceData(id)
+  if (!data?.race.circuit) {
+    return notFound()
+  }
+
+  const raceRow = data.race
+  const circuitResult = await getCircuitWithDetailsAction(raceRow.circuit_id)
+  if (!circuitResult.isSuccess) {
+    return notFound()
+  }
+  const circuitData = circuitResult.data
 
   const [
     historyResult,
@@ -261,56 +335,25 @@ export default async function RacePage({
       : null
   }
 
-  const ticketListings = hasTicketListings ? "listed" : "empty"
-
-  const sportsEvent = buildSportsEventJsonLd({
-    name: raceRow.name,
-    startDate: raceRow.date,
-    endDate: raceRow.weekend_end,
-    status: raceRow.status,
-    url: raceRow.slug
-      ? `/races/${raceRow.slug}`
-      : `/races/${resolvedParams.id}`,
-    sport: raceRow.series?.name ?? null,
-    locationName: circuitData?.name ?? null,
-    addressLocality: circuitData?.location ?? null,
-    addressCountry: circuitData?.country ?? raceRow.country
-  })
-
-  const racePath = raceRow.slug
-    ? `/races/${raceRow.slug}`
-    : `/races/${resolvedParams.id}`
-
   return (
-    <div className="space-y-8 sm:container sm:py-8">
-      <RaceTrail items={raceDetailTrail(raceRow.name, racePath)} />
-      {sportsEvent ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: serializeJsonLd(sportsEvent)
-          }}
-        />
-      ) : null}
-      <RaceDetailsPage
-        race={raceWithDetails}
-        initialTab={requestedRaceTab(resolvedSearch.tab)}
-        userId={userId}
-        existingTripId={existingTripId}
-        history={historyResult.isSuccess ? historyResult.data : undefined}
-        coverage={coverage}
-        ticketListings={ticketListings}
-        grandstandHref={
-          grandstandsResult.isSuccess
-            ? grandstandHrefForRace({
-                circuitName: circuitData.name,
-                grandstandCount: grandstandsResult.data.length,
-                raceSeriesSlug: raceRow.series?.slug
-              })
-            : null
-        }
-      />
-      {/* <LocalAttractions circuit={circuitData} /> */}
-    </div>
+    <RaceDetailsPage
+      race={raceWithDetails}
+      showHero={false}
+      initialTab={initialTab}
+      userId={userId}
+      existingTripId={existingTripId}
+      history={historyResult.isSuccess ? historyResult.data : undefined}
+      coverage={coverage}
+      ticketListings={hasTicketListings ? "listed" : "empty"}
+      grandstandHref={
+        grandstandsResult.isSuccess
+          ? grandstandHrefForRace({
+              circuitName: circuitData.name,
+              grandstandCount: grandstandsResult.data.length,
+              raceSeriesSlug: raceRow.series?.slug
+            })
+          : null
+      }
+    />
   )
 }

@@ -98,7 +98,7 @@ describe("PLT-016 analytics consent browser source contract", () => {
     expect(spec).not.toMatch(/applyEphemeralClerkSession/)
     expect(spec).not.toMatch(/BEGIN (RSA )?PRIVATE KEY/)
     expect(spec).not.toMatch(/console\.(log|info|debug)\(/)
-    expect(middleware).toMatch(/export default clerkMiddleware\s*\(/)
+    expect(middleware).toMatch(/clerkMiddleware\s*\(/)
     expect(middleware).not.toMatch(/PLAYWRIGHT/)
   })
 

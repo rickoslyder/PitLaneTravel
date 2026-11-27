@@ -1,6 +1,5 @@
 "use server"
 
-import { auth } from "@clerk/nextjs/server"
 import {
   getRaceByIdAction,
   getRaceBySlugAction
@@ -97,7 +96,6 @@ export default async function RaceHistoryRoute({
   params
 }: RaceHistoryPageProps) {
   const { id } = await params
-  const { userId } = await auth()
 
   const data = await getRaceData(id)
   if (!data) {

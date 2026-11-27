@@ -58,7 +58,7 @@ describe("PLT-014 Packet B ephemeral Clerk e2e source contract", () => {
     const fixtures = read("tests/e2e/fixtures.ts")
     const spec = read("tests/e2e/admin-coverage.spec.ts")
 
-    expect(middleware).toMatch(/export default clerkMiddleware\s*\(/)
+    expect(middleware).toMatch(/clerkMiddleware\s*\(/)
     expect(middleware).toMatch(/await auth\(\)/)
     expect(middleware).not.toMatch(/process\.env\.(NODE_ENV|VERCEL_ENV|CI)\b/)
     expect(middleware).not.toMatch(/PLAYWRIGHT/)

@@ -82,7 +82,7 @@ describe("PLT-009 smoke locator and anonymous-boundary source contract", () => {
       "utf8"
     )
 
-    expect(middleware).toMatch(/export default clerkMiddleware\s*\(/)
+    expect(middleware).toMatch(/clerkMiddleware\s*\(/)
     expect(middleware).toMatch(/await auth\(\)/)
     expect(middleware).not.toMatch(/process\.env\.(NODE_ENV|VERCEL_ENV|CI)\b/)
     expect(middleware).not.toMatch(/PLAYWRIGHT/)

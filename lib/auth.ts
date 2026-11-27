@@ -27,10 +27,37 @@ export class AuthError extends Error {
   }
 }
 
+function isNextNavigationError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null || !("digest" in error)) {
+    return false
+  }
+  const digest = String((error as { digest: unknown }).digest)
+  return (
+    digest.startsWith("NEXT_REDIRECT") ||
+    digest.startsWith("NEXT_NOT_FOUND") ||
+    digest.startsWith("NEXT_HTTP_ERROR_FALLBACK")
+  )
+}
+
+/**
+ * Anonymous public documents skip clerkMiddleware so the dev handshake does
+ * not redirect the navigation. auth() throws in that case; the caller is
+ * signed out. A signed-in cookie still runs the middleware.
+ */
+function isClerkMiddlewareMissing(error: unknown): boolean {
+  return error instanceof Error && error.message.includes("clerkMiddleware")
+}
+
 /** The Clerk user id of the caller, or null when signed out. Never throws. */
 export async function getAuthedUserId(): Promise<string | null> {
-  const { userId } = await auth()
-  return userId ?? null
+  try {
+    const { userId } = await auth()
+    return userId ?? null
+  } catch (error) {
+    if (isNextNavigationError(error)) throw error
+    if (isClerkMiddlewareMissing(error)) return null
+    throw error
+  }
 }
 
 /** The caller's user id. Throws {@link AuthError} (401) when signed out. */
