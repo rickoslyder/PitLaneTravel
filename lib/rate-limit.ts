@@ -5,26 +5,42 @@ type Options = {
   interval?: number
 }
 
+type TokenState = {
+  count: number
+  windowStart: number
+}
+
 export default function rateLimit(options?: Options) {
-  const tokenCache = new LRUCache({
+  const interval = options?.interval || 60000
+  const tokenCache = new LRUCache<string, TokenState>({
     max: options?.uniqueTokenPerInterval || 500,
-    ttl: options?.interval || 60000
+    ttl: interval
   })
 
   return {
     check: (limit: number, token: string) =>
       new Promise<void>((resolve, reject) => {
-        const tokenCount = (tokenCache.get(token) as number[]) || [0]
-        if (tokenCount[0] === 0) {
-          tokenCache.set(token, [1])
+        const now = Date.now()
+        const state = tokenCache.get(token)
+
+        if (!state || now - state.windowStart >= interval) {
+          if (limit <= 0) {
+            reject(new Error("Rate limit exceeded"))
+            return
+          }
+          tokenCache.set(token, { count: 1, windowStart: now })
+          resolve()
+          return
         }
-        tokenCount[0] += 1
 
-        const currentUsage = tokenCount[0]
-        const isRateLimited = currentUsage >= limit
-        tokenCache.set(token, tokenCount)
+        if (state.count >= limit) {
+          reject(new Error("Rate limit exceeded"))
+          return
+        }
 
-        isRateLimited ? reject(new Error("Rate limit exceeded")) : resolve()
+        state.count += 1
+        tokenCache.set(token, state)
+        resolve()
       })
   }
 }
