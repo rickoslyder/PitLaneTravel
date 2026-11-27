@@ -32,7 +32,7 @@ export function CoverageBadge({
           "inline-flex items-center rounded-full border px-2 py-0.5 font-medium",
           restrained
             ? "border-muted-foreground/20 bg-muted/40 text-muted-foreground"
-            : "border-transparent bg-secondary text-secondary-foreground"
+            : "bg-secondary text-secondary-foreground border-transparent"
         )}
       >
         {depth}
