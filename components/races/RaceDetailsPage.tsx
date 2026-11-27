@@ -50,7 +50,7 @@ import { WhereToSit } from "@/components/races/where-to-sit"
 function TabLoadingSpinner() {
   return (
     <div className="flex h-[500px] items-center justify-center">
-      <div className="border-primary size-8 motion-safe:animate-spin rounded-full border-2 border-t-transparent" />
+      <div className="border-primary size-8 rounded-full border-2 border-t-transparent motion-safe:animate-spin" />
     </div>
   )
 }
@@ -127,7 +127,7 @@ function CancelledTabNotice({
   reason?: string | null
 }) {
   return (
-    <div className="rounded-lg border border-dashed p-10 text-center text-muted-foreground">
+    <div className="text-muted-foreground rounded-lg border border-dashed p-10 text-center">
       <p className="font-medium">{what} — this race has been cancelled.</p>
       {reason && <p className="mt-2 text-sm">{reason}</p>}
     </div>
