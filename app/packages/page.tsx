@@ -21,11 +21,11 @@ export default async function PackagesPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-8">
       <header className="space-y-2 text-center">
-        <Package className="mx-auto size-12 text-primary" />
+        <Package className="text-primary mx-auto size-12" />
         <h1 className="text-4xl font-bold tracking-tight">
           {copy.packagesHeading}
         </h1>
-        <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+        <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
           {copy.packagesLede}
         </p>
       </header>
