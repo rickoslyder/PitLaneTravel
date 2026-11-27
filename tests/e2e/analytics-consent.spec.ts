@@ -464,7 +464,27 @@ async function assertConsentBarClearsHero(
     Math.abs(barBox!.y + barBox!.height - viewport.height),
     `${label} consent bar should sit on the viewport bottom`
   ).toBeLessThanOrEqual(1)
-  if (viewport.width >= 1024) {
+  if (viewport.width >= 1280) {
+    expect(barBox!.width, `${label} consent bar width`).toBeLessThanOrEqual(360)
+    expect(
+      barBox!.x,
+      `${label} consent bar sits at the bottom-left`
+    ).toBeLessThanOrEqual(16)
+    expect(
+      barBox!.x + barBox!.width,
+      `${label} consent bar stays clear of the right half`
+    ).toBeLessThan(viewport.width * 0.4)
+    const clipped = await page.evaluate(() => {
+      const barEl = document.querySelector("[data-analytics-consent-bar]")
+      if (!(barEl instanceof HTMLElement)) return ["missing"]
+      return [...barEl.querySelectorAll("button, summary")].flatMap(el => {
+        if (!(el instanceof HTMLElement)) return []
+        const text = (el.textContent || "").replace(/\s+/g, " ").trim()
+        return el.scrollWidth > el.clientWidth + 1 ? [text] : []
+      })
+    })
+    expect(clipped, `${label} consent controls clipped`).toEqual([])
+  } else if (viewport.width >= 1024) {
     expect(barBox!.width, `${label} consent bar width`).toBeLessThanOrEqual(528)
     expect(
       barBox!.x,

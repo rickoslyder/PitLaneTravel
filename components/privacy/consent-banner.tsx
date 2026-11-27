@@ -16,6 +16,57 @@ const settingsClassName =
 const linkClassName =
   "inline-block min-h-6 font-medium text-foreground underline underline-offset-2"
 
+/**
+ * From 1280px the bar is a compact bottom-left card. The public sheet on
+ * /races is deferred, so this rule is inline and wins over the layered
+ * right-hand utility. It does not change the document padding.
+ */
+const desktopCardStyle = `
+@media (min-width: 1280px) {
+  [data-analytics-consent-bar] {
+    left: 0.75rem;
+    right: auto;
+    width: 22rem;
+    max-width: calc(100% - 1.5rem);
+    border-right-width: 1px;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+  [data-analytics-consent-bar] > div {
+    padding: 0.25rem 0.625rem max(0.25rem, env(safe-area-inset-bottom));
+  }
+  [data-analytics-consent-bar] [data-analytics-consent-copy],
+  [data-analytics-consent-bar] [data-analytics-consent-copy] h2,
+  [data-analytics-consent-bar] [data-analytics-consent-copy] p,
+  [data-analytics-consent-bar] [data-analytics-consent-copy] a {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    min-height: 0;
+  }
+  [data-analytics-consent-bar] [data-analytics-consent-actions] {
+    flex-wrap: wrap;
+  }
+  [data-analytics-consent-bar] details {
+    flex: 0 0 auto;
+  }
+  [data-analytics-consent-bar] details[open] {
+    flex-basis: 100%;
+  }
+  [data-analytics-consent-bar] summary {
+    font-size: 0.75rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+  [data-analytics-consent-bar] button {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+}
+`
+
 const useClientLayoutEffect =
   typeof window === "undefined" ? useEffect : useLayoutEffect
 
@@ -102,6 +153,7 @@ export function ConsentBannerView({
           data-analytics-consent-bar=""
           className="border-brand bg-background text-foreground fixed inset-x-0 bottom-0 z-[60] border-t shadow-[0_-4px_16px_rgba(28,25,22,0.12)] sm:left-auto sm:w-[min(32rem,calc(100%-1rem))] sm:rounded-tl-lg sm:border-l"
         >
+          <style>{desktopCardStyle}</style>
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-0.5 px-2 pb-[max(0.125rem,env(safe-area-inset-bottom))] pt-0.5 sm:max-w-none sm:px-3 sm:py-2">
             <div
               data-analytics-consent-copy=""
@@ -127,7 +179,10 @@ export function ConsentBannerView({
                 </p>
               ]}
             </div>
-            <div className="grid grid-cols-[auto_1fr_1fr] items-center gap-1.5 sm:flex sm:w-auto sm:gap-2">
+            <div
+              data-analytics-consent-actions=""
+              className="grid grid-cols-[auto_1fr_1fr] items-center gap-1.5 sm:flex sm:w-auto sm:gap-2"
+            >
               <details className="min-w-0 open:col-span-3">
                 <summary className="text-foreground inline-flex min-h-8 cursor-pointer items-center px-1 text-xs font-medium sm:px-2 sm:text-sm">
                   Details
