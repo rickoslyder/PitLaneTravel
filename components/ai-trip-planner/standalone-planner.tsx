@@ -34,7 +34,7 @@ export function StandalonePlanner() {
           <h3 className="mb-2 text-sm font-semibold">
             Saved suggestions ({added.length})
           </h3>
-          <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
+          <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
             {added.map((a, i) => (
               <li key={i}>{a}</li>
             ))}
