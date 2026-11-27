@@ -14,7 +14,7 @@ import {
   SignUpButton,
   UserButton
 } from "@clerk/nextjs"
-import { Calendar, Flag, Heart, Menu, Wallet, X } from "lucide-react"
+import { Calendar, Flag, Menu, Wallet, X } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { ThemeSwitcher } from "./utilities/theme-switcher"
@@ -190,11 +190,6 @@ export default function Header({
                   label="Trip Budget"
                   href="/budget"
                   labelIcon={<Wallet className="size-4" />}
-                />
-                <UserButton.Link
-                  label="Saved Items"
-                  href="/saved"
-                  labelIcon={<Heart className="size-4" />}
                 />
               </UserButton.MenuItems>
             </UserButton>
