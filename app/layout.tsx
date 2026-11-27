@@ -21,6 +21,7 @@ import { brand, brandCopy } from "@/config/brand"
 import { getPackagesAvailability } from "@/lib/packages-availability"
 import { DEFAULT_OG_IMAGE_URL, SITE_ORIGIN } from "@/lib/site-metadata"
 import { racesCriticalUnblockScript } from "@/lib/races-critical-unblock"
+import { racesCriticalCss } from "@/lib/races-critical-css"
 import { racesInlineFontCss } from "@/lib/races-critical-font"
 import { deferInterFontScript } from "@/lib/defer-inter-font"
 import { loadRacesStylesheetManifest } from "@/lib/races-stylesheet-manifest"
@@ -138,6 +139,12 @@ export default async function RootLayout({
                 dangerouslySetInnerHTML={{
                   __html: deferInterFontScript(fontManifest.fontHref)
                 }}
+              />
+            ) : null}
+            {deferRacesCss ? (
+              <style
+                data-races-critical=""
+                dangerouslySetInnerHTML={{ __html: racesCriticalCss }}
               />
             ) : null}
             {deferRacesCss ? (

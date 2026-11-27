@@ -1,12 +1,13 @@
 "use server"
 
-import { Suspense } from "react"
 import { getAuthedUserId } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { HeroSection } from "@/components/races/HeroSection"
 import { RaceTrail } from "@/components/races/race-trail"
 import { RacesCriticalCss } from "@/components/races/races-critical-css"
 import { RacesPage } from "@/components/races/RacesPage"
+import { SiteFooter } from "@/components/site-footer"
+import { getPackagesAvailability } from "@/lib/packages-availability"
 import { racesIndexTrail } from "@/lib/race-trail"
 import { getRacesAction } from "@/actions/db/races-actions"
 import { listRaceIdsWithTicketListingsAction } from "@/actions/db/ticket-listing-actions"
@@ -29,8 +30,8 @@ export async function generateMetadata() {
 }
 
 export default async function RacesServerPage() {
-  // Profile redirect stays ahead of the shell. The race query does not:
-  // the h1 is the LCP element, and it can paint before the calendar rows load.
+  // The calendar and the footer are one response. A streamed grid used to
+  // paint the shell footer in the first viewport, then push it to the bottom.
   const userId = await getAuthedUserId()
   if (userId) {
     // return redirect("/login")
@@ -39,6 +40,11 @@ export default async function RacesServerPage() {
       return redirect("/signup")
     }
   }
+
+  const [listing, { siteWide }] = await Promise.all([
+    loadRacesListing(),
+    getPackagesAvailability()
+  ])
 
   return (
     <>
@@ -60,28 +66,14 @@ export default async function RacesServerPage() {
         <div className="bg-background" data-races-listing-hero="">
           <HeroSection />
         </div>
-        <Suspense fallback={<RacesListingFallback />}>
-          <RacesListing />
-        </Suspense>
+        {listing}
       </div>
+      <SiteFooter packagesLive={siteWide} />
     </>
   )
 }
 
-function RacesListingFallback() {
-  // The footer is in the first HTML chunk. Without a reserved block it sits
-  // in the viewport, then the streamed calendar pushes it. 100vh keeps that
-  // shift below the fold. Inline height does not wait for the deferred sheet.
-  return (
-    <div
-      data-races-listing-body=""
-      aria-hidden="true"
-      style={{ minHeight: "100vh" }}
-    />
-  )
-}
-
-async function RacesListing() {
+async function loadRacesListing() {
   const [racesResult, ticketedRaceIds] = await Promise.all([
     getRacesAction(),
     listRaceIdsWithTicketListingsAction()

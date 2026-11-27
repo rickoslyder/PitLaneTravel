@@ -5,5 +5,5 @@ export default function RacesLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <PublicShell>{children}</PublicShell>
+  return <PublicShell showFooter={false}>{children}</PublicShell>
 }

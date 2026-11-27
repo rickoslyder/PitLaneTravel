@@ -38,23 +38,23 @@ describe("races page metadata", () => {
     expect(racesPage).not.toMatch(/<h1[^>]*>Race Calendar<\/h1>/)
   })
 
-  it("renders the h1 shell before the race query", () => {
+  it("renders the calendar in the same response as the h1", () => {
     const start = source.indexOf(
       "export default async function RacesServerPage"
     )
-    const listing = source.indexOf("async function RacesListing")
+    const listing = source.indexOf("async function loadRacesListing")
     const shell = source.slice(start, listing)
     expect(shell).toContain("<HeroSection")
     expect(shell).not.toContain('<meta name="description"')
-    expect(shell).toContain("<Suspense")
-    expect(shell).toContain('minHeight: "100vh"')
+    expect(shell).not.toContain("<Suspense")
+    expect(shell).toContain("loadRacesListing()")
+    expect(shell).toContain("<SiteFooter")
     expect(shell).toContain('data-races-listing=""')
     expect(shell).toContain('data-races-listing-hero=""')
     expect(shell).toContain("<RacesCriticalCss")
     expect(shell.indexOf("<RacesCriticalCss")).toBeLessThan(
       shell.indexOf("<HeroSection")
     )
-    expect(shell).not.toContain("getRacesAction")
     expect(source.slice(listing)).toContain("getRacesAction")
   })
 
