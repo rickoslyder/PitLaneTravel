@@ -14,7 +14,7 @@ export default async function TripPlannerPage() {
       <header className="space-y-2">
         <div className="flex items-center gap-2">
           <h1 className="text-3xl font-bold tracking-tight">AI Trip Planner</h1>
-          <Sparkles className="size-6 text-primary" />
+          <Sparkles className="text-primary size-6" />
         </div>
         <p className="text-muted-foreground">
           Ask anything about planning your race weekend — tickets and grandstands,

@@ -26,11 +26,11 @@ export default async function TransportPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-4 sm:p-8">
       <header className="space-y-2 text-center">
-        <Car className="mx-auto size-12 text-primary" />
+        <Car className="text-primary mx-auto size-12" />
         <h1 className="text-4xl font-bold tracking-tight">
           Getting to the Circuit
         </h1>
-        <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+        <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
           Public transport, shuttles, parking and walking routes for every venue
           — so you spend less time in traffic and more time trackside.
         </p>
@@ -41,9 +41,9 @@ export default async function TransportPage() {
           {circuits!.map(circuit => (
             <section key={circuit.id} className="space-y-4">
               <div className="flex items-center gap-2 border-b pb-2">
-                <MapPin className="size-5 text-primary" />
+                <MapPin className="text-primary size-5" />
                 <h2 className="text-2xl font-bold">{circuit.name}</h2>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   {circuit.location}, {circuit.country}
                 </span>
               </div>
@@ -54,7 +54,7 @@ export default async function TransportPage() {
                     <Card key={t.id}>
                       <CardHeader className="pb-2">
                         <div className="flex items-center gap-2">
-                          <Icon className="size-5 text-primary" />
+                          <Icon className="text-primary size-5" />
                           <h3 className="font-semibold">{t.name}</h3>
                           {t.type && (
                             <Badge variant="secondary" className="ml-auto">
@@ -85,7 +85,7 @@ export default async function TransportPage() {
           ))}
         </div>
       ) : (
-        <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
+        <div className="text-muted-foreground rounded-lg border border-dashed p-12 text-center">
           <p className="text-lg font-medium">
             Transport guides are being compiled.
           </p>
