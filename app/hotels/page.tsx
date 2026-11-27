@@ -25,9 +25,9 @@ export default async function HotelsPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-8 p-4 sm:p-8">
       <header className="space-y-2 text-center">
-        <Building2 className="mx-auto size-12 text-primary" />
+        <Building2 className="text-primary mx-auto size-12" />
         <h1 className="text-4xl font-bold tracking-tight">Where to Stay</h1>
-        <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+        <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
           This is a generic external hotel search on Booking.com, using the
           circuit&apos;s city and country. Stays are not verified, ranked, or
           circuit-specific. Confirm distance and booking terms on the provider.
@@ -40,7 +40,7 @@ export default async function HotelsPage() {
             <Card key={circuit.id} className="flex flex-col">
               <CardHeader className="pb-2">
                 <h3 className="font-semibold">{circuit.name}</h3>
-                <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                <p className="text-muted-foreground flex items-center gap-1 text-sm">
                   <MapPin className="size-3.5" />
                   {circuit.location}, {circuit.country}
                 </p>
@@ -76,7 +76,7 @@ export default async function HotelsPage() {
           ))}
         </div>
       ) : (
-        <div className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
+        <div className="text-muted-foreground rounded-lg border border-dashed p-12 text-center">
           Circuit list is loading. Check back shortly.
         </div>
       )}
