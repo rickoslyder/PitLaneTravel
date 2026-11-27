@@ -45,7 +45,7 @@ export default function HeroSectionFromV0() {
           />
         </motion.div>
       ))}
-      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 p-4 text-white">
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 p-4 text-white">
         <motion.h1
           className="gradient-text mb-4 text-center text-5xl font-bold md:text-7xl"
           initial={{ y: 20, opacity: 0 }}
