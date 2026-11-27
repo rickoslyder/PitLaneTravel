@@ -26,13 +26,13 @@ function installWindow(pathname: string, search = "") {
     },
     dispatchEvent: () => true
   }
-  ;(globalThis as { window?: FakeWindow }).window = win
+  ;(globalThis as unknown as { window?: FakeWindow }).window = win
   return win
 }
 
 describe("race tab memory", () => {
   afterEach(() => {
-    delete (globalThis as { window?: FakeWindow }).window
+    delete (globalThis as unknown as { window?: FakeWindow }).window
   })
 
   it("returns a tab only for the race that stored it, then forgets it", () => {
