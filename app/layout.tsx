@@ -23,7 +23,10 @@ import { DEFAULT_OG_IMAGE_URL, SITE_ORIGIN } from "@/lib/site-metadata"
 import { racesCriticalUnblockScript } from "@/lib/races-critical-unblock"
 import { racesCriticalCss } from "@/lib/races-critical-css"
 import { racesInlineFontCss } from "@/lib/races-critical-font"
-import { deferInterFontScript } from "@/lib/defer-inter-font"
+import {
+  deferInterFontScript,
+  shouldDeferInterFont
+} from "@/lib/defer-inter-font"
 import { loadRacesStylesheetManifest } from "@/lib/races-stylesheet-manifest"
 import { getAuthedUserId } from "@/lib/auth"
 import { ClerkProvider } from "@clerk/nextjs"
@@ -60,7 +63,7 @@ export default async function RootLayout({
   const pathname = (await headers()).get("x-pathname")
   const deferRacesCss = pathname === "/races" || pathname === "/races/"
   const fontManifest = loadRacesStylesheetManifest()
-  const deferInterFont = !deferRacesCss && fontManifest.fontHref.length > 0
+  const deferInterFont = shouldDeferInterFont(pathname, fontManifest.fontHref)
   const interFallbackCss = deferInterFont ? racesInlineFontCss() : ""
   const userId = await getAuthedUserId()
 
