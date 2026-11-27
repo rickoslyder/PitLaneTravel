@@ -1,6 +1,6 @@
 "use server"
 
-import { auth } from "@clerk/nextjs/server"
+import { getAuthedUserId } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { getFlightBookingByIdAction } from "@/actions/db/flight-bookings-actions"
 import { BookingConfirmationPage } from "@/components/races/travel/BookingConfirmationPage"
@@ -15,7 +15,7 @@ export default async function FlightConfirmationPage({
   searchParams
 }: FlightConfirmationPageProps) {
   const resolvedSearchParams = await searchParams
-  const { userId } = await auth()
+  const userId = await getAuthedUserId()
 
   if (!userId) {
     redirect("/login")

@@ -152,7 +152,7 @@ export default function Header({
           ))}
         </nav>
 
-        <div className="flex items-center gap-2 lg:gap-4">
+        <div className="flex h-9 items-center gap-2 lg:gap-4">
           <ThemeSwitcher />
 
           <SignedOut>

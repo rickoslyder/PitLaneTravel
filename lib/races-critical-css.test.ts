@@ -60,10 +60,13 @@ describe("races critical css", () => {
   })
 
   it("defers stylesheets on /races only and does not turn inlineCss back on", () => {
-    expect(racesCriticalUnblockScript).toContain('path!=="/races"')
-    expect(racesCriticalUnblockScript).toContain('link.media="all"')
-    expect(racesCriticalUnblockScript).toContain("setTimeout(enable,0)")
-    expect(racesCriticalUnblockScript).toContain("DOMContentLoaded")
+    const unblock = racesCriticalUnblockScript("/_next/static/css/font.css")
+    expect(unblock).toContain('path!=="/races"')
+    expect(unblock).toContain('link.media="all"')
+    expect(unblock).toContain("setTimeout(enable,0)")
+    expect(unblock).toContain("DOMContentLoaded")
+    expect(unblock).toContain('"/_next/static/css/font.css"')
+    expect(unblock).toContain("href===fontHref")
     expect(read("next.config.mjs")).not.toContain("inlineCss: true")
     expect(read("app/layout.tsx")).toContain("races-critical-css-unblock")
     expect(read("app/layout.tsx")).not.toContain("globals.css")

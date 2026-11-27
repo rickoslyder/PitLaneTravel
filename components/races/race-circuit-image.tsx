@@ -98,8 +98,12 @@ export function RaceCircuitImage({
           className={className}
           onError={reportFailure}
           {...(priority
-            ? { priority: true, fetchPriority: "high" as const }
-            : {})}
+            ? {
+                priority: true,
+                fetchPriority: "high" as const,
+                decoding: "sync" as const
+              }
+            : { decoding: "async" as const })}
         />
         {creditNode}
       </>
@@ -112,10 +116,9 @@ export function RaceCircuitImage({
         src={src as string}
         alt={alt}
         className={className}
-        decoding="async"
         {...(priority
-          ? { fetchPriority: "high" as const }
-          : { loading: "lazy" as const })}
+          ? { fetchPriority: "high" as const, decoding: "sync" as const }
+          : { loading: "lazy" as const, decoding: "async" as const })}
         onError={reportFailure}
       />
       {creditNode}

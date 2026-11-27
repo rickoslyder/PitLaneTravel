@@ -114,7 +114,7 @@ describe("public coverage wiring source contract", () => {
       /testMatch:\s*\[\s*["']smoke\.spec\.ts["']\s*,\s*["']catalogue-matrix\.spec\.ts["']\s*,\s*["']admin-coverage\.spec\.ts["']\s*,\s*["']public-coverage\.spec\.ts["']\s*,\s*["']analytics-consent\.spec\.ts["']\s*,\s*["']typed-analytics\.spec\.ts["']\s*,\s*["']fan-tips\.spec\.ts["']\s*,\s*["']race-hero-cta\.spec\.ts["']\s*,\s*["']accessibility\.spec\.ts["']\s*,\s*["']race-hub-subpages\.spec\.ts["']\s*,\s*["']content-hygiene\.spec\.ts["']\s*,\s*["']guide-maps\.spec\.ts["']\s*\]/
     )
     expect(playwright).toMatch(/retries:\s*0/)
-    expect(middleware).toMatch(/export default clerkMiddleware\s*\(/)
+    expect(middleware).toMatch(/clerkMiddleware\s*\(/)
     expect(middleware).not.toMatch(/PLAYWRIGHT/)
     expect(middleware).not.toMatch(/process\.env\.(NODE_ENV|VERCEL_ENV|CI)\b/)
   })

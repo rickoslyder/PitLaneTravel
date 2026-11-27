@@ -1,7 +1,6 @@
 "use server"
 
-import { Suspense } from "react"
-import { auth } from "@clerk/nextjs/server"
+import { getAuthedUserId } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { HeroSection } from "@/components/races/HeroSection"
 import { RaceTrail } from "@/components/races/race-trail"
@@ -29,9 +28,9 @@ export async function generateMetadata() {
 }
 
 export default async function RacesServerPage() {
-  // Profile redirect stays ahead of the shell. The race query does not:
-  // the h1 is the LCP element, and it can paint before the calendar rows load.
-  const { userId } = await auth()
+  // The calendar is in this response, not a later suspense slot. The shell
+  // footer stays outside <main>, after the grid, so it is not painted above it.
+  const userId = await getAuthedUserId()
   if (userId) {
     // return redirect("/login")
     const { data: profile } = await getProfileByUserIdAction(userId)
@@ -39,6 +38,8 @@ export default async function RacesServerPage() {
       return redirect("/signup")
     }
   }
+
+  const listing = await loadRacesListing()
 
   return (
     <>
@@ -60,15 +61,13 @@ export default async function RacesServerPage() {
         <div className="bg-background" data-races-listing-hero="">
           <HeroSection />
         </div>
-        <Suspense fallback={null}>
-          <RacesListing />
-        </Suspense>
+        {listing}
       </div>
     </>
   )
 }
 
-async function RacesListing() {
+async function loadRacesListing() {
   const [racesResult, ticketedRaceIds] = await Promise.all([
     getRacesAction(),
     listRaceIdsWithTicketListingsAction()

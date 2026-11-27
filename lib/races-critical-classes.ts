@@ -7,18 +7,22 @@ export const racesCriticalClassMarkup = `
 <body class="bg-background mx-auto min-h-screen w-full antialiased motion-safe:scroll-smooth">
 <a class="sr-only">Skip</a>
 <header class="sticky top-0 z-50 bg-background">
-<div class="mx-auto flex max-w-screen-2xl items-center justify-between p-2">
+<div class="mx-auto flex max-w-screen-2xl items-center justify-between p-2 sm:p-4">
 <a class="flex min-w-0 items-center gap-2">
-<svg class="text-foreground size-7 shrink-0"></svg>
-<span class="truncate text-base font-semibold tracking-tight"></span>
+<svg class="text-foreground size-7 shrink-0 sm:size-8"></svg>
+<span class="flex min-w-0 flex-col leading-tight">
+<span class="truncate text-base font-semibold tracking-tight sm:text-lg"></span>
+<span class="text-muted-foreground hidden max-w-[16rem] text-xs font-normal leading-snug lg:block"></span>
+</span>
 </a>
-<nav class="absolute left-1/2 hidden -translate-x-1/2 font-semibold lg:flex">
-<a class="whitespace-nowrap rounded-full px-2 py-1 text-sm"></a>
+<nav class="absolute left-1/2 hidden -translate-x-1/2 space-x-1 font-semibold lg:flex lg:space-x-2">
+<a class="whitespace-nowrap rounded-full px-2 py-1 text-sm lg:px-3 lg:text-base"></a>
 </nav>
-<div class="flex items-center gap-2">
-<button class="bg-foreground text-background h-9 rounded-md px-3 text-sm font-medium"></button>
+<div class="flex h-9 items-center gap-2 lg:gap-4">
+<button class="bg-foreground text-background h-9 rounded-md px-3 text-sm font-medium lg:text-base"></button>
+<svg class="size-6"></svg>
 <div class="lg:hidden">
-<svg class="size-5"></svg>
+<svg class="size-5 sm:size-6"></svg>
 </div>
 </div>
 </div>
@@ -116,6 +120,21 @@ export const racesCriticalClassMarkup = `
 <h3 class="font-semibold tracking-tight"></h3>
 </div>
 </main>
+<footer class="border-t">
+<div class="mx-auto max-w-screen-2xl space-y-8 px-4 py-16">
+<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
+<div>
+<h3 class="text-lg font-semibold"></h3>
+<p class="text-muted-foreground mt-4 text-sm"></p>
+<ul class="mt-4 space-y-2 text-sm">
+<li><a class="text-muted-foreground hover:text-foreground"></a></li>
+</ul>
+</div>
+</div>
+<div class="bg-border h-px w-full shrink-0"></div>
+<div class="text-muted-foreground flex flex-col items-center justify-between gap-4 text-center text-sm md:flex-row md:text-left"></div>
+</div>
+</footer>
 </div>
 <section class="fixed inset-x-0 bottom-0 z-[60] border-t border-brand bg-background text-foreground shadow-[0_-4px_16px_rgba(28,25,22,0.12)] sm:left-auto sm:w-[min(32rem,calc(100%-1rem))] sm:rounded-tl-lg sm:border-l">
 <div class="mx-auto flex w-full max-w-6xl flex-col gap-0.5 px-2 pb-[max(0.125rem,env(safe-area-inset-bottom))] pt-0.5 sm:max-w-none sm:px-3 sm:py-2">

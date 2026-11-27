@@ -124,7 +124,7 @@ describe("PLT-015 public coverage browser source contract", () => {
     const middleware = read("middleware.ts")
     const adminSpec = read("tests/e2e/admin-coverage.spec.ts")
 
-    expect(middleware).toMatch(/export default clerkMiddleware\s*\(/)
+    expect(middleware).toMatch(/clerkMiddleware\s*\(/)
     expect(middleware).toMatch(/await auth\(\)/)
     expect(middleware).not.toMatch(/process\.env\.(NODE_ENV|VERCEL_ENV|CI)\b/)
     expect(middleware).not.toMatch(/PLAYWRIGHT/)

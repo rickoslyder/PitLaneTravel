@@ -14,10 +14,26 @@ function fallbackFace(css) {
   return faces.filter(face => /fallback/i.test(face)).join("")
 }
 
-/**
- * @param {{ name: string, css: string }[]} assets
- * @returns {{ hrefs: string[], fallbackFontCss: string }}
- */
+/** Latin Inter, with optional display so a late file does not move text. */
+function latinOptionalFace(css) {
+  const faces = css.match(/@font-face\s*\{[^}]*\}/g) || []
+  const latin =
+    faces.find(face => /\.p\.woff2/.test(face)) ||
+    faces.find(
+      face =>
+        /font-family:\s*['"]?Inter['"]?/i.test(face) &&
+        /u\+0000-00ff/i.test(face) &&
+        !/fallback/i.test(face)
+    )
+  if (!latin) return { css: "", href: "" }
+  const match = latin.match(/url\((\/_next\/static\/media\/[^)]+\.woff2)\)/)
+  const href = match ? match[1] : ""
+  return {
+    css: latin.replace(/font-display\s*:\s*swap/gi, "font-display:optional"),
+    href
+  }
+}
+
 function isPublicSheet(css) {
   return (
     css.includes("--tw-border-spacing-x") &&
@@ -25,9 +41,16 @@ function isPublicSheet(css) {
   )
 }
 
+/**
+ * @param {{ name: string, css: string }[]} assets
+ * @returns {{ hrefs: string[], fallbackFontCss: string, fontHref: string, optionalFontCss: string, fontPreloadHref: string }}
+ */
 function manifestFromAssets(assets) {
   const hrefs = []
   let fallbackFontCss = ""
+  let fontHref = ""
+  let optionalFontCss = ""
+  let fontPreloadHref = ""
   for (const asset of assets) {
     if (!asset.name.endsWith(".css")) continue
     const isTailwind = isPublicSheet(asset.css)
@@ -36,9 +59,15 @@ function manifestFromAssets(assets) {
       asset.css.includes("@font-face") &&
       /Inter Fallback/.test(asset.css)
     if (isTailwind || isInterFallback) hrefs.push(stylesheetHref(asset.name))
-    if (isInterFallback) fallbackFontCss = fallbackFace(asset.css)
+    if (isInterFallback) {
+      fallbackFontCss = fallbackFace(asset.css)
+      fontHref = stylesheetHref(asset.name)
+      const latin = latinOptionalFace(asset.css)
+      optionalFontCss = latin.css
+      fontPreloadHref = latin.href
+    }
   }
-  return { hrefs, fallbackFontCss }
+  return { hrefs, fallbackFontCss, fontHref, optionalFontCss, fontPreloadHref }
 }
 
 function cssAssetsOnDisk(dir) {

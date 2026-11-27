@@ -96,43 +96,64 @@ function HomeHeroPreload() {
   )
 }
 
-export default async function HomePage() {
-  // Kick off the calendar read now, but do not block the hero on it.
-  // The mobile LCP image is the hero photo; races and coverage stream in after.
+export default function HomePage() {
+  // The photo is in HeroFrame, outside this suspense boundary, so the LCP
+  // image is in the first HTML chunk. Package copy streams into the overlay.
   const racesPromise = getRacesAction({
     excludeCancelled: true
   })
-  const { siteWide } = await getPackagesAvailability()
-  const copy = brandCopy(siteWide)
 
   return (
     <>
       <HomeHeroPreload />
       <div className="pb-20">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: serializeJsonLd(buildOrganizationJsonLd(copy.description))
-          }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: serializeJsonLd(buildWebSiteJsonLd(copy.description))
-          }}
-        />
         <HeroFrame>
-          <HeroSection packagesLive={siteWide}>
-            <Suspense fallback={<HeroCountdownFallback />}>
-              <HomeCountdown racesPromise={racesPromise} />
-            </Suspense>
-          </HeroSection>
+          <Suspense
+            fallback={
+              <HeroSection packagesLive={false}>
+                <HeroCountdownFallback />
+              </HeroSection>
+            }
+          >
+            <HomeHero racesPromise={racesPromise} />
+          </Suspense>
         </HeroFrame>
         <HeroStats />
         <Suspense fallback={null}>
-          <HomeBelow racesPromise={racesPromise} siteWide={siteWide} />
+          <HomeBelow racesPromise={racesPromise} />
         </Suspense>
       </div>
+    </>
+  )
+}
+
+async function HomeHero({
+  racesPromise
+}: {
+  racesPromise: ReturnType<typeof getRacesAction>
+}) {
+  const { siteWide } = await getPackagesAvailability()
+  const copy = brandCopy(siteWide)
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(buildOrganizationJsonLd(copy.description))
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(buildWebSiteJsonLd(copy.description))
+        }}
+      />
+      <HeroSection packagesLive={siteWide}>
+        <Suspense fallback={<HeroCountdownFallback />}>
+          <HomeCountdown racesPromise={racesPromise} />
+        </Suspense>
+      </HeroSection>
     </>
   )
 }
@@ -152,12 +173,11 @@ async function HomeCountdown({
 }
 
 async function HomeBelow({
-  racesPromise,
-  siteWide
+  racesPromise
 }: {
   racesPromise: ReturnType<typeof getRacesAction>
-  siteWide: boolean
 }) {
+  const { siteWide } = await getPackagesAvailability()
   const { data: races } = await racesPromise
   const upcomingRaces = (races ?? []).filter(race =>
     isActiveRaceStatus(race.status)

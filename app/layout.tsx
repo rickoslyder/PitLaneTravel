@@ -21,8 +21,15 @@ import { brand, brandCopy } from "@/config/brand"
 import { getPackagesAvailability } from "@/lib/packages-availability"
 import { DEFAULT_OG_IMAGE_URL, SITE_ORIGIN } from "@/lib/site-metadata"
 import { racesCriticalUnblockScript } from "@/lib/races-critical-unblock"
+import { racesCriticalCss } from "@/lib/races-critical-css"
+import { racesInlineFontCss } from "@/lib/races-critical-font"
+import {
+  deferInterFontScript,
+  shouldDeferInterFont
+} from "@/lib/defer-inter-font"
+import { loadRacesStylesheetManifest } from "@/lib/races-stylesheet-manifest"
+import { getAuthedUserId } from "@/lib/auth"
 import { ClerkProvider } from "@clerk/nextjs"
-import { auth } from "@clerk/nextjs/server"
 import type { Metadata } from "next"
 import { headers } from "next/headers"
 
@@ -55,7 +62,10 @@ export default async function RootLayout({
 }) {
   const pathname = (await headers()).get("x-pathname")
   const deferRacesCss = pathname === "/races" || pathname === "/races/"
-  const { userId } = await auth()
+  const fontManifest = loadRacesStylesheetManifest()
+  const deferInterFont = shouldDeferInterFont(pathname, fontManifest.fontHref)
+  const interFallbackCss = deferInterFont ? racesInlineFontCss() : ""
+  const userId = await getAuthedUserId()
 
   if (userId) {
     try {
@@ -118,12 +128,47 @@ export default async function RootLayout({
       />
       <link rel="manifest" href="/site.webmanifest" />
       <html lang="en" suppressHydrationWarning>
-        {deferRacesCss ? (
+        {deferRacesCss || deferInterFont ? (
           <head>
-            <script
-              id="races-critical-css-unblock"
-              dangerouslySetInnerHTML={{ __html: racesCriticalUnblockScript }}
-            />
+            {interFallbackCss ? (
+              <style
+                data-inter-fallback=""
+                dangerouslySetInnerHTML={{ __html: interFallbackCss }}
+              />
+            ) : null}
+            {deferInterFont ? (
+              <script
+                id="defer-inter-font"
+                dangerouslySetInnerHTML={{
+                  __html: deferInterFontScript(fontManifest.fontHref)
+                }}
+              />
+            ) : null}
+            {deferRacesCss && fontManifest.fontPreloadHref ? (
+              <link
+                rel="preload"
+                as="font"
+                href={fontManifest.fontPreloadHref}
+                crossOrigin="anonymous"
+                type="font/woff2"
+              />
+            ) : null}
+            {deferRacesCss ? (
+              <style
+                data-races-critical=""
+                dangerouslySetInnerHTML={{
+                  __html: `${racesInlineFontCss()}${racesCriticalCss}`
+                }}
+              />
+            ) : null}
+            {deferRacesCss ? (
+              <script
+                id="races-critical-css-unblock"
+                dangerouslySetInnerHTML={{
+                  __html: racesCriticalUnblockScript(fontManifest.fontHref)
+                }}
+              />
+            ) : null}
           </head>
         ) : null}
         <body
