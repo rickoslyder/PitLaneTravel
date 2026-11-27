@@ -238,17 +238,17 @@ export function RaceDetailsPage({
   handleTabChangeRef.current = handleTabChange
 
   useEffect(() => {
-    const known = (value: string | null) =>
+    const known = (value: string | null | undefined): value is string =>
       Boolean(value && TAB_OPTIONS.some(tab => tab.value === value))
     const explicit = new URLSearchParams(window.location.search).get("tab")
     if (known(explicit)) {
       // A ?tab= link wins over a tab remembered from this or another race.
       clearPendingRaceTab()
-      if (explicit !== activeTab) handleTabChangeRef.current(explicit as string)
+      if (explicit !== activeTab) handleTabChangeRef.current(explicit)
     } else {
       const pending = takePendingRaceTab(window.location.pathname)
       if (known(pending) && pending !== activeTab) {
-        handleTabChangeRef.current(pending as string)
+        handleTabChangeRef.current(pending)
       }
     }
     const onTab = (event: Event) => {
